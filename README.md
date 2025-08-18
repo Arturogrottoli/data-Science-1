@@ -1,4 +1,4 @@
-# 74235 - Curso de Data Science I 
+Curso de Data Science I 
 
 
  **Clase Induccion**
