@@ -8,6 +8,7 @@
 ### 2.3 Operadores, Objetos y Punteros en Python
 ### 2.4 Estructuras de Control
 ### 2.5 Funciones
+### 2.6 IPython y Jupyter Notebooks
 
 ---
 
@@ -668,6 +669,216 @@ print(f"Palabras: {palabras}")
 print(f"Caracteres totales: {chars}")
 print(f"Caracteres sin espacios: {chars_sin_esp}")
 print(f"Oraciones: {oraciones}")
+```
+
+---
+
+## 2.6 IPython y Jupyter Notebooks
+
+### 🎯 **Teoría**
+
+**¿Qué es Jupyter Notebook?**
+Jupyter Notebook es una herramienta ampliamente utilizada en el desarrollo con Python, especialmente en el ámbito de la ciencia de datos. Su popularidad se debe a su capacidad para combinar código, texto y visualizaciones en un solo documento, lo que facilita la experimentación y la presentación de resultados.
+
+**Características principales:**
+- **Interactividad**: Permite la ejecución parcial de código y ver resultados de inmediato
+- **Documentación**: Combina código y texto en un solo documento
+- **Visualización**: Facilita la inclusión de gráficos y visualizaciones
+- **Reproducibilidad**: Los notebooks pueden ser guardados y compartidos
+
+**Celdas: Segmentación del Código**
+En un Jupyter Notebook, el código se organiza en celdas:
+
+**Celdas de Código**: Son las celdas donde se escribe y ejecuta el código Python. Al ejecutar una celda, Jupyter envía el código al kernel de Python, que lo procesa y devuelve los resultados directamente en el notebook.
+
+**Celdas de Markdown**: Estas celdas se utilizan para agregar texto formateado, como explicaciones, títulos, listas o ecuaciones matemáticas.
+
+### 💡 **Ejemplos**
+
+```python
+# Ejemplo de celda de código
+a = 5
+b = 10
+print(a + b)
+
+# Trabajo con datos en tiempo real
+import pandas as pd
+
+# Cargar datos (ejemplo)
+datos = {
+    'nombre': ['Ana', 'Carlos', 'María', 'Juan'],
+    'edad': [25, 30, 22, 28],
+    'ciudad': ['Madrid', 'Barcelona', 'Valencia', 'Sevilla']
+}
+
+df = pd.DataFrame(datos)
+print("DataFrame creado:")
+print(df.head())
+
+# Análisis básico
+print(f"\nPromedio de edades: {df['edad'].mean():.1f}")
+print(f"Personas en Madrid: {len(df[df['ciudad'] == 'Madrid'])}")
+```
+
+```markdown
+## Ejemplo de Celda Markdown
+
+Este es un ejemplo de cómo se puede utilizar Markdown para dar formato al texto en un Jupyter Notebook.
+
+### Características de Markdown:
+- **Negrita** para énfasis
+- *Cursiva* para términos técnicos
+- `código` para fragmentos de código
+- Listas numeradas y con viñetas
+
+### Fórmulas matemáticas:
+La media aritmética se calcula como: $\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$
+```
+
+### 🧪 **Ejercicios Prácticos**
+
+**Ejercicio 1: Crear tu primer notebook**
+```python
+# Crea un notebook con las siguientes celdas:
+
+# Celda 1: Importar librerías
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Celda 2: Crear datos de ejemplo
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+# Celda 3: Crear una visualización
+plt.figure(figsize=(10, 6))
+plt.plot(x, y, 'b-', linewidth=2, label='sin(x)')
+plt.title('Función Seno')
+plt.xlabel('x')
+plt.ylabel('sin(x)')
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# Celda 4: Análisis de datos
+print(f"Valor máximo: {np.max(y):.3f}")
+print(f"Valor mínimo: {np.min(y):.3f}")
+print(f"Promedio: {np.mean(y):.3f}")
+```
+
+**Ejercicio 2: Análisis exploratorio básico**
+```python
+# Crea un análisis exploratorio de datos
+import pandas as pd
+import numpy as np
+
+# Generar datos de ejemplo
+np.random.seed(42)
+datos = {
+    'temperatura': np.random.normal(25, 5, 100),
+    'humedad': np.random.uniform(30, 80, 100),
+    'presion': np.random.normal(1013, 10, 100)
+}
+
+df = pd.DataFrame(datos)
+
+# Análisis descriptivo
+print("=== ANÁLISIS DESCRIPTIVO ===")
+print(df.describe())
+
+print("\n=== INFORMACIÓN DEL DATASET ===")
+print(df.info())
+
+print("\n=== PRIMERAS 5 FILAS ===")
+print(df.head())
+
+# Visualización básica
+import matplotlib.pyplot as plt
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+axes[0].hist(df['temperatura'], bins=20, alpha=0.7, color='red')
+axes[0].set_title('Distribución de Temperatura')
+axes[0].set_xlabel('Temperatura (°C)')
+
+axes[1].hist(df['humedad'], bins=20, alpha=0.7, color='blue')
+axes[1].set_title('Distribución de Humedad')
+axes[1].set_xlabel('Humedad (%)')
+
+axes[2].hist(df['presion'], bins=20, alpha=0.7, color='green')
+axes[2].set_title('Distribución de Presión')
+axes[2].set_xlabel('Presión (hPa)')
+
+plt.tight_layout()
+plt.show()
+```
+
+**Ejercicio 3: Documentación con Markdown**
+```markdown
+# Análisis de Datos Climáticos
+
+## Objetivo
+Este notebook tiene como objetivo analizar datos climáticos simulados para entender patrones meteorológicos.
+
+## Metodología
+1. **Carga de datos**: Generación de datos simulados
+2. **Limpieza**: Verificación de valores nulos y outliers
+3. **Análisis**: Estadísticas descriptivas y visualizaciones
+4. **Conclusiones**: Interpretación de resultados
+
+## Resultados Principales
+- La temperatura promedio es de 25°C
+- La humedad varía entre 30% y 80%
+- La presión atmosférica se mantiene alrededor de 1013 hPa
+
+## Próximos Pasos
+- Implementar análisis de correlación
+- Crear modelos predictivos
+- Validar con datos reales
+```
+
+### 🔧 **Comandos Útiles de Jupyter**
+
+```python
+# Comandos mágicos de IPython
+%timeit  # Mide el tiempo de ejecución
+%matplotlib inline  # Muestra gráficos en el notebook
+%pwd  # Muestra el directorio actual
+%ls  # Lista archivos en el directorio
+%run archivo.py  # Ejecuta un archivo Python
+
+# Atajos de teclado importantes:
+# Shift + Enter: Ejecutar celda y pasar a la siguiente
+# Ctrl + Enter: Ejecutar celda sin pasar a la siguiente
+# A: Insertar celda arriba
+# B: Insertar celda abajo
+# DD: Eliminar celda
+# M: Cambiar a celda Markdown
+# Y: Cambiar a celda de código
+```
+
+### 📊 **Ventajas del Uso de Jupyter Notebooks**
+
+1. **Interactividad**: Permite la ejecución parcial de código y ver resultados de inmediato
+2. **Documentación**: Combina código y texto en un solo documento
+3. **Visualización**: Facilita la inclusión de gráficos y visualizaciones
+4. **Reproducibilidad**: Los notebooks pueden ser guardados y compartidos
+5. **Educación**: Ideal para enseñar y aprender programación
+6. **Colaboración**: Fácil de compartir y revisar
+
+### 🚀 **Instalación y Configuración**
+
+```bash
+# Instalar Jupyter Notebook
+pip install jupyter
+
+# Instalar JupyterLab (interfaz más moderna)
+pip install jupyterlab
+
+# Iniciar Jupyter Notebook
+jupyter notebook
+
+# Iniciar JupyterLab
+jupyter lab
 ```
 
 ---
