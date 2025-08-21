@@ -322,6 +322,21 @@ print(f"R:\n{R}")
 print(f"\nVerificación: Q × R =\n{np.dot(Q, R)}")
 ```
 
+### 🎯 **Resumen de NumPy**
+
+**Ventajas principales:**
+- **Rendimiento**: Operaciones vectorizadas 10-100x más rápidas que listas de Python
+- **Memoria eficiente**: Arrays homogéneos con tipos de datos optimizados
+- **Funcionalidad matemática**: Amplia biblioteca de funciones matemáticas y estadísticas
+- **Interoperabilidad**: Base para otras librerías de ciencia de datos
+
+**Casos de uso típicos:**
+- Procesamiento de datos numéricos a gran escala
+- Cálculos matemáticos y estadísticos
+- Álgebra lineal y computación científica
+- Manipulación de imágenes y señales
+- Simulaciones y modelado numérico
+
 ---
 
 ## 📚 Parte 2: Pandas
@@ -572,4 +587,164 @@ stocks_df = stocks_df.set_index('formatted_date')
 
 # Las primeras filas del dataset
 print(stocks_df.head())
+```
+
+---
+
+## 🎯 **Cierre y Conclusión: NumPy y Pandas en el Ecosistema de Data Science**
+
+### 📊 **Resumen Integrador: El Ecosistema Completo**
+
+Hemos explorado las dos bibliotecas fundamentales que forman la base del ecosistema de ciencia de datos en Python:
+
+**🔢 NumPy (Numerical Python):**
+- **Propósito**: Computación numérica eficiente y operaciones matemáticas vectorizadas
+- **Fortaleza**: Rendimiento optimizado para cálculos científicos y álgebra lineal
+- **Casos de uso**: Procesamiento de datos numéricos, simulaciones, análisis estadístico
+
+**📈 Pandas (Panel Data):**
+- **Propósito**: Manipulación y análisis de datos estructurados en formato tabular
+- **Fortaleza**: Flexibilidad para trabajar con datos heterogéneos y series temporales
+- **Casos de uso**: Limpieza de datos, análisis exploratorio, preparación para machine learning
+
+### 🚀 **Ejemplo Integrador: Análisis de Rendimiento de Acciones**
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Cargar datos de acciones
+url = 'https://raw.githubusercontent.com/JJTorresDS/stocks-ds-edu/main/stocks.csv'
+df = pd.read_csv(url)
+df['formatted_date'] = pd.to_datetime(df['formatted_date'])
+df = df.set_index('formatted_date')
+
+# 1. USANDO PANDAS: Preparación y limpieza de datos
+print("=== ANÁLISIS CON PANDAS ===")
+print(f"Forma del dataset: {df.shape}")
+print(f"Columnas disponibles: {list(df.columns)}")
+print(f"Rango de fechas: {df.index.min()} a {df.index.max()}")
+
+# Información básica del dataset
+print("\nInformación del dataset:")
+print(df.info())
+
+# 2. USANDO NUMPY: Cálculos estadísticos avanzados
+print("\n=== ANÁLISIS CON NUMPY ===")
+
+# Convertir a arrays de NumPy para cálculos rápidos
+prices_array = df[['MSFT', 'AMZN', 'AAPL']].values
+
+# Calcular rendimientos diarios usando NumPy
+returns = np.diff(prices_array, axis=0) / prices_array[:-1]
+returns_df = pd.DataFrame(returns, 
+                         index=df.index[1:], 
+                         columns=['MSFT', 'AMZN', 'AAPL'])
+
+# Estadísticas usando NumPy
+print("Estadísticas de rendimientos diarios:")
+for col in returns_df.columns:
+    print(f"\n{col}:")
+    print(f"  Media: {np.mean(returns_df[col]):.4f}")
+    print(f"  Desv. Estándar: {np.std(returns_df[col]):.4f}")
+    print(f"  Volatilidad anual: {np.std(returns_df[col]) * np.sqrt(252):.4f}")
+
+# 3. INTEGRACIÓN: Análisis combinado
+print("\n=== ANÁLISIS INTEGRADO ===")
+
+# Usar Pandas para agrupar por mes y NumPy para cálculos
+monthly_returns = returns_df.resample('M').apply(lambda x: np.prod(1 + x) - 1)
+
+print("Rendimientos mensuales promedio:")
+for col in monthly_returns.columns:
+    avg_return = np.mean(monthly_returns[col])
+    print(f"  {col}: {avg_return:.4f} ({avg_return*100:.2f}%)")
+
+# 4. Visualización del análisis
+plt.figure(figsize=(12, 8))
+
+# Subplot 1: Precios históricos (Pandas)
+plt.subplot(2, 2, 1)
+df[['MSFT', 'AMZN', 'AAPL']].plot()
+plt.title('Precios Históricos')
+plt.ylabel('Precio ($)')
+plt.legend()
+
+# Subplot 2: Rendimientos diarios (NumPy + Pandas)
+plt.subplot(2, 2, 2)
+returns_df.plot()
+plt.title('Rendimientos Diarios')
+plt.ylabel('Rendimiento')
+plt.legend()
+
+# Subplot 3: Distribución de rendimientos (NumPy)
+plt.subplot(2, 2, 3)
+for col in returns_df.columns:
+    plt.hist(returns_df[col].dropna(), bins=50, alpha=0.7, label=col)
+plt.title('Distribución de Rendimientos')
+plt.xlabel('Rendimiento')
+plt.ylabel('Frecuencia')
+plt.legend()
+
+# Subplot 4: Correlación entre acciones (NumPy)
+plt.subplot(2, 2, 4)
+correlation_matrix = np.corrcoef(returns_df.dropna().T)
+plt.imshow(correlation_matrix, cmap='coolwarm', aspect='auto')
+plt.colorbar()
+plt.xticks(range(len(returns_df.columns)), returns_df.columns, rotation=45)
+plt.yticks(range(len(returns_df.columns)), returns_df.columns)
+plt.title('Matriz de Correlación')
+
+plt.tight_layout()
+plt.show()
+
+# 5. Conclusiones del análisis
+print("\n=== CONCLUSIONES DEL ANÁLISIS ===")
+print("1. La integración de NumPy y Pandas permite:")
+print("   - Pandas: Manejo eficiente de datos temporales y heterogéneos")
+print("   - NumPy: Cálculos matemáticos rápidos y precisos")
+print("   - Combinación: Análisis completo y visualización profesional")
+
+print("\n2. Ventajas del ecosistema:")
+print("   - Flexibilidad: Pandas para datos, NumPy para cálculos")
+print("   - Rendimiento: Operaciones vectorizadas optimizadas")
+print("   - Interoperabilidad: Fácil conversión entre estructuras")
+print("   - Escalabilidad: Manejo eficiente de grandes volúmenes de datos")
+```
+
+### 🎓 **Lecciones Clave Aprendidas**
+
+**🔧 NumPy:**
+- Los arrays homogéneos permiten operaciones vectorizadas ultra-rápidas
+- Las funciones matemáticas optimizadas son esenciales para cálculos científicos
+- La interoperabilidad con otras librerías es fundamental en el ecosistema
+
+**📊 Pandas:**
+- Los DataFrames proporcionan una interfaz intuitiva para datos tabulares
+- Las operaciones de indexación y filtrado son poderosas y expresivas
+- La integración con NumPy permite lo mejor de ambos mundos
+
+**🔄 Sinergia:**
+- NumPy maneja la computación numérica pesada
+- Pandas maneja la estructuración y manipulación de datos
+- Juntos forman la base sólida para cualquier proyecto de data science
+
+### 🚀 **Próximos Pasos en tu Journey de Data Science**
+
+1. **Profundizar en NumPy**: Explorar álgebra lineal avanzada, broadcasting, y operaciones con arrays multidimensionales
+2. **Dominar Pandas**: Aprender groupby avanzado, pivot tables, merging y joining de datasets
+3. **Integración con otras librerías**: Conectar con Matplotlib/Seaborn para visualización, scikit-learn para machine learning
+4. **Optimización**: Aprender técnicas de vectorización y evitar bucles cuando sea posible
+
+### 💡 **Reflexión Final**
+
+NumPy y Pandas no son solo herramientas, sino **fundamentos** del ecosistema de data science en Python. Su combinación te permite:
+
+- **Transformar datos** de manera eficiente y expresiva
+- **Realizar análisis** complejos con código simple y legible
+- **Escalar** tus soluciones desde prototipos hasta sistemas de producción
+- **Colaborar** con otros científicos de datos usando estándares de la industria
+
+**Recuerda**: La maestría en estas bibliotecas te abrirá las puertas a todo el ecosistema de data science en Python. ¡Son tu base sólida para construir soluciones de datos impactantes! 🎯
 ```
