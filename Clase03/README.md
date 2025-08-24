@@ -341,12 +341,23 @@ print(f"\nVerificación: Q × R =\n{np.dot(Q, R)}")
 
 ## 📚 Parte 2: Pandas
 
-### ✳️ ¿Qué es Pandas?
+### 🎯 **Teoría: Introducción a Pandas**
 
-Pandas es la **librería base para manipular datos en forma tabular** en Python. Provee dos estructuras fundamentales:
+**¿Qué es Pandas?**
+Pandas es una librería de Python diseñada para facilitar el manejo y análisis de datos. Construida sobre NumPy, Pandas extiende sus capacidades, proporcionando estructuras de datos y funciones avanzadas que permiten una manipulación más flexible y eficiente de datos tabulares y de series temporales.
 
-* `Series`: vector unidimensional con índice.
-* `DataFrame`: tabla bidimensional con columnas e índices.
+**Historia y Evolución:**
+- Lanzada inicialmente en 2008, Pandas se ha convertido en una herramienta indispensable para científicos de datos
+- Es parte del proyecto NUMFOCUS, que apoya el desarrollo de herramientas de código abierto para ciencia de datos
+- Su nombre proviene de "Panel Data", reflejando su capacidad para manejar datos estructurados
+
+**Características Destacadas:**
+- **Series y DataFrames**: Estructuras de datos principales para datos unidimensionales y bidimensionales
+- **Operaciones de manipulación**: Filtrado, agregación y transformación de datos de manera intuitiva
+- **Compatibilidad múltiple**: Lectura y escritura desde CSV, Excel, SQL, JSON y más formatos
+- **Manejo de datos ausentes**: Herramientas robustas para detectar, gestionar y llenar valores faltantes
+
+### ✳️ **Importación de la librería**
 
 ```python
 import pandas as pd
@@ -354,49 +365,537 @@ import pandas as pd
 
 ---
 
-### 📊 Ejercicio 1: Crear Series
+### 📊 **Series y DataFrames: Estructuras Fundamentales**
+
+**Series:**
+Una Serie es una estructura de datos unidimensional que puede almacenar datos de cualquier tipo. Es similar a un array unidimensional de NumPy, pero con la ventaja adicional de que cada elemento tiene un índice asociado.
+
+**Características de las Series:**
+- **Índices**: Cada elemento tiene un índice asociado (numérico o texto)
+- **Homogeneidad**: Todos los elementos deben ser del mismo tipo de datos
+- **Funcionalidades**: Métodos incorporados para filtrado, agregación y operaciones aritméticas
+
+### 📊 **Ejercicio 1: Crear Series**
 
 ```python
+import pandas as pd
+
+# Crear una Serie básica
 s = pd.Series([10, 20, 30], index=['a', 'b', 'c'])
+print("Serie básica:")
 print(s)
+
+# Crear Serie desde diccionario
+data_dict = {"día1": 420, "día2": 380, "día3": 390}
+serie_dict = pd.Series(data_dict)
+print("\nSerie desde diccionario:")
+print(serie_dict)
+
+# Crear Serie con diferentes tipos de datos
+serie_mixta = pd.Series([1, 2.5, "texto", True], index=['num1', 'num2', 'texto', 'booleano'])
+print("\nSerie con diferentes tipos:")
+print(serie_mixta)
+
+# Acceder a elementos por índice
+print(f"\nValor en 'a': {s['a']}")
+print(f"Valor en posición 1: {s.iloc[1]}")
+
+# Operaciones básicas
+print(f"\nSuma de la serie: {s.sum()}")
+print(f"Media de la serie: {s.mean()}")
+print(f"Valor máximo: {s.max()}")
 ```
 
-### 📊 Ejercicio 2: Crear DataFrames
+### 📊 **Ejercicio 2: Crear DataFrames**
+
+**DataFrames:**
+El DataFrame es una estructura de datos bidimensional que puede considerarse como una tabla, similar a una hoja de cálculo o una tabla en una base de datos. Un DataFrame está compuesto por múltiples Series, donde cada columna representa una Serie con su propio tipo de dato.
+
+**Características de los DataFrames:**
+- **Estructura tabular**: Filas y columnas para visualización y manipulación de datos
+- **Índices en filas y columnas**: Acceso eficiente a datos por etiquetas
+- **Manipulación de datos**: Funciones para selección, filtrado, agregación y fusión
+- **Soporte para datos ausentes**: Manejo robusto de valores NaN
 
 ```python
+# Crear DataFrame desde diccionario
 data = {
-    'nombre': ['Ana', 'Luis', 'Juan'],
-    'edad': [23, 35, 29],
-    'ciudad': ['Córdoba', 'Buenos Aires', 'Rosario']
+    'nombre': ['Ana', 'Luis', 'Juan', 'María'],
+    'edad': [23, 35, 29, 28],
+    'ciudad': ['Córdoba', 'Buenos Aires', 'Rosario', 'Madrid'],
+    'salario': [45000, 55000, 48000, 52000]
 }
 
 df = pd.DataFrame(data)
+print("DataFrame básico:")
 print(df)
+
+# Crear DataFrame con índice personalizado
+df_indexed = pd.DataFrame(data, index=['emp1', 'emp2', 'emp3', 'emp4'])
+print("\nDataFrame con índice personalizado:")
+print(df_indexed)
+
+# Información del DataFrame
+print(f"\nForma del DataFrame: {df.shape}")
+print(f"Tipos de datos:\n{df.dtypes}")
+print(f"Información general:")
+print(df.info())
+
+# Estadísticas descriptivas
+print(f"\nEstadísticas descriptivas:")
+print(df.describe())
 ```
 
 ---
 
-### 🔍 Ejercicio 3: Selección e indexación
+### 🔍 **Ejercicio 3: Selección e indexación**
 
 ```python
 # Seleccionar columna
+print("Columna 'edad':")
 print(df['edad'])
 
+# Seleccionar múltiples columnas
+print("\nColumnas 'nombre' y 'edad':")
+print(df[['nombre', 'edad']])
+
 # Filtrar por condición
+print("\nPersonas mayores de 30 años:")
 print(df[df['edad'] > 30])
 
+# Filtros múltiples
+print("\nPersonas entre 25 y 35 años con salario > 50000:")
+print(df[(df['edad'] >= 25) & (df['edad'] <= 35) & (df['salario'] > 50000)])
+
 # Acceder por etiqueta o posición
-print(df.loc[1])   # Fila con índice 1
-print(df.iloc[0])  # Primera fila
+print("\nFila con índice 1 (loc):")
+print(df.loc[1])
+
+print("\nPrimera fila (iloc):")
+print(df.iloc[0])
+
+# Selección por posición
+print("\nPrimeras 2 filas:")
+print(df.iloc[0:2])
+
+# Selección por etiquetas
+print("\nFilas 'emp1' y 'emp3' (si usamos índice personalizado):")
+print(df_indexed.loc[['emp1', 'emp3']])
+
+# Acceder a valores específicos
+print(f"\nEdad de Ana: {df.loc[df['nombre'] == 'Ana', 'edad'].iloc[0]}")
+print(f"Salario de Luis: {df.loc[df['nombre'] == 'Luis', 'salario'].iloc[0]}")
+```
+
+### 🚨 **Manejo de Datos Ausentes (NaN)**
+
+En el análisis de datos, es común encontrarse con conjuntos de datos incompletos donde faltan algunos valores. Pandas representa estos valores ausentes con `NaN` (Not a Number) y proporciona herramientas robustas para manejarlos.
+
+**¿Por qué son importantes los datos ausentes?**
+- Pueden surgir por errores en la recopilación de datos
+- Problemas de transmisión o almacenamiento
+- Datos simplemente no disponibles
+- El manejo adecuado es crucial para la calidad del análisis
+
+### 🔍 **Ejercicio 4: Detección y Manejo de Datos Ausentes**
+
+```python
+import pandas as pd
+import numpy as np
+
+# Crear un DataFrame con valores ausentes
+data_with_nan = {
+    'nombre': ['Ana', 'Luis', 'Juan', 'María', 'Pedro'],
+    'edad': [23, 35, np.nan, 28, 42],
+    'ciudad': ['Córdoba', np.nan, 'Rosario', 'Madrid', 'Barcelona'],
+    'salario': [45000, 55000, 48000, np.nan, 60000],
+    'departamento': ['IT', 'Ventas', np.nan, 'Marketing', 'IT']
+}
+
+df_nan = pd.DataFrame(data_with_nan)
+print("DataFrame con valores ausentes:")
+print(df_nan)
+
+# 1. DETECCIÓN DE VALORES AUSENTES
+print("\n=== DETECCIÓN DE VALORES AUSENTES ===")
+
+# Detectar valores ausentes
+print("Valores ausentes por columna:")
+print(df_nan.isnull().sum())
+
+print("\nMatriz de valores ausentes:")
+print(df_nan.isnull())
+
+# Verificar si hay valores ausentes en todo el DataFrame
+print(f"\n¿Hay valores ausentes?: {df_nan.isnull().any().any()}")
+
+# 2. ELIMINACIÓN DE VALORES AUSENTES
+print("\n=== ELIMINACIÓN DE VALORES AUSENTES ===")
+
+# Eliminar filas con cualquier valor ausente
+df_clean_rows = df_nan.dropna()
+print("DataFrame sin filas con valores ausentes:")
+print(df_clean_rows)
+
+# Eliminar solo filas donde TODAS las columnas tienen valores ausentes
+df_clean_all = df_nan.dropna(how='all')
+print("\nDataFrame eliminando solo filas completamente vacías:")
+print(df_clean_all)
+
+# Eliminar columnas con valores ausentes
+df_clean_cols = df_nan.dropna(axis=1)
+print("\nDataFrame sin columnas con valores ausentes:")
+print(df_clean_cols)
+
+# 3. RELLENO DE VALORES AUSENTES
+print("\n=== RELLENO DE VALORES AUSENTES ===")
+
+# Rellenar con valor constante
+df_fill_constant = df_nan.fillna(0)
+print("Rellenando con 0:")
+print(df_fill_constant)
+
+# Rellenar con valores específicos por columna
+df_fill_specific = df_nan.fillna({
+    'edad': df_nan['edad'].mean(),
+    'ciudad': 'Desconocida',
+    'salario': df_nan['salario'].median(),
+    'departamento': 'Sin asignar'
+})
+print("\nRellenando con valores específicos:")
+print(df_fill_specific)
+
+# Rellenar con el valor anterior (forward fill)
+df_ffill = df_nan.fillna(method='ffill')
+print("\nRellenando con valor anterior (forward fill):")
+print(df_ffill)
+
+# Rellenar con el valor siguiente (backward fill)
+df_bfill = df_nan.fillna(method='bfill')
+print("\nRellenando con valor siguiente (backward fill):")
+print(df_bfill)
+
+# 4. INTERPOLACIÓN
+print("\n=== INTERPOLACIÓN ===")
+
+# Interpolación lineal (útil para series temporales)
+df_interpolate = df_nan.interpolate()
+print("Interpolación lineal:")
+print(df_interpolate)
+
+# 5. ANÁLISIS DE DATOS AUSENTES
+print("\n=== ANÁLISIS DE DATOS AUSENTES ===")
+
+# Porcentaje de valores ausentes por columna
+missing_percentage = (df_nan.isnull().sum() / len(df_nan)) * 100
+print("Porcentaje de valores ausentes por columna:")
+for col, pct in missing_percentage.items():
+    print(f"  {col}: {pct:.1f}%")
+
+# Estrategia recomendada basada en el análisis
+print("\nEstrategia recomendada:")
+if missing_percentage['edad'] < 20:
+    print("  - Edad: Rellenar con media/mediana")
+else:
+    print("  - Edad: Eliminar filas o usar técnicas avanzadas")
+
+if missing_percentage['ciudad'] < 10:
+    print("  - Ciudad: Rellenar con moda")
+else:
+    print("  - Ciudad: Crear categoría 'Desconocida'")
+```
+
+### 🧪 **Ejercicios Prácticos de Manejo de Datos Ausentes**
+
+**Ejercicio 1: Análisis de dataset real con valores ausentes**
+```python
+# Crear dataset más complejo
+np.random.seed(42)
+n_rows = 100
+
+data_complex = {
+    'id': range(1, n_rows + 1),
+    'edad': np.random.normal(35, 10, n_rows),
+    'ingresos': np.random.exponential(50000, n_rows),
+    'educacion': np.random.choice(['Primaria', 'Secundaria', 'Universidad', 'Postgrado'], n_rows),
+    'satisfaccion': np.random.uniform(1, 10, n_rows)
+}
+
+# Introducir valores ausentes de manera realista
+df_complex = pd.DataFrame(data_complex)
+
+# Simular valores ausentes (5-15% por columna)
+for col in ['edad', 'ingresos', 'educacion', 'satisfaccion']:
+    mask = np.random.random(n_rows) < 0.1  # 10% de valores ausentes
+    df_complex.loc[mask, col] = np.nan
+
+print("Dataset con valores ausentes:")
+print(df_complex.head(10))
+print(f"\nValores ausentes por columna:")
+print(df_complex.isnull().sum())
+
+# Estrategia de limpieza
+print("\n=== ESTRATEGIA DE LIMPIEZA ===")
+
+# 1. Análisis inicial
+print("1. Análisis inicial:")
+print(f"   - Total de filas: {len(df_complex)}")
+print(f"   - Filas con al menos un valor ausente: {df_complex.isnull().any(axis=1).sum()}")
+
+# 2. Limpieza por columnas
+print("\n2. Limpieza por columnas:")
+
+# Edad: rellenar con mediana
+df_complex['edad'] = df_complex['edad'].fillna(df_complex['edad'].median())
+print("   - Edad: rellenada con mediana")
+
+# Ingresos: rellenar con media
+df_complex['ingresos'] = df_complex['ingresos'].fillna(df_complex['ingresos'].mean())
+print("   - Ingresos: rellenados con media")
+
+# Educación: rellenar con moda
+education_mode = df_complex['educacion'].mode()[0]
+df_complex['educacion'] = df_complex['educacion'].fillna(education_mode)
+print(f"   - Educación: rellenada con moda ({education_mode})")
+
+# Satisfacción: eliminar filas (pocos valores ausentes)
+df_complex = df_complex.dropna(subset=['satisfaccion'])
+print("   - Satisfacción: filas eliminadas")
+
+print(f"\nDataset final: {len(df_complex)} filas")
+print("Valores ausentes restantes:")
+print(df_complex.isnull().sum())
+```
+
+### 🔧 **Operaciones Avanzadas con Pandas**
+
+### 📊 **Ejercicio 5: Agrupación y Agregación**
+
+```python
+# Crear dataset para análisis de ventas
+ventas_data = {
+    'vendedor': ['Ana', 'Luis', 'Juan', 'María', 'Ana', 'Luis', 'Juan', 'María'],
+    'producto': ['A', 'B', 'A', 'B', 'A', 'B', 'A', 'B'],
+    'ventas': [100, 150, 200, 120, 180, 90, 220, 160],
+    'region': ['Norte', 'Sur', 'Norte', 'Sur', 'Norte', 'Sur', 'Norte', 'Sur'],
+    'mes': ['Enero', 'Enero', 'Enero', 'Enero', 'Febrero', 'Febrero', 'Febrero', 'Febrero']
+}
+
+df_ventas = pd.DataFrame(ventas_data)
+print("Dataset de ventas:")
+print(df_ventas)
+
+# 1. AGRUPACIÓN SIMPLE
+print("\n=== AGRUPACIÓN SIMPLE ===")
+
+# Agrupar por vendedor y calcular estadísticas
+ventas_por_vendedor = df_ventas.groupby('vendedor')['ventas'].agg(['sum', 'mean', 'count'])
+print("Ventas por vendedor:")
+print(ventas_por_vendedor)
+
+# 2. AGRUPACIÓN MÚLTIPLE
+print("\n=== AGRUPACIÓN MÚLTIPLE ===")
+
+# Agrupar por vendedor y producto
+ventas_vendedor_producto = df_ventas.groupby(['vendedor', 'producto'])['ventas'].sum()
+print("Ventas por vendedor y producto:")
+print(ventas_vendedor_producto)
+
+# 3. FUNCIONES DE AGREGACIÓN PERSONALIZADAS
+print("\n=== FUNCIONES PERSONALIZADAS ===")
+
+def rango_ventas(x):
+    return x.max() - x.min()
+
+ventas_stats = df_ventas.groupby('vendedor')['ventas'].agg([
+    'sum', 'mean', 'std', rango_ventas, 'count'
+]).rename(columns={'rango_ventas': 'rango'})
+
+print("Estadísticas completas por vendedor:")
+print(ventas_stats)
+
+# 4. PIVOT TABLES
+print("\n=== PIVOT TABLES ===")
+
+# Crear tabla pivote
+pivot_ventas = df_ventas.pivot_table(
+    values='ventas',
+    index='vendedor',
+    columns='producto',
+    aggfunc='sum',
+    fill_value=0
+)
+print("Tabla pivote - Ventas por vendedor y producto:")
+print(pivot_ventas)
+
+# 5. CROSS TABULATION
+print("\n=== CROSS TABULATION ===")
+
+# Tabla de contingencia
+crosstab_region_producto = pd.crosstab(df_ventas['region'], df_ventas['producto'])
+print("Distribución de productos por región:")
+print(crosstab_region_producto)
+
+# 6. ANÁLISIS TEMPORAL
+print("\n=== ANÁLISIS TEMPORAL ===")
+
+# Agrupar por mes y calcular totales
+ventas_mensuales = df_ventas.groupby('mes')['ventas'].sum()
+print("Ventas totales por mes:")
+print(ventas_mensuales)
+
+# Calcular crecimiento mensual
+crecimiento_mensual = ventas_mensuales.pct_change() * 100
+print("\nCrecimiento mensual (%):")
+print(crecimiento_mensual)
+```
+
+### 🔄 **Ejercicio 6: Transformación y Limpieza de Datos**
+
+```python
+# Crear dataset con datos "sucios"
+datos_sucios = {
+    'nombre': ['  Ana  ', 'Luis', '  Juan  ', 'María', 'Pedro'],
+    'edad': ['25', '30', '35', '28', '42'],
+    'email': ['ana@email.com', 'luis@email.com', 'juan@email.com', 'maria@email.com', 'pedro@email.com'],
+    'fecha_registro': ['2023-01-15', '2023-02-20', '2023-03-10', '2023-01-25', '2023-04-05'],
+    'puntuacion': ['8.5', '7.2', '9.1', '6.8', '8.9'],
+    'activo': ['Sí', 'No', 'Sí', 'Sí', 'No']
+}
+
+df_sucio = pd.DataFrame(datos_sucios)
+print("Dataset original (sucio):")
+print(df_sucio)
+
+# 1. LIMPIEZA DE TEXTO
+print("\n=== LIMPIEZA DE TEXTO ===")
+
+# Limpiar espacios en blanco
+df_sucio['nombre'] = df_sucio['nombre'].str.strip()
+print("Nombres limpios:")
+print(df_sucio['nombre'])
+
+# 2. CONVERSIÓN DE TIPOS
+print("\n=== CONVERSIÓN DE TIPOS ===")
+
+# Convertir edad a numérico
+df_sucio['edad'] = pd.to_numeric(df_sucio['edad'])
+print("Edad convertida a numérico:")
+print(df_sucio['edad'])
+
+# Convertir puntuación a float
+df_sucio['puntuacion'] = pd.to_numeric(df_sucio['puntuacion'])
+print("Puntuación convertida a float:")
+print(df_sucio['puntuacion'])
+
+# Convertir fecha a datetime
+df_sucio['fecha_registro'] = pd.to_datetime(df_sucio['fecha_registro'])
+print("Fecha convertida a datetime:")
+print(df_sucio['fecha_registro'])
+
+# Convertir activo a booleano
+df_sucio['activo'] = df_sucio['activo'].map({'Sí': True, 'No': False})
+print("Activo convertido a booleano:")
+print(df_sucio['activo'])
+
+# 3. EXTRACCIÓN DE INFORMACIÓN
+print("\n=== EXTRACCIÓN DE INFORMACIÓN ===")
+
+# Extraer dominio del email
+df_sucio['dominio_email'] = df_sucio['email'].str.split('@').str[1]
+print("Dominio del email:")
+print(df_sucio['dominio_email'])
+
+# Extraer año de registro
+df_sucio['año_registro'] = df_sucio['fecha_registro'].dt.year
+print("Año de registro:")
+print(df_sucio['año_registro'])
+
+# 4. CREACIÓN DE CATEGORÍAS
+print("\n=== CREACIÓN DE CATEGORÍAS ===")
+
+# Crear categoría de edad
+def categorizar_edad(edad):
+    if edad < 30:
+        return 'Joven'
+    elif edad < 40:
+        return 'Adulto'
+    else:
+        return 'Senior'
+
+df_sucio['categoria_edad'] = df_sucio['edad'].apply(categorizar_edad)
+print("Categoría de edad:")
+print(df_sucio['categoria_edad'])
+
+# Crear categoría de puntuación
+df_sucio['nivel_puntuacion'] = pd.cut(
+    df_sucio['puntuacion'],
+    bins=[0, 7, 8, 10],
+    labels=['Bajo', 'Medio', 'Alto']
+)
+print("Nivel de puntuación:")
+print(df_sucio['nivel_puntuacion'])
+
+# 5. DATASET FINAL LIMPIO
+print("\n=== DATASET FINAL LIMPIO ===")
+print("Tipos de datos finales:")
+print(df_sucio.dtypes)
+
+print("\nDataset limpio:")
+print(df_sucio)
+
+# 6. RESUMEN ESTADÍSTICO
+print("\n=== RESUMEN ESTADÍSTICO ===")
+print("Estadísticas numéricas:")
+print(df_sucio.describe())
+
+print("\nDistribución por categorías:")
+print("Categoría de edad:")
+print(df_sucio['categoria_edad'].value_counts())
+
+print("\nNivel de puntuación:")
+print(df_sucio['nivel_puntuacion'].value_counts())
 ```
 
 ---
 
-## 💬 Discusión guiada
+## 💬 **Discusión Guiada**
 
-* ¿Cuáles son las ventajas prácticas de usar NumPy frente a listas?
-* ¿Por qué Pandas es más útil que un diccionario de listas?
-* ¿Qué errores comunes hay al manipular DataFrames?
+### 🤔 **Preguntas para Reflexión:**
+
+**Sobre NumPy:**
+- ¿Cuáles son las ventajas prácticas de usar NumPy frente a listas de Python?
+- ¿En qué situaciones específicas notarías la diferencia de rendimiento?
+- ¿Por qué es importante la homogeneidad de tipos en los arrays de NumPy?
+
+**Sobre Pandas:**
+- ¿Por qué Pandas es más útil que un diccionario de listas para análisis de datos?
+- ¿Qué ventajas ofrece el sistema de indexación de Pandas?
+- ¿Cuándo usarías Series vs DataFrame?
+
+**Sobre Datos Ausentes:**
+- ¿Qué estrategia usarías para manejar datos ausentes en un dataset de ventas?
+- ¿Cómo decidirías entre eliminar vs rellenar valores faltantes?
+- ¿Qué impacto pueden tener los datos ausentes en tus análisis?
+
+**Sobre Integración:**
+- ¿Cómo aprovechas las fortalezas de ambas librerías en un proyecto real?
+- ¿Qué patrones de uso has identificado que funcionan mejor?
+- ¿Cómo escalarías estas técnicas a datasets más grandes?
+
+### 💡 **Errores Comunes y Mejores Prácticas:**
+
+**Errores Comunes:**
+- Usar bucles en lugar de operaciones vectorizadas
+- No verificar tipos de datos antes de operaciones
+- Ignorar valores ausentes sin analizarlos
+- Confundir `loc` vs `iloc` en Pandas
+
+**Mejores Prácticas:**
+- Siempre verificar la forma y tipos de datos
+- Usar operaciones vectorizadas cuando sea posible
+- Documentar estrategias de manejo de datos ausentes
+- Validar resultados después de transformaciones
 
 ---
 
