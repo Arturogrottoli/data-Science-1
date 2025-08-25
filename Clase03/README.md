@@ -1004,62 +1004,235 @@ promedio_edad_por_ciudad = df.groupby("Ciudad")["Edad"].mean()
 print("\nPromedio de edad por ciudad:\n", promedio_edad_por_ciudad)
 ```
 
-## 3. Métodos de Lectura de Archivos con Pandas
+## 3. **Lectura de Archivos con Pandas**
 
-### Lectura de archivos CSV
+Pandas es una herramienta poderosa para la manipulación de datos, y una de sus capacidades más útiles es la de leer y escribir datos en una variedad de formatos de archivo. Esta funcionalidad es crucial para la mayoría de los proyectos de análisis de datos, ya que los datos suelen estar almacenados en archivos externos como CSV, TXT, o Excel. Pandas proporciona funciones sencillas y eficientes para leer estos archivos y convertirlos en DataFrames, que son estructuras de datos fáciles de manipular y analizar.
+
+### 📄 **Lectura de Archivos CSV**
+
+Los archivos CSV (Comma-Separated Values) son uno de los formatos más comunes para almacenar datos tabulares. Pandas facilita la lectura de estos archivos mediante la función `pd.read_csv()`. Esta función es muy flexible y permite manejar archivos con delimitadores distintos a la coma, manejar encabezados, y gestionar datos faltantes.
+
+**Ejemplo básico:**
 
 ```python
-# Leer archivo CSV local
-# df_csv = pd.read_csv('datos.csv')
+import pandas as pd
+
+# Leer un archivo CSV básico
+df = pd.read_csv('archivo.csv')
+print("Primeras filas del CSV:")
+print(df.head())
 
 # Leer CSV desde URL
 url_csv = 'https://raw.githubusercontent.com/JJTorresDS/stocks-ds-edu/main/stocks.csv'
 df_stocks = pd.read_csv(url_csv)
-print("Primeras filas del CSV:\n", df_stocks.head())
-
-# Opciones de lectura CSV
-df_csv_options = pd.read_csv(url_csv, 
-                            # skiprows=1,         # Saltar filas
-                            # usecols=['MSFT', 'AMZN'],  # Seleccionar columnas
-                            index_col='formatted_date',  # Establecer columna como índice
-                            parse_dates=['formatted_date'])  # Parsear fechas
-print("\nCSV con opciones de lectura:\n", df_csv_options.head())
+print("\nCSV desde URL:")
+print(df_stocks.head())
 ```
 
-### Lectura de archivos JSON
+**Opciones comunes al leer archivos CSV:**
 
 ```python
-# Leer archivo JSON (ejemplo)
-# Comentado para no generar errores si no existe el archivo
-"""
-url_json = 'https://raw.githubusercontent.com/tu_usuario/tu_repo/main/datos.json'
-df_json = pd.read_json(url_json)
-print("Datos del JSON:\n", df_json.head())
+# 1. Delimitador personalizado
+df_tab = pd.read_csv('archivo.txt', sep='\t')  # Para archivos delimitados por tabuladores
+df_semicolon = pd.read_csv('archivo.csv', sep=';')  # Para archivos delimitados por punto y coma
+
+# 2. Manejo de encabezados
+df_no_header = pd.read_csv('archivo.csv', header=None)  # Si el archivo no tiene encabezado
+df_custom_header = pd.read_csv('archivo.csv', header=2)  # Si el encabezado está en la fila 3
+
+# 3. Especificación de columnas
+df_selected = pd.read_csv('archivo.csv', usecols=['Columna1', 'Columna3'])
+
+# 4. Saltar filas
+df_skip = pd.read_csv('archivo.csv', skiprows=2)  # Saltar las primeras 2 filas
+
+# 5. Establecer columna como índice
+df_indexed = pd.read_csv('archivo.csv', index_col='fecha')
+
+# 6. Parsear fechas automáticamente
+df_dates = pd.read_csv('archivo.csv', parse_dates=['fecha_registro'])
+
+# 7. Manejo de valores faltantes
+df_na = pd.read_csv('archivo.csv', na_values=['N/A', 'NA', '--', ''])
+
+# 8. Combinación de opciones
+df_complete = pd.read_csv(
+    'archivo.csv',
+    sep=',',
+    header=0,
+    usecols=['nombre', 'edad', 'ciudad'],
+    index_col='id',
+    parse_dates=['fecha'],
+    na_values=['N/A', ''],
+    skiprows=1
+)
+```
+
+### 📝 **Lectura de Archivos de Texto (TXT)**
+
+Los archivos de texto también pueden ser leídos con `pd.read_csv()` si están estructurados en un formato tabular con un delimitador constante, como espacios o tabuladores. Si el archivo no tiene una estructura fija, se puede procesar de forma personalizada.
+
+```python
+# Leer un archivo TXT delimitado por tabuladores
+df_txt_tab = pd.read_csv('archivo.txt', sep='\t')
+print("Archivo TXT con delimitador de tabuladores:")
+print(df_txt_tab.head())
+
+# Leer un archivo TXT delimitado por espacios
+df_txt_space = pd.read_csv('archivo.txt', sep='\s+')  # Uno o más espacios
+print("\nArchivo TXT delimitado por espacios:")
+print(df_txt_space.head())
+
+# Leer archivo con delimitador personalizado
+df_custom = pd.read_csv('archivo.txt', sep='|')  # Delimitador pipe
+print("\nArchivo con delimitador pipe:")
+print(df_custom.head())
+```
+
+### 📊 **Lectura de Archivos Excel**
+
+Pandas también soporta la lectura de archivos Excel, que son ampliamente utilizados para almacenar y compartir datos en un formato de hoja de cálculo. La función `pd.read_excel()` permite leer datos desde archivos Excel, y es posible especificar la hoja de la cual se quiere extraer los datos.
+
+**Ejemplo básico:**
+
+```python
+# Leer un archivo Excel básico
+df_excel = pd.read_excel('archivo.xlsx', sheet_name='Hoja1')
+print("Archivo Excel - Hoja1:")
+print(df_excel.head())
+
+# Leer múltiples hojas
+excel_sheets = pd.read_excel('archivo.xlsx', sheet_name=['Hoja1', 'Hoja2'])
+print("\nMúltiples hojas:")
+for sheet_name, df in excel_sheets.items():
+    print(f"\n{sheet_name}:")
+    print(df.head())
+
+# Leer todas las hojas
+all_sheets = pd.read_excel('archivo.xlsx', sheet_name=None)
+print(f"\nTodas las hojas disponibles: {list(all_sheets.keys())}")
+```
+
+**Opciones avanzadas para archivos Excel:**
+
+```python
+# 1. Especificación de columnas
+df_excel_cols = pd.read_excel('archivo.xlsx', usecols=['Columna1', 'Columna3'])
+
+# 2. Manejo de datos faltantes
+df_excel_na = pd.read_excel('archivo.xlsx', na_values=['N/A', 'NA', '--'])
+
+# 3. Leer rango específico de celdas
+df_range = pd.read_excel('archivo.xlsx', sheet_name='Hoja1', usecols='A:C')
+
+# 4. Saltar filas y columnas
+df_skip_excel = pd.read_excel('archivo.xlsx', skiprows=2, skipcols=1)
+
+# 5. Leer desde una celda específica
+df_start = pd.read_excel('archivo.xlsx', sheet_name='Hoja1', header=None, skiprows=5)
+```
+
+### 🔧 **Lectura de Otros Formatos**
+
+```python
+# Leer archivo JSON
+df_json = pd.read_json('archivo.json')
+print("Archivo JSON:")
+print(df_json.head())
 
 # Leer JSON con líneas múltiples
-df_json_lines = pd.read_json(url_json, lines=True)
-print("\nJSON con múltiples líneas:\n", df_json_lines.head())
-"""
-```
+df_json_lines = pd.read_json('archivo.json', lines=True)
 
-### Otros formatos de lectura
+# Leer archivo HTML (tablas)
+df_html = pd.read_html('archivo.html')
+print("Tablas HTML:")
+for i, df in enumerate(df_html):
+    print(f"\nTabla {i+1}:")
+    print(df.head())
 
-```python
-# Leer Excel (comentado para evitar errores)
-# df_excel = pd.read_excel('datos.xlsx', sheet_name='Hoja1')
-
-# Leer SQL (ejemplo conceptual)
+# Leer desde SQL (requiere sqlalchemy)
 """
 from sqlalchemy import create_engine
 engine = create_engine('sqlite:///mi_base.db')
 df_sql = pd.read_sql('SELECT * FROM mi_tabla', con=engine)
 """
-
-# Ejemplos de escritura de datos
-df.to_csv('mi_dataframe.csv', index=False)
-# df.to_excel('mi_dataframe.xlsx', index=False)
-# df.to_json('mi_dataframe.json', orient='records')
 ```
+
+### 💾 **Escritura de Archivos**
+
+```python
+# Guardar como CSV
+df.to_csv('mi_dataframe.csv', index=False)
+
+# Guardar como Excel
+df.to_excel('mi_dataframe.xlsx', sheet_name='Datos', index=False)
+
+# Guardar como JSON
+df.to_json('mi_dataframe.json', orient='records')
+
+# Guardar como HTML
+df.to_html('mi_dataframe.html')
+
+# Guardar como pickle (formato binario de Python)
+df.to_pickle('mi_dataframe.pkl')
+```
+
+### 🎯 **Mejores Prácticas para Lectura de Archivos**
+
+```python
+# 1. Verificar el archivo antes de procesarlo
+import os
+file_path = 'archivo.csv'
+if os.path.exists(file_path):
+    # Verificar tamaño del archivo
+    file_size = os.path.getsize(file_path)
+    print(f"Tamaño del archivo: {file_size} bytes")
+    
+    # Leer solo las primeras líneas para inspección
+    with open(file_path, 'r') as f:
+        first_lines = [f.readline() for _ in range(5)]
+    print("Primeras líneas del archivo:")
+    for i, line in enumerate(first_lines):
+        print(f"Línea {i+1}: {line.strip()}")
+
+# 2. Manejo de errores
+try:
+    df = pd.read_csv('archivo.csv')
+    print("Archivo leído exitosamente")
+except FileNotFoundError:
+    print("Error: El archivo no existe")
+except pd.errors.EmptyDataError:
+    print("Error: El archivo está vacío")
+except pd.errors.ParserError:
+    print("Error: Problema al parsear el archivo")
+
+# 3. Optimización para archivos grandes
+# Leer en chunks para archivos muy grandes
+chunk_size = 10000
+chunks = []
+for chunk in pd.read_csv('archivo_grande.csv', chunksize=chunk_size):
+    # Procesar cada chunk
+    processed_chunk = chunk[chunk['columna'] > 0]  # Ejemplo de filtrado
+    chunks.append(processed_chunk)
+
+# Combinar todos los chunks
+df_final = pd.concat(chunks, ignore_index=True)
+```
+
+### 📋 **Resumen de Funciones de Lectura**
+
+| Formato | Función | Parámetros Comunes |
+|---------|---------|-------------------|
+| CSV | `pd.read_csv()` | `sep`, `header`, `usecols`, `index_col` |
+| Excel | `pd.read_excel()` | `sheet_name`, `usecols`, `na_values` |
+| JSON | `pd.read_json()` | `orient`, `lines` |
+| HTML | `pd.read_html()` | `header`, `index_col` |
+| SQL | `pd.read_sql()` | `query`, `con` |
+
+**Conclusión:**
+La capacidad de leer archivos de diferentes formatos es esencial en el análisis de datos, y Pandas facilita este proceso con funciones como `pd.read_csv()` y `pd.read_excel()`. Estas funciones permiten importar datos de manera rápida y flexible, preparándolos para el análisis y la manipulación dentro de un entorno de DataFrame. Con el manejo adecuado de los parámetros, Pandas se convierte en una herramienta extremadamente potente para trabajar con datos provenientes de diferentes fuentes y formatos.
+
+
 
 ## Ejercicio Práctico
 
