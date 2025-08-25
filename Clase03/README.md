@@ -1,4 +1,4 @@
-# 🧪 Clase: Introducción a NumPy y Pandas
+# 🧪 Clase 3: Introducción a NumPy y Pandas
 
 [Presentacion](https://docs.google.com/presentation/d/135XQdDjAvsoXtqDWhASGQ8-YWBFS5bDgxyJjfycykYs/edit?slide=id.g2204e13b0d5_2_631#slide=id.g2204e13b0d5_2_631)
 
