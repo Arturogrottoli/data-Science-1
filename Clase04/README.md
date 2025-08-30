@@ -1,6 +1,211 @@
 
 # Clase: Manejo de Datos Nulos y Series Temporales en Pandas
 
+## **Repaso de Clases Anteriores**
+
+### 🐍 Ejemplo Python - Condicionales para Ciencia de Datos
+```python
+# Clasificación de datos según rangos
+def clasificar_edad(edad):
+    if edad < 18:
+        return "Menor de edad"
+    elif 18 <= edad <= 65:
+        return "Adulto"
+    else:
+        return "Adulto mayor"
+
+# Aplicar a una lista de edades
+edades = [15, 25, 70, 30, 12]
+clasificaciones = [clasificar_edad(edad) for edad in edades]
+print(clasificaciones)  # ['Menor de edad', 'Adulto', 'Adulto mayor', 'Adulto', 'Menor de edad']
+```
+
+### 🔢 Ejemplo NumPy - Operaciones Vectorizadas
+```python
+import numpy as np
+
+# Crear arrays y operaciones vectorizadas
+temperaturas = np.array([22, 25, 18, 30, 15])
+humedad = np.array([60, 70, 45, 80, 35])
+
+# Normalización z-score
+temperaturas_norm = (temperaturas - np.mean(temperaturas)) / np.std(temperaturas)
+print(f"Temperaturas normalizadas: {temperaturas_norm}")
+
+# Filtrado condicional
+dias_calidos = temperaturas > 25
+print(f"Días calurosos: {dias_calidos}")  # [False False False True False]
+```
+
+### 📊 Ejemplo Pandas - Análisis Básico
+```python
+import pandas as pd
+
+# Crear DataFrame de ventas
+ventas_data = {
+    'producto': ['A', 'B', 'A', 'C', 'B'],
+    'cantidad': [10, 5, 15, 8, 12],
+    'precio': [100, 200, 100, 150, 200]
+}
+df_ventas = pd.DataFrame(ventas_data)
+
+# Análisis por producto
+resumen = df_ventas.groupby('producto').agg({
+    'cantidad': 'sum',
+    'precio': 'mean'
+}).round(2)
+print(resumen)
+```
+
+---
+
+## **Creación de Series y DataFrames**
+
+### 1.1 Creación de Series
+```python
+import pandas as pd
+
+# Desde una lista
+serie_lista = pd.Series([1, 2, 3, 4, 5])
+print(serie_lista)
+
+# Desde un diccionario
+serie_dict = pd.Series({'A': 10, 'B': 20, 'C': 30})
+print(serie_dict)
+
+# Con índice personalizado
+serie_custom = pd.Series([100, 200, 300], index=['enero', 'febrero', 'marzo'])
+print(serie_custom)
+```
+
+### 1.2 Creación de DataFrames
+```python
+# Desde diccionario
+data_dict = {
+    'nombre': ['Ana', 'Juan', 'María'],
+    'edad': [25, 30, 28],
+    'ciudad': ['Madrid', 'Barcelona', 'Valencia']
+}
+df_dict = pd.DataFrame(data_dict)
+print(df_dict)
+
+# Desde lista de listas
+data_lista = [
+    ['Ana', 25, 'Madrid'],
+    ['Juan', 30, 'Barcelona'],
+    ['María', 28, 'Valencia']
+]
+df_lista = pd.DataFrame(data_lista, columns=['nombre', 'edad', 'ciudad'])
+print(df_lista)
+```
+
+---
+
+## **Operaciones Básicas en DataFrames**
+
+### 2.1 Selección de Datos
+
+**Selección de Columnas:**
+```python
+# Una columna
+columna_simple = df['nombre_columna']
+
+# Múltiples columnas
+columnas_multiple = df[['columna1', 'columna2', 'columna3']]
+```
+
+**Selección de Filas:**
+```python
+# Por etiqueta (loc)
+fila_etiqueta = df.loc['indice_etiqueta']
+
+# Por posición (iloc)
+fila_posicion = df.iloc[0]  # Primera fila
+filas_rango = df.iloc[0:3]  # Filas 0, 1, 2
+```
+
+### 2.2 Filtrado de Datos
+
+**Filtrado Simple:**
+```python
+# Condición única
+filtro_simple = df[df['precio'] > 100]
+
+# Múltiples condiciones
+filtro_multiple = df[(df['precio'] > 100) & (df['categoria'] == 'Electrónicos')]
+```
+
+**Filtrado con Operadores Lógicos:**
+```python
+# AND (&)
+filtro_and = df[(df['edad'] > 25) & (df['edad'] < 50)]
+
+# OR (|)
+filtro_or = df[(df['ciudad'] == 'Madrid') | (df['ciudad'] == 'Barcelona')]
+
+# NOT (~)
+filtro_not = df[~(df['categoria'] == 'Descartado')]
+```
+
+### 2.3 Agregación de Datos
+
+**Agregación Simple:**
+```python
+# Estadísticas básicas
+suma_total = df['cantidad'].sum()
+promedio = df['precio'].mean()
+conteo = df['producto'].count()
+maximo = df['ventas'].max()
+minimo = df['ventas'].min()
+```
+
+**Agregación Agrupada:**
+```python
+# Agrupar por una columna
+ventas_por_categoria = df.groupby('categoria')['ventas'].sum()
+
+# Agrupar por múltiples columnas
+ventas_por_cat_y_region = df.groupby(['categoria', 'region'])['ventas'].sum()
+
+# Múltiples funciones de agregación
+resumen_completo = df.groupby('categoria').agg({
+    'ventas': ['sum', 'mean', 'count'],
+    'precio': ['mean', 'std'],
+    'cantidad': 'sum'
+})
+```
+
+### 2.4 Ejemplos Prácticos
+```python
+# Dataset de ejemplo
+ventas_data = {
+    'producto': ['Laptop', 'Mouse', 'Laptop', 'Teclado', 'Mouse'],
+    'categoria': ['Electrónicos', 'Accesorios', 'Electrónicos', 'Accesorios', 'Accesorios'],
+    'precio': [1200, 25, 1200, 80, 25],
+    'cantidad': [5, 20, 3, 15, 30],
+    'region': ['Norte', 'Sur', 'Norte', 'Este', 'Oeste']
+}
+df_ventas = pd.DataFrame(ventas_data)
+
+# Ejemplo 1: Seleccionar productos electrónicos
+electronicos = df_ventas[df_ventas['categoria'] == 'Electrónicos']
+
+# Ejemplo 2: Calcular ventas totales por categoría
+ventas_categoria = df_ventas.groupby('categoria')['cantidad'].sum()
+
+# Ejemplo 3: Productos con precio mayor a 100
+productos_caros = df_ventas[df_ventas['precio'] > 100]
+
+# Ejemplo 4: Resumen estadístico por región
+resumen_region = df_ventas.groupby('region').agg({
+    'precio': 'mean',
+    'cantidad': 'sum',
+    'producto': 'count'
+}).round(2)
+```
+
+---
+
 ## **Objetivos de Aprendizaje**
 1. Identificar y clasificar tipos de datos nulos
 2. Aplicar técnicas básicas y avanzadas de imputación
