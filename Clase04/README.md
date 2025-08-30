@@ -25,16 +25,24 @@ print(clasificaciones)  # ['Menor de edad', 'Adulto', 'Adulto mayor', 'Adulto', 
 import numpy as np
 
 # Crear arrays y operaciones vectorizadas
+# Los arrays de NumPy permiten operaciones element-wise (elemento por elemento)
 temperaturas = np.array([22, 25, 18, 30, 15])
 humedad = np.array([60, 70, 45, 80, 35])
 
-# Normalización z-score
+# Normalización z-score: (x - media) / desviación_estándar
+# ¿Por qué normalizar? Para que los datos tengan media=0 y desviación=1
+# Esto es útil en machine learning para que todas las variables tengan la misma escala
 temperaturas_norm = (temperaturas - np.mean(temperaturas)) / np.std(temperaturas)
+print(f"Temperaturas originales: {temperaturas}")
+print(f"Media: {np.mean(temperaturas):.2f}")
+print(f"Desviación estándar: {np.std(temperaturas):.2f}")
 print(f"Temperaturas normalizadas: {temperaturas_norm}")
 
-# Filtrado condicional
+# Filtrado condicional: crea un array booleano
+# ¿Por qué usar arrays booleanos? Para indexación eficiente y filtrado
 dias_calidos = temperaturas > 25
-print(f"Días calurosos: {dias_calidos}")  # [False False False True False]
+print(f"Días calurosos (booleanos): {dias_calidos}")  # [False False False True False]
+print(f"Temperaturas de días calurosos: {temperaturas[dias_calidos]}")  # [30]
 ```
 
 ### 📊 Ejemplo Pandas - Análisis Básico
@@ -42,19 +50,31 @@ print(f"Días calurosos: {dias_calidos}")  # [False False False True False]
 import pandas as pd
 
 # Crear DataFrame de ventas
+# Los diccionarios son útiles para crear DataFrames porque las claves se convierten en nombres de columnas
 ventas_data = {
     'producto': ['A', 'B', 'A', 'C', 'B'],
     'cantidad': [10, 5, 15, 8, 12],
     'precio': [100, 200, 100, 150, 200]
 }
 df_ventas = pd.DataFrame(ventas_data)
+print("DataFrame original:")
+print(df_ventas)
 
-# Análisis por producto
+# Análisis por producto usando groupby
+# ¿Por qué groupby? Permite agrupar datos por categorías y aplicar funciones de agregación
+# ¿Por qué 'sum' en cantidad? Para obtener el total vendido de cada producto
+# ¿Por qué 'mean' en precio? Para obtener el precio promedio de cada producto
 resumen = df_ventas.groupby('producto').agg({
-    'cantidad': 'sum',
-    'precio': 'mean'
+    'cantidad': 'sum',    # Suma total de cantidades por producto
+    'precio': 'mean'      # Precio promedio por producto
 }).round(2)
+
+print("\nResumen por producto:")
 print(resumen)
+print("\nInterpretación:")
+print("- Producto A: 25 unidades vendidas, precio promedio $100")
+print("- Producto B: 17 unidades vendidas, precio promedio $200") 
+print("- Producto C: 8 unidades vendidas, precio promedio $150")
 ```
 
 ---
@@ -211,11 +231,17 @@ resumen_region = df_ventas.groupby('region').agg({
 ### 3.1 Identificación de Datos Ausentes
 ```python
 # Detectar valores ausentes
+# isnull() devuelve True donde hay valores nulos, False donde no los hay
 df.isnull()  # DataFrame booleano indicando valores nulos
+
+# sum() cuenta los True (valores nulos) por columna
+# ¿Por qué sum()? Porque True=1, False=0, entonces sum() cuenta los nulos
 df.isnull().sum()  # Conteo de valores nulos por columna
 
-# Información detallada
+# Información detallada para entender la magnitud del problema
+# sum().sum() suma todos los valores nulos del DataFrame completo
 print(f"Total de valores nulos: {df.isnull().sum().sum()}")
+# df.size es el total de elementos en el DataFrame (filas × columnas)
 print(f"Porcentaje de valores nulos: {(df.isnull().sum().sum() / df.size) * 100:.2f}%")
 ```
 
@@ -237,15 +263,24 @@ df_parcial = df.dropna(thresh=len(df.columns)-2)
 ### 3.3 Imputación Básica con Pandas
 ```python
 # Rellenar con valor constante
+# ¿Cuándo usar 0? Cuando los valores nulos representan "sin valor" o "no aplica"
 df.fillna(0, inplace=True)
 
 # Imputar con estadísticas por columna
+# ¿Por qué media para edad? Es representativa cuando los datos están normalmente distribuidos
 df['edad'].fillna(df['edad'].mean(), inplace=True)      # Media
+
+# ¿Por qué mediana para salario? Es robusta a outliers (valores extremos)
 df['salario'].fillna(df['salario'].median(), inplace=True)  # Mediana
+
+# ¿Por qué moda para categorías? Es el valor más frecuente, lógico para datos categóricos
 df['categoria'].fillna(df['categoria'].mode()[0], inplace=True)  # Moda
 
-# Forward fill y backward fill
+# Forward fill y backward fill para series temporales
+# ¿Cuándo usar ffill? Cuando el valor anterior es una buena estimación (ej: precio de ayer)
 df['precio'].fillna(method='ffill', inplace=True)  # Llenar con valor anterior
+
+# ¿Cuándo usar bfill? Cuando el valor siguiente es más relevante
 df['stock'].fillna(method='bfill', inplace=True)   # Llenar con valor siguiente
 ```
 
@@ -254,16 +289,20 @@ df['stock'].fillna(method='bfill', inplace=True)   # Llenar con valor siguiente
 from sklearn.impute import SimpleImputer, KNNImputer
 
 # SimpleImputer con diferentes estrategias
+# ¿Por qué usar SimpleImputer? Es más robusto y permite aplicar la misma estrategia a múltiples columnas
 imputer_media = SimpleImputer(strategy='mean')
 imputer_mediana = SimpleImputer(strategy='median')
 imputer_moda = SimpleImputer(strategy='most_frequent')
 imputer_constante = SimpleImputer(strategy='constant', fill_value=0)
 
 # Aplicar a columnas numéricas
+# ¿Por qué select_dtypes? Para aplicar solo a columnas numéricas, no a texto
 columnas_numericas = df.select_dtypes(include=[np.number]).columns
 df[columnas_numericas] = imputer_media.fit_transform(df[columnas_numericas])
 
 # KNN Imputer (más sofisticado)
+# ¿Por qué KNN? Usa los datos más similares para imputar, preservando relaciones entre variables
+# ¿Por qué n_neighbors=5? Balance entre precisión y velocidad (más vecinos = más preciso pero más lento)
 knn_imputer = KNNImputer(n_neighbors=5)
 df_imputado_knn = pd.DataFrame(
     knn_imputer.fit_transform(df),
@@ -319,62 +358,83 @@ print(df_ejemplo)
 ### 4.1 Operaciones Básicas de Strings
 ```python
 # Acceder a métodos de string
-df['nombre'].str.upper()  # Convertir a mayúsculas
-df['email'].str.lower()   # Convertir a minúsculas
-df['texto'].str.strip()   # Eliminar espacios en blanco
+# ¿Por qué .str? Permite aplicar métodos de string a cada elemento de la columna
+df['nombre'].str.upper()  # Convertir a mayúsculas - útil para estandarizar
+df['email'].str.lower()   # Convertir a minúsculas - emails no distinguen mayúsculas/minúsculas
+df['texto'].str.strip()   # Eliminar espacios en blanco - limpia datos ingresados manualmente
 
 # Longitud de strings
+# ¿Para qué sirve? Detectar valores anómalos (nombres muy cortos/largos)
 df['nombre'].str.len()    # Longitud de cada string
 
 # Concatenación
+# ¿Por qué sep=' '? Para separar nombre y apellido con un espacio
 df['nombre_completo'] = df['nombre'].str.cat(df['apellido'], sep=' ')
 ```
 
 ### 4.2 Búsqueda y Filtrado
 ```python
 # Contiene un patrón
+# ¿Por qué case=False? Para hacer búsqueda insensible a mayúsculas/minúsculas
 df[df['producto'].str.contains('laptop', case=False)]
 
 # Comienza con
+# ¿Para qué sirve? Filtrar emails administrativos, códigos que empiecen igual
 df[df['email'].str.startswith('admin')]
 
 # Termina con
+# ¿Para qué sirve? Filtrar por extensiones de archivo, dominios de email
 df[df['archivo'].str.endswith('.csv')]
 
-# Coincidencia exacta
+# Coincidencia exacta con regex
+# ¿Por qué ^ y $? ^ = inicio de string, $ = fin de string, para coincidencia exacta
 df[df['categoria'].str.match('^Electrónicos$')]
 ```
 
 ### 4.3 Extracción y Reemplazo
 ```python
-# Extraer parte del string
+# Extraer parte del string usando regex
+# ¿Qué hace r'\+(\d+)'? \+ = símbolo + literal, (\d+) = uno o más dígitos (capturados)
 df['codigo_pais'] = df['telefono'].str.extract(r'\+(\d+)')
+
+# ¿Qué hace r'@(.+)'? @ = símbolo @ literal, (.+) = cualquier carácter después del @
 df['dominio'] = df['email'].str.extract(r'@(.+)')
 
 # Reemplazar patrones
+# ¿Qué hace r'[^\d]'? [^\d] = cualquier carácter que NO sea dígito
 df['telefono_limpio'] = df['telefono'].str.replace(r'[^\d]', '', regex=True)
+
+# ¿Por qué encadenar replace? Para eliminar múltiples caracteres en secuencia
 df['precio_limpio'] = df['precio'].str.replace('$', '').str.replace(',', '')
 
 # Split y join
+# ¿Por qué split()? Para separar texto en palabras individuales
 df['palabras'] = df['descripcion'].str.split()
+# ¿Por qué .str[0]? Para obtener la primera palabra después del split
 df['primera_palabra'] = df['descripcion'].str.split().str[0]
 ```
 
 ### 4.4 Validación y Limpieza
 ```python
 # Validar formato de email
+# ¿Por qué usar regex para validar? Para verificar que el formato sea correcto
 def es_email_valido(email):
     import re
+    # Patrón regex: usuario@dominio.extension
+    # ^ = inicio, [a-zA-Z0-9._%+-]+ = caracteres permitidos en usuario
+    # @ = símbolo @, [a-zA-Z0-9.-]+ = caracteres permitidos en dominio
+    # \. = punto literal, [a-zA-Z]{2,} = extensión de 2+ letras, $ = fin
     patron = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return bool(re.match(patron, str(email)))
 
 df['email_valido'] = df['email'].apply(es_email_valido)
 
-# Limpiar nombres
+# Limpiar nombres - encadenamiento de métodos
+# ¿Por qué encadenar? Para aplicar múltiples transformaciones en una línea
 df['nombre_limpio'] = (df['nombre']
-                      .str.strip()
-                      .str.title()
-                      .str.replace(r'\s+', ' ', regex=True))
+                      .str.strip()                    # Eliminar espacios
+                      .str.title()                    # Capitalizar palabras
+                      .str.replace(r'\s+', ' ', regex=True))  # Múltiples espacios → uno
 ```
 
 ### 4.5 Ejemplo Práctico de Limpieza de Datos
