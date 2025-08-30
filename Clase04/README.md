@@ -206,6 +206,218 @@ resumen_region = df_ventas.groupby('region').agg({
 
 ---
 
+## **Manejo Avanzado de Datos Ausentes**
+
+### 3.1 Identificación de Datos Ausentes
+```python
+# Detectar valores ausentes
+df.isnull()  # DataFrame booleano indicando valores nulos
+df.isnull().sum()  # Conteo de valores nulos por columna
+
+# Información detallada
+print(f"Total de valores nulos: {df.isnull().sum().sum()}")
+print(f"Porcentaje de valores nulos: {(df.isnull().sum().sum() / df.size) * 100:.2f}%")
+```
+
+### 3.2 Eliminación de Datos Ausentes
+```python
+# Eliminar filas con valores nulos
+df_sin_nulos = df.dropna()  # Elimina filas con al menos un valor nulo
+
+# Eliminar columnas con valores nulos
+df_sin_columnas_nulas = df.dropna(axis=1)
+
+# Eliminar solo si todos los valores son nulos
+df_limpiado = df.dropna(how='all')  # Solo filas completamente vacías
+
+# Eliminar si hay al menos 2 valores nulos
+df_parcial = df.dropna(thresh=len(df.columns)-2)
+```
+
+### 3.3 Imputación Básica con Pandas
+```python
+# Rellenar con valor constante
+df.fillna(0, inplace=True)
+
+# Imputar con estadísticas por columna
+df['edad'].fillna(df['edad'].mean(), inplace=True)      # Media
+df['salario'].fillna(df['salario'].median(), inplace=True)  # Mediana
+df['categoria'].fillna(df['categoria'].mode()[0], inplace=True)  # Moda
+
+# Forward fill y backward fill
+df['precio'].fillna(method='ffill', inplace=True)  # Llenar con valor anterior
+df['stock'].fillna(method='bfill', inplace=True)   # Llenar con valor siguiente
+```
+
+### 3.4 Imputación Avanzada con Scikit-Learn
+```python
+from sklearn.impute import SimpleImputer, KNNImputer
+
+# SimpleImputer con diferentes estrategias
+imputer_media = SimpleImputer(strategy='mean')
+imputer_mediana = SimpleImputer(strategy='median')
+imputer_moda = SimpleImputer(strategy='most_frequent')
+imputer_constante = SimpleImputer(strategy='constant', fill_value=0)
+
+# Aplicar a columnas numéricas
+columnas_numericas = df.select_dtypes(include=[np.number]).columns
+df[columnas_numericas] = imputer_media.fit_transform(df[columnas_numericas])
+
+# KNN Imputer (más sofisticado)
+knn_imputer = KNNImputer(n_neighbors=5)
+df_imputado_knn = pd.DataFrame(
+    knn_imputer.fit_transform(df),
+    columns=df.columns,
+    index=df.index
+)
+```
+
+### 3.5 Ejemplo Práctico Completo
+```python
+import pandas as pd
+import numpy as np
+from sklearn.impute import SimpleImputer
+
+# Dataset con valores ausentes
+data_ejemplo = {
+    'id': [1, 2, 3, 4, 5],
+    'nombre': ['Ana', 'Juan', None, 'María', 'Carlos'],
+    'edad': [25, None, 30, 28, None],
+    'salario': [50000, 60000, None, 55000, 70000],
+    'departamento': ['IT', 'HR', 'IT', None, 'IT']
+}
+df_ejemplo = pd.DataFrame(data_ejemplo)
+
+print("Dataset original:")
+print(df_ejemplo)
+print("\nValores nulos por columna:")
+print(df_ejemplo.isnull().sum())
+
+# Estrategia de imputación
+# 1. Texto: moda
+# 2. Números: media
+# 3. Categorías: moda
+
+# Imputar texto
+df_ejemplo['nombre'].fillna(df_ejemplo['nombre'].mode()[0], inplace=True)
+
+# Imputar números
+df_ejemplo['edad'].fillna(df_ejemplo['edad'].mean(), inplace=True)
+df_ejemplo['salario'].fillna(df_ejemplo['salario'].mean(), inplace=True)
+
+# Imputar categorías
+df_ejemplo['departamento'].fillna(df_ejemplo['departamento'].mode()[0], inplace=True)
+
+print("\nDataset después de imputación:")
+print(df_ejemplo)
+```
+
+---
+
+## **Manipulación de Strings en Pandas**
+
+### 4.1 Operaciones Básicas de Strings
+```python
+# Acceder a métodos de string
+df['nombre'].str.upper()  # Convertir a mayúsculas
+df['email'].str.lower()   # Convertir a minúsculas
+df['texto'].str.strip()   # Eliminar espacios en blanco
+
+# Longitud de strings
+df['nombre'].str.len()    # Longitud de cada string
+
+# Concatenación
+df['nombre_completo'] = df['nombre'].str.cat(df['apellido'], sep=' ')
+```
+
+### 4.2 Búsqueda y Filtrado
+```python
+# Contiene un patrón
+df[df['producto'].str.contains('laptop', case=False)]
+
+# Comienza con
+df[df['email'].str.startswith('admin')]
+
+# Termina con
+df[df['archivo'].str.endswith('.csv')]
+
+# Coincidencia exacta
+df[df['categoria'].str.match('^Electrónicos$')]
+```
+
+### 4.3 Extracción y Reemplazo
+```python
+# Extraer parte del string
+df['codigo_pais'] = df['telefono'].str.extract(r'\+(\d+)')
+df['dominio'] = df['email'].str.extract(r'@(.+)')
+
+# Reemplazar patrones
+df['telefono_limpio'] = df['telefono'].str.replace(r'[^\d]', '', regex=True)
+df['precio_limpio'] = df['precio'].str.replace('$', '').str.replace(',', '')
+
+# Split y join
+df['palabras'] = df['descripcion'].str.split()
+df['primera_palabra'] = df['descripcion'].str.split().str[0]
+```
+
+### 4.4 Validación y Limpieza
+```python
+# Validar formato de email
+def es_email_valido(email):
+    import re
+    patron = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return bool(re.match(patron, str(email)))
+
+df['email_valido'] = df['email'].apply(es_email_valido)
+
+# Limpiar nombres
+df['nombre_limpio'] = (df['nombre']
+                      .str.strip()
+                      .str.title()
+                      .str.replace(r'\s+', ' ', regex=True))
+```
+
+### 4.5 Ejemplo Práctico de Limpieza de Datos
+```python
+# Dataset con datos textuales sucios
+datos_sucios = {
+    'nombre': ['  juan pérez  ', 'MARÍA GARCÍA', 'carlos lopez'],
+    'email': ['juan@email.com', 'maria@email.com', 'carlos@email.com'],
+    'telefono': ['+34 123-456-789', '+34 987-654-321', '+34 555-123-456'],
+    'precio': ['$1,234.56', '$2,345.67', '$3,456.78']
+}
+df_sucio = pd.DataFrame(datos_sucios)
+
+print("Datos originales:")
+print(df_sucio)
+
+# Limpieza completa
+df_limpio = df_sucio.copy()
+
+# Limpiar nombres
+df_limpio['nombre'] = (df_limpio['nombre']
+                      .str.strip()
+                      .str.title()
+                      .str.replace(r'\s+', ' ', regex=True))
+
+# Limpiar teléfonos
+df_limpio['telefono_limpio'] = df_limpio['telefono'].str.replace(r'[^\d]', '', regex=True)
+
+# Limpiar precios
+df_limpio['precio_numerico'] = (df_limpio['precio']
+                               .str.replace('$', '')
+                               .str.replace(',', '')
+                               .astype(float))
+
+# Extraer dominio de email
+df_limpio['dominio_email'] = df_limpio['email'].str.extract(r'@(.+)')
+
+print("\nDatos limpios:")
+print(df_limpio)
+```
+
+---
+
 ## **Objetivos de Aprendizaje**
 1. Identificar y clasificar tipos de datos nulos
 2. Aplicar técnicas básicas y avanzadas de imputación
