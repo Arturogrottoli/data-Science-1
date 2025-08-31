@@ -4,9 +4,21 @@
 ## **Repaso de Clases Anteriores**
 
 ### 🐍 Ejemplo Python - Condicionales para Ciencia de Datos
+
+**¿Por qué son importantes los condicionales en ciencia de datos?**
+Los condicionales nos permiten crear lógica de decisión en nuestros análisis, clasificar datos automáticamente y aplicar diferentes tratamientos según las características de los datos.
+
 ```python
 # Clasificación de datos según rangos
 def clasificar_edad(edad):
+    """
+    Función que clasifica personas según su edad en categorías demográficas.
+    
+    ¿Por qué usar rangos específicos?
+    - 0-17: Menor de edad (restricciones legales, comportamientos diferentes)
+    - 18-65: Adulto (población económicamente activa)
+    - 65+: Adulto mayor (necesidades especiales, patrones de consumo diferentes)
+    """
     if edad < 18:
         return "Menor de edad"
     elif 18 <= edad <= 65:
@@ -14,67 +26,188 @@ def clasificar_edad(edad):
     else:
         return "Adulto mayor"
 
-# Aplicar a una lista de edades
+# Aplicar a una lista de edades usando list comprehension
+# ¿Por qué list comprehension? Es más eficiente y legible que un bucle for tradicional
 edades = [15, 25, 70, 30, 12]
 clasificaciones = [clasificar_edad(edad) for edad in edades]
 print(clasificaciones)  # ['Menor de edad', 'Adulto', 'Adulto mayor', 'Adulto', 'Menor de edad']
+
+# Ejemplo práctico: Análisis de clientes por edad
+clientes = {
+    'nombres': ['Ana', 'Juan', 'María', 'Carlos', 'Lucía'],
+    'edades': [15, 25, 70, 30, 12],
+    'gastos': [50, 200, 150, 300, 30]
+}
+
+# Crear DataFrame y agregar clasificación
+import pandas as pd
+df_clientes = pd.DataFrame(clientes)
+df_clientes['categoria_edad'] = df_clientes['edades'].apply(clasificar_edad)
+
+# Análisis por categoría de edad
+analisis_por_edad = df_clientes.groupby('categoria_edad').agg({
+    'gastos': ['mean', 'count', 'sum']
+}).round(2)
+
+print("\nAnálisis de gastos por categoría de edad:")
+print(analisis_por_edad)
 ```
 
 ### 🔢 Ejemplo NumPy - Operaciones Vectorizadas
+
+**¿Por qué NumPy es fundamental en ciencia de datos?**
+NumPy proporciona arrays multidimensionales y operaciones vectorizadas que son mucho más eficientes que los bucles tradicionales de Python. Esto es crucial cuando trabajamos con grandes volúmenes de datos.
+
 ```python
 import numpy as np
 
 # Crear arrays y operaciones vectorizadas
 # Los arrays de NumPy permiten operaciones element-wise (elemento por elemento)
+# ¿Por qué element-wise? Permite aplicar la misma operación a todos los elementos simultáneamente
 temperaturas = np.array([22, 25, 18, 30, 15])
 humedad = np.array([60, 70, 45, 80, 35])
+
+print("Arrays originales:")
+print(f"Temperaturas: {temperaturas}")
+print(f"Humedad: {humedad}")
+
+# Operaciones vectorizadas básicas
+# ¿Por qué vectorizadas? Son más rápidas que los bucles y más legibles
+temperaturas_fahrenheit = (temperaturas * 9/5) + 32
+print(f"\nTemperaturas en Fahrenheit: {temperaturas_fahrenheit}")
 
 # Normalización z-score: (x - media) / desviación_estándar
 # ¿Por qué normalizar? Para que los datos tengan media=0 y desviación=1
 # Esto es útil en machine learning para que todas las variables tengan la misma escala
 temperaturas_norm = (temperaturas - np.mean(temperaturas)) / np.std(temperaturas)
+print(f"\nNormalización Z-score:")
 print(f"Temperaturas originales: {temperaturas}")
 print(f"Media: {np.mean(temperaturas):.2f}")
 print(f"Desviación estándar: {np.std(temperaturas):.2f}")
 print(f"Temperaturas normalizadas: {temperaturas_norm}")
 
+# Verificar que la normalización funcionó
+print(f"\nVerificación de normalización:")
+print(f"Media de datos normalizados: {np.mean(temperaturas_norm):.6f} (debería ser ~0)")
+print(f"Desv. estándar de datos normalizados: {np.std(temperaturas_norm):.6f} (debería ser ~1)")
+
 # Filtrado condicional: crea un array booleano
 # ¿Por qué usar arrays booleanos? Para indexación eficiente y filtrado
 dias_calidos = temperaturas > 25
+print(f"\nFiltrado condicional:")
 print(f"Días calurosos (booleanos): {dias_calidos}")  # [False False False True False]
 print(f"Temperaturas de días calurosos: {temperaturas[dias_calidos]}")  # [30]
+
+# Operaciones más complejas: índice de calor aproximado
+# Fórmula: 0.5 * (T + 61.0 + ((T-68.0)*1.2) + (H*0.094))
+# Donde T = temperatura en Fahrenheit, H = humedad relativa
+indice_calor = 0.5 * (temperaturas_fahrenheit + 61.0 + 
+                     ((temperaturas_fahrenheit - 68.0) * 1.2) + 
+                     (humedad * 0.094))
+
+print(f"\nÍndice de calor aproximado:")
+for i, (temp, hum, indice) in enumerate(zip(temperaturas, humedad, indice_calor)):
+    print(f"Día {i+1}: Temp={temp}°C, Hum={hum}%, Índice={indice:.1f}°F")
+
+# Estadísticas descriptivas completas
+print(f"\nEstadísticas descriptivas de temperaturas:")
+print(f"Media: {np.mean(temperaturas):.2f}°C")
+print(f"Mediana: {np.median(temperaturas):.2f}°C")
+print(f"Desviación estándar: {np.std(temperaturas):.2f}°C")
+print(f"Mínimo: {np.min(temperaturas)}°C")
+print(f"Máximo: {np.max(temperaturas)}°C")
+print(f"Rango: {np.max(temperaturas) - np.min(temperaturas)}°C")
 ```
 
 ### 📊 Ejemplo Pandas - Análisis Básico
+
+**¿Por qué Pandas es la herramienta principal para análisis de datos?**
+Pandas proporciona estructuras de datos flexibles (Series y DataFrames) que permiten manipular, analizar y visualizar datos de manera eficiente. Es especialmente útil para datos tabulares y series temporales.
+
 ```python
 import pandas as pd
+import numpy as np
 
 # Crear DataFrame de ventas
 # Los diccionarios son útiles para crear DataFrames porque las claves se convierten en nombres de columnas
 ventas_data = {
-    'producto': ['A', 'B', 'A', 'C', 'B'],
+    'producto': ['Laptop', 'Mouse', 'Laptop', 'Teclado', 'Mouse'],
     'cantidad': [10, 5, 15, 8, 12],
-    'precio': [100, 200, 100, 150, 200]
+    'precio': [1000, 25, 1000, 80, 25],
+    'fecha': ['2024-01-01', '2024-01-02', '2024-01-03', '2024-01-04', '2024-01-05'],
+    'vendedor': ['Juan', 'Ana', 'Juan', 'Carlos', 'Ana']
 }
 df_ventas = pd.DataFrame(ventas_data)
+
+# Convertir fecha a datetime para análisis temporal
+df_ventas['fecha'] = pd.to_datetime(df_ventas['fecha'])
+
 print("DataFrame original:")
 print(df_ventas)
+print(f"\nInformación del DataFrame:")
+print(f"Dimensiones: {df_ventas.shape}")
+print(f"Tipos de datos:")
+print(df_ventas.dtypes)
+
+# Calcular columna derivada: ingresos totales por venta
+# ¿Por qué calcular ingresos? Es una métrica clave para el negocio
+df_ventas['ingresos'] = df_ventas['cantidad'] * df_ventas['precio']
+
+print(f"\nDataFrame con ingresos calculados:")
+print(df_ventas[['producto', 'cantidad', 'precio', 'ingresos']])
 
 # Análisis por producto usando groupby
 # ¿Por qué groupby? Permite agrupar datos por categorías y aplicar funciones de agregación
 # ¿Por qué 'sum' en cantidad? Para obtener el total vendido de cada producto
 # ¿Por qué 'mean' en precio? Para obtener el precio promedio de cada producto
-resumen = df_ventas.groupby('producto').agg({
-    'cantidad': 'sum',    # Suma total de cantidades por producto
-    'precio': 'mean'      # Precio promedio por producto
+resumen_productos = df_ventas.groupby('producto').agg({
+    'cantidad': 'sum',        # Suma total de cantidades por producto
+    'precio': 'mean',         # Precio promedio por producto
+    'ingresos': 'sum',        # Ingresos totales por producto
+    'fecha': 'count'          # Número de ventas por producto
 }).round(2)
 
-print("\nResumen por producto:")
-print(resumen)
-print("\nInterpretación:")
-print("- Producto A: 25 unidades vendidas, precio promedio $100")
-print("- Producto B: 17 unidades vendidas, precio promedio $200") 
-print("- Producto C: 8 unidades vendidas, precio promedio $150")
+resumen_productos.columns = ['Total_Unidades', 'Precio_Promedio', 'Ingresos_Totales', 'Num_Ventas']
+print(f"\nResumen por producto:")
+print(resumen_productos)
+
+# Análisis por vendedor
+resumen_vendedores = df_ventas.groupby('vendedor').agg({
+    'ingresos': ['sum', 'mean', 'count']
+}).round(2)
+
+resumen_vendedores.columns = ['Ingresos_Totales', 'Ingresos_Promedio', 'Num_Ventas']
+print(f"\nResumen por vendedor:")
+print(resumen_vendedores)
+
+# Análisis temporal: ventas por día
+ventas_por_dia = df_ventas.groupby('fecha').agg({
+    'ingresos': 'sum',
+    'cantidad': 'sum'
+}).round(2)
+
+print(f"\nVentas por día:")
+print(ventas_por_dia)
+
+# Estadísticas descriptivas completas
+print(f"\nEstadísticas descriptivas de ingresos:")
+print(df_ventas['ingresos'].describe())
+
+# Identificar el producto más vendido y el más rentable
+producto_mas_vendido = df_ventas.groupby('producto')['cantidad'].sum().idxmax()
+producto_mas_rentable = df_ventas.groupby('producto')['ingresos'].sum().idxmax()
+
+print(f"\nAnálisis de productos:")
+print(f"Producto más vendido (por unidades): {producto_mas_vendido}")
+print(f"Producto más rentable (por ingresos): {producto_mas_rentable}")
+
+# Calcular margen de beneficio (asumiendo costo del 60% del precio)
+df_ventas['costo'] = df_ventas['precio'] * 0.6
+df_ventas['beneficio'] = df_ventas['ingresos'] - (df_ventas['cantidad'] * df_ventas['costo'])
+df_ventas['margen_beneficio'] = (df_ventas['beneficio'] / df_ventas['ingresos']) * 100
+
+print(f"\nAnálisis de rentabilidad:")
+print(df_ventas[['producto', 'ingresos', 'beneficio', 'margen_beneficio']].round(2))
 ```
 
 ---
@@ -229,20 +362,118 @@ resumen_region = df_ventas.groupby('region').agg({
 ## **Manejo Avanzado de Datos Ausentes**
 
 ### 3.1 Identificación de Datos Ausentes
+
+**¿Por qué es crucial identificar datos ausentes?**
+Los datos ausentes pueden sesgar nuestros análisis, afectar la precisión de los modelos de machine learning y llevar a conclusiones incorrectas. Por eso, el primer paso es siempre entender la magnitud y el patrón de los valores faltantes.
+
 ```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Crear dataset de ejemplo con valores ausentes
+np.random.seed(42)
+data_ejemplo = {
+    'id': range(1, 101),
+    'edad': np.random.normal(35, 10, 100),
+    'salario': np.random.normal(50000, 15000, 100),
+    'experiencia': np.random.normal(8, 5, 100),
+    'departamento': np.random.choice(['IT', 'HR', 'Marketing', 'Ventas'], 100),
+    'satisfaccion': np.random.uniform(1, 10, 100)
+}
+
+df = pd.DataFrame(data_ejemplo)
+
+# Introducir valores ausentes de manera controlada para simular escenarios reales
+# 10% de valores ausentes en edad (aleatorios)
+df.loc[np.random.choice(df.index, size=int(len(df)*0.1), replace=False), 'edad'] = np.nan
+
+# 15% de valores ausentes en salario (aleatorios)
+df.loc[np.random.choice(df.index, size=int(len(df)*0.15), replace=False), 'salario'] = np.nan
+
+# 5% de valores ausentes en departamento (aleatorios)
+df.loc[np.random.choice(df.index, size=int(len(df)*0.05), replace=False), 'departamento'] = np.nan
+
+print("Dataset con valores ausentes:")
+print(df.head())
+print(f"\nDimensiones del dataset: {df.shape}")
+
 # Detectar valores ausentes
 # isnull() devuelve True donde hay valores nulos, False donde no los hay
-df.isnull()  # DataFrame booleano indicando valores nulos
+print(f"\nMatriz de valores nulos (primeras 10 filas):")
+print(df.isnull().head(10))
 
 # sum() cuenta los True (valores nulos) por columna
 # ¿Por qué sum()? Porque True=1, False=0, entonces sum() cuenta los nulos
-df.isnull().sum()  # Conteo de valores nulos por columna
+valores_nulos_por_columna = df.isnull().sum()
+print(f"\nValores nulos por columna:")
+print(valores_nulos_por_columna)
 
 # Información detallada para entender la magnitud del problema
 # sum().sum() suma todos los valores nulos del DataFrame completo
-print(f"Total de valores nulos: {df.isnull().sum().sum()}")
+total_nulos = df.isnull().sum().sum()
 # df.size es el total de elementos en el DataFrame (filas × columnas)
-print(f"Porcentaje de valores nulos: {(df.isnull().sum().sum() / df.size) * 100:.2f}%")
+porcentaje_nulos = (total_nulos / df.size) * 100
+
+print(f"\nResumen de valores ausentes:")
+print(f"Total de valores nulos: {total_nulos}")
+print(f"Porcentaje de valores nulos: {porcentaje_nulos:.2f}%")
+print(f"Total de elementos en el dataset: {df.size}")
+
+# Análisis más detallado
+print(f"\nAnálisis detallado por columna:")
+for columna in df.columns:
+    nulos = df[columna].isnull().sum()
+    porcentaje = (nulos / len(df)) * 100
+    print(f"{columna}: {nulos} valores nulos ({porcentaje:.1f}%)")
+
+# Visualización de valores ausentes
+plt.figure(figsize=(12, 8))
+
+# Gráfico 1: Conteo de valores nulos por columna
+plt.subplot(2, 2, 1)
+valores_nulos_por_columna.plot(kind='bar', color='red', alpha=0.7)
+plt.title('Valores Nulos por Columna')
+plt.ylabel('Cantidad de Valores Nulos')
+plt.xticks(rotation=45)
+
+# Gráfico 2: Porcentaje de valores nulos por columna
+plt.subplot(2, 2, 2)
+porcentajes_nulos = (valores_nulos_por_columna / len(df)) * 100
+porcentajes_nulos.plot(kind='bar', color='orange', alpha=0.7)
+plt.title('Porcentaje de Valores Nulos por Columna')
+plt.ylabel('Porcentaje (%)')
+plt.xticks(rotation=45)
+
+# Gráfico 3: Matriz de valores ausentes (heatmap)
+plt.subplot(2, 2, 3)
+sns.heatmap(df.isnull(), cbar=True, yticklabels=False, cmap='viridis')
+plt.title('Matriz de Valores Ausentes')
+plt.xlabel('Columnas')
+
+# Gráfico 4: Distribución de valores nulos en el dataset
+plt.subplot(2, 2, 4)
+filas_con_nulos = df.isnull().sum(axis=1)
+plt.hist(filas_con_nulos, bins=range(filas_con_nulos.max() + 2), alpha=0.7, color='green')
+plt.title('Distribución de Valores Nulos por Fila')
+plt.xlabel('Número de Valores Nulos por Fila')
+plt.ylabel('Frecuencia')
+
+plt.tight_layout()
+plt.show()
+
+# Análisis de patrones de valores ausentes
+print(f"\nAnálisis de patrones:")
+print(f"Filas sin valores nulos: {(df.isnull().sum(axis=1) == 0).sum()}")
+print(f"Filas con al menos un valor nulo: {(df.isnull().sum(axis=1) > 0).sum()}")
+
+# Identificar filas con múltiples valores nulos
+filas_problematicas = df[df.isnull().sum(axis=1) >= 2]
+print(f"\nFilas con 2 o más valores nulos: {len(filas_problematicas)}")
+if len(filas_problematicas) > 0:
+    print("Ejemplos de filas problemáticas:")
+    print(filas_problematicas.head())
 ```
 
 ### 3.2 Eliminación de Datos Ausentes
@@ -261,27 +492,146 @@ df_parcial = df.dropna(thresh=len(df.columns)-2)
 ```
 
 ### 3.3 Imputación Básica con Pandas
-```python
-# Rellenar con valor constante
-# ¿Cuándo usar 0? Cuando los valores nulos representan "sin valor" o "no aplica"
-df.fillna(0, inplace=True)
 
-# Imputar con estadísticas por columna
+**¿Cuándo usar cada técnica de imputación?**
+La elección del método de imputación depende del tipo de datos, el contexto del problema y el patrón de valores ausentes. Es crucial entender las implicaciones de cada método.
+
+```python
+# Continuamos con el dataset anterior
+print("Dataset original con valores ausentes:")
+print(df.head())
+print(f"\nValores nulos antes de imputación:")
+print(df.isnull().sum())
+
+# Crear copias para comparar diferentes métodos
+df_media = df.copy()
+df_mediana = df.copy()
+df_constante = df.copy()
+df_forward = df.copy()
+
+# 1. Rellenar con valor constante
+# ¿Cuándo usar 0? Cuando los valores nulos representan "sin valor" o "no aplica"
+# Ejemplo: gastos de marketing para clientes que no tienen campaña activa
+df_constante.fillna(0, inplace=True)
+
+# 2. Imputar con estadísticas por columna
 # ¿Por qué media para edad? Es representativa cuando los datos están normalmente distribuidos
-df['edad'].fillna(df['edad'].mean(), inplace=True)      # Media
+# Ventaja: Mantiene la media de la distribución original
+# Desventaja: Puede no ser representativa si hay outliers
+df_media['edad'].fillna(df_media['edad'].mean(), inplace=True)
 
 # ¿Por qué mediana para salario? Es robusta a outliers (valores extremos)
-df['salario'].fillna(df['salario'].median(), inplace=True)  # Mediana
+# Ventaja: No se ve afectada por valores extremos
+# Desventaja: Puede no reflejar la distribución real si hay muchos outliers
+df_mediana['salario'].fillna(df_mediana['salario'].median(), inplace=True)
 
 # ¿Por qué moda para categorías? Es el valor más frecuente, lógico para datos categóricos
-df['categoria'].fillna(df['categoria'].mode()[0], inplace=True)  # Moda
+# Ventaja: Mantiene la categoría más común
+# Desventaja: Puede crear sesgo si una categoría es muy dominante
+df_media['departamento'].fillna(df_media['departamento'].mode()[0], inplace=True)
 
-# Forward fill y backward fill para series temporales
+# 3. Forward fill y backward fill para series temporales
 # ¿Cuándo usar ffill? Cuando el valor anterior es una buena estimación (ej: precio de ayer)
-df['precio'].fillna(method='ffill', inplace=True)  # Llenar con valor anterior
+# Ventaja: Mantiene la continuidad temporal
+# Desventaja: Puede propagar errores
+df_forward['edad'].fillna(method='ffill', inplace=True)
 
 # ¿Cuándo usar bfill? Cuando el valor siguiente es más relevante
-df['stock'].fillna(method='bfill', inplace=True)   # Llenar con valor siguiente
+# Ventaja: Útil cuando los valores futuros son más informativos
+# Desventaja: Puede no estar disponible para el último valor
+df_forward['salario'].fillna(method='bfill', inplace=True)
+
+# Comparar resultados de diferentes métodos
+print(f"\nComparación de métodos de imputación:")
+
+# Estadísticas de edad antes y después
+print(f"\nEstadísticas de EDAD:")
+print(f"Original (sin nulos): Media={df['edad'].mean():.2f}, Mediana={df['edad'].median():.2f}")
+print(f"Con media: Media={df_media['edad'].mean():.2f}, Mediana={df_media['edad'].median():.2f}")
+print(f"Con forward fill: Media={df_forward['edad'].mean():.2f}, Mediana={df_forward['edad'].median():.2f}")
+
+# Estadísticas de salario antes y después
+print(f"\nEstadísticas de SALARIO:")
+print(f"Original (sin nulos): Media={df['salario'].mean():.2f}, Mediana={df['salario'].median():.2f}")
+print(f"Con mediana: Media={df_mediana['salario'].mean():.2f}, Mediana={df_mediana['salario'].median():.2f}")
+print(f"Con backward fill: Media={df_forward['salario'].mean():.2f}, Mediana={df_forward['salario'].median():.2f}")
+
+# Visualizar el impacto de diferentes métodos
+plt.figure(figsize=(15, 10))
+
+# Gráfico 1: Distribución de edad
+plt.subplot(2, 3, 1)
+plt.hist(df['edad'].dropna(), bins=20, alpha=0.7, label='Original', color='blue')
+plt.hist(df_media['edad'], bins=20, alpha=0.7, label='Con media', color='red')
+plt.title('Distribución de Edad')
+plt.legend()
+
+# Gráfico 2: Distribución de salario
+plt.subplot(2, 3, 2)
+plt.hist(df['salario'].dropna(), bins=20, alpha=0.7, label='Original', color='blue')
+plt.hist(df_mediana['salario'], bins=20, alpha=0.7, label='Con mediana', color='green')
+plt.title('Distribución de Salario')
+plt.legend()
+
+# Gráfico 3: Boxplot comparativo de edad
+plt.subplot(2, 3, 3)
+datos_edad = [df['edad'].dropna(), df_media['edad'], df_forward['edad']]
+plt.boxplot(datos_edad, labels=['Original', 'Media', 'Forward Fill'])
+plt.title('Boxplot de Edad por Método')
+
+# Gráfico 4: Boxplot comparativo de salario
+plt.subplot(2, 3, 4)
+datos_salario = [df['salario'].dropna(), df_mediana['salario'], df_forward['salario']]
+plt.boxplot(datos_salario, labels=['Original', 'Mediana', 'Backward Fill'])
+plt.title('Boxplot de Salario por Método')
+
+# Gráfico 5: Distribución de departamentos
+plt.subplot(2, 3, 5)
+df['departamento'].value_counts().plot(kind='bar', alpha=0.7, label='Original', color='blue')
+df_media['departamento'].value_counts().plot(kind='bar', alpha=0.7, label='Con moda', color='orange')
+plt.title('Distribución de Departamentos')
+plt.legend()
+plt.xticks(rotation=45)
+
+# Gráfico 6: Comparación de estadísticas
+plt.subplot(2, 3, 6)
+metodos = ['Original', 'Media', 'Mediana', 'Forward Fill']
+medias_edad = [df['edad'].mean(), df_media['edad'].mean(), 
+               df_mediana['edad'].mean(), df_forward['edad'].mean()]
+plt.bar(metodos, medias_edad, color=['blue', 'red', 'green', 'purple'], alpha=0.7)
+plt.title('Media de Edad por Método')
+plt.ylabel('Edad Promedio')
+plt.xticks(rotation=45)
+
+plt.tight_layout()
+plt.show()
+
+# Análisis de correlaciones antes y después de la imputación
+print(f"\nAnálisis de correlaciones:")
+print(f"Correlación original (edad vs salario): {df['edad'].corr(df['salario']):.3f}")
+print(f"Correlación con imputación por media: {df_media['edad'].corr(df_media['salario']):.3f}")
+print(f"Correlación con imputación por mediana: {df_mediana['edad'].corr(df_mediana['salario']):.3f}")
+
+# Evaluación de la calidad de la imputación
+def evaluar_imputacion(df_original, df_imputado, columna):
+    """
+    Evalúa la calidad de la imputación comparando estadísticas
+    """
+    original_sin_nulos = df_original[columna].dropna()
+    imputado = df_imputado[columna]
+    
+    # Calcular diferencias en estadísticas
+    diff_media = abs(original_sin_nulos.mean() - imputado.mean())
+    diff_mediana = abs(original_sin_nulos.median() - imputado.median())
+    diff_std = abs(original_sin_nulos.std() - imputado.std())
+    
+    print(f"\nEvaluación para {columna}:")
+    print(f"Diferencia en media: {diff_media:.2f}")
+    print(f"Diferencia en mediana: {diff_mediana:.2f}")
+    print(f"Diferencia en desviación estándar: {diff_std:.2f}")
+
+evaluar_imputacion(df, df_media, 'edad')
+evaluar_imputacion(df, df_mediana, 'salario')
 ```
 
 ### 3.4 Imputación Avanzada con Scikit-Learn
@@ -641,6 +991,316 @@ ventas = pd.Series([100, None, 150, None, 200],
 
 * **Útil para:** ver la distribución de valores.
 * **Ideal para:** analizar simetría, sesgo o agrupaciones naturales.
+
+---
+
+## **4.4 Matplotlib - Visualización de Datos**
+
+### ¿Qué es Matplotlib?
+
+**Matplotlib** es una de las bibliotecas más populares en Python para la creación de gráficos y visualizaciones de datos. Fundada en 2003 por John D. Hunter, proporciona herramientas robustas para generar gráficos bidimensionales de alta calidad. Es fundamental para cualquiera que trabaje con datos en Python, siendo la base sobre la cual se han construido otras bibliotecas como Seaborn y Plotly.
+
+### ¿Por qué Matplotlib?
+
+Matplotlib se destaca por su **simplicidad y flexibilidad**. Aunque existen otras bibliotecas para la visualización de datos, Matplotlib sigue siendo la más utilizada gracias a su capacidad para generar gráficos altamente personalizables. Además, al ser de código abierto, es accesible y ampliamente utilizada por la comunidad científica y de desarrollo.
+
+### Interfaces Principales de Matplotlib
+
+Matplotlib ofrece dos interfaces principales:
+
+1. **Interfaz orientada a objetos**: Es la más flexible y poderosa, permitiendo un control detallado sobre los gráficos. Trata a los gráficos como objetos reutilizables, lo que es ideal para crear gráficos complejos o manejar múltiples gráficos simultáneamente.
+
+2. **Interfaz orientada a estados (pyplot)**: Similar a MATLAB, esta interfaz es más simple y directa, ideal para gráficos rápidos. Sin embargo, para gráficos más complejos, la interfaz orientada a objetos es preferida por su mayor control y flexibilidad.
+
+### Configuración Inicial y Uso Básico
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+# Configuración de estilo para gráficos más atractivos
+plt.style.use('seaborn-v0_8')  # Estilo moderno y atractivo
+plt.rcParams['figure.figsize'] = (10, 6)  # Tamaño por defecto de las figuras
+plt.rcParams['font.size'] = 12  # Tamaño de fuente por defecto
+
+# Crear datos de ejemplo
+np.random.seed(42)  # Para reproducibilidad
+x = np.linspace(0, 10, 100)
+y = np.sin(x) + np.random.normal(0, 0.1, 100)
+
+# Gráfico básico usando la interfaz orientada a objetos
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(x, y, 'b-', linewidth=2, label='Datos con ruido')
+ax.plot(x, np.sin(x), 'r--', linewidth=2, label='Función seno original')
+ax.set_xlabel('Eje X', fontsize=14)
+ax.set_ylabel('Eje Y', fontsize=14)
+ax.set_title('Gráfico de Líneas con Matplotlib', fontsize=16, fontweight='bold')
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+### Tipos de Gráficos Comunes
+
+#### 1. **Gráfico de Líneas (Line Plot)**
+
+```python
+# Datos de ventas mensuales
+meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun']
+ventas = [120, 150, 180, 200, 220, 250]
+gastos = [100, 120, 140, 160, 180, 200]
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(meses, ventas, 'o-', linewidth=2, markersize=8, label='Ventas', color='blue')
+ax.plot(meses, gastos, 's-', linewidth=2, markersize=8, label='Gastos', color='red')
+ax.set_xlabel('Mes', fontsize=14)
+ax.set_ylabel('Monto ($)', fontsize=14)
+ax.set_title('Evolución de Ventas vs Gastos', fontsize=16, fontweight='bold')
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+#### 2. **Gráfico de Barras (Bar Plot)**
+
+```python
+# Datos de productos más vendidos
+productos = ['Laptop', 'Mouse', 'Teclado', 'Monitor', 'Auriculares']
+ventas = [45, 120, 80, 30, 95]
+
+fig, ax = plt.subplots(figsize=(10, 6))
+bars = ax.bar(productos, ventas, color=['#2E86AB', '#A23B72', '#F18F01', '#C73E1D', '#592E83'])
+ax.set_xlabel('Producto', fontsize=14)
+ax.set_ylabel('Unidades Vendidas', fontsize=14)
+ax.set_title('Ventas por Producto', fontsize=16, fontweight='bold')
+
+# Agregar valores sobre las barras
+for bar, venta in zip(bars, ventas):
+    height = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2., height + 1,
+            f'{venta}', ha='center', va='bottom', fontsize=12, fontweight='bold')
+
+plt.tight_layout()
+plt.show()
+```
+
+#### 3. **Gráfico de Dispersión (Scatter Plot)**
+
+```python
+# Datos de relación entre precio y ventas
+np.random.seed(42)
+precios = np.random.uniform(50, 500, 50)
+ventas = 1000 - 1.5 * precios + np.random.normal(0, 50, 50)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+scatter = ax.scatter(precios, ventas, c=ventas, cmap='viridis', s=100, alpha=0.7)
+ax.set_xlabel('Precio ($)', fontsize=14)
+ax.set_ylabel('Ventas (unidades)', fontsize=14)
+ax.set_title('Relación Precio vs Ventas', fontsize=16, fontweight='bold')
+
+# Agregar línea de tendencia
+z = np.polyfit(precios, ventas, 1)
+p = np.poly1d(z)
+ax.plot(precios, p(precios), "r--", alpha=0.8, linewidth=2, label='Tendencia')
+
+# Agregar barra de color
+cbar = plt.colorbar(scatter)
+cbar.set_label('Nivel de Ventas', fontsize=12)
+
+ax.legend(fontsize=12)
+plt.tight_layout()
+plt.show()
+```
+
+#### 4. **Histograma**
+
+```python
+# Datos de edades de clientes
+np.random.seed(42)
+edades = np.random.normal(35, 12, 1000)  # Media=35, Desv=12, 1000 clientes
+
+fig, ax = plt.subplots(figsize=(10, 6))
+n, bins, patches = ax.hist(edades, bins=30, alpha=0.7, color='skyblue', edgecolor='black')
+
+# Agregar línea de densidad normal
+from scipy.stats import norm
+xmin, xmax = ax.get_xlim()
+x = np.linspace(xmin, xmax, 100)
+p = norm.pdf(x, np.mean(edades), np.std(edades))
+ax.plot(x, p * len(edades) * (bins[1] - bins[0]), 'r-', linewidth=2, label='Distribución Normal')
+
+ax.set_xlabel('Edad', fontsize=14)
+ax.set_ylabel('Frecuencia', fontsize=14)
+ax.set_title('Distribución de Edades de Clientes', fontsize=16, fontweight='bold')
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+#### 5. **Boxplot**
+
+```python
+# Datos de salarios por departamento
+np.random.seed(42)
+it_salarios = np.random.normal(65000, 15000, 100)
+hr_salarios = np.random.normal(55000, 12000, 100)
+marketing_salarios = np.random.normal(60000, 18000, 100)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+data = [it_salarios, hr_salarios, marketing_salarios]
+labels = ['IT', 'Recursos Humanos', 'Marketing']
+
+box_plot = ax.boxplot(data, labels=labels, patch_artist=True)
+
+# Colorear las cajas
+colors = ['lightblue', 'lightgreen', 'lightcoral']
+for patch, color in zip(box_plot['boxes'], colors):
+    patch.set_facecolor(color)
+
+ax.set_ylabel('Salario Anual ($)', fontsize=14)
+ax.set_title('Distribución de Salarios por Departamento', fontsize=16, fontweight='bold')
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+### Subplots y Múltiples Gráficos
+
+```python
+# Crear múltiples gráficos en una sola figura
+fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+fig.suptitle('Dashboard de Análisis de Datos', fontsize=16, fontweight='bold')
+
+# Gráfico 1: Línea temporal
+axes[0, 0].plot(meses, ventas, 'o-', color='blue')
+axes[0, 0].set_title('Ventas Mensuales')
+axes[0, 0].set_ylabel('Ventas ($)')
+axes[0, 0].grid(True, alpha=0.3)
+
+# Gráfico 2: Barras
+axes[0, 1].bar(productos, ventas, color='green', alpha=0.7)
+axes[0, 1].set_title('Ventas por Producto')
+axes[0, 1].set_ylabel('Unidades')
+
+# Gráfico 3: Dispersión
+axes[1, 0].scatter(precios, ventas, alpha=0.6, color='red')
+axes[1, 0].set_title('Precio vs Ventas')
+axes[1, 0].set_xlabel('Precio ($)')
+axes[1, 0].set_ylabel('Ventas')
+
+# Gráfico 4: Histograma
+axes[1, 1].hist(edades, bins=20, alpha=0.7, color='purple')
+axes[1, 1].set_title('Distribución de Edades')
+axes[1, 1].set_xlabel('Edad')
+axes[1, 1].set_ylabel('Frecuencia')
+
+plt.tight_layout()
+plt.show()
+```
+
+### Personalización Avanzada
+
+```python
+# Gráfico con personalización completa
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Crear datos
+x = np.linspace(0, 2*np.pi, 100)
+y1 = np.sin(x)
+y2 = np.cos(x)
+
+# Gráfico principal
+line1 = ax.plot(x, y1, 'b-', linewidth=3, label='Seno', alpha=0.8)
+line2 = ax.plot(x, y2, 'r-', linewidth=3, label='Coseno', alpha=0.8)
+
+# Personalizar ejes
+ax.set_xlim(0, 2*np.pi)
+ax.set_ylim(-1.2, 1.2)
+ax.set_xlabel('Ángulo (radianes)', fontsize=14, fontweight='bold')
+ax.set_ylabel('Valor', fontsize=14, fontweight='bold')
+ax.set_title('Funciones Trigonométricas', fontsize=16, fontweight='bold', pad=20)
+
+# Personalizar cuadrícula
+ax.grid(True, linestyle='--', alpha=0.7, color='gray')
+ax.set_axisbelow(True)  # Poner la cuadrícula detrás de los datos
+
+# Personalizar leyenda
+ax.legend(loc='upper right', fontsize=12, framealpha=0.9, shadow=True)
+
+# Agregar anotaciones
+ax.annotate('Máximo del Seno', xy=(np.pi/2, 1), xytext=(np.pi/2 + 0.5, 1.1),
+            arrowprops=dict(arrowstyle='->', color='blue', lw=2),
+            fontsize=12, color='blue')
+
+ax.annotate('Máximo del Coseno', xy=(0, 1), xytext=(-0.5, 1.1),
+            arrowprops=dict(arrowstyle='->', color='red', lw=2),
+            fontsize=12, color='red')
+
+# Personalizar el fondo
+ax.set_facecolor('#f8f9fa')
+fig.patch.set_facecolor('white')
+
+plt.tight_layout()
+plt.show()
+```
+
+### Guardar Gráficos
+
+```python
+# Crear un gráfico y guardarlo en diferentes formatos
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(x, y1, 'b-', linewidth=2, label='Seno')
+ax.plot(x, y2, 'r-', linewidth=2, label='Coseno')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_title('Funciones Trigonométricas')
+ax.legend()
+ax.grid(True, alpha=0.3)
+
+# Guardar en diferentes formatos
+plt.savefig('grafico.png', dpi=300, bbox_inches='tight')  # PNG de alta calidad
+plt.savefig('grafico.pdf', bbox_inches='tight')  # PDF vectorial
+plt.savefig('grafico.svg', bbox_inches='tight')  # SVG escalable
+
+plt.show()
+```
+
+### Mejores Prácticas
+
+1. **Siempre usar la interfaz orientada a objetos** para gráficos complejos
+2. **Configurar el estilo al inicio** del script
+3. **Usar `plt.tight_layout()`** para evitar superposición
+4. **Guardar gráficos con `bbox_inches='tight'`** para recortar espacios en blanco
+5. **Usar colores consistentes** y accesibles
+6. **Agregar títulos y etiquetas descriptivas**
+7. **Incluir leyendas cuando sea necesario**
+8. **Usar `plt.show()`** al final para mostrar el gráfico
+
+### Integración con Pandas
+
+```python
+# Crear DataFrame de ejemplo
+df = pd.DataFrame({
+    'fecha': pd.date_range('2024-01-01', periods=100, freq='D'),
+    'ventas': np.random.normal(100, 20, 100).cumsum(),
+    'gastos': np.random.normal(80, 15, 100).cumsum()
+})
+
+# Gráfico usando Pandas con Matplotlib
+fig, ax = plt.subplots(figsize=(12, 6))
+df.plot(x='fecha', y=['ventas', 'gastos'], ax=ax, linewidth=2)
+ax.set_title('Evolución de Ventas y Gastos', fontsize=16, fontweight='bold')
+ax.set_xlabel('Fecha', fontsize=14)
+ax.set_ylabel('Monto ($)', fontsize=14)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
 
 
 ## **Recursos Adicionales**
