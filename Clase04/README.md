@@ -1302,6 +1302,523 @@ plt.tight_layout()
 plt.show()
 ```
 
+---
+
+## **4.5 Creación de Gráficos Básicos - Análisis de Datos Secuenciales y Series de Tiempo**
+
+### Introducción a Datos Secuenciales y Series de Tiempo
+
+**¿Por qué son importantes las series de tiempo?**
+Las series de tiempo y los datos secuenciales son fundamentales en el análisis de datos, ya que permiten visualizar y analizar cómo cambia una variable a lo largo del tiempo. Esto es crucial para:
+- Identificar tendencias y patrones
+- Detectar estacionalidad
+- Predecir comportamientos futuros
+- Tomar decisiones basadas en evolución temporal
+
+### 1. Gráficos de Líneas - Herramienta Principal para Series de Tiempo
+
+**¿Cuándo usar gráficos de líneas?**
+Los gráficos de líneas son la herramienta más común para representar series de tiempo. Muestran la evolución de los datos en función del tiempo, permitiendo identificar tendencias, patrones estacionales y posibles anomalías.
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from datetime import datetime, timedelta
+
+# Configuración de estilo
+plt.style.use('seaborn-v0_8')
+plt.rcParams['figure.figsize'] = (12, 8)
+
+# Crear datos de series de tiempo
+np.random.seed(42)
+fechas = pd.date_range('2024-01-01', periods=365, freq='D')
+
+# Simular datos realistas de ventas con tendencia y estacionalidad
+tendencia = np.linspace(100, 150, 365)  # Tendencia creciente
+estacionalidad = 20 * np.sin(2 * np.pi * np.arange(365) / 365)  # Patrón anual
+ruido = np.random.normal(0, 10, 365)  # Ruido aleatorio
+ventas = tendencia + estacionalidad + ruido
+
+# Crear DataFrame
+df_ventas = pd.DataFrame({
+    'fecha': fechas,
+    'ventas': ventas
+})
+
+# Gráfico de líneas básico
+fig, ax = plt.subplots(figsize=(15, 8))
+ax.plot(df_ventas['fecha'], df_ventas['ventas'], linewidth=2, color='blue', alpha=0.8)
+ax.set_title('Evolución de Ventas Diarias - 2024', fontsize=16, fontweight='bold')
+ax.set_xlabel('Fecha', fontsize=14)
+ax.set_ylabel('Ventas ($)', fontsize=14)
+ax.grid(True, alpha=0.3)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Gráfico de líneas con múltiples series
+# Agregar datos de gastos y beneficios
+gastos = ventas * 0.6 + np.random.normal(0, 5, 365)  # 60% de las ventas + ruido
+beneficios = ventas - gastos
+
+df_completo = pd.DataFrame({
+    'fecha': fechas,
+    'ventas': ventas,
+    'gastos': gastos,
+    'beneficios': beneficios
+})
+
+fig, ax = plt.subplots(figsize=(15, 8))
+ax.plot(df_completo['fecha'], df_completo['ventas'], linewidth=2, label='Ventas', color='blue')
+ax.plot(df_completo['fecha'], df_completo['gastos'], linewidth=2, label='Gastos', color='red')
+ax.plot(df_completo['fecha'], df_completo['beneficios'], linewidth=2, label='Beneficios', color='green')
+
+ax.set_title('Análisis Financiero Anual - 2024', fontsize=16, fontweight='bold')
+ax.set_xlabel('Fecha', fontsize=14)
+ax.set_ylabel('Monto ($)', fontsize=14)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Análisis de tendencias con líneas de tendencia
+fig, ax = plt.subplots(figsize=(15, 8))
+
+# Datos originales
+ax.plot(df_ventas['fecha'], df_ventas['ventas'], linewidth=2, color='blue', alpha=0.7, label='Ventas Reales')
+
+# Línea de tendencia (polinomio de grado 1)
+z = np.polyfit(range(len(df_ventas)), df_ventas['ventas'], 1)
+p = np.poly1d(z)
+tendencia_lineal = p(range(len(df_ventas)))
+ax.plot(df_ventas['fecha'], tendencia_lineal, 'r--', linewidth=3, label='Tendencia Lineal')
+
+# Promedio móvil (suavizado)
+ventana = 30  # Promedio móvil de 30 días
+promedio_movil = df_ventas['ventas'].rolling(window=ventana).mean()
+ax.plot(df_ventas['fecha'], promedio_movil, 'g-', linewidth=2, label=f'Promedio Móvil ({ventana} días)')
+
+ax.set_title('Análisis de Tendencia de Ventas', fontsize=16, fontweight='bold')
+ax.set_xlabel('Fecha', fontsize=14)
+ax.set_ylabel('Ventas ($)', fontsize=14)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+```
+
+### 2. Gráficos de Dispersión (Scatter Plot) - Análisis de Relaciones Temporales
+
+**¿Cuándo usar gráficos de dispersión?**
+Los gráficos de puntos son ideales para analizar la relación entre dos variables diferentes en el tiempo, especialmente cuando se busca identificar correlaciones temporales.
+
+```python
+# Crear datos de ejemplo: temperatura vs ventas de helados
+np.random.seed(42)
+temperaturas = np.random.uniform(15, 35, 100)  # Temperaturas entre 15-35°C
+ventas_helados = 50 + 3 * temperaturas + np.random.normal(0, 10, 100)  # Relación positiva con ruido
+
+# Gráfico de dispersión básico
+fig, ax = plt.subplots(figsize=(10, 6))
+scatter = ax.scatter(temperaturas, ventas_helados, alpha=0.7, c=temperaturas, cmap='viridis', s=50)
+ax.set_xlabel('Temperatura (°C)', fontsize=14)
+ax.set_ylabel('Ventas de Helados ($)', fontsize=14)
+ax.set_title('Relación entre Temperatura y Ventas de Helados', fontsize=16, fontweight='bold')
+
+# Agregar línea de tendencia
+z = np.polyfit(temperaturas, ventas_helados, 1)
+p = np.poly1d(z)
+ax.plot(temperaturas, p(temperaturas), "r--", alpha=0.8, linewidth=2, label='Tendencia')
+
+# Agregar barra de color
+cbar = plt.colorbar(scatter)
+cbar.set_label('Temperatura (°C)', fontsize=12)
+
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Gráfico de dispersión con series de tiempo
+# Crear datos de ventas vs publicidad a lo largo del tiempo
+fechas = pd.date_range('2024-01-01', periods=100, freq='D')
+publicidad = np.random.uniform(1000, 5000, 100)  # Gasto en publicidad
+ventas = 200 + 0.05 * publicidad + np.random.normal(0, 50, 100)  # Ventas relacionadas con publicidad
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+
+# Gráfico 1: Dispersión
+scatter = ax1.scatter(publicidad, ventas, c=range(len(fechas)), cmap='plasma', alpha=0.7, s=50)
+ax1.set_xlabel('Gasto en Publicidad ($)', fontsize=14)
+ax1.set_ylabel('Ventas ($)', fontsize=14)
+ax1.set_title('Relación Publicidad vs Ventas', fontsize=14, fontweight='bold')
+ax1.grid(True, alpha=0.3)
+
+# Línea de tendencia
+z = np.polyfit(publicidad, ventas, 1)
+p = np.poly1d(z)
+ax1.plot(publicidad, p(publicidad), "r--", alpha=0.8, linewidth=2)
+
+# Gráfico 2: Series de tiempo
+ax2.plot(fechas, publicidad, 'b-', linewidth=2, label='Gasto en Publicidad', alpha=0.7)
+ax2_twin = ax2.twinx()
+ax2_twin.plot(fechas, ventas, 'r-', linewidth=2, label='Ventas', alpha=0.7)
+
+ax2.set_xlabel('Fecha', fontsize=14)
+ax2.set_ylabel('Gasto en Publicidad ($)', fontsize=14, color='blue')
+ax2_twin.set_ylabel('Ventas ($)', fontsize=14, color='red')
+ax2.set_title('Evolución Temporal', fontsize=14, fontweight='bold')
+ax2.grid(True, alpha=0.3)
+
+# Leyendas
+lines1, labels1 = ax2.get_legend_handles_labels()
+lines2, labels2 = ax2_twin.get_legend_handles_labels()
+ax2.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
+
+plt.tight_layout()
+plt.show()
+```
+
+### 3. Gráficos de Barras - Comparación de Valores Temporales
+
+**¿Cuándo usar gráficos de barras?**
+Los gráficos de barras son útiles para comparar valores en diferentes intervalos de tiempo, especialmente cuando se quiere resaltar diferencias entre períodos.
+
+```python
+# Datos de precipitaciones mensuales
+meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+precipitaciones_2023 = [120, 95, 110, 85, 70, 45, 30, 25, 60, 90, 105, 130]
+precipitaciones_2024 = [115, 100, 105, 90, 75, 50, 35, 30, 65, 95, 110, 125]
+
+# Gráfico de barras comparativo
+fig, ax = plt.subplots(figsize=(15, 8))
+
+x = np.arange(len(meses))
+width = 0.35
+
+bars1 = ax.bar(x - width/2, precipitaciones_2023, width, label='2023', alpha=0.8, color='skyblue')
+bars2 = ax.bar(x + width/2, precipitaciones_2024, width, label='2024', alpha=0.8, color='lightcoral')
+
+ax.set_xlabel('Mes', fontsize=14)
+ax.set_ylabel('Precipitaciones (mm)', fontsize=14)
+ax.set_title('Precipitaciones Mensuales - Comparación 2023 vs 2024', fontsize=16, fontweight='bold')
+ax.set_xticks(x)
+ax.set_xticklabels(meses)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3, axis='y')
+
+# Agregar valores sobre las barras
+def autolabel(bars):
+    for bar in bars:
+        height = bar.get_height()
+        ax.annotate(f'{height}',
+                    xy=(bar.get_x() + bar.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom', fontsize=10)
+
+autolabel(bars1)
+autolabel(bars2)
+
+plt.tight_layout()
+plt.show()
+
+# Gráfico de barras apiladas para análisis de composición
+# Datos de ventas por categoría de producto
+categorias = ['Electrónicos', 'Ropa', 'Hogar', 'Deportes']
+ventas_q1 = [45000, 32000, 28000, 15000]
+ventas_q2 = [52000, 35000, 30000, 18000]
+ventas_q3 = [48000, 38000, 32000, 20000]
+ventas_q4 = [60000, 42000, 35000, 22000]
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+x = np.arange(len(categorias))
+width = 0.2
+
+ax.bar(x - width*1.5, ventas_q1, width, label='Q1', alpha=0.8, color='#2E86AB')
+ax.bar(x - width*0.5, ventas_q2, width, label='Q2', alpha=0.8, color='#A23B72')
+ax.bar(x + width*0.5, ventas_q3, width, label='Q3', alpha=0.8, color='#F18F01')
+ax.bar(x + width*1.5, ventas_q4, width, label='Q4', alpha=0.8, color='#C73E1D')
+
+ax.set_xlabel('Categoría de Producto', fontsize=14)
+ax.set_ylabel('Ventas ($)', fontsize=14)
+ax.set_title('Ventas por Categoría y Trimestre', fontsize=16, fontweight='bold')
+ax.set_xticks(x)
+ax.set_xticklabels(categorias)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3, axis='y')
+
+plt.tight_layout()
+plt.show()
+```
+
+### 4. Histogramas - Distribución de Datos Temporales
+
+**¿Cuándo usar histogramas?**
+Los histogramas son ideales para visualizar la distribución de datos continuos a lo largo del tiempo, especialmente cuando se agrupan en intervalos.
+
+```python
+# Crear datos de ejemplo: distribución de temperaturas diarias
+np.random.seed(42)
+temperaturas_verano = np.random.normal(28, 5, 90)  # Verano: media 28°C
+temperaturas_invierno = np.random.normal(12, 4, 90)  # Invierno: media 12°C
+temperaturas_primavera = np.random.normal(20, 6, 90)  # Primavera: media 20°C
+temperaturas_otono = np.random.normal(18, 5, 90)  # Otoño: media 18°C
+
+# Histograma comparativo por estación
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 10))
+fig.suptitle('Distribución de Temperaturas por Estación', fontsize=16, fontweight='bold')
+
+ax1.hist(temperaturas_verano, bins=20, alpha=0.7, color='red', edgecolor='black')
+ax1.set_title('Verano')
+ax1.set_xlabel('Temperatura (°C)')
+ax1.set_ylabel('Frecuencia')
+ax1.grid(True, alpha=0.3)
+
+ax2.hist(temperaturas_invierno, bins=20, alpha=0.7, color='blue', edgecolor='black')
+ax2.set_title('Invierno')
+ax2.set_xlabel('Temperatura (°C)')
+ax2.set_ylabel('Frecuencia')
+ax2.grid(True, alpha=0.3)
+
+ax3.hist(temperaturas_primavera, bins=20, alpha=0.7, color='green', edgecolor='black')
+ax3.set_title('Primavera')
+ax3.set_xlabel('Temperatura (°C)')
+ax3.set_ylabel('Frecuencia')
+ax3.grid(True, alpha=0.3)
+
+ax4.hist(temperaturas_otono, bins=20, alpha=0.7, color='orange', edgecolor='black')
+ax4.set_title('Otoño')
+ax4.set_xlabel('Temperatura (°C)')
+ax4.set_ylabel('Frecuencia')
+ax4.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+# Histograma con curva de densidad
+fig, ax = plt.subplots(figsize=(12, 6))
+
+# Combinar todas las temperaturas
+todas_temperaturas = np.concatenate([temperaturas_verano, temperaturas_invierno, 
+                                   temperaturas_primavera, temperaturas_otono])
+
+# Histograma
+n, bins, patches = ax.hist(todas_temperaturas, bins=30, alpha=0.7, color='skyblue', 
+                          edgecolor='black', density=True, label='Frecuencia')
+
+# Curva de densidad normal
+from scipy.stats import norm
+xmin, xmax = ax.get_xlim()
+x = np.linspace(xmin, xmax, 100)
+p = norm.pdf(x, np.mean(todas_temperaturas), np.std(todas_temperaturas))
+ax.plot(x, p, 'r-', linewidth=2, label='Distribución Normal')
+
+ax.set_xlabel('Temperatura (°C)', fontsize=14)
+ax.set_ylabel('Densidad de Probabilidad', fontsize=14)
+ax.set_title('Distribución de Temperaturas Anuales', fontsize=16, fontweight='bold')
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+```
+
+### 5. Boxplots - Análisis de Distribución y Outliers Temporales
+
+**¿Cuándo usar boxplots?**
+Los boxplots son útiles para mostrar la distribución de una variable numérica y cómo esta se distribuye a través de diferentes categorías de tiempo, ayudando a identificar outliers y patrones estacionales.
+
+```python
+# Crear datos de ventas diarias por día de la semana
+np.random.seed(42)
+dias_semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+
+# Simular ventas con patrones semanales
+ventas_lunes = np.random.normal(800, 150, 52)  # 52 semanas
+ventas_martes = np.random.normal(850, 140, 52)
+ventas_miercoles = np.random.normal(900, 130, 52)
+ventas_jueves = np.random.normal(950, 120, 52)
+ventas_viernes = np.random.normal(1100, 100, 52)  # Viernes más alto
+ventas_sabado = np.random.normal(1200, 80, 52)   # Sábado más alto
+ventas_domingo = np.random.normal(600, 200, 52)  # Domingo más bajo
+
+# Agregar algunos outliers
+ventas_lunes[0] = 1500  # Outlier alto
+ventas_domingo[10] = 50  # Outlier bajo
+
+# Gráfico de boxplot
+fig, ax = plt.subplots(figsize=(12, 8))
+data = [ventas_lunes, ventas_martes, ventas_miercoles, ventas_jueves, 
+        ventas_viernes, ventas_sabado, ventas_domingo]
+
+box_plot = ax.boxplot(data, labels=dias_semana, patch_artist=True)
+
+# Colorear las cajas
+colors = ['lightblue', 'lightgreen', 'lightcoral', 'lightyellow', 
+          'lightpink', 'lightsteelblue', 'lightgray']
+for patch, color in zip(box_plot['boxes'], colors):
+    patch.set_facecolor(color)
+
+ax.set_ylabel('Ventas Diarias ($)', fontsize=14)
+ax.set_title('Distribución de Ventas por Día de la Semana', fontsize=16, fontweight='bold')
+ax.grid(True, alpha=0.3, axis='y')
+
+plt.tight_layout()
+plt.show()
+
+# Boxplot con datos mensuales
+# Crear datos de ventas mensuales con estacionalidad
+meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
+                 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+
+# Simular 3 años de datos con estacionalidad
+ventas_mensuales = []
+for mes in range(12):
+    # Patrón estacional: más ventas en verano (jun-ago) y navidad (dic)
+    if mes in [5, 6, 7]:  # Verano
+        base_ventas = 1200
+    elif mes == 11:  # Diciembre (navidad)
+        base_ventas = 1500
+    else:
+        base_ventas = 800
+    
+    # Agregar variabilidad y tendencia
+    ventas_mes = np.random.normal(base_ventas, base_ventas * 0.2, 3)  # 3 años
+    ventas_mensuales.append(ventas_mes)
+
+fig, ax = plt.subplots(figsize=(15, 8))
+box_plot = ax.boxplot(ventas_mensuales, labels=meses_nombres, patch_artist=True)
+
+# Colorear por estación
+colores_estacion = ['lightblue']*2 + ['lightgreen']*3 + ['lightcoral']*3 + ['lightyellow']*3 + ['lightblue']
+for patch, color in zip(box_plot['boxes'], colores_estacion):
+    patch.set_facecolor(color)
+
+ax.set_ylabel('Ventas Mensuales ($)', fontsize=14)
+ax.set_title('Distribución de Ventas Mensuales (3 años)', fontsize=16, fontweight='bold')
+ax.grid(True, alpha=0.3, axis='y')
+
+# Agregar anotaciones para estaciones
+ax.annotate('Invierno', xy=(1.5, 1600), xytext=(1.5, 1600), 
+            fontsize=12, ha='center', bbox=dict(boxstyle="round,pad=0.3", facecolor="lightblue", alpha=0.7))
+ax.annotate('Primavera', xy=(5, 1600), xytext=(5, 1600), 
+            fontsize=12, ha='center', bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgreen", alpha=0.7))
+ax.annotate('Verano', xy=(8, 1600), xytext=(8, 1600), 
+            fontsize=12, ha='center', bbox=dict(boxstyle="round,pad=0.3", facecolor="lightcoral", alpha=0.7))
+ax.annotate('Otoño', xy=(11, 1600), xytext=(11, 1600), 
+            fontsize=12, ha='center', bbox=dict(boxstyle="round,pad=0.3", facecolor="lightyellow", alpha=0.7))
+
+plt.tight_layout()
+plt.show()
+```
+
+### Dashboard Completo de Análisis Temporal
+
+```python
+# Crear un dashboard completo con múltiples visualizaciones
+fig = plt.figure(figsize=(20, 12))
+fig.suptitle('Dashboard de Análisis de Series de Tiempo', fontsize=20, fontweight='bold')
+
+# Gráfico 1: Línea temporal (2x2, posición 1)
+ax1 = plt.subplot(2, 3, 1)
+ax1.plot(df_ventas['fecha'], df_ventas['ventas'], linewidth=2, color='blue')
+ax1.set_title('Evolución de Ventas')
+ax1.set_ylabel('Ventas ($)')
+ax1.grid(True, alpha=0.3)
+plt.setp(ax1.get_xticklabels(), rotation=45)
+
+# Gráfico 2: Dispersión (2x2, posición 2)
+ax2 = plt.subplot(2, 3, 2)
+ax2.scatter(temperaturas, ventas_helados, alpha=0.7, c=temperaturas, cmap='viridis')
+ax2.set_title('Temperatura vs Ventas')
+ax2.set_xlabel('Temperatura (°C)')
+ax2.set_ylabel('Ventas ($)')
+ax2.grid(True, alpha=0.3)
+
+# Gráfico 3: Barras (2x2, posición 3)
+ax3 = plt.subplot(2, 3, 3)
+x = np.arange(len(meses))
+ax3.bar(x, precipitaciones_2024, alpha=0.8, color='lightblue')
+ax3.set_title('Precipitaciones 2024')
+ax3.set_ylabel('Precipitaciones (mm)')
+ax3.set_xticks(x)
+ax3.set_xticklabels(meses, rotation=45)
+ax3.grid(True, alpha=0.3, axis='y')
+
+# Gráfico 4: Histograma (2x2, posición 4)
+ax4 = plt.subplot(2, 3, 4)
+ax4.hist(todas_temperaturas, bins=30, alpha=0.7, color='skyblue', edgecolor='black')
+ax4.set_title('Distribución de Temperaturas')
+ax4.set_xlabel('Temperatura (°C)')
+ax4.set_ylabel('Frecuencia')
+ax4.grid(True, alpha=0.3)
+
+# Gráfico 5: Boxplot (2x2, posición 5)
+ax5 = plt.subplot(2, 3, 5)
+box_plot = ax5.boxplot(data, labels=dias_semana, patch_artist=True)
+colors = ['lightblue', 'lightgreen', 'lightcoral', 'lightyellow', 
+          'lightpink', 'lightsteelblue', 'lightgray']
+for patch, color in zip(box_plot['boxes'], colors):
+    patch.set_facecolor(color)
+ax5.set_title('Ventas por Día de la Semana')
+ax5.set_ylabel('Ventas ($)')
+ax5.grid(True, alpha=0.3, axis='y')
+plt.setp(ax5.get_xticklabels(), rotation=45)
+
+# Gráfico 6: Resumen estadístico (2x2, posición 6)
+ax6 = plt.subplot(2, 3, 6)
+ax6.axis('off')
+stats_text = f"""
+RESUMEN ESTADÍSTICO
+
+Ventas Anuales:
+• Total: ${df_ventas['ventas'].sum():,.0f}
+• Promedio: ${df_ventas['ventas'].mean():.0f}
+• Máximo: ${df_ventas['ventas'].max():.0f}
+• Mínimo: ${df_ventas['ventas'].min():.0f}
+
+Temperaturas:
+• Promedio: {np.mean(todas_temperaturas):.1f}°C
+• Desv. Est.: {np.std(todas_temperaturas):.1f}°C
+
+Correlación Temp-Ventas:
+• Coeficiente: {np.corrcoef(temperaturas, ventas_helados)[0,1]:.3f}
+"""
+ax6.text(0.1, 0.9, stats_text, transform=ax6.transAxes, fontsize=12, 
+         verticalalignment='top', bbox=dict(boxstyle="round,pad=0.5", facecolor="lightgray", alpha=0.8))
+
+plt.tight_layout()
+plt.show()
+```
+
+### Mejores Prácticas para Gráficos de Series de Tiempo
+
+1. **Siempre usar el eje X para el tiempo** y mantener la escala temporal consistente
+2. **Agregar líneas de tendencia** para identificar patrones a largo plazo
+3. **Usar colores consistentes** para diferentes series de datos
+4. **Incluir leyendas claras** cuando se muestren múltiples series
+5. **Considerar la estacionalidad** y agregar marcadores para eventos importantes
+6. **Usar gráficos complementarios** (líneas + dispersión) para análisis completo
+7. **Agregar anotaciones** para puntos importantes o outliers
+8. **Mantener la simplicidad** - no sobrecargar con demasiada información
+
+### Conclusión
+
+El análisis de datos secuenciales y series de tiempo es crucial para comprender la evolución de variables y tomar decisiones informadas. Los gráficos de líneas, dispersión, barras, histogramas y boxplots son herramientas esenciales, cada una con su aplicación específica:
+
+- **Líneas**: Para tendencias y evolución temporal
+- **Dispersión**: Para relaciones entre variables
+- **Barras**: Para comparaciones entre períodos
+- **Histogramas**: Para distribución de valores
+- **Boxplots**: Para análisis de outliers y distribución por categorías
+
+La combinación de estas visualizaciones permite un análisis completo y profundo de los datos temporales.
+
 
 ## **Recursos Adicionales**
 1. Documentación oficial de Pandas: [Manejo de datos faltantes](https://pandas.pydata.org/docs/user_guide/missing_data.html) [1]
