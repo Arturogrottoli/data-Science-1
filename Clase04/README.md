@@ -1819,6 +1819,757 @@ El análisis de datos secuenciales y series de tiempo es crucial para comprender
 
 La combinación de estas visualizaciones permite un análisis completo y profundo de los datos temporales.
 
+---
+
+## **4.6 Gráficos de Dispersión, de Barras e Histogramas - Análisis Detallado**
+
+### Introducción a los Gráficos de Dispersión
+
+**¿Qué son los gráficos de dispersión?**
+Un gráfico de dispersión es una herramienta fundamental en el análisis de datos que permite visualizar la relación entre dos variables numéricas. Cada punto en el gráfico representa una observación individual, donde la posición del punto está determinada por los valores de las dos variables que se están comparando.
+
+### Utilidad del Gráfico de Dispersión
+
+**1. Identificación de Relaciones:**
+Los gráficos de dispersión son particularmente útiles para identificar si existe una relación entre las dos variables. Por ejemplo, se puede observar si a medida que una variable aumenta, la otra también lo hace (relación positiva), o si, por el contrario, una variable disminuye mientras la otra aumenta (relación negativa).
+
+**2. Detección de Patrones:**
+Estos gráficos permiten detectar patrones en los datos, como tendencias lineales, no lineales, cúmulos de datos o la presencia de outliers.
+
+**3. Evaluación de la Fuerza de la Relación:**
+La dispersión o concentración de los puntos en el gráfico también da una idea de la fuerza de la relación entre las variables. Una nube de puntos muy dispersa indica una relación débil o nula, mientras que una nube alineada sugiere una relación fuerte.
+
+### Creación de Gráficos de Dispersión con Matplotlib
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+# Configuración de estilo
+plt.style.use('seaborn-v0_8')
+plt.rcParams['figure.figsize'] = (12, 8)
+
+# 1. Gráfico de Dispersión Básico
+print("=== GRÁFICO DE DISPERSIÓN BÁSICO ===")
+
+# Preparar los datos
+np.random.seed(42)
+x = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+y = np.array([2, 4, 6, 8, 10, 12, 14, 16, 18, 20])
+
+# Crear el gráfico de dispersión básico
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.scatter(x, y, color='blue', s=100, alpha=0.7)
+ax.set_title('Gráfico de Dispersión Básico', fontsize=16, fontweight='bold')
+ax.set_xlabel('Variable X', fontsize=14)
+ax.set_ylabel('Variable Y', fontsize=14)
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# 2. Gráfico de Dispersión con Personalización Avanzada
+print("\n=== GRÁFICO DE DISPERSIÓN PERSONALIZADO ===")
+
+# Crear datos más realistas
+np.random.seed(42)
+n_points = 100
+x = np.random.normal(50, 15, n_points)
+y = 2 * x + 10 + np.random.normal(0, 20, n_points)  # Relación lineal con ruido
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Gráfico de dispersión con personalización
+scatter = ax.scatter(x, y, 
+                    c=y,  # Color basado en valores de y
+                    s=100,  # Tamaño de los puntos
+                    alpha=0.6,  # Transparencia
+                    cmap='viridis',  # Mapa de colores
+                    edgecolors='black',  # Borde de los puntos
+                    linewidth=0.5)
+
+# Agregar línea de tendencia
+z = np.polyfit(x, y, 1)
+p = np.poly1d(z)
+ax.plot(x, p(x), "r--", alpha=0.8, linewidth=2, label='Línea de Tendencia')
+
+# Agregar barra de color
+cbar = plt.colorbar(scatter)
+cbar.set_label('Valor de Y', fontsize=12)
+
+# Personalizar el gráfico
+ax.set_title('Gráfico de Dispersión con Línea de Tendencia', fontsize=16, fontweight='bold')
+ax.set_xlabel('Variable X', fontsize=14)
+ax.set_ylabel('Variable Y', fontsize=14)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+
+# Agregar anotación con coeficiente de correlación
+correlation = np.corrcoef(x, y)[0, 1]
+ax.annotate(f'Correlación: {correlation:.3f}', 
+            xy=(0.05, 0.95), xycoords='axes fraction',
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="yellow", alpha=0.7),
+            fontsize=12)
+
+plt.tight_layout()
+plt.show()
+
+# 3. Múltiples Gráficos de Dispersión - Diferentes Tipos de Relaciones
+print("\n=== DIFERENTES TIPOS DE RELACIONES ===")
+
+# Crear datos con diferentes tipos de relaciones
+np.random.seed(42)
+
+# Relación positiva fuerte
+x1 = np.random.uniform(0, 10, 50)
+y1 = 2 * x1 + np.random.normal(0, 0.5, 50)
+
+# Relación negativa
+x2 = np.random.uniform(0, 10, 50)
+y2 = -1.5 * x2 + 15 + np.random.normal(0, 1, 50)
+
+# Sin relación (ruido)
+x3 = np.random.uniform(0, 10, 50)
+y3 = np.random.normal(5, 2, 50)
+
+# Relación no lineal (cuadrática)
+x4 = np.random.uniform(-3, 3, 50)
+y4 = x4**2 + np.random.normal(0, 0.5, 50)
+
+# Crear subplots
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 12))
+fig.suptitle('Diferentes Tipos de Relaciones en Gráficos de Dispersión', fontsize=16, fontweight='bold')
+
+# Gráfico 1: Relación positiva fuerte
+ax1.scatter(x1, y1, alpha=0.7, color='blue', s=50)
+z1 = np.polyfit(x1, y1, 1)
+p1 = np.poly1d(z1)
+ax1.plot(x1, p1(x1), "r--", alpha=0.8)
+ax1.set_title('Relación Positiva Fuerte')
+ax1.set_xlabel('X')
+ax1.set_ylabel('Y')
+ax1.grid(True, alpha=0.3)
+corr1 = np.corrcoef(x1, y1)[0, 1]
+ax1.text(0.05, 0.95, f'r = {corr1:.3f}', transform=ax1.transAxes, 
+         bbox=dict(boxstyle="round,pad=0.3", facecolor="lightblue", alpha=0.7))
+
+# Gráfico 2: Relación negativa
+ax2.scatter(x2, y2, alpha=0.7, color='red', s=50)
+z2 = np.polyfit(x2, y2, 1)
+p2 = np.poly1d(z2)
+ax2.plot(x2, p2(x2), "r--", alpha=0.8)
+ax2.set_title('Relación Negativa')
+ax2.set_xlabel('X')
+ax2.set_ylabel('Y')
+ax2.grid(True, alpha=0.3)
+corr2 = np.corrcoef(x2, y2)[0, 1]
+ax2.text(0.05, 0.95, f'r = {corr2:.3f}', transform=ax2.transAxes,
+         bbox=dict(boxstyle="round,pad=0.3", facecolor="lightcoral", alpha=0.7))
+
+# Gráfico 3: Sin relación
+ax3.scatter(x3, y3, alpha=0.7, color='green', s=50)
+ax3.set_title('Sin Relación (Ruido)')
+ax3.set_xlabel('X')
+ax3.set_ylabel('Y')
+ax3.grid(True, alpha=0.3)
+corr3 = np.corrcoef(x3, y3)[0, 1]
+ax3.text(0.05, 0.95, f'r = {corr3:.3f}', transform=ax3.transAxes,
+         bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgreen", alpha=0.7))
+
+# Gráfico 4: Relación no lineal
+ax4.scatter(x4, y4, alpha=0.7, color='purple', s=50)
+# Ajuste polinomial de grado 2
+z4 = np.polyfit(x4, y4, 2)
+p4 = np.poly1d(z4)
+x4_sorted = np.sort(x4)
+ax4.plot(x4_sorted, p4(x4_sorted), "r--", alpha=0.8, label='Ajuste Cuadrático')
+ax4.set_title('Relación No Lineal (Cuadrática)')
+ax4.set_xlabel('X')
+ax4.set_ylabel('Y')
+ax4.legend()
+ax4.grid(True, alpha=0.3)
+corr4 = np.corrcoef(x4, y4)[0, 1]
+ax4.text(0.05, 0.95, f'r = {corr4:.3f}', transform=ax4.transAxes,
+         bbox=dict(boxstyle="round,pad=0.3", facecolor="plum", alpha=0.7))
+
+plt.tight_layout()
+plt.show()
+
+# 4. Gráfico de Dispersión con Categorías
+print("\n=== GRÁFICO DE DISPERSIÓN CON CATEGORÍAS ===")
+
+# Crear datos con categorías
+np.random.seed(42)
+categorias = ['A', 'B', 'C']
+colores = ['red', 'blue', 'green']
+
+# Generar datos para cada categoría
+datos_categorizados = {}
+for i, cat in enumerate(categorias):
+    n_points = 30
+    x_cat = np.random.normal(50 + i*20, 10, n_points)
+    y_cat = 1.5 * x_cat + np.random.normal(0, 15, n_points)
+    datos_categorizados[cat] = {'x': x_cat, 'y': y_cat}
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Crear gráfico de dispersión por categorías
+for i, (cat, color) in enumerate(zip(categorias, colores)):
+    x_cat = datos_categorizados[cat]['x']
+    y_cat = datos_categorizados[cat]['y']
+    ax.scatter(x_cat, y_cat, c=color, s=80, alpha=0.7, label=f'Categoría {cat}', edgecolors='black', linewidth=0.5)
+
+ax.set_title('Gráfico de Dispersión por Categorías', fontsize=16, fontweight='bold')
+ax.set_xlabel('Variable X', fontsize=14)
+ax.set_ylabel('Variable Y', fontsize=14)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+# 5. Análisis de Outliers en Gráficos de Dispersión
+print("\n=== ANÁLISIS DE OUTLIERS ===")
+
+# Crear datos con outliers
+np.random.seed(42)
+x_normal = np.random.normal(50, 10, 95)
+y_normal = 2 * x_normal + np.random.normal(0, 5, 95)
+
+# Agregar outliers
+x_outliers = np.array([20, 80, 90, 10, 85])
+y_outliers = np.array([120, 30, 180, 5, 200])
+
+x_completo = np.concatenate([x_normal, x_outliers])
+y_completo = np.concatenate([y_normal, y_outliers])
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Gráfico de dispersión con outliers
+ax.scatter(x_normal, y_normal, c='blue', s=60, alpha=0.7, label='Datos Normales')
+ax.scatter(x_outliers, y_outliers, c='red', s=100, alpha=0.8, label='Outliers', edgecolors='black', linewidth=1)
+
+# Línea de tendencia sin outliers
+z_normal = np.polyfit(x_normal, y_normal, 1)
+p_normal = np.poly1d(z_normal)
+ax.plot(x_normal, p_normal(x_normal), "b--", alpha=0.8, linewidth=2, label='Tendencia (sin outliers)')
+
+# Línea de tendencia con outliers
+z_completo = np.polyfit(x_completo, y_completo, 1)
+p_completo = np.poly1d(z_completo)
+ax.plot(x_completo, p_completo(x_completo), "r--", alpha=0.8, linewidth=2, label='Tendencia (con outliers)')
+
+ax.set_title('Impacto de Outliers en la Relación', fontsize=16, fontweight='bold')
+ax.set_xlabel('Variable X', fontsize=14)
+ax.set_ylabel('Variable Y', fontsize=14)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+
+# Mostrar correlaciones
+corr_normal = np.corrcoef(x_normal, y_normal)[0, 1]
+corr_completo = np.corrcoef(x_completo, y_completo)[0, 1]
+
+ax.text(0.05, 0.95, f'Sin outliers: r = {corr_normal:.3f}', transform=ax.transAxes,
+        bbox=dict(boxstyle="round,pad=0.3", facecolor="lightblue", alpha=0.7))
+ax.text(0.05, 0.88, f'Con outliers: r = {corr_completo:.3f}', transform=ax.transAxes,
+        bbox=dict(boxstyle="round,pad=0.3", facecolor="lightcoral", alpha=0.7))
+
+plt.tight_layout()
+plt.show()
+```
+
+### Gráficos de Barras - Representación de Datos Categóricos
+
+**¿Cuándo usar gráficos de barras?**
+Los gráficos de barras son ideales para representar datos categóricos y comparar valores entre diferentes grupos o categorías. Son especialmente útiles para:
+- Comparar frecuencias o cantidades entre categorías
+- Mostrar rankings o clasificaciones
+- Visualizar datos de encuestas o conteos
+- Representar datos temporales discretos
+
+```python
+# 1. Gráfico de Barras Básico
+print("=== GRÁFICO DE BARRAS BÁSICO ===")
+
+# Datos de ejemplo: ventas por producto
+productos = ['Laptop', 'Mouse', 'Teclado', 'Monitor', 'Auriculares', 'Tablet']
+ventas = [45, 120, 80, 30, 95, 60]
+
+fig, ax = plt.subplots(figsize=(12, 8))
+bars = ax.bar(productos, ventas, color='skyblue', alpha=0.8, edgecolor='black', linewidth=1)
+
+# Personalizar el gráfico
+ax.set_title('Ventas por Producto', fontsize=16, fontweight='bold')
+ax.set_xlabel('Producto', fontsize=14)
+ax.set_ylabel('Unidades Vendidas', fontsize=14)
+ax.grid(True, alpha=0.3, axis='y')
+
+# Agregar valores sobre las barras
+for bar, venta in zip(bars, ventas):
+    height = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2., height + 1,
+            f'{venta}', ha='center', va='bottom', fontsize=12, fontweight='bold')
+
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# 2. Gráfico de Barras Comparativo
+print("\n=== GRÁFICO DE BARRAS COMPARATIVO ===")
+
+# Datos de ventas por trimestre
+trimestres = ['Q1', 'Q2', 'Q3', 'Q4']
+ventas_2023 = [1200, 1350, 1100, 1500]
+ventas_2024 = [1300, 1400, 1250, 1600]
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+x = np.arange(len(trimestres))
+width = 0.35
+
+bars1 = ax.bar(x - width/2, ventas_2023, width, label='2023', alpha=0.8, color='lightblue')
+bars2 = ax.bar(x + width/2, ventas_2024, width, label='2024', alpha=0.8, color='lightcoral')
+
+ax.set_xlabel('Trimestre', fontsize=14)
+ax.set_ylabel('Ventas ($)', fontsize=14)
+ax.set_title('Ventas por Trimestre - Comparación 2023 vs 2024', fontsize=16, fontweight='bold')
+ax.set_xticks(x)
+ax.set_xticklabels(trimestres)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3, axis='y')
+
+# Agregar valores sobre las barras
+def autolabel(bars):
+    for bar in bars:
+        height = bar.get_height()
+        ax.annotate(f'${height:,.0f}',
+                    xy=(bar.get_x() + bar.get_width() / 2, height),
+                    xytext=(0, 3),
+                    textcoords="offset points",
+                    ha='center', va='bottom', fontsize=10, fontweight='bold')
+
+autolabel(bars1)
+autolabel(bars2)
+
+plt.tight_layout()
+plt.show()
+
+# 3. Gráfico de Barras Horizontales
+print("\n=== GRÁFICO DE BARRAS HORIZONTALES ===")
+
+# Datos de países por PIB
+paises = ['Estados Unidos', 'China', 'Japón', 'Alemania', 'India', 'Reino Unido', 'Francia', 'Italia']
+pib = [25462700, 17963170, 4231141, 4072191, 3385090, 3070667, 2782905, 2010430]
+
+fig, ax = plt.subplots(figsize=(12, 8))
+bars = ax.barh(paises, pib, color='lightgreen', alpha=0.8, edgecolor='black', linewidth=1)
+
+ax.set_title('PIB por País (Millones de USD)', fontsize=16, fontweight='bold')
+ax.set_xlabel('PIB (Millones USD)', fontsize=14)
+ax.set_ylabel('País', fontsize=14)
+ax.grid(True, alpha=0.3, axis='x')
+
+# Agregar valores al final de las barras
+for bar, valor in zip(bars, pib):
+    width = bar.get_width()
+    ax.text(width + width*0.01, bar.get_y() + bar.get_height()/2,
+            f'{valor:,.0f}', ha='left', va='center', fontsize=10, fontweight='bold')
+
+plt.tight_layout()
+plt.show()
+
+# 4. Gráfico de Barras Apiladas
+print("\n=== GRÁFICO DE BARRAS APILADAS ===")
+
+# Datos de ventas por categoría y región
+categorias = ['Electrónicos', 'Ropa', 'Hogar', 'Deportes']
+region_norte = [45000, 32000, 28000, 15000]
+region_sur = [38000, 35000, 25000, 18000]
+region_este = [42000, 30000, 30000, 12000]
+region_oeste = [40000, 28000, 32000, 20000]
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+x = np.arange(len(categorias))
+width = 0.2
+
+ax.bar(x - width*1.5, region_norte, width, label='Norte', alpha=0.8, color='#2E86AB')
+ax.bar(x - width*0.5, region_sur, width, label='Sur', alpha=0.8, color='#A23B72')
+ax.bar(x + width*0.5, region_este, width, label='Este', alpha=0.8, color='#F18F01')
+ax.bar(x + width*1.5, region_oeste, width, label='Oeste', alpha=0.8, color='#C73E1D')
+
+ax.set_xlabel('Categoría de Producto', fontsize=14)
+ax.set_ylabel('Ventas ($)', fontsize=14)
+ax.set_title('Ventas por Categoría y Región', fontsize=16, fontweight='bold')
+ax.set_xticks(x)
+ax.set_xticklabels(categorias)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3, axis='y')
+
+plt.tight_layout()
+plt.show()
+
+# 5. Gráfico de Barras con Error
+print("\n=== GRÁFICO DE BARRAS CON ERROR ===")
+
+# Datos con errores estándar
+categorias = ['Grupo A', 'Grupo B', 'Grupo C', 'Grupo D']
+medias = [75, 82, 68, 90]
+errores = [5, 3, 7, 4]
+
+fig, ax = plt.subplots(figsize=(10, 8))
+bars = ax.bar(categorias, medias, yerr=errores, capsize=5, 
+              color='lightblue', alpha=0.8, edgecolor='black', linewidth=1)
+
+ax.set_title('Promedios por Grupo con Error Estándar', fontsize=16, fontweight='bold')
+ax.set_xlabel('Grupo', fontsize=14)
+ax.set_ylabel('Puntuación Promedio', fontsize=14)
+ax.grid(True, alpha=0.3, axis='y')
+
+# Agregar valores sobre las barras
+for bar, media, error in zip(bars, medias, errores):
+    height = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2., height + error + 1,
+            f'{media}±{error}', ha='center', va='bottom', fontsize=12, fontweight='bold')
+
+plt.tight_layout()
+plt.show()
+```
+
+### Histogramas - Visualización de Distribuciones
+
+**¿Cuándo usar histogramas?**
+Los histogramas son ideales para visualizar la distribución de una variable numérica continua. Son especialmente útiles para:
+- Entender la forma de la distribución de datos
+- Identificar patrones como simetría, sesgo o bimodalidad
+- Detectar outliers o valores atípicos
+- Comparar distribuciones entre grupos
+
+```python
+# 1. Histograma Básico
+print("=== HISTOGRAMA BÁSICO ===")
+
+# Generar datos de ejemplo
+np.random.seed(42)
+datos = np.random.normal(100, 15, 1000)  # Distribución normal
+
+fig, ax = plt.subplots(figsize=(12, 8))
+n, bins, patches = ax.hist(datos, bins=30, alpha=0.7, color='skyblue', 
+                          edgecolor='black', linewidth=1)
+
+ax.set_title('Distribución de Datos - Histograma Básico', fontsize=16, fontweight='bold')
+ax.set_xlabel('Valor', fontsize=14)
+ax.set_ylabel('Frecuencia', fontsize=14)
+ax.grid(True, alpha=0.3)
+
+# Agregar estadísticas
+media = np.mean(datos)
+mediana = np.median(datos)
+desv_std = np.std(datos)
+
+ax.axvline(media, color='red', linestyle='--', linewidth=2, label=f'Media: {media:.2f}')
+ax.axvline(mediana, color='green', linestyle='--', linewidth=2, label=f'Mediana: {mediana:.2f}')
+ax.legend(fontsize=12)
+
+plt.tight_layout()
+plt.show()
+
+# 2. Histograma con Curva de Densidad
+print("\n=== HISTOGRAMA CON CURVA DE DENSIDAD ===")
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Histograma normalizado
+n, bins, patches = ax.hist(datos, bins=30, alpha=0.7, color='lightblue', 
+                          edgecolor='black', density=True, label='Histograma')
+
+# Curva de densidad normal
+from scipy.stats import norm
+xmin, xmax = ax.get_xlim()
+x = np.linspace(xmin, xmax, 100)
+p = norm.pdf(x, media, desv_std)
+ax.plot(x, p, 'r-', linewidth=2, label='Distribución Normal Teórica')
+
+ax.set_title('Histograma con Curva de Densidad', fontsize=16, fontweight='bold')
+ax.set_xlabel('Valor', fontsize=14)
+ax.set_ylabel('Densidad de Probabilidad', fontsize=14)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+# 3. Comparación de Histogramas
+print("\n=== COMPARACIÓN DE HISTOGRAMAS ===")
+
+# Generar datos de diferentes distribuciones
+np.random.seed(42)
+normal_data = np.random.normal(100, 15, 500)
+uniform_data = np.random.uniform(80, 120, 500)
+skewed_data = np.random.exponential(20, 500) + 80
+
+fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6))
+fig.suptitle('Comparación de Diferentes Distribuciones', fontsize=16, fontweight='bold')
+
+# Histograma 1: Distribución Normal
+ax1.hist(normal_data, bins=30, alpha=0.7, color='lightblue', edgecolor='black')
+ax1.set_title('Distribución Normal')
+ax1.set_xlabel('Valor')
+ax1.set_ylabel('Frecuencia')
+ax1.grid(True, alpha=0.3)
+ax1.axvline(np.mean(normal_data), color='red', linestyle='--', linewidth=2)
+
+# Histograma 2: Distribución Uniforme
+ax2.hist(uniform_data, bins=30, alpha=0.7, color='lightgreen', edgecolor='black')
+ax2.set_title('Distribución Uniforme')
+ax2.set_xlabel('Valor')
+ax2.set_ylabel('Frecuencia')
+ax2.grid(True, alpha=0.3)
+ax2.axvline(np.mean(uniform_data), color='red', linestyle='--', linewidth=2)
+
+# Histograma 3: Distribución Sesgada
+ax3.hist(skewed_data, bins=30, alpha=0.7, color='lightcoral', edgecolor='black')
+ax3.set_title('Distribución Sesgada')
+ax3.set_xlabel('Valor')
+ax3.set_ylabel('Frecuencia')
+ax3.grid(True, alpha=0.3)
+ax3.axvline(np.mean(skewed_data), color='red', linestyle='--', linewidth=2)
+
+plt.tight_layout()
+plt.show()
+
+# 4. Histograma con Múltiples Grupos
+print("\n=== HISTOGRAMA CON MÚLTIPLES GRUPOS ===")
+
+# Datos de edades por género
+np.random.seed(42)
+edades_hombres = np.random.normal(35, 8, 300)
+edades_mujeres = np.random.normal(32, 7, 300)
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Histogramas superpuestos
+ax.hist(edades_hombres, bins=25, alpha=0.7, color='lightblue', 
+        edgecolor='black', label='Hombres', density=True)
+ax.hist(edades_mujeres, bins=25, alpha=0.7, color='lightcoral', 
+        edgecolor='black', label='Mujeres', density=True)
+
+ax.set_title('Distribución de Edades por Género', fontsize=16, fontweight='bold')
+ax.set_xlabel('Edad', fontsize=14)
+ax.set_ylabel('Densidad de Probabilidad', fontsize=14)
+ax.legend(fontsize=12)
+ax.grid(True, alpha=0.3)
+
+# Agregar estadísticas
+ax.axvline(np.mean(edades_hombres), color='blue', linestyle='--', 
+           linewidth=2, label=f'Hombres - Media: {np.mean(edades_hombres):.1f}')
+ax.axvline(np.mean(edades_mujeres), color='red', linestyle='--', 
+           linewidth=2, label=f'Mujeres - Media: {np.mean(edades_mujeres):.1f}')
+
+plt.tight_layout()
+plt.show()
+
+# 5. Histograma 2D (Scatter Plot con Densidad)
+print("\n=== HISTOGRAMA 2D (SCATTER PLOT CON DENSIDAD) ===")
+
+# Generar datos correlacionados
+np.random.seed(42)
+x_2d = np.random.normal(0, 1, 1000)
+y_2d = 0.7 * x_2d + np.random.normal(0, 0.5, 1000)
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+
+# Gráfico de dispersión
+ax1.scatter(x_2d, y_2d, alpha=0.6, s=20)
+ax1.set_title('Gráfico de Dispersión')
+ax1.set_xlabel('X')
+ax1.set_ylabel('Y')
+ax1.grid(True, alpha=0.3)
+
+# Histograma 2D
+ax2.hist2d(x_2d, y_2d, bins=30, cmap='Blues', alpha=0.8)
+ax2.set_title('Histograma 2D')
+ax2.set_xlabel('X')
+ax2.set_ylabel('Y')
+
+# Agregar barra de color
+cbar = plt.colorbar(ax2.collections[0], ax=ax2)
+cbar.set_label('Frecuencia')
+
+plt.tight_layout()
+plt.show()
+```
+
+### Dashboard Integrado - Análisis Completo
+
+```python
+# Dashboard que combina todos los tipos de gráficos
+print("=== DASHBOARD INTEGRADO ===")
+
+# Crear datos de ejemplo para el dashboard
+np.random.seed(42)
+n_points = 200
+
+# Datos para dispersión
+x_scatter = np.random.normal(50, 15, n_points)
+y_scatter = 1.5 * x_scatter + np.random.normal(0, 10, n_points)
+
+# Datos para barras
+categorias = ['A', 'B', 'C', 'D', 'E']
+valores = [45, 78, 32, 91, 56]
+
+# Datos para histograma
+datos_hist = np.random.normal(100, 20, 500)
+
+# Crear dashboard
+fig = plt.figure(figsize=(20, 12))
+fig.suptitle('Dashboard de Análisis de Datos - Gráficos de Dispersión, Barras e Histogramas', 
+             fontsize=18, fontweight='bold')
+
+# Gráfico 1: Dispersión
+ax1 = plt.subplot(2, 3, 1)
+scatter = ax1.scatter(x_scatter, y_scatter, c=y_scatter, cmap='viridis', alpha=0.7, s=50)
+ax1.set_title('Gráfico de Dispersión')
+ax1.set_xlabel('Variable X')
+ax1.set_ylabel('Variable Y')
+ax1.grid(True, alpha=0.3)
+
+# Línea de tendencia
+z = np.polyfit(x_scatter, y_scatter, 1)
+p = np.poly1d(z)
+ax1.plot(x_scatter, p(x_scatter), "r--", alpha=0.8, linewidth=2)
+
+# Gráfico 2: Barras
+ax2 = plt.subplot(2, 3, 2)
+bars = ax2.bar(categorias, valores, color='lightblue', alpha=0.8, edgecolor='black')
+ax2.set_title('Gráfico de Barras')
+ax2.set_xlabel('Categoría')
+ax2.set_ylabel('Valor')
+ax2.grid(True, alpha=0.3, axis='y')
+
+# Agregar valores sobre las barras
+for bar, valor in zip(bars, valores):
+    height = bar.get_height()
+    ax2.text(bar.get_x() + bar.get_width()/2., height + 1,
+            f'{valor}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+
+# Gráfico 3: Histograma
+ax3 = plt.subplot(2, 3, 3)
+n, bins, patches = ax3.hist(datos_hist, bins=30, alpha=0.7, color='lightgreen', 
+                           edgecolor='black', density=True)
+ax3.set_title('Histograma')
+ax3.set_xlabel('Valor')
+ax3.set_ylabel('Densidad')
+ax3.grid(True, alpha=0.3)
+
+# Curva de densidad
+from scipy.stats import norm
+xmin, xmax = ax3.get_xlim()
+x = np.linspace(xmin, xmax, 100)
+p_hist = norm.pdf(x, np.mean(datos_hist), np.std(datos_hist))
+ax3.plot(x, p_hist, 'r-', linewidth=2)
+
+# Gráfico 4: Dispersión con categorías
+ax4 = plt.subplot(2, 3, 4)
+categorias_scatter = np.random.choice(['X', 'Y', 'Z'], n_points)
+colores_cat = {'X': 'red', 'Y': 'blue', 'Z': 'green'}
+
+for cat in ['X', 'Y', 'Z']:
+    mask = np.array(categorias_scatter) == cat
+    ax4.scatter(x_scatter[mask], y_scatter[mask], c=colores_cat[cat], 
+                label=f'Categoría {cat}', alpha=0.7, s=50)
+
+ax4.set_title('Dispersión por Categorías')
+ax4.set_xlabel('Variable X')
+ax4.set_ylabel('Variable Y')
+ax4.legend()
+ax4.grid(True, alpha=0.3)
+
+# Gráfico 5: Barras comparativas
+ax5 = plt.subplot(2, 3, 5)
+valores_1 = [45, 78, 32, 91, 56]
+valores_2 = [52, 71, 38, 85, 62]
+
+x = np.arange(len(categorias))
+width = 0.35
+
+ax5.bar(x - width/2, valores_1, width, label='Grupo 1', alpha=0.8, color='lightblue')
+ax5.bar(x + width/2, valores_2, width, label='Grupo 2', alpha=0.8, color='lightcoral')
+
+ax5.set_title('Barras Comparativas')
+ax5.set_xlabel('Categoría')
+ax5.set_ylabel('Valor')
+ax5.set_xticks(x)
+ax5.set_xticklabels(categorias)
+ax5.legend()
+ax5.grid(True, alpha=0.3, axis='y')
+
+# Gráfico 6: Resumen estadístico
+ax6 = plt.subplot(2, 3, 6)
+ax6.axis('off')
+
+# Calcular estadísticas
+corr_scatter = np.corrcoef(x_scatter, y_scatter)[0, 1]
+stats_text = f"""
+RESUMEN ESTADÍSTICO
+
+Datos de Dispersión:
+• Correlación: {corr_scatter:.3f}
+• Puntos: {len(x_scatter)}
+
+Datos de Barras:
+• Total: {sum(valores)}
+• Promedio: {np.mean(valores):.1f}
+• Máximo: {max(valores)}
+
+Datos de Histograma:
+• Media: {np.mean(datos_hist):.1f}
+• Mediana: {np.median(datos_hist):.1f}
+• Desv. Est.: {np.std(datos_hist):.1f}
+"""
+
+ax6.text(0.1, 0.9, stats_text, transform=ax6.transAxes, fontsize=12,
+         verticalalignment='top', bbox=dict(boxstyle="round,pad=0.5", 
+         facecolor="lightgray", alpha=0.8))
+
+plt.tight_layout()
+plt.show()
+```
+
+### Mejores Prácticas para Cada Tipo de Gráfico
+
+#### **Gráficos de Dispersión:**
+1. **Usar colores para representar una tercera variable** cuando sea relevante
+2. **Agregar líneas de tendencia** para mostrar patrones
+3. **Incluir coeficientes de correlación** para cuantificar la relación
+4. **Usar transparencia (alpha)** cuando hay muchos puntos
+5. **Identificar y marcar outliers** cuando sea importante
+
+#### **Gráficos de Barras:**
+1. **Ordenar las barras** por valor cuando sea apropiado
+2. **Agregar valores numéricos** sobre las barras
+3. **Usar colores consistentes** para categorías
+4. **Considerar barras horizontales** para etiquetas largas
+5. **Incluir barras de error** cuando sea relevante
+
+#### **Histogramas:**
+1. **Elegir el número correcto de bins** (no muy pocos, no muy muchos)
+2. **Agregar curvas de densidad** para comparar con distribuciones teóricas
+3. **Mostrar estadísticas clave** (media, mediana, desviación estándar)
+4. **Usar densidad en lugar de frecuencia** para comparar grupos de diferentes tamaños
+5. **Considerar histogramas 2D** para relaciones entre dos variables
+
+### Conclusión
+
+Los gráficos de dispersión, barras e histogramas son herramientas fundamentales en el análisis exploratorio de datos:
+
+- **Gráficos de dispersión**: Ideales para identificar relaciones entre variables numéricas
+- **Gráficos de barras**: Perfectos para comparar valores entre categorías
+- **Histogramas**: Esenciales para entender la distribución de variables numéricas
+
+La combinación de estos tres tipos de gráficos permite un análisis completo y profundo de los datos, desde relaciones entre variables hasta patrones de distribución y comparaciones categóricas.
+
 
 ## **Recursos Adicionales**
 1. Documentación oficial de Pandas: [Manejo de datos faltantes](https://pandas.pydata.org/docs/user_guide/missing_data.html) [1]
