@@ -1,6 +1,15 @@
 
 # Clase: Manejo de Datos Nulos y Series Temporales en Pandas
 
+Objetivos de Aprendizaje
+Identificar y clasificar tipos de datos nulos
+Aplicar técnicas básicas y avanzadas de imputación
+Manipular series temporales con Pandas
+Implementar estrategias para manejar valores faltantes en series de tiempo
+
+https://docs.google.com/presentation/d/1BDjUNhpNr1TD8qRBV6XkHkUUbZhho8Ks5wzouYfjLRY/edit?slide=id.g2f3430c3b8e_0_258#slide=id.g2f3430c3b8e_0_258
+
+
 ## **Repaso de Clases Anteriores**
 
 ### 🐍 Ejemplo Python - Condicionales para Ciencia de Datos
@@ -2692,3 +2701,420 @@ Citations:
 - [21] https://www.youtube.com/watch?v=CH7FWj3xcpo
 - [22] https://joserzapata.github.io/courses/python-ciencia-datos/pandas/
 - [23] https://www.youtube.com/watch?v=u5vfTWKLHe8
+
+### Introducción a Piecharts - Visualización de Proporciones
+
+**¿Qué son los piecharts?**
+Los piecharts son gráficos circulares que dividen un círculo en secciones proporcionales al tamaño de diferentes categorías en un conjunto de datos. Cada sección, o "cuña", representa una categoría y es proporcional al porcentaje que esta categoría representa del total.
+
+**¿Cuándo usar piecharts?**
+Los piecharts son útiles para:
+- Visualizar proporciones de una sola serie de datos categóricos
+- Mostrar la distribución del presupuesto entre diferentes áreas
+- Representar la composición de un total (ej: market share)
+- Comparar partes con el todo
+
+**¿Cuándo NO usar piecharts?**
+- Cuando hay muchas categorías (más de 6-7)
+- Para comparar valores precisos entre categorías
+- Cuando las diferencias entre categorías son muy pequeñas
+
+### Creación de Piecharts con Matplotlib
+
+```python
+# 1. Piechart Básico
+print("=== PIECHART BÁSICO ===")
+
+# Datos de ejemplo: distribución de ventas por producto
+productos = ['Laptops', 'Smartphones', 'Tablets', 'Accesorios', 'Otros']
+ventas = [35, 28, 15, 12, 10]
+
+fig, ax = plt.subplots(figsize=(10, 8))
+
+# Crear piechart básico
+wedges, texts, autotexts = ax.pie(ventas, labels=productos, autopct='%1.1f%%', 
+                                 startangle=90, colors=['lightblue', 'lightgreen', 
+                                 'lightcoral', 'lightyellow', 'lightpink'])
+
+# Personalizar el gráfico
+ax.set_title('Distribución de Ventas por Producto', fontsize=16, fontweight='bold')
+
+# Mejorar la legibilidad de los porcentajes
+for autotext in autotexts:
+    autotext.set_color('black')
+    autotext.set_fontsize(12)
+    autotext.set_fontweight('bold')
+
+plt.tight_layout()
+plt.show()
+
+# Mostrar valores absolutos y porcentajes
+total_ventas = sum(ventas)
+print(f"\nAnálisis de distribución:")
+print(f"Total de ventas: {total_ventas}%")
+for producto, venta in zip(productos, ventas):
+    porcentaje = (venta / total_ventas) * 100
+    print(f"{producto}: {venta}% (${venta*1000:,.0f} si total = $100,000)")
+
+# 2. Piechart con Personalización Avanzada
+print("\n=== PIECHART PERSONALIZADO ===")
+
+# Datos de presupuesto empresarial
+categorias = ['Salarios', 'Marketing', 'Operaciones', 'I+D', 'Infraestructura']
+presupuesto = [45, 20, 15, 12, 8]
+colores = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Separar la sección más grande (explode)
+explode = (0.1, 0, 0, 0, 0)  # Separar la primera sección
+
+wedges, texts, autotexts = ax.pie(presupuesto, labels=categorias, autopct='%1.1f%%',
+                                 startangle=90, explode=explode, colors=colores,
+                                 shadow=True, textprops={'fontsize': 12})
+
+# Personalizar el título
+ax.set_title('Distribución del Presupuesto Empresarial 2024', 
+             fontsize=16, fontweight='bold', pad=20)
+
+# Mejorar los textos de porcentaje
+for autotext in autotexts:
+    autotext.set_color('white')
+    autotext.set_fontsize(11)
+    autotext.set_fontweight('bold')
+
+# Agregar información adicional
+total_presupuesto = 1000000  # $1M total
+plt.figtext(0.02, 0.02, f'Presupuesto Total: ${total_presupuesto:,}', 
+           fontsize=12, style='italic')
+
+plt.tight_layout()
+plt.show()
+
+# Análisis detallado del presupuesto
+print(f"\nAnálisis detallado del presupuesto (Total: ${total_presupuesto:,}):")
+for categoria, porcentaje in zip(categorias, presupuesto):
+    monto = (porcentaje / 100) * total_presupuesto
+    print(f"{categoria}: {porcentaje}% = ${monto:,.0f}")
+
+# 3. Piechart con Subplots - Comparación Temporal
+print("\n=== COMPARACIÓN TEMPORAL CON PIECHARTS ===")
+
+# Datos de market share para dos años
+marcas_2023 = ['Apple', 'Samsung', 'Google', 'Xiaomi', 'Otros']
+share_2023 = [25, 22, 12, 15, 26]
+
+marcas_2024 = ['Apple', 'Samsung', 'Google', 'Xiaomi', 'Otros']
+share_2024 = [28, 20, 15, 18, 19]
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
+fig.suptitle('Evolución del Market Share de Smartphones', fontsize=16, fontweight='bold')
+
+# Colores consistentes para ambos años
+colores_marcas = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
+
+# Gráfico 1: 2023
+wedges1, texts1, autotexts1 = ax1.pie(share_2023, labels=marcas_2023, autopct='%1.1f%%',
+                                     startangle=90, colors=colores_marcas)
+ax1.set_title('Market Share 2023')
+
+# Gráfico 2: 2024
+wedges2, texts2, autotexts2 = ax2.pie(share_2024, labels=marcas_2024, autopct='%1.1f%%',
+                                     startangle=90, colors=colores_marcas)
+ax2.set_title('Market Share 2024')
+
+# Personalizar textos
+for autotexts in [autotexts1, autotexts2]:
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_fontsize(10)
+        autotext.set_fontweight('bold')
+
+plt.tight_layout()
+plt.show()
+
+# Análisis de cambios en market share
+print(f"\nAnálisis de cambios en market share:")
+for marca, share_23, share_24 in zip(marcas_2023, share_2023, share_2024):
+    cambio = share_24 - share_23
+    direccion = "↑" if cambio > 0 else "↓" if cambio < 0 else "="
+    print(f"{marca}: 2023={share_23}% → 2024={share_24}% ({cambio:+.1f}% {direccion})")
+
+# 4. Piechart Anidado (Donut Chart)
+print("\n=== PIECHART ANIDADO (DONUT CHART) ===")
+
+# Datos de ventas por categoría y subcategoría
+categorias_principales = ['Electrónicos', 'Ropa', 'Hogar']
+ventas_principales = [50, 30, 20]
+
+# Subcategorías
+subcategorias = ['Móviles', 'Laptops', 'Tablets',  # Electrónicos
+                'Hombre', 'Mujer', 'Niños',        # Ropa
+                'Cocina', 'Sala', 'Dormitorio']    # Hogar
+ventas_sub = [25, 15, 10,  # Electrónicos: 50%
+              15, 10, 5,   # Ropa: 30%
+              8, 7, 5]     # Hogar: 20%
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Colores para categorías principales y subcategorías
+colores_principales = ['#FF6B6B', '#4ECDC4', '#45B7D1']
+colores_sub = ['#FF8E8E', '#FFB6B6', '#FFDDDD',  # Tonos de rojo
+               '#6FD9D4', '#8FE1DC', '#AFEAE4',  # Tonos de turquesa
+               '#6BC5E8', '#8FD1EC', '#B3DDF0']  # Tonos de azul
+
+# Gráfico exterior (categorías principales)
+wedges1, texts1, autotexts1 = ax.pie(ventas_principales, labels=categorias_principales,
+                                    autopct='%1.1f%%', radius=1, colors=colores_principales,
+                                    wedgeprops=dict(width=0.3, edgecolor='white'))
+
+# Gráfico interior (subcategorías)
+wedges2, texts2, autotexts2 = ax.pie(ventas_sub, labels=subcategorias, autopct='%1.0f%%',
+                                    radius=0.7, colors=colores_sub,
+                                    wedgeprops=dict(width=0.4, edgecolor='white'))
+
+ax.set_title('Ventas por Categoría y Subcategoría', fontsize=16, fontweight='bold')
+
+# Personalizar textos
+for autotexts in [autotexts1, autotexts2]:
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_fontsize(10)
+        autotext.set_fontweight('bold')
+
+plt.tight_layout()
+plt.show()
+
+# 5. Piechart con Análisis de Tendencias
+print("\n=== ANÁLISIS DE TENDENCIAS CON PIECHARTS ===")
+
+# Crear datos de ejemplo: evolución de fuentes de energía
+años = [2020, 2021, 2022, 2023, 2024]
+fuentes = ['Carbón', 'Gas Natural', 'Nuclear', 'Renovables', 'Petróleo']
+
+# Datos de evolución (porcentajes)
+evolucion_energia = {
+    2020: [35, 25, 20, 15, 5],
+    2021: [32, 24, 20, 19, 5],
+    2022: [28, 23, 20, 24, 5],
+    2023: [25, 22, 20, 28, 5],
+    2024: [22, 20, 20, 33, 5]
+}
+
+# Crear subplot con 5 piecharts
+fig, axes = plt.subplots(1, 5, figsize=(20, 8))
+fig.suptitle('Evolución de Fuentes de Energía (2020-2024)', fontsize=16, fontweight='bold')
+
+colores_energia = ['#8B4513', '#4169E1', '#FFD700', '#32CD32', '#000000']
+
+for i, año in enumerate(años):
+    wedges, texts, autotexts = axes[i].pie(evolucion_energia[año], labels=fuentes if i == 0 else None,
+                                          autopct='%1.0f%%', startangle=90, colors=colores_energia)
+    axes[i].set_title(f'{año}')
+    
+    # Solo mostrar etiquetas en el primer gráfico
+    if i > 0:
+        for text in texts:
+            text.set_text('')
+    
+    # Personalizar porcentajes
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_fontsize(9)
+        autotext.set_fontweight('bold')
+
+# Agregar leyenda común
+fig.legend(fuentes, loc='center', bbox_to_anchor=(0.5, 0.02), ncol=5, fontsize=12)
+
+plt.tight_layout()
+plt.show()
+
+# Análisis de tendencias
+print(f"\nAnálisis de tendencias energéticas:")
+for fuente in fuentes:
+    idx = fuentes.index(fuente)
+    inicio = evolucion_energia[2020][idx]
+    fin = evolucion_energia[2024][idx]
+    cambio = fin - inicio
+    print(f"{fuente}: {inicio}% (2020) → {fin}% (2024) = {cambio:+.0f}% de cambio")
+```
+
+### Personalización Avanzada de Gráficos en Matplotlib
+
+**¿Por qué personalizar gráficos?**
+La personalización mejora la claridad, la comunicación visual y la profesionalidad de los gráficos. Permite adaptar la visualización al público objetivo y destacar los aspectos más importantes de los datos.
+
+```python
+# Ejemplo completo de personalización avanzada
+print("=== PERSONALIZACIÓN AVANZADA ===")
+
+# Datos de ejemplo
+np.random.seed(42)
+categorias = ['Producto A', 'Producto B', 'Producto C', 'Producto D']
+ventas_q1 = [120, 150, 80, 95]
+ventas_q2 = [130, 145, 90, 100]
+ventas_q3 = [125, 160, 85, 110]
+
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+fig.suptitle('Dashboard de Análisis de Ventas - Personalización Completa', 
+             fontsize=18, fontweight='bold', y=0.98)
+
+# Gráfico 1: Barras con personalización completa
+x = np.arange(len(categorias))
+width = 0.25
+
+bars1 = ax1.bar(x - width, ventas_q1, width, label='Q1', color='#FF6B6B', alpha=0.8)
+bars2 = ax1.bar(x, ventas_q2, width, label='Q2', color='#4ECDC4', alpha=0.8)
+bars3 = ax1.bar(x + width, ventas_q3, width, label='Q3', color='#45B7D1', alpha=0.8)
+
+# Personalización avanzada de barras
+ax1.set_xlabel('Productos', fontsize=14, fontweight='bold')
+ax1.set_ylabel('Ventas (Unidades)', fontsize=14, fontweight='bold')
+ax1.set_title('Ventas Trimestrales por Producto', fontsize=14, fontweight='bold', pad=15)
+ax1.set_xticks(x)
+ax1.set_xticklabels(categorias, fontsize=12)
+ax1.legend(fontsize=12, loc='upper left')
+ax1.grid(True, alpha=0.3, axis='y')
+
+# Agregar valores sobre las barras
+def agregar_valores(bars):
+    for bar in bars:
+        height = bar.get_height()
+        ax1.annotate(f'{height}',
+                    xy=(bar.get_x() + bar.get_width() / 2, height),
+                    xytext=(0, 3),
+                    textcoords="offset points",
+                    ha='center', va='bottom', fontsize=10, fontweight='bold')
+
+agregar_valores(bars1)
+agregar_valores(bars2)
+agregar_valores(bars3)
+
+# Líneas de referencia
+promedio_total = np.mean(ventas_q1 + ventas_q2 + ventas_q3)
+ax1.axhline(y=promedio_total, color='red', linestyle='--', alpha=0.7, 
+           label=f'Promedio General: {promedio_total:.0f}')
+
+# Gráfico 2: Piechart con personalización
+total_q1 = sum(ventas_q1)
+wedges, texts, autotexts = ax2.pie(ventas_q1, labels=categorias, autopct='%1.1f%%',
+                                  startangle=45, colors=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'],
+                                  explode=(0.05, 0.05, 0.05, 0.05), shadow=True)
+
+ax2.set_title('Distribución Q1', fontsize=14, fontweight='bold', pad=15)
+
+# Personalizar textos del pie
+for text in texts:
+    text.set_fontsize(11)
+    text.set_fontweight('bold')
+
+for autotext in autotexts:
+    autotext.set_color('white')
+    autotext.set_fontsize(10)
+    autotext.set_fontweight('bold')
+
+# Gráfico 3: Boxplot con personalización
+datos_boxplot = [ventas_q1, ventas_q2, ventas_q3]
+labels_boxplot = ['Q1', 'Q2', 'Q3']
+
+box_plot = ax3.boxplot(datos_boxplot, labels=labels_boxplot, patch_artist=True)
+
+# Colorear cajas
+colores_box = ['#FF6B6B', '#4ECDC4', '#45B7D1']
+for patch, color in zip(box_plot['boxes'], colores_box):
+    patch.set_facecolor(color)
+    patch.set_alpha(0.7)
+
+ax3.set_title('Distribución de Ventas por Trimestre', fontsize=14, fontweight='bold', pad=15)
+ax3.set_ylabel('Ventas (Unidades)', fontsize=14, fontweight='bold')
+ax3.grid(True, alpha=0.3, axis='y')
+
+# Agregar línea de promedio
+ax3.axhline(y=promedio_total, color='red', linestyle='--', alpha=0.7)
+
+# Gráfico 4: Resumen estadístico personalizado
+ax4.axis('off')
+
+# Crear tabla de resumen
+resumen_texto = """
+RESUMEN EJECUTIVO
+
+Ventas Totales:
+• Q1: {:,} unidades
+• Q2: {:,} unidades  
+• Q3: {:,} unidades
+• Total: {:,} unidades
+
+Mejor Producto:
+• Q1: {} ({} unidades)
+• Q2: {} ({} unidades)
+• Q3: {} ({} unidades)
+
+Crecimiento:
+• Q1→Q2: {:+.1f}%
+• Q2→Q3: {:+.1f}%
+• Q1→Q3: {:+.1f}%
+""".format(
+    sum(ventas_q1), sum(ventas_q2), sum(ventas_q3), 
+    sum(ventas_q1) + sum(ventas_q2) + sum(ventas_q3),
+    categorias[np.argmax(ventas_q1)], max(ventas_q1),
+    categorias[np.argmax(ventas_q2)], max(ventas_q2),
+    categorias[np.argmax(ventas_q3)], max(ventas_q3),
+    ((sum(ventas_q2) - sum(ventas_q1)) / sum(ventas_q1)) * 100,
+    ((sum(ventas_q3) - sum(ventas_q2)) / sum(ventas_q2)) * 100,
+    ((sum(ventas_q3) - sum(ventas_q1)) / sum(ventas_q1)) * 100
+)
+
+ax4.text(0.1, 0.9, resumen_texto, transform=ax4.transAxes, fontsize=12,
+         verticalalignment='top', bbox=dict(boxstyle="round,pad=0.5", 
+         facecolor="lightgray", alpha=0.8))
+
+plt.tight_layout()
+plt.show()
+```
+
+### Mejores Prácticas para Boxplots y Piecharts
+
+#### **Boxplots:**
+1. **Usar colores diferentes** para distinguir grupos claramente
+2. **Agregar estadísticas clave** (media, mediana, IQR) como texto
+3. **Identificar y analizar outliers** sistemáticamente
+4. **Comparar múltiples métricas** en subplots paralelos
+5. **Incluir líneas de referencia** para promedios o objetivos
+
+#### **Piecharts:**
+1. **Limitar a 6-7 categorías** máximo para claridad
+2. **Ordenar secciones** por tamaño (mayor a menor)
+3. **Usar colores contrastantes** y consistentes
+4. **Incluir porcentajes Y valores absolutos** cuando sea relevante
+5. **Considerar donut charts** para datos jerárquicos
+6. **Evitar efectos 3D** que distorsionan la percepción
+
+### Cuándo Usar Cada Tipo de Gráfico
+
+#### **Usar Boxplots cuando:**
+- Necesites comparar distribuciones entre grupos
+- Quieras identificar outliers
+- Tengas variables numéricas continuas
+- Busques entender la dispersión de los datos
+
+#### **Usar Piecharts cuando:**
+- Muestres proporciones de un total
+- Tengas pocas categorías (≤7)
+- Las diferencias sean significativas (>5%)
+- El contexto sea "partes de un todo"
+
+#### **Evitar Piecharts cuando:**
+- Compares valores precisos
+- Tengas muchas categorías
+- Las diferencias sean pequeñas
+- Necesites mostrar tendencias temporales
+
+### Conclusión
+
+Los boxplots y piecharts son herramientas complementarias en el análisis exploratorio de datos:
+
+- **Boxplots**: Ideales para análisis estadístico profundo de distribuciones
+- **Piecharts**: Perfectos para comunicar proporciones de manera intuitiva
+
+La combinación de ambos tipos permite un análisis completo: los boxplots para entender la distribución y variabilidad de los datos, y los piecharts para comunicar composiciones y proporciones de manera efectiva.
