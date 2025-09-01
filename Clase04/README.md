@@ -2570,6 +2570,95 @@ Los gráficos de dispersión, barras e histogramas son herramientas fundamentale
 
 La combinación de estos tres tipos de gráficos permite un análisis completo y profundo de los datos, desde relaciones entre variables hasta patrones de distribución y comparaciones categóricas.
 
+---
+
+## **4.7 Boxplots y Piecharts - Análisis de Distribuciones y Proporciones**
+
+### Introducción a Boxplots - Visualización de Distribuciones
+
+**¿Qué son los boxplots?**
+Los boxplots son herramientas gráficas que permiten visualizar la distribución de una variable numérica a través de sus cuartiles, facilitando la identificación de valores atípicos (outliers) y la comparación de distribuciones entre diferentes categorías. Los elementos clave de un boxplot incluyen:
+
+- **La caja**: Muestra el rango intercuartil (IQR = Q3 - Q1)
+- **Los bigotes**: Se extienden hasta 1.5 veces el rango intercuartil
+- **Los outliers**: Se representan como puntos fuera de los bigotes
+- **La línea central**: Representa la mediana de los datos
+
+**¿Por qué usar boxplots?**
+Los boxplots son especialmente útiles para:
+- Comparar distribuciones entre diferentes grupos o categorías
+- Identificar patrones de simetría o asimetría en los datos
+- Detectar outliers de manera visual
+- Analizar la dispersión de los datos
+- Comparar múltiples variables simultáneamente
+
+### Creación de Boxplots con Matplotlib
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+# Configuración de estilo
+plt.style.use('seaborn-v0_8')
+plt.rcParams['figure.figsize'] = (12, 8)
+
+# 1. Boxplot Básico
+print("=== BOXPLOT BÁSICO ===")
+
+# Crear datos de ejemplo: salarios por departamento
+np.random.seed(42)
+it_salarios = np.random.normal(65000, 15000, 100)      # IT: media alta, alta dispersión
+hr_salarios = np.random.normal(55000, 12000, 100)      # HR: media media, dispersión media
+marketing_salarios = np.random.normal(60000, 18000, 100) # Marketing: media media, alta dispersión
+ventas_salarios = np.random.normal(70000, 25000, 100)   # Ventas: media alta, muy alta dispersión
+
+# Agregar algunos outliers para demostrar la funcionalidad
+it_salarios[0] = 120000   # Outlier alto en IT
+hr_salarios[5] = 35000    # Outlier bajo en HR
+marketing_salarios[10] = 95000  # Outlier alto en Marketing
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Crear boxplot básico
+data = [it_salarios, hr_salarios, marketing_salarios, ventas_salarios]
+labels = ['IT', 'Recursos Humanos', 'Marketing', 'Ventas']
+
+box_plot = ax.boxplot(data, labels=labels, patch_artist=True)
+
+# Colorear las cajas para mejor visualización
+colors = ['lightblue', 'lightgreen', 'lightcoral', 'lightyellow']
+for patch, color in zip(box_plot['boxes'], colors):
+    patch.set_facecolor(color)
+    patch.set_alpha(0.7)
+
+# Personalizar el gráfico
+ax.set_title('Distribución de Salarios por Departamento', fontsize=16, fontweight='bold')
+ax.set_ylabel('Salario Anual ($)', fontsize=14)
+ax.grid(True, alpha=0.3, axis='y')
+
+# Agregar estadísticas descriptivas
+for i, (salarios, label) in enumerate(zip(data, labels)):
+    media = np.mean(salarios)
+    mediana = np.median(salarios)
+    q1 = np.percentile(salarios, 25)
+    q3 = np.percentile(salarios, 75)
+    iqr = q3 - q1
+    
+    # Mostrar estadísticas clave
+    print(f"\n{label}:")
+    print(f"  Media: ${media:,.0f}")
+    print(f"  Mediana: ${mediana:,.0f}")
+    print(f"  Q1: ${q1:,.0f}")
+    print(f"  Q3: ${q3:,.0f}")
+    print(f"  IQR: ${iqr:,.0f}")
+    print(f"  Outliers: {len(salarios[(salarios < q1 - 1.5*iqr) | (salarios > q3 + 1.5*iqr)])}")
+
+plt.tight_layout()
+plt.show()
+```
+
 
 ## **Recursos Adicionales**
 1. Documentación oficial de Pandas: [Manejo de datos faltantes](https://pandas.pydata.org/docs/user_guide/missing_data.html) [1]
