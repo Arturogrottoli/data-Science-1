@@ -12,6 +12,7 @@ https://docs.google.com/presentation/d/1BDjUNhpNr1TD8qRBV6XkHkUUbZhho8Ks5wzouYfj
 
 ## **Repaso de Clases Anteriores**
 
+
 ### 🐍 Ejemplo Python - Condicionales para Ciencia de Datos
 
 **¿Por qué son importantes los condicionales en ciencia de datos?**
