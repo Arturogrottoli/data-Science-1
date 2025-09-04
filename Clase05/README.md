@@ -1,5 +1,8 @@
 ## Repaso Clase 3 y 4
+##Nunpy
 
+
+##pandas
 
 # Visualizaciones con Matplotlib
 [Diapositivas](https://docs.google.com/presentation/d/1BCmhYqiqKTKSm4hUkzXXuEcBJTAXw25j3oYJyqioTPQ/edit?slide=id.p1#slide=id.p1)
