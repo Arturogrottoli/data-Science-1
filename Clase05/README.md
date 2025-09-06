@@ -321,7 +321,108 @@ plt.show()
 # - Subplots (plt.subplots) -> grillas manuales de gráficos.
 # - FacetGrid -> divide datos en subgrupos y genera gráficos múltiples.
 
-#5.4
+# ------------------------------------------------------------
+# 5.4 Análisis de distribuciones de datos
+# ------------------------------------------------------------
+# Cuando analizamos datos con más de dos variables, necesitamos
+# visualizaciones multidimensionales.
+# Ejemplos: gráficos de radar y caras de Chernoff.
+#
+# - Gráfico de radar:
+#   * Cada eje representa una variable.
+#   * Se conectan los valores formando un polígono.
+#   * Útil para comparar perfiles (ej: rendimiento de productos).
+#   * Limite: puede volverse ilegible con muchas variables.
+#
+# - Caras de Chernoff:
+#   * Representan variables con rasgos faciales.
+#   * Los humanos detectan fácilmente patrones en caras.
+#   * Útil para datasets pequeños o comparaciones rápidas.
+#   * Limite: confuso con muchos datos.
+#
+# En resumen:
+# Estas técnicas ayudan a entender datasets complejos, pero deben
+# usarse con criterio según la cantidad de variables y el público.
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# ------------------------------------------------------------
+# Ejemplo 1: Gráfico de Radar
+# ------------------------------------------------------------
+labels = np.array(["Velocidad", "Consumo", "Seguridad", "Confort", "Precio"])
+n_vars = len(labels)
+
+# Datos de dos "autos"
+auto1 = [8, 6, 7, 9, 5]
+auto2 = [6, 9, 6, 7, 8]
+
+# Ángulos para cada eje
+angles = np.linspace(0, 2 * np.pi, n_vars, endpoint=False).tolist()
+auto1 += auto1[:1]
+auto2 += auto2[:1]
+angles += angles[:1]
+
+# Crear figura
+fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+ax.plot(angles, auto1, 'o-', linewidth=2, label="Auto 1")
+ax.fill(angles, auto1, alpha=0.25)
+ax.plot(angles, auto2, 'o-', linewidth=2, label="Auto 2")
+ax.fill(angles, auto2, alpha=0.25)
+
+ax.set_thetagrids(np.degrees(angles[:-1]), labels)
+plt.title("Comparación de Autos - Gráfico de Radar")
+plt.legend()
+plt.show()
+
+# ------------------------------------------------------------
+# Ejemplo 2: Caras de Chernoff (versión simple)
+# ------------------------------------------------------------
+# Nota: Python no tiene un paquete estándar para Chernoff Faces,
+# así que este ejemplo muestra una forma muy simplificada.
+
+def chernoff_face(ax, happiness, surprise, roundness):
+    """Dibuja una cara básica donde:
+       - happiness controla la curva de la boca,
+       - surprise controla el tamaño de los ojos,
+       - roundness controla la forma de la cara."""
+    face = plt.Circle((0, 0), 1, facecolor='peachpuff', edgecolor='black')
+    ax.add_patch(face)
+
+    # ojos
+    eye_size = 0.1 + surprise * 0.05
+    ax.add_patch(plt.Circle((-0.4, 0.3), eye_size, color="black"))
+    ax.add_patch(plt.Circle((0.4, 0.3), eye_size, color="black"))
+
+    # boca
+    mouth_x = np.linspace(-0.5, 0.5, 100)
+    mouth_y = -0.5 + happiness * 0.3 * np.cos(mouth_x * np.pi)
+    ax.plot(mouth_x, mouth_y, color="red", linewidth=2)
+
+    # cara más redonda/elongada
+    ax.set_xlim(-1*roundness, 1*roundness)
+    ax.set_ylim(-1, 1)
+    ax.axis("off")
+
+fig, axs = plt.subplots(1, 2, figsize=(8, 4))
+
+chernoff_face(axs[0], happiness=1, surprise=0.5, roundness=1)
+axs[0].set_title("Cliente satisfecho")
+
+chernoff_face(axs[1], happiness=-1, surprise=0.2, roundness=0.7)
+axs[1].set_title("Cliente insatisfecho")
+
+plt.show()
+
+# ------------------------------------------------------------
+# Conclusión:
+# - Radar: útil para comparar varias variables de forma visual.
+# - Chernoff Faces: aprovechan la percepción humana de rostros.
+# - Ambas técnicas deben usarse con datasets adecuados para evitar confusión.
+
+#5.5
+
+
 
 # Visualizaciones con Matplotlib
 [Diapositivas](https://docs.google.com/presentation/d/1BCmhYqiqKTKSm4hUkzXXuEcBJTAXw25j3oYJyqioTPQ/edit?slide=id.p1#slide=id.p1)
