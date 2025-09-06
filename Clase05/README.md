@@ -1,8 +1,90 @@
 ## Repaso Clase 3 y 4
-##Nunpy
+
+# ======================================================
+# Repaso Clase 3 y 4
+# ======================================================
+
+# ======================================================
+# Clase 3 - Numpy
+# ======================================================
+# Numpy es una librería de Python para trabajar con arreglos
+# y cálculos numéricos de forma rápida y eficiente.
+# Es mucho más veloz que usar listas comunes de Python para operaciones matemáticas.
+
+import numpy as np
+
+# Crear un arreglo
+a = np.array([1, 2, 3, 4, 5])
+
+# Operaciones básicas
+print("Suma total:", a.sum())
+print("Promedio:", a.mean())
+print("Array multiplicado por 2:", a * 2)
 
 
-##pandas
+# ======================================================
+# Clase 3 - Pandas
+# ======================================================
+# Pandas es una librería que facilita el manejo y análisis de datos
+# en tablas (DataFrames). Permite leer datos desde archivos (CSV, Excel, SQL, etc.)
+# y procesarlos de forma muy flexible.
+
+import pandas as pd
+
+# Crear un DataFrame
+data = {
+    "Producto": ["A", "B", "C"],
+    "Precio": [100, 200, 150],
+    "Cantidad": [5, 3, 8]
+}
+
+df = pd.DataFrame(data)
+
+print(df)
+print("Promedio de precios:", df["Precio"].mean())
+
+
+# ======================================================
+# Clase 4 - Visualizaciones con Matplotlib y Pandas
+# ======================================================
+# Matplotlib es una librería para hacer gráficos.
+# Con pandas se integra fácilmente, ya que un DataFrame puede graficarse directamente.
+
+import matplotlib.pyplot as plt
+
+# Ejemplo 1: gráfico simple con pandas
+# -------------------------------------
+# Usamos un DataFrame con ventas mensuales
+data = {"Mes": ["Enero", "Febrero", "Marzo", "Abril"],
+        "Ventas": [250, 300, 400, 350]}
+df = pd.DataFrame(data)
+
+# Gráfico de línea
+df.plot(x="Mes", y="Ventas", kind="line", marker="o", title="Ventas mensuales")
+plt.show()
+
+
+# Ejemplo 2: dos gráficos diferentes
+# -------------------------------------
+
+# 1. Gráfico de barras
+df.plot(x="Mes", y="Ventas", kind="bar", color="skyblue", title="Ventas por Mes")
+plt.show()
+
+# 2. Gráfico circular (pie chart)
+df.set_index("Mes")["Ventas"].plot(kind="pie", autopct="%1.1f%%", title="Distribución de ventas")
+plt.ylabel("")  # ocultar eje y
+plt.show()
+
+
+# ======================================================
+# Conceptos importantes a recordar:
+# ======================================================
+# - df.plot() permite graficar directamente desde pandas
+# - kind="line", "bar", "pie", etc. define el tipo de gráfico
+# - plt.show() muestra el gráfico en pantalla
+# - Matplotlib permite personalizar colores, títulos, etiquetas, etc.
+
 
 # Visualizaciones con Matplotlib
 [Diapositivas](https://docs.google.com/presentation/d/1BCmhYqiqKTKSm4hUkzXXuEcBJTAXw25j3oYJyqioTPQ/edit?slide=id.p1#slide=id.p1)
