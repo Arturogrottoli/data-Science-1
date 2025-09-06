@@ -153,8 +153,98 @@ sns.barplot(x="Categoría", y="Valor", data=data)
 plt.title("Ejemplo Seaborn")
 plt.show()
 
+#5.2 - Tipos de graficos
 
+# ------------------------------------------------------------
+# Tipos de Gráficos
+# ------------------------------------------------------------
+# Los gráficos son herramientas clave para comunicar información.
+# Cada tipo tiene un propósito distinto según los datos que queremos mostrar.
 
+# ------------------------------------------------------------
+# Gráficos de Barras
+# ------------------------------------------------------------
+# - Sirven para comparar cantidades entre categorías.
+# - Las barras pueden ser verticales u horizontales.
+# - No son adecuados para datos que cambian con el tiempo (usar líneas).
+# - Recomendación: etiquetas claras y diferencias visibles.
+
+import matplotlib.pyplot as plt
+
+categorias = ["A", "B", "C"]
+valores = [5, 10, 7]
+
+plt.bar(categorias, valores)
+plt.title("Gráfico de Barras")
+plt.xlabel("Categorías")
+plt.ylabel("Valores")
+plt.show()
+
+# ------------------------------------------------------------
+# Histogramas
+# ------------------------------------------------------------
+# - Representan la distribución de una variable numérica.
+# - Agrupan los datos en intervalos (bins).
+# - Son útiles para ver la forma de los datos (normal, sesgo, etc.).
+
+import numpy as np
+
+datos = np.random.randn(1000)  # 1000 valores aleatorios distribuidos normal
+
+plt.hist(datos, bins=20, edgecolor="black")
+plt.title("Histograma")
+plt.xlabel("Valor")
+plt.ylabel("Frecuencia")
+plt.show()
+
+# ------------------------------------------------------------
+# Diagramas de Dispersión (Scatterplots)
+# ------------------------------------------------------------
+# - Muestran la relación entre dos variables.
+# - Cada punto representa una observación.
+# - Útiles para identificar patrones, tendencias o correlaciones.
+
+x = np.random.rand(50)
+y = 2 * x + np.random.randn(50) * 0.1  # relación con algo de ruido
+
+plt.scatter(x, y)
+plt.title("Diagrama de Dispersión")
+plt.xlabel("Variable X")
+plt.ylabel("Variable Y")
+plt.show()
+
+# ------------------------------------------------------------
+# Gráficos de Torta (Pie Charts)
+# ------------------------------------------------------------
+# - Representan proporciones de un todo.
+# - Útiles para mostrar porcentajes de pocas categorías.
+# - No recomendados con muchas categorías porque se vuelven confusos.
+
+etiquetas = ["A", "B", "C", "D"]
+valores = [40, 30, 20, 10]
+
+plt.pie(valores, labels=etiquetas, autopct="%1.1f%%")
+plt.title("Gráfico de Torta")
+plt.show()
+
+# ------------------------------------------------------------
+# Gráficos de Series Temporales
+# ------------------------------------------------------------
+# - Muestran cómo cambia una variable a lo largo del tiempo.
+# - Ideales para detectar tendencias, ciclos o estacionalidad.
+# - Útiles para comparar varias series en paralelo.
+
+fechas = pd.date_range("2025-01-01", periods=10, freq="M")
+valores = np.random.randint(50, 100, size=10)
+
+plt.plot(fechas, valores, marker="o")
+plt.title("Serie Temporal")
+plt.xlabel("Tiempo")
+plt.ylabel("Valor")
+plt.xticks(rotation=45)
+plt.show()
+
+#5.3
 
 # Visualizaciones con Matplotlib
 [Diapositivas](https://docs.google.com/presentation/d/1BCmhYqiqKTKSm4hUkzXXuEcBJTAXw25j3oYJyqioTPQ/edit?slide=id.p1#slide=id.p1)
