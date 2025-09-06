@@ -85,6 +85,76 @@ plt.show()
 # - plt.show() muestra el gráfico en pantalla
 # - Matplotlib permite personalizar colores, títulos, etiquetas, etc.
 
+#5.1 CLASE NUEVA Introducción a la Visualización de Datos
+
+# ------------------------------------------------------------
+# Introducción a la Visualización de Datos
+# ------------------------------------------------------------
+# La visualización de datos es clave en ciencia de datos porque permite
+# comunicar de manera clara los resultados de un análisis.
+# Pero conlleva una gran responsabilidad:
+# "Con un gran poder viene una gran responsabilidad".
+# Esto significa que debemos ser cuidadosos y éticos, porque los gráficos
+# influyen en la toma de decisiones.
+
+# Un gráfico no se hace al azar: requiere preparación para que sea claro,
+# preciso y fiel a los datos.
+
+# ------------------------------------------------------------
+# Elementos de un Buen Gráfico
+# ------------------------------------------------------------
+# 1. Título: claro y representativo
+# 2. Etiquetas y unidades: explicar qué se mide (ejemplo: "Edad (años)")
+# 3. Leyendas y categorías: distinguir variables o grupos
+
+# Un gráfico con estos elementos es comprensible y comunica correctamente.
+
+# ------------------------------------------------------------
+# Diferencias entre Matplotlib y Seaborn
+# ------------------------------------------------------------
+# Matplotlib:
+#   - Muy flexible y robusto
+#   - Permite gráficos básicos y avanzados
+#   - Sintaxis más extensa
+#   - Maneja arrays y DataFrames
+#
+# Seaborn:
+#   - Especializado en gráficos estadísticos
+#   - Sintaxis más simple y legible
+#   - Orientado a trabajar directamente con datasets
+#   - Menos flexible que Matplotlib, pero más práctico para análisis rápidos
+
+# ------------------------------------------------------------
+# Ejemplo 1: Gráfico de barras con Matplotlib
+# ------------------------------------------------------------
+import matplotlib.pyplot as plt
+
+categorias = ["A", "B", "C"]
+valores = [10, 20, 15]
+
+plt.bar(categorias, valores)
+plt.title("Ejemplo Matplotlib")
+plt.xlabel("Categorías")
+plt.ylabel("Valores")
+plt.show()
+
+# ------------------------------------------------------------
+# Ejemplo 2: Gráfico de barras con Seaborn
+# ------------------------------------------------------------
+import seaborn as sns
+import pandas as pd
+
+data = pd.DataFrame({
+    "Categoría": ["A", "B", "C"],
+    "Valor": [10, 20, 15]
+})
+
+sns.barplot(x="Categoría", y="Valor", data=data)
+plt.title("Ejemplo Seaborn")
+plt.show()
+
+
+
 
 # Visualizaciones con Matplotlib
 [Diapositivas](https://docs.google.com/presentation/d/1BCmhYqiqKTKSm4hUkzXXuEcBJTAXw25j3oYJyqioTPQ/edit?slide=id.p1#slide=id.p1)
