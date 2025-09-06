@@ -244,7 +244,84 @@ plt.ylabel("Valor")
 plt.xticks(rotation=45)
 plt.show()
 
-#5.3
+#5.3 Herramientas avanzadas de visualizacion
+
+# ------------------------------------------------------------
+# Herramientas avanzadas de visualización (Seaborn)
+# ------------------------------------------------------------
+# Seaborn es una librería construida sobre Matplotlib que se integra con Pandas.
+# - Simplifica la creación de gráficos estadísticos.
+# - Trabaja directamente con DataFrames.
+# - Incluye estilos visuales predefinidos que mejoran la presentación.
+# - Ideal para análisis exploratorios rápidos.
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+# ------------------------------------------------------------
+# Comandos básicos
+# ------------------------------------------------------------
+# sns.set() -> define estilos gráficos predeterminados
+# Existen dos tipos de funciones en Seaborn:
+# - Axes-level: afectan un único gráfico (ej: sns.barplot, sns.scatterplot).
+# - Figure-level: manejan toda la figura, útiles para subplots complejos (ej: sns.relplot, sns.catplot).
+
+# Ejemplo Axes-level
+df = pd.DataFrame({
+    "categoria": ["A", "B", "C", "A", "B", "C"],
+    "valor": [5, 10, 7, 6, 11, 8]
+})
+
+sns.set()  # activar estilo por defecto
+sns.barplot(data=df, x="categoria", y="valor")
+plt.title("Ejemplo con Axes-level (barplot)")
+plt.show()
+
+# Ejemplo Figure-level
+tips = sns.load_dataset("tips")  # dataset incluido en seaborn
+sns.catplot(data=tips, x="day", y="total_bill", kind="box")
+plt.suptitle("Ejemplo con Figure-level (catplot)", y=1.02)
+plt.show()
+
+# ------------------------------------------------------------
+# Subplots con Matplotlib + Seaborn
+# ------------------------------------------------------------
+# plt.subplots() -> crea una grilla de subplots.
+# Permite combinar distintos gráficos en una sola figura.
+
+fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 8))
+
+sns.histplot(data=tips, x="total_bill", ax=axs[0, 0])
+sns.boxplot(data=tips, x="day", y="total_bill", ax=axs[0, 1])
+sns.scatterplot(data=tips, x="total_bill", y="tip", ax=axs[1, 0])
+sns.lineplot(data=tips, x="size", y="tip", ax=axs[1, 1])
+
+plt.tight_layout()
+plt.show()
+
+# ------------------------------------------------------------
+# FacetGrid en Seaborn
+# ------------------------------------------------------------
+# Permite generar múltiples subgráficos según categorías.
+# Muy útil para comparar subconjuntos de datos.
+
+g = sns.FacetGrid(tips, col="sex", row="time")
+g.map(sns.histplot, "total_bill")
+g.add_legend()
+plt.show()
+
+# ------------------------------------------------------------
+# Resumen práctico
+# ------------------------------------------------------------
+# - sns.set() -> aplicar estilos generales.
+# - Axes-level -> control detallado sobre gráficos individuales.
+# - Figure-level -> organiza gráficos complejos automáticamente.
+# - Subplots (plt.subplots) -> grillas manuales de gráficos.
+# - FacetGrid -> divide datos en subgrupos y genera gráficos múltiples.
+
+#5.4
 
 # Visualizaciones con Matplotlib
 [Diapositivas](https://docs.google.com/presentation/d/1BCmhYqiqKTKSm4hUkzXXuEcBJTAXw25j3oYJyqioTPQ/edit?slide=id.p1#slide=id.p1)
