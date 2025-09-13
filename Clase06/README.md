@@ -1,3 +1,137 @@
+# ============================================================
+# REPASO CLASE 05CLASE DE VISUALIZACIÓN AVANZADA CON SEABORN Y MATPLOTLIB
+# ============================================================
+# Tema: Herramientas avanzadas de visualización
+#
+# Objetivo de la clase:
+# - Entender qué es Seaborn y por qué usarlo encima de Matplotlib.
+# - Diferenciar subplots clásicos de Matplotlib vs. FacetGrid de Seaborn.
+# - Practicar con ejemplos reales de gráficos.
+#
+# ------------------------------------------------------------
+# TEORÍA:
+# ------------------------------------------------------------
+# ¿Qué es Seaborn?
+# - Es una librería de Python construida sobre Matplotlib.
+# - Se integra directamente con Pandas, lo que facilita graficar DataFrames.
+# - Permite hacer gráficos estadísticos de forma rápida, estética y sencilla.
+#
+# Ventajas principales:
+# 1. Sintaxis más simple que Matplotlib.
+# 2. Temas visuales predefinidos (mejor estética por defecto).
+# 3. Funciona directamente con DataFrames y columnas.
+# 4. Tiene funciones para gráficos complejos en pocas líneas.
+#
+# ------------------------------------------------------------
+# Diferencia entre funciones "Axes-level" y "Figure-level":
+# - Axes-level (ej: sns.scatterplot, sns.boxplot):
+#   -> Se dibujan en un objeto de ejes específico (matplotlib.pyplot.Axes).
+#   -> Útiles cuando quiero controlar UN gráfico dentro de subplots.
+#
+# - Figure-level (ej: sns.relplot, sns.catplot, sns.FacetGrid):
+#   -> Controlan toda la figura completa, creando automáticamente subplots.
+#   -> Útiles para comparar subgrupos o múltiples distribuciones de datos.
+#
+# ------------------------------------------------------------
+# EJEMPLO 1: SUBPLOTS CLÁSICOS CON MATPLOTLIB + SEABORN
+# ------------------------------------------------------------
+# Idea: crear una figura con 4 gráficos diferentes para mostrar:
+# - Histograma
+# - Boxplot
+# - Gráfico de dispersión
+# - Gráfico de líneas
+#
+# Objetivo: practicar cómo ubicar diferentes gráficos en una grilla
+# (2 filas x 2 columnas) y cómo elegir qué gráfico va en cada lugar.
+# ============================================================
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import numpy as np
+
+# Generamos datos de ejemplo usando NumPy
+# np.random.seed(42) -> fijamos semilla para reproducibilidad (los datos serán siempre iguales)
+np.random.seed(42)
+df = pd.DataFrame({
+    "variable1": np.random.normal(0, 1, 100),   # distribución normal media=0, sd=1
+    "variable2": np.random.exponential(1, 100), # distribución exponencial
+    "variable3": np.random.uniform(0, 10, 100), # distribución uniforme
+    "variable4": np.random.normal(5, 2, 100),   # normal con media=5, sd=2
+    "variable5": range(100),                    # valores consecutivos 0 a 99
+    "variable6": np.random.normal(50, 10, 100)  # normal con media=50, sd=10
+})
+
+# Creamos la figura con 2 filas y 2 columnas de subplots
+fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 8))
+
+# Subplot 1: Histograma de variable1
+# Histograma = distribución de frecuencias
+sns.histplot(data=df, x='variable1', ax=axs[0, 0], color="skyblue")
+axs[0, 0].set_title("Histograma de variable1")
+
+# Subplot 2: Boxplot de variable2
+# Boxplot = detecta la dispersión de los datos y posibles outliers
+sns.boxplot(data=df, x='variable2', ax=axs[0, 1], color="lightgreen")
+axs[0, 1].set_title("Boxplot de variable2")
+
+# Subplot 3: Gráfico de dispersión (scatterplot)
+# Muestra relación entre dos variables
+sns.scatterplot(data=df, x='variable3', y='variable4', ax=axs[1, 0], color="salmon")
+axs[1, 0].set_title("Dispersión variable3 vs variable4")
+
+# Subplot 4: Gráfico de líneas
+# Útil para series temporales o valores consecutivos
+sns.lineplot(data=df, x='variable5', y='variable6', ax=axs[1, 1], color="purple")
+axs[1, 1].set_title("Línea variable5 vs variable6")
+
+# Ajustamos para que no se encimen títulos y gráficos
+plt.tight_layout()
+plt.show()
+
+# ============================================================
+# EJEMPLO 2: FACETGRID EN SEABORN
+# ============================================================
+# Objetivo:
+# - Mostrar cómo dividir automáticamente un dataset en múltiples gráficos
+#   según categorías.
+# - Usaremos el dataset "tips" de Seaborn (propinas en un restaurante).
+#
+# Casos de uso típicos:
+# - Comparar distribuciones entre grupos (ej: hombres vs mujeres).
+# - Ver cómo cambia una variable según otra categoría (ej: Lunch vs Dinner).
+# ============================================================
+
+# Cargamos dataset "tips"
+df_tips = sns.load_dataset("tips")
+
+# Mostramos primeras filas para conocer estructura
+print(df_tips.head())
+
+# Creamos un FacetGrid
+# col="sex"  -> divide columnas por sexo
+# row="time" -> divide filas por tiempo (Lunch/Dinner)
+g = sns.FacetGrid(df_tips, col="sex", row="time", margin_titles=True)
+
+# Mapear gráfico: en cada subplot mostrar histograma de "total_bill"
+g.map(sns.histplot, "total_bill", bins=15, color="skyblue")
+
+# Agregar leyenda para categorías
+g.add_legend()
+
+# Mostrar figura
+plt.show()
+
+# ------------------------------------------------------------
+# CONCLUSIONES DE LA CLASE:
+# - Matplotlib permite un control detallado de gráficos y subplots.
+# - Seaborn simplifica la sintaxis y mejora la estética.
+# - Subplots clásicos: control manual de cada gráfico.
+# - FacetGrid: automatización para comparar categorías.
+# ------------------------------------------------------------
+
+
+#inicio CLase 06
 # Tipos de variables en un analisis del tipo EDA
 [DIAPOSITIVAS](https://docs.google.com/presentation/d/1bTgblneO_G2WteTeku40AN-3yKmhiVvpcudqcGo0cco/edit?slide=id.p2#slide=id.p2)
 
