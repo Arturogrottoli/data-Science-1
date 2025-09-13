@@ -191,6 +191,102 @@ plt.show()
 # - Hacer histogramas y boxplots para visualizar distribuciones.
 
 
+Parte 6.2
+
+# ============================================================
+# 6.2 MEDIDAS DE RESUMEN Y DISTRIBUCIONES
+# ============================================================
+
+# 👉 Medidas Cuantitativas
+# ------------------------------------------------------------
+# MEDIA:
+# - Promedio de todos los valores.
+# - Fórmula: Media = (Σ xi) / n
+# - Representa el valor típico, pero es sensible a outliers.
+#
+# MEDIANA:
+# - Valor central de los datos ordenados.
+# - Robusta frente a valores atípicos.
+#
+# MODA:
+# - Valor que más se repite.
+# - Puede ser unimodal (1), bimodal (2) o multimodal (+2).
+# - Útil especialmente en datos categóricos.
+#
+# VARIANZA:
+# - Mide la dispersión de los datos respecto a la media.
+# - Fórmula: Var = Σ(xi - media)^2 / (n-1)
+#
+# DESVIACIÓN ESTÁNDAR:
+# - Raíz cuadrada de la varianza.
+# - Se expresa en las mismas unidades que los datos.
+# - Indica cuánto se alejan, en promedio, los datos de la media.
+#
+# CUARTILES Y PERCENTILES:
+# - Dividen los datos en partes iguales.
+# - Q1: 25% inferior, Q2: mediana, Q3: 75% inferior.
+# - Percentiles: dividen en 100 partes.
+# - Útiles para ver posiciones relativas (ej: percentil 90).
+
+# 👉 Medidas Cualitativas
+# ------------------------------------------------------------
+# - Variables categóricas (ej: género, estado civil, color).
+# - Se resumen con:
+#   -> Conteo de observaciones (frecuencias).
+#   -> Moda (categoría más común).
+#
+# Ejemplo:
+#   Género: {Hombres: 60, Mujeres: 40}  -> Conteo
+#   Moda = "Hombres"  -> Categoría más frecuente
+
+# 👉 Distribuciones de Variables
+# ------------------------------------------------------------
+# DISTRIBUCIÓN UNIFORME:
+# - Todos los valores tienen la misma probabilidad.
+# - Ejemplo: lanzar un dado justo.
+# - Gráfico: barras del histograma con alturas similares.
+#
+# DISTRIBUCIÓN NORMAL (campana de Gauss):
+# - Simétrica respecto a la media.
+# - La mayoría de datos se concentra en torno a la media.
+# - Media = Mediana = Moda.
+# - Ejemplo: altura de personas.
+#
+# DIFERENCIAS:
+# - Uniforme = todos los resultados igual de probables.
+# - Normal = los valores centrales son más probables.
+
+# 👉 Histogramas
+# ------------------------------------------------------------
+# - Muestran cómo se distribuyen los datos.
+# - Uniforme: barras todas del mismo nivel.
+# - Normal: forma de campana (barras altas en el centro).
+#
+# EJEMPLO VISUAL:
+# - Uniforme: █ █ █ █ █
+# - Normal:     ▂▄█▄▂
+
+# 👉 Correlación Lineal y Coeficiente de Correlación
+# ------------------------------------------------------------
+# - Relación entre dos variables (fuerza y dirección).
+# - Coeficiente r ∈ [-1, 1]:
+#   r ≈ 1  -> correlación positiva fuerte
+#   r ≈ -1 -> correlación negativa fuerte
+#   r ≈ 0  -> no hay relación lineal
+#
+# IMPORTANTE: Correlación ≠ causalidad.
+# - Que dos variables estén relacionadas no significa
+#   que una cause a la otra.
+#
+# Herramienta clave: diagrama de dispersión (scatter plot).
+# - Permite visualizar la relación entre dos variables.
+#
+# Ejemplo:
+# - r = 0.9 -> a mayor estudio, mayor nota (fuerte positiva).
+# - r = -0.8 -> a más horas de TV, menor nota (fuerte negativa).
+# - r ≈ 0.0 -> variables independientes.
+
+
 
 ### 🧠 1. **Según su naturaleza:**
 
