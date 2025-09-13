@@ -135,6 +135,63 @@ plt.show()
 # Tipos de variables en un analisis del tipo EDA
 [DIAPOSITIVAS](https://docs.google.com/presentation/d/1bTgblneO_G2WteTeku40AN-3yKmhiVvpcudqcGo0cco/edit?slide=id.p2#slide=id.p2)
 
+
+#Teoria 6.1
+
+# ============================================================
+# 6.1 FUNDAMENTOS DE ESTADÍSTICA
+# ============================================================
+
+# 👉 Estadística Descriptiva: Concepto y Relevancia
+# - Rama de la estadística que recopila, organiza y resume datos.
+# - Su objetivo principal es ofrecer una visión general y comprensible.
+# - Permite identificar patrones, tendencias y relaciones.
+# - Herramienta clave para la toma de decisiones informadas.
+# - Usa medidas de resumen como:
+#   -> Media (promedio)
+#   -> Mediana (valor central)
+#   -> Moda (valor más frecuente)
+#   -> Varianza y Desviación Estándar (medidas de dispersión).
+
+# 👉 Importancia práctica:
+# Nos ayuda a responder preguntas como:
+# - ¿Cuál es el valor típico de los datos?
+# - ¿Qué tan dispersos o concentrados están?
+# - ¿Existen valores atípicos (outliers)?
+
+# ------------------------------------------------------------
+# Introducción al Análisis Exploratorio de Datos (EDA)
+# ------------------------------------------------------------
+# - Fase inicial del análisis de datos.
+# - Objetivo: descubrir patrones, detectar anomalías,
+#   probar hipótesis y verificar supuestos.
+# - Se realiza combinando:
+#   -> Estadística descriptiva
+#   -> Visualización de datos
+#
+# Filosofía del EDA:
+# - Acercarse a los datos sin prejuicios.
+# - Explorar abiertamente para encontrar características inesperadas.
+#
+# Beneficios del EDA:
+# - Entender la estructura de los datos.
+# - Preparar datos para modelos más complejos.
+# - Tomar mejores decisiones sobre limpieza y preprocesamiento.
+
+# ------------------------------------------------------------
+# RESUMEN PARA LA CLASE:
+# ------------------------------------------------------------
+# - La estadística descriptiva resume y organiza los datos.
+# - El EDA es el paso inicial para explorar datos a fondo.
+# - Juntos permiten comprender los datos antes de aplicar técnicas
+#   de predicción o machine learning.
+#
+# EJEMPLOS EN CLASE:
+# - Usar Python para calcular media, mediana y moda de un dataset.
+# - Hacer histogramas y boxplots para visualizar distribuciones.
+
+
+
 ### 🧠 1. **Según su naturaleza:**
 
 #### a. **Cuantitativas (Numéricas)**
