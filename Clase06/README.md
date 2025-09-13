@@ -286,6 +286,139 @@ Parte 6.2
 # - r = -0.8 -> a más horas de TV, menor nota (fuerte negativa).
 # - r ≈ 0.0 -> variables independientes.
 
+Punto 6.3
+
+# ============================================
+# 📌 6.3 Introducción al Preprocesamiento
+# ============================================
+# El preprocesamiento de datos es una etapa FUNDAMENTAL en cualquier proyecto de Ciencia de Datos.
+# Consiste en transformar datos crudos (raw data) en datos limpios y listos para el análisis.
+# 
+# 🚨 Problema: Los datos reales suelen venir incompletos, ruidosos, inconsistentes.
+# ✅ Solución: Aplicar técnicas de preprocesamiento para mejorar su calidad y obtener mejores modelos.
+#
+# Importancia:
+# - Mejora la calidad de los datos.
+# - Aumenta el rendimiento de los algoritmos de Machine Learning.
+# - Evita errores y conclusiones incorrectas.
+#
+# Tareas comunes:
+# 1. Limpieza de datos
+# 2. Integración de datos
+# 3. Transformación de datos
+# 4. Reducción de datos
+# 5. Detección y tratamiento de outliers
+
+# ============================================
+# 🔹 EJEMPLOS PRÁCTICOS CON PYTHON
+# ============================================
+
+import pandas as pd
+import numpy as np
+
+# Creamos un DataFrame de ejemplo
+data = {
+    "Nombre": ["Ana", "Luis", "Pedro", "María", None],
+    "Edad": [23, np.nan, 35, 29, 40],
+    "Ciudad": ["Madrid", "Madrid", "Barcelona", "Madrid", "Barcelona"],
+    "Salario": [30000, 40000, None, 50000, 1000000]  # <--- hay un valor outlier
+}
+
+df = pd.DataFrame(data)
+
+print("📊 Datos originales:")
+print(df)
+
+# ============================================
+# 1. Limpieza de Datos (Data Cleaning)
+# ============================================
+# - Manejo de valores faltantes
+# - Corrección/eliminación de outliers
+# - Reducción del ruido en los datos
+
+# Rellenar valores faltantes en Edad con la media
+df["Edad"].fillna(df["Edad"].mean(), inplace=True)
+
+# Rellenar valores faltantes en Salario con la mediana
+df["Salario"].fillna(df["Salario"].median(), inplace=True)
+
+# Eliminar filas con Nombre nulo
+df.dropna(subset=["Nombre"], inplace=True)
+
+print("\n✅ Datos después de limpieza:")
+print(df)
+
+# ============================================
+# 2. Integración de Datos (Data Integration)
+# ============================================
+# - Combinar datos de distintas fuentes.
+# (Ejemplo simple con un dataset adicional de bonus)
+
+bonus = pd.DataFrame({
+    "Nombre": ["Ana", "Luis", "Pedro", "María"],
+    "Bonus": [1000, 1500, 1200, 2000]
+})
+
+df = pd.merge(df, bonus, on="Nombre", how="left")
+
+print("\n🔗 Datos después de integración:")
+print(df)
+
+# ============================================
+# 3. Transformación de Datos (Data Transformation)
+# ============================================
+# - Normalización / Escalado
+# - Codificación de variables categóricas
+
+from sklearn.preprocessing import MinMaxScaler, LabelEncoder
+
+# Normalizar Salario en rango [0,1]
+scaler = MinMaxScaler()
+df["Salario_Normalizado"] = scaler.fit_transform(df[["Salario"]])
+
+# Codificar variable categórica Ciudad
+encoder = LabelEncoder()
+df["Ciudad_Codificada"] = encoder.fit_transform(df["Ciudad"])
+
+print("\n🔄 Datos después de transformación:")
+print(df)
+
+# ============================================
+# 4. Reducción de Datos (Data Reduction)
+# ============================================
+# - Selección de características
+# - Reducción de dimensionalidad (ej. PCA)
+# - Muestreo de datos
+
+# Ejemplo: Nos quedamos solo con las variables más relevantes
+df_reducido = df[["Edad", "Salario_Normalizado", "Ciudad_Codificada"]]
+
+print("\n📉 Datos reducidos:")
+print(df_reducido)
+
+# ============================================
+# 5. Detección y Tratamiento de Outliers
+# ============================================
+# - Identificar valores atípicos que distorsionan el análisis
+
+Q1 = df["Salario"].quantile(0.25)
+Q3 = df["Salario"].quantile(0.75)
+IQR = Q3 - Q1
+
+outliers = df[(df["Salario"] < (Q1 - 1.5 * IQR)) | (df["Salario"] > (Q3 + 1.5 * IQR))]
+
+print("\n🚨 Outliers detectados:")
+print(outliers)
+
+# ============================================
+# 📌 Conclusión:
+# ============================================
+# El preprocesamiento es clave en Data Science porque:
+# - Mejora la calidad de los datos.
+# - Prepara los datos para modelos de ML.
+# - Permite descubrir patrones más claros.
+# 
+# Sin un buen preprocesamiento, el análisis o modelado puede ser incorrecto.
 
 
 ### 🧠 1. **Según su naturaleza:**
