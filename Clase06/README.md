@@ -421,6 +421,110 @@ print(outliers)
 # Sin un buen preprocesamiento, el análisis o modelado puede ser incorrecto.
 
 
+# ============================================
+# 📌 6.4 Detección y Manejo de Outliers
+# ============================================
+# Los OUTLIERS (valores atípicos) son observaciones que están muy alejadas
+# del resto de los datos en un conjunto.
+#
+# 🚨 Problema: Pueden distorsionar análisis estadísticos y modelos predictivos.
+# ✅ Solución: Detectarlos y tratarlos de forma adecuada según el contexto.
+#
+# --------------------------------------------
+# 🔎 Identificación con Diagramas de Caja y Bigotes (Boxplots)
+# --------------------------------------------
+# - Caja (Box): representa el rango intercuartil (IQR = Q3 - Q1).
+# - Bigotes (Whiskers): se extienden desde Q1 y Q3 hasta 1.5 * IQR.
+# - Outliers: cualquier punto fuera de los bigotes.
+#
+# --------------------------------------------
+# 🎯 Opciones de Tratamiento de Outliers
+# --------------------------------------------
+# 1. Eliminación → si son errores de medición o ingreso de datos.
+# 2. Transformación → suavizar su efecto (ej. logaritmo).
+# 3. Imputación → reemplazarlos con valores como cuartiles o medianas.
+# 4. Análisis de sensibilidad → comparar resultados con y sin outliers.
+#
+# --------------------------------------------
+# 📌 Conclusión:
+# Detectar y manejar outliers es crucial para obtener modelos más precisos.
+# La decisión de cómo tratarlos depende del contexto y de su origen.
+
+# ============================================
+# 🔹 EJEMPLO PRÁCTICO CON PYTHON
+# ============================================
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Generamos un dataset con outliers
+np.random.seed(42)
+data = np.random.normal(50, 10, 100)  # distribución normal
+data = np.append(data, [150, 200, -50])  # agregamos valores extremos (outliers)
+
+df = pd.DataFrame({"Valor": data})
+
+print("📊 Datos originales (con outliers):")
+print(df.describe())
+
+# ============================================
+# 1. Identificación de Outliers con Boxplot
+# ============================================
+plt.figure(figsize=(6,4))
+sns.boxplot(x=df["Valor"])
+plt.title("Diagrama de Caja y Bigotes - Outliers visibles")
+plt.show()
+
+# ============================================
+# 2. Detección numérica de Outliers con IQR
+# ============================================
+Q1 = df["Valor"].quantile(0.25)
+Q3 = df["Valor"].quantile(0.75)
+IQR = Q3 - Q1
+
+# Definimos los límites
+limite_inferior = Q1 - 1.5 * IQR
+limite_superior = Q3 + 1.5 * IQR
+
+outliers = df[(df["Valor"] < limite_inferior) | (df["Valor"] > limite_superior)]
+
+print("\n🚨 Outliers detectados:")
+print(outliers)
+
+# ============================================
+# 3. Opciones de Tratamiento
+# ============================================
+
+# 🔹 Opción A: Eliminación de outliers
+df_sin_outliers = df[(df["Valor"] >= limite_inferior) & (df["Valor"] <= limite_superior)]
+print("\n✅ Datos sin outliers (eliminación):")
+print(df_sin_outliers.describe())
+
+# 🔹 Opción B: Transformación (logarítmica)
+# (Solo funciona con valores positivos)
+df["Log_Valor"] = np.log(df["Valor"] + abs(df["Valor"].min()) + 1)
+print("\n🔄 Datos transformados con logaritmo:")
+print(df[["Valor", "Log_Valor"]].head())
+
+# 🔹 Opción C: Imputación (reemplazar por mediana)
+mediana = df["Valor"].median()
+df_imputado = df.copy()
+df_imputado.loc[df_imputado["Valor"] > limite_superior, "Valor"] = mediana
+df_imputado.loc[df_imputado["Valor"] < limite_inferior, "Valor"] = mediana
+
+print("\n♻️ Datos con imputación (reemplazo por mediana):")
+print(df_imputado.describe())
+
+# ============================================
+# 📌 Conclusión:
+# - Detectamos outliers con boxplots y con IQR.
+# - Mostramos varias formas de tratarlos (eliminación, transformación, imputación).
+# - La elección depende del contexto y de la naturaleza de los datos.
+
+
+
 ### 🧠 1. **Según su naturaleza:**
 
 #### a. **Cuantitativas (Numéricas)**
