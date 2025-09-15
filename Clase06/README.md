@@ -523,6 +523,132 @@ print(df_imputado.describe())
 # - Mostramos varias formas de tratarlos (eliminación, transformación, imputación).
 # - La elección depende del contexto y de la naturaleza de los datos.
 
+"""
+6.5 Análisis de Componentes Principales (PCA)
+
+📌 El PCA (Principal Component Analysis) es una técnica estadística utilizada en Data Science
+para reducir la dimensionalidad de un conjunto de datos mientras se conserva la mayor parte
+de la variabilidad (información).
+
+👉 ¿Por qué usamos PCA?
+- Muchos datasets tienen variables altamente correlacionadas → redundancia.
+- Más variables = modelos más complejos y lentos.
+- Con PCA reducimos variables → hacemos los modelos más simples, rápidos y generalizables.
+"""
+
+# =====================================================
+# 1. Importamos librerías necesarias
+# =====================================================
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+# =====================================================
+# 2. Creamos un dataset de ejemplo
+# =====================================================
+# Para entender PCA, generamos datos artificiales con correlaciones
+np.random.seed(42)
+X1 = np.random.normal(5, 2, 100)      # Variable 1
+X2 = X1 * 0.8 + np.random.normal(0,1,100)   # Variable 2 correlacionada con X1
+X3 = np.random.normal(10, 5, 100)     # Variable 3 independiente
+
+df = pd.DataFrame({
+    "Var1": X1,
+    "Var2": X2,
+    "Var3": X3
+})
+
+print("\n=== Dataset original ===")
+print(df.head())
+
+# =====================================================
+# 3. Estandarización de los datos
+# =====================================================
+"""
+📌 IMPORTANTE:
+PCA es sensible a la escala de las variables. 
+Antes de aplicar PCA, se recomienda escalar los datos 
+(media = 0, desviación estándar = 1).
+"""
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(df)
+
+print("\n=== Datos estandarizados (primeras filas) ===")
+print(scaled_data[:5])
+
+# =====================================================
+# 4. Aplicación de PCA
+# =====================================================
+"""
+📌 Proceso de PCA:
+1. Calcular matriz de covarianza.
+2. Obtener valores propios y vectores propios.
+3. Seleccionar componentes principales (PCs).
+4. Proyectar los datos en estas PCs.
+
+Con sklearn esto se simplifica enormemente.
+"""
+pca = PCA(n_components=2)   # Queremos reducir a 2 dimensiones
+pca_result = pca.fit_transform(scaled_data)
+
+# Convertimos resultado en DataFrame para analizar
+df_pca = pd.DataFrame(data=pca_result, columns=["PC1", "PC2"])
+print("\n=== Dataset transformado con PCA ===")
+print(df_pca.head())
+
+# =====================================================
+# 5. Varianza explicada por cada componente
+# =====================================================
+"""
+📌 Interpretación:
+- Cada componente explica un % de la varianza total.
+- PC1 explica la mayor parte.
+- PC2 explica la siguiente parte, y así sucesivamente.
+"""
+print("\n=== Varianza explicada por cada componente ===")
+print(pca.explained_variance_ratio_)
+
+# Visualizamos en gráfico
+plt.figure(figsize=(6,4))
+plt.bar(range(1, len(pca.explained_variance_ratio_)+1), pca.explained_variance_ratio_, alpha=0.7)
+plt.xlabel("Componentes Principales")
+plt.ylabel("Varianza Explicada")
+plt.title("Varianza explicada por PCA")
+plt.show()
+
+# =====================================================
+# 6. Visualización de los datos en el nuevo espacio PCA
+# =====================================================
+"""
+📌 Ahora los datos están representados en un espacio de menor dimensión,
+pero reteniendo la mayor parte de la información original.
+"""
+plt.figure(figsize=(6,6))
+sns.scatterplot(x="PC1", y="PC2", data=df_pca, s=60, color="purple")
+plt.title("Proyección de los datos en los 2 primeros Componentes Principales")
+plt.show()
+
+# =====================================================
+# 7. Conclusión
+# =====================================================
+"""
+✅ PCA es útil para:
+- Reducir dimensionalidad.
+- Eliminar redundancia de variables.
+- Simplificar modelos.
+- Mitigar riesgo de overfitting.
+- Mejorar interpretabilidad.
+
+En este ejemplo:
+- Pasamos de 3 variables a 2 componentes principales.
+- Aun así, mantenemos gran parte de la varianza (información).
+
+Esto mismo se puede aplicar en datasets de alta dimensión
+(imágenes, genética, sensores, finanzas, etc).
+"""
 
 
 ### 🧠 1. **Según su naturaleza:**
