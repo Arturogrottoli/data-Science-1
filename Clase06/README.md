@@ -649,6 +649,170 @@ En este ejemplo:
 Esto mismo se puede aplicar en datasets de alta dimensión
 (imágenes, genética, sensores, finanzas, etc).
 """
+"""
+6.6 Ejemplos Prácticos
+
+📌 En esta sección veremos ejemplos de:
+1. Estadística descriptiva aplicada a datos de ingresos.
+2. Preprocesamiento de datos (limpieza, transformación, integración, reducción).
+
+👉 Importante:
+La estadística descriptiva permite entender las características de un dataset
+(medidas de tendencia central, dispersión, distribución).
+El preprocesamiento asegura que los datos estén listos para aplicar modelos predictivos.
+"""
+
+# =====================================================
+# 1. Importamos librerías necesarias
+# =====================================================
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.decomposition import PCA
+
+# =====================================================
+# 2. Ejemplo de Estadística Descriptiva
+# =====================================================
+"""
+🎯 Contexto:
+Tenemos un conjunto de datos con información de ingresos anuales de una población.
+Queremos entender su distribución con estadísticas descriptivas.
+"""
+
+# Generamos un dataset simulado de ingresos
+np.random.seed(42)
+ingresos = np.random.normal(50000, 15000, 200)  # media=50k, std=15k
+ingresos = np.append(ingresos, [120000, 150000])  # agregamos outliers
+
+df_ingresos = pd.DataFrame({"Ingreso_Anual": ingresos})
+
+print("\n=== Primeras filas de los ingresos ===")
+print(df_ingresos.head())
+
+# Medidas de tendencia central
+media = df_ingresos["Ingreso_Anual"].mean()
+mediana = df_ingresos["Ingreso_Anual"].median()
+moda = df_ingresos["Ingreso_Anual"].mode()[0]
+
+print("\n=== Medidas de Tendencia Central ===")
+print(f"Media: {media:.2f}, Mediana: {mediana:.2f}, Moda: {moda:.2f}")
+
+# Medidas de dispersión
+desviacion = df_ingresos["Ingreso_Anual"].std()
+q1 = df_ingresos["Ingreso_Anual"].quantile(0.25)
+q3 = df_ingresos["Ingreso_Anual"].quantile(0.75)
+iqr = q3 - q1
+
+print("\n=== Medidas de Dispersión ===")
+print(f"Desviación Estándar: {desviacion:.2f}")
+print(f"IQR (Rango Intercuartílico): {iqr:.2f}")
+
+# Visualización: histograma y boxplot
+plt.figure(figsize=(12,4))
+
+plt.subplot(1,2,1)
+sns.histplot(df_ingresos["Ingreso_Anual"], kde=True, bins=30, color="skyblue")
+plt.axvline(media, color="red", linestyle="--", label="Media")
+plt.axvline(mediana, color="green", linestyle="--", label="Mediana")
+plt.legend()
+plt.title("Distribución de Ingresos Anuales")
+
+plt.subplot(1,2,2)
+sns.boxplot(x=df_ingresos["Ingreso_Anual"], color="lightcoral")
+plt.title("Boxplot de Ingresos Anuales")
+
+plt.show()
+
+# =====================================================
+# 3. Ejemplo de Preprocesamiento de Datos
+# =====================================================
+"""
+🎯 Contexto:
+Dataset de clientes de un banco con:
+- Edad
+- Saldo de cuenta (con valores faltantes y outliers)
+- Historial crediticio (texto)
+- Tipo de cuenta
+
+Queremos limpiar, transformar y preparar los datos.
+"""
+
+# Creamos dataset simulado
+df_clientes = pd.DataFrame({
+    "Edad": [25, 40, 35, 50, 29, np.nan, 60],
+    "Saldo": [1000, 2000, -500, 999999, 3000, np.nan, 2500],
+    "Historial_Credito": ["Bueno", "Malo", "Bueno", "Malo", "Bueno", "Regular", "Malo"],
+    "Tipo_Cuenta": ["Ahorro", "Corriente", "Ahorro", "Ahorro", "Corriente", "Corriente", "Ahorro"]
+})
+
+print("\n=== Dataset original de clientes ===")
+print(df_clientes)
+
+# --- Limpieza de datos ---
+# 1. Rellenamos valores faltantes de Edad con la media
+df_clientes["Edad"].fillna(df_clientes["Edad"].mean(), inplace=True)
+
+# 2. Rellenamos valores faltantes de Saldo con la mediana
+df_clientes["Saldo"].fillna(df_clientes["Saldo"].median(), inplace=True)
+
+# 3. Eliminamos outliers extremos en Saldo
+q1 = df_clientes["Saldo"].quantile(0.25)
+q3 = df_clientes["Saldo"].quantile(0.75)
+iqr = q3 - q1
+limite_inferior = q1 - 1.5 * iqr
+limite_superior = q3 + 1.5 * iqr
+df_clientes = df_clientes[(df_clientes["Saldo"] >= limite_inferior) & (df_clientes["Saldo"] <= limite_superior)]
+
+print("\n=== Dataset después de limpieza ===")
+print(df_clientes)
+
+# --- Transformación de datos ---
+"""
+📌 One Hot Encoding:
+Convertimos variables categóricas (texto) en binarias (0/1).
+"""
+encoder = OneHotEncoder(sparse_output=False)
+encoded_vars = encoder.fit_transform(df_clientes[["Historial_Credito", "Tipo_Cuenta"]])
+
+encoded_df = pd.DataFrame(encoded_vars, columns=encoder.get_feature_names_out())
+df_final = pd.concat([df_clientes.reset_index(drop=True), encoded_df], axis=1)
+
+print("\n=== Dataset transformado con One Hot Encoding ===")
+print(df_final)
+
+# --- Reducción de dimensionalidad con PCA ---
+"""
+📌 Aplicamos PCA en las variables numéricas (Edad, Saldo, variables binarias).
+"""
+pca = PCA(n_components=2)
+pca_result = pca.fit_transform(df_final.drop(columns=["Historial_Credito", "Tipo_Cuenta"]))
+
+df_pca = pd.DataFrame(pca_result, columns=["PC1", "PC2"])
+
+print("\n=== Dataset reducido con PCA ===")
+print(df_pca)
+
+# Visualización de clientes en espacio PCA
+plt.figure(figsize=(6,6))
+sns.scatterplot(x="PC1", y="PC2", data=df_pca, s=80, color="purple")
+plt.title("Clientes proyectados en 2 Componentes Principales (PCA)")
+plt.show()
+
+# =====================================================
+# 4. Conclusión
+# =====================================================
+"""
+✅ Estadística descriptiva → nos permitió entender distribución de ingresos, identificar outliers y medir dispersión.
+✅ Preprocesamiento → limpiamos valores faltantes y outliers, transformamos variables categóricas, y reducimos dimensionalidad con PCA.
+
+Esto refleja el flujo real de trabajo en Ciencia de Datos:
+- Explorar
+- Limpiar
+- Transformar
+- Preparar para modelar
+"""
 
 
 ### 🧠 1. **Según su naturaleza:**
