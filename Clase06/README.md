@@ -1,3 +1,5 @@
+#Recordatorio Clase 06 se hace la primer pre entrega.
+
 # ============================================================
 # REPASO CLASE 05CLASE DE VISUALIZACIÓN AVANZADA CON SEABORN Y MATPLOTLIB
 # ============================================================
