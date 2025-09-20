@@ -123,6 +123,125 @@ Para incrementar las ventas de un producto utilizando **Machine Learning (ML)** 
 - **Escalabilidad**: Aplicable a múltiples regiones o productos.  
 
 ---
+
+## 📚 Repaso Clase Anterior (Clase 6)
+
+### Teoría Fundamental del EDA y Preprocesamiento
+
+En la **Clase 6** establecimos las bases fundamentales para el análisis de datos que ahora aplicaremos en **Machine Learning**:
+
+#### 🔍 **Análisis Exploratorio de Datos (EDA)**
+- **Filosofía**: Acercarse a los datos sin prejuicios para descubrir patrones inesperados
+- **Objetivo**: Entender la estructura de los datos antes de aplicar modelos predictivos
+- **Herramientas**: Estadística descriptiva + visualización de datos
+
+#### 📊 **Estadística Descriptiva**
+- **Medidas de tendencia central**: Media, mediana, moda
+- **Medidas de dispersión**: Varianza, desviación estándar, IQR
+- **Distribuciones**: Normal, uniforme, y su visualización con histogramas
+- **Correlación**: Relación entre variables (importante: correlación ≠ causalidad)
+
+#### 🧹 **Preprocesamiento de Datos**
+- **Limpieza**: Manejo de valores faltantes y outliers
+- **Transformación**: Normalización, codificación de variables categóricas
+- **Integración**: Combinar datos de múltiples fuentes
+- **Reducción**: PCA para simplificar la dimensionalidad
+
+---
+
+### 💡 Ejemplo 1: Análisis Estadístico Descriptivo
+
+```python
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Datos de ventas mensuales de una empresa
+np.random.seed(42)
+ventas = np.random.normal(50000, 12000, 24)  # 2 años de datos
+ventas = np.append(ventas, [150000, -5000])  # outliers
+
+df_ventas = pd.DataFrame({"Ventas_Mensuales": ventas})
+
+# Medidas descriptivas
+print("=== ESTADÍSTICAS DESCRIPTIVAS ===")
+print(f"Media: {df_ventas['Ventas_Mensuales'].mean():.2f}")
+print(f"Mediana: {df_ventas['Ventas_Mensuales'].median():.2f}")
+print(f"Desviación estándar: {df_ventas['Ventas_Mensuales'].std():.2f}")
+
+# Visualización
+plt.figure(figsize=(12,4))
+plt.subplot(1,2,1)
+sns.histplot(df_ventas["Ventas_Mensuales"], kde=True, bins=15)
+plt.title("Distribución de Ventas Mensuales")
+
+plt.subplot(1,2,2)
+sns.boxplot(x=df_ventas["Ventas_Mensuales"])
+plt.title("Boxplot - Detección de Outliers")
+plt.show()
+```
+
+**🎯 Objetivo**: Identificar patrones en los datos de ventas y detectar valores atípicos que podrían afectar modelos predictivos.
+
+---
+
+### 💡 Ejemplo 2: Preprocesamiento con PCA
+
+```python
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+# Dataset con múltiples variables correlacionadas
+np.random.seed(42)
+X1 = np.random.normal(100, 20, 100)
+X2 = X1 * 0.8 + np.random.normal(0, 5, 100)  # correlacionada con X1
+X3 = np.random.normal(50, 10, 100)           # independiente
+
+df_features = pd.DataFrame({
+    "Ingresos": X1,
+    "Gastos": X2, 
+    "Ahorros": X3
+})
+
+print("=== CORRELACIONES ORIGINALES ===")
+print(df_features.corr())
+
+# Estandarización (importante para PCA)
+scaler = StandardScaler()
+df_scaled = scaler.fit_transform(df_features)
+
+# Aplicar PCA
+pca = PCA(n_components=2)
+pca_result = pca.fit_transform(df_scaled)
+
+print(f"\n=== VARIANZA EXPLICADA ===")
+print(f"PC1: {pca.explained_variance_ratio_[0]:.2%}")
+print(f"PC2: {pca.explained_variance_ratio_[1]:.2%}")
+
+# Visualización
+df_pca = pd.DataFrame(pca_result, columns=["PC1", "PC2"])
+plt.figure(figsize=(6,6))
+sns.scatterplot(x="PC1", y="PC2", data=df_pca, s=60)
+plt.title("Datos transformados con PCA")
+plt.show()
+```
+
+**🎯 Objetivo**: Reducir la dimensionalidad eliminando redundancia entre variables correlacionadas, preparando datos más limpios para algoritmos de ML.
+
+---
+
+### 🔗 **Conexión con Machine Learning**
+
+Los conceptos de la **Clase 6** son **fundamentales** para el éxito en ML:
+
+- **EDA** → Nos ayuda a entender qué variables son relevantes para predecir
+- **Estadística descriptiva** → Identifica distribuciones y relaciones que los algoritmos pueden aprovechar
+- **Preprocesamiento** → Asegura que los datos estén limpios y listos para entrenar modelos
+- **PCA** → Reduce complejidad y mejora el rendimiento de los algoritmos
+
+---
+
 # ML
 
 *  ## [Aprendizaje Supervizado](clase_7/aprendizaje-supervisado.md)
