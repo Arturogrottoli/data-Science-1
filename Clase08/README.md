@@ -1,6 +1,6 @@
 [Material Diapositivas](https://docs.google.com/presentation/d/14g5eAuGgTasx_D4dJ7w7txt2qOZEY7EqvrTVTMddh74/edit#slide=id.p44)
 
-# 📚 Clase 8: Aprendizaje No Supervisado
+
 
 ---
 
@@ -61,6 +61,8 @@ print(datos_clase8)
 | **Interpretación** | Modelo predictivo | Exploración de datos |
 
 ---
+
+# 📚 Clase 8: Aprendizaje No Supervisado
 
 ## 📋 **8.1 Introducción al Aprendizaje No Supervisado**
 
