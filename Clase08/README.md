@@ -4,6 +4,64 @@
 
 ---
 
+## 🔄 **Repaso Clase 7: Aprendizaje Supervisado**
+
+### **📚 ¿Qué vimos en la Clase 7?**
+
+En la **Clase 7** exploramos el **Aprendizaje Supervisado**, donde tenemos datos con etiquetas conocidas (target variables) para entrenar nuestros modelos.
+
+#### **🎯 Conceptos Clave de la Clase 7:**
+
+1. **Clasificación**: Predecir categorías (ej: spam/no spam)
+   - **Árboles de Decisión**: Reglas if-else interpretables
+   - **Random Forest**: Múltiples árboles para mayor precisión
+   - **Métricas**: Accuracy, Precision, Recall, F1-Score
+
+2. **Regresión**: Predecir valores numéricos (ej: precio de casa)
+   - **Regresión Lineal**: Relación lineal entre variables
+   - **Regresión Múltiple**: Múltiples variables predictoras
+   - **Métricas**: MSE, RMSE, R²
+
+#### **🔗 Conexión con Clase 8:**
+
+```python
+# REPASO: En Clase 7 teníamos datos ETIQUETADOS
+import pandas as pd
+import numpy as np
+
+# Ejemplo de Clase 7: Clasificación de clientes
+datos_clase7 = {
+    'edad': [25, 35, 45, 55, 65],
+    'ingresos': [30000, 50000, 70000, 60000, 40000],
+    'gasto_mensual': [800, 1500, 2500, 1800, 900],
+    'cliente_valioso': ['No', 'Sí', 'Sí', 'Sí', 'No']  # ← ETIQUETA CONOCIDA
+}
+
+df_clase7 = pd.DataFrame(datos_clase7)
+print("=== CLASE 7: DATOS CON ETIQUETAS ===")
+print("Sabemos qué clientes son valiosos...")
+print(df_clase7)
+print("\nObjetivo: Predecir si un NUEVO cliente será valioso")
+
+# En Clase 8: ¿Qué pasa si NO tenemos etiquetas?
+print("\n=== CLASE 8: DATOS SIN ETIQUETAS ===")
+datos_clase8 = df_clase7.drop('cliente_valioso', axis=1)
+print("No sabemos qué tipos de clientes tenemos...")
+print("Objetivo: DESCUBRIR grupos naturales en los datos")
+print(datos_clase8)
+```
+
+#### **🔄 Transición: De Supervisado a No Supervisado**
+
+| Aspecto | Clase 7 (Supervisado) | Clase 8 (No Supervisado) |
+|---------|----------------------|-------------------------|
+| **Datos** | Con etiquetas conocidas | Sin etiquetas |
+| **Objetivo** | Predecir/Clasificar | Descubrir patrones |
+| **Evaluación** | Métricas claras (accuracy, etc.) | Métricas internas (silhouette) |
+| **Interpretación** | Modelo predictivo | Exploración de datos |
+
+---
+
 ## 📋 **8.1 Introducción al Aprendizaje No Supervisado**
 
 ### **🎯 ¿Qué es el Aprendizaje No Supervisado?**
@@ -74,9 +132,13 @@ print(df_clientes.describe())
 
 ## 🧠 **8.2 Algoritmos de Clustering**
 
-### **¿Qué es el Clustering?**
+### **🎯 ¿Qué es el Clustering?**
 
-El **clustering** es una técnica de aprendizaje no supervisado que agrupa objetos similares dentro de un mismo grupo (o clúster), separándolos de objetos diferentes que pertenecen a otros grupos. Es ampliamente utilizado para segmentación de clientes, análisis de imágenes, detección de patrones y más.
+El **clustering** es una técnica clave en el aprendizaje no supervisado que se utiliza para agrupar un conjunto de datos no etiquetados en grupos o clústeres de datos similares. A través del clustering, los datos que comparten características similares se agrupan en el mismo clúster, mientras que los datos que son diferentes se separan en clústeres distintos.
+
+#### **🔍 ¿Cómo Funciona?**
+
+El proceso de clustering implica el uso de algoritmos que identifican similitudes y diferencias en los datos para formar estos grupos. Estos algoritmos no requieren información previa sobre las categorías o etiquetas de los datos, lo que les permite operar en conjuntos de datos no etiquetados.
 
 #### **🎯 Objetivos del Clustering:**
 - **Agrupar**: Encontrar grupos naturales en los datos
@@ -84,7 +146,483 @@ El **clustering** es una técnica de aprendizaje no supervisado que agrupa objet
 - **Simplificar**: Reducir complejidad de grandes datasets
 - **Segmentar**: Crear categorías para estrategias de negocio
 
-#### **📊 Ejemplo Práctico: Segmentación de Clientes**
+#### **📊 Propósito en el Análisis de Datos No Etiquetados**
+
+El objetivo principal del clustering es descubrir la estructura subyacente de un conjunto de datos no etiquetados. Al identificar y agrupar observaciones similares, el clustering permite a los analistas entender mejor las relaciones en los datos y extraer insights valiosos.
+
+**Ejemplos de Aplicación:**
+- **Marketing**: Segmentar clientes en grupos con comportamientos similares
+- **Biología**: Descubrir nuevas especies al agrupar organismos con características similares
+- **Medicina**: Clasificar tipos de células o tejidos
+- **Finanzas**: Detectar patrones de fraude o riesgo crediticio
+
+---
+
+## 🔧 **8.2.1 Algoritmos Populares de Clustering**
+
+El clustering es una técnica de aprendizaje no supervisado que agrupa datos similares en clústeres. Entre los algoritmos más utilizados en clustering se encuentran **K-means**, **DBSCAN** y el **clustering jerárquico**, cada uno con características y aplicaciones particulares.
+
+### **1. 🔹 K-Means**
+
+**K-means** es uno de los algoritmos de clustering más populares debido a su simplicidad y eficacia. Su objetivo es dividir un conjunto de datos en K clústeres predefinidos, donde cada dato pertenece al clúster con el centroide más cercano.
+
+#### **🎯 Proceso del Algoritmo K-Means:**
+
+1. **Inicialización**: Se seleccionan aleatoriamente K centroides (puntos de referencia) en el espacio de los datos
+2. **Asignación**: Cada punto de datos se asigna al clúster cuyo centroide esté más cercano, minimizando la distancia euclidiana
+3. **Actualización**: Se recalculan los centroides de los clústeres basándose en los datos asignados
+4. **Iteración**: Los pasos de asignación y actualización se repiten hasta que los centroides ya no cambian significativamente
+
+#### **✅ Ventajas:**
+- Simple y rápido
+- Escalable a grandes datasets
+- Funciona bien con clusters esféricos
+
+#### **❌ Desventajas:**
+- Requiere especificar el número K de clusters
+- Sensible a outliers
+- Asume clusters de forma esférica
+- Sensible a la inicialización aleatoria
+
+### **2. 🔹 DBSCAN (Density-Based Spatial Clustering)**
+
+**DBSCAN** es un algoritmo basado en la densidad que agrupa puntos que están densamente conectados, separándolos de los puntos menos densos, considerados como ruido.
+
+#### **🎯 Conceptos Clave de DBSCAN:**
+
+- **Vecindad ε (epsilon)**: Un parámetro que define un radio alrededor de un punto
+- **MinPts**: Número mínimo de puntos dentro de la vecindad para que un punto sea considerado un punto central
+- **Clústeres**: Se forman conectando puntos densamente conectados
+- **Ruido**: Los puntos aislados se consideran ruido
+
+#### **✅ Ventajas:**
+- No requiere especificar el número de clusters
+- Detecta clusters de forma arbitraria
+- Maneja outliers automáticamente
+- Robusto contra ruido
+
+#### **❌ Desventajas:**
+- Sensible a los parámetros ε y MinPts
+- Difícil de ajustar para datos con densidades variables
+- No funciona bien con clusters de densidad muy diferente
+
+### **3. 🔹 Clustering Jerárquico**
+
+El **clustering jerárquico** es un enfoque que construye una jerarquía de clústeres. Existen dos métodos principales:
+
+#### **🌳 Tipos de Clustering Jerárquico:**
+
+1. **Aglomerativo (bottom-up)**: 
+   - Comienza tratando cada punto de datos como un clúster individual
+   - Fusiona los clústeres más cercanos hasta que todos los puntos formen un solo clúster
+
+2. **Divisivo (top-down)**:
+   - Comienza con un solo clúster que contiene todos los puntos de datos
+   - Lo divide en clústeres más pequeños
+
+#### **📊 Dendrograma:**
+El resultado del clustering jerárquico se visualiza comúnmente con un **dendrograma**, un árbol que muestra la estructura de fusión o división.
+
+#### **✅ Ventajas:**
+- No necesita predefinir el número de clusters
+- Proporciona una estructura completa de clusters
+- Interpretable visualmente
+
+#### **❌ Desventajas:**
+- Computacionalmente costoso para grandes datasets
+- Sensible a outliers
+- Difícil de escalar
+
+---
+
+## 🎓 **8.2.2 Ejemplos para Clase**
+
+### **📚 Ejemplo 1: Clustering Simple con Datos de Estudiantes**
+
+Vamos a empezar con un ejemplo simple y didáctico que los alumnos pueden entender fácilmente.
+
+```python
+# EJEMPLO 1: Clustering de Estudiantes por Rendimiento
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+# Crear datos de estudiantes (simulados)
+np.random.seed(42)
+n_estudiantes = 100
+
+# Generar datos de diferentes tipos de estudiantes
+# Tipo 1: Estudiantes aplicados (altas notas, muchas horas de estudio)
+aplicados = {
+    'horas_estudio': np.random.normal(8, 1, 30),
+    'nota_promedio': np.random.normal(8.5, 0.5, 30),
+    'asistencia': np.random.normal(95, 3, 30)
+}
+
+# Tipo 2: Estudiantes promedio (notas y estudio moderados)
+promedio = {
+    'horas_estudio': np.random.normal(5, 1, 40),
+    'nota_promedio': np.random.normal(6.5, 0.8, 40),
+    'asistencia': np.random.normal(80, 5, 40)
+}
+
+# Tipo 3: Estudiantes con dificultades (bajas notas, pocas horas)
+dificultades = {
+    'horas_estudio': np.random.normal(2, 0.5, 30),
+    'nota_promedio': np.random.normal(4, 0.7, 30),
+    'asistencia': np.random.normal(60, 10, 30)
+}
+
+# Combinar todos los datos
+datos_estudiantes = {
+    'horas_estudio': np.concatenate([aplicados['horas_estudio'], promedio['horas_estudio'], dificultades['horas_estudio']]),
+    'nota_promedio': np.concatenate([aplicados['nota_promedio'], promedio['nota_promedio'], dificultades['nota_promedio']]),
+    'asistencia': np.concatenate([aplicados['asistencia'], promedio['asistencia'], dificultades['asistencia']])
+}
+
+df_estudiantes = pd.DataFrame(datos_estudiantes)
+
+print("=== EJEMPLO 1: DATOS DE ESTUDIANTES ===")
+print("Objetivo: Descubrir tipos de estudiantes sin etiquetas previas")
+print(f"\nDataset shape: {df_estudiantes.shape}")
+print(f"\nPrimeras 5 filas:")
+print(df_estudiantes.head())
+print(f"\nEstadísticas descriptivas:")
+print(df_estudiantes.describe())
+
+# Visualización inicial
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 3, 1)
+plt.scatter(df_estudiantes['horas_estudio'], df_estudiantes['nota_promedio'], alpha=0.6)
+plt.xlabel('Horas de Estudio')
+plt.ylabel('Nota Promedio')
+plt.title('Datos Originales: Horas vs Notas')
+
+plt.subplot(1, 3, 2)
+plt.scatter(df_estudiantes['horas_estudio'], df_estudiantes['asistencia'], alpha=0.6)
+plt.xlabel('Horas de Estudio')
+plt.ylabel('Asistencia (%)')
+plt.title('Datos Originales: Horas vs Asistencia')
+
+plt.subplot(1, 3, 3)
+plt.scatter(df_estudiantes['nota_promedio'], df_estudiantes['asistencia'], alpha=0.6)
+plt.xlabel('Nota Promedio')
+plt.ylabel('Asistencia (%)')
+plt.title('Datos Originales: Notas vs Asistencia')
+
+plt.tight_layout()
+plt.show()
+
+# PASO 1: Preparar datos para clustering
+print("\n=== PASO 1: PREPARACIÓN DE DATOS ===")
+print("¿Por qué normalizar? Las variables tienen escalas diferentes:")
+print(f"Horas de estudio: {df_estudiantes['horas_estudio'].min():.1f} - {df_estudiantes['horas_estudio'].max():.1f}")
+print(f"Notas: {df_estudiantes['nota_promedio'].min():.1f} - {df_estudiantes['nota_promedio'].max():.1f}")
+print(f"Asistencia: {df_estudiantes['asistencia'].min():.1f} - {df_estudiantes['asistencia'].max():.1f}")
+
+# Normalizar datos
+scaler = StandardScaler()
+X_estudiantes = scaler.fit_transform(df_estudiantes)
+print(f"\nDatos normalizados shape: {X_estudiantes.shape}")
+
+# PASO 2: Método del Codo para encontrar K óptimo
+print("\n=== PASO 2: ENCONTRAR NÚMERO ÓPTIMO DE CLUSTERS ===")
+
+def metodo_codo(X, max_k=8):
+    """Método del codo para encontrar k óptimo"""
+    inertias = []
+    k_range = range(1, max_k + 1)
+    
+    for k in k_range:
+        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+        kmeans.fit(X)
+        inertias.append(kmeans.inertia_)
+    
+    return k_range, inertias
+
+k_range, inertias = metodo_codo(X_estudiantes)
+
+plt.figure(figsize=(8, 5))
+plt.plot(k_range, inertias, 'bo-')
+plt.xlabel('Número de Clusters (k)')
+plt.ylabel('Inercia')
+plt.title('Método del Codo - Estudiantes')
+plt.grid(True)
+plt.axvline(x=3, color='red', linestyle='--', label='K=3 (óptimo)')
+plt.legend()
+plt.show()
+
+print("Interpretación: El 'codo' está en K=3, donde la inercia deja de disminuir rápidamente")
+
+# PASO 3: Aplicar K-Means con K=3
+print("\n=== PASO 3: APLICAR K-MEANS ===")
+kmeans_estudiantes = KMeans(n_clusters=3, random_state=42, n_init=10)
+clusters_estudiantes = kmeans_estudiantes.fit_predict(X_estudiantes)
+
+# Agregar clusters al dataframe
+df_estudiantes['cluster'] = clusters_estudiantes
+
+# PASO 4: Visualizar resultados
+print("\n=== PASO 4: VISUALIZAR RESULTADOS ===")
+plt.figure(figsize=(15, 5))
+
+plt.subplot(1, 3, 1)
+scatter = plt.scatter(df_estudiantes['horas_estudio'], df_estudiantes['nota_promedio'], 
+                     c=df_estudiantes['cluster'], cmap='viridis', alpha=0.7)
+plt.xlabel('Horas de Estudio')
+plt.ylabel('Nota Promedio')
+plt.title('K-Means: Horas vs Notas')
+plt.colorbar(scatter, label='Cluster')
+
+plt.subplot(1, 3, 2)
+scatter = plt.scatter(df_estudiantes['horas_estudio'], df_estudiantes['asistencia'], 
+                     c=df_estudiantes['cluster'], cmap='viridis', alpha=0.7)
+plt.xlabel('Horas de Estudio')
+plt.ylabel('Asistencia (%)')
+plt.title('K-Means: Horas vs Asistencia')
+plt.colorbar(scatter, label='Cluster')
+
+plt.subplot(1, 3, 3)
+scatter = plt.scatter(df_estudiantes['nota_promedio'], df_estudiantes['asistencia'], 
+                     c=df_estudiantes['cluster'], cmap='viridis', alpha=0.7)
+plt.xlabel('Nota Promedio')
+plt.ylabel('Asistencia (%)')
+plt.title('K-Means: Notas vs Asistencia')
+plt.colorbar(scatter, label='Cluster')
+
+plt.tight_layout()
+plt.show()
+
+# PASO 5: Interpretar clusters
+print("\n=== PASO 5: INTERPRETAR CLUSTERS ===")
+for i in range(3):
+    cluster_data = df_estudiantes[df_estudiantes['cluster'] == i]
+    print(f"\n🔹 Cluster {i} ({len(cluster_data)} estudiantes):")
+    print(f"   Horas de estudio promedio: {cluster_data['horas_estudio'].mean():.1f}")
+    print(f"   Nota promedio: {cluster_data['nota_promedio'].mean():.1f}")
+    print(f"   Asistencia promedio: {cluster_data['asistencia'].mean():.1f}%")
+    
+    # Interpretación
+    if cluster_data['horas_estudio'].mean() > 6:
+        print("   📚 Interpretación: ESTUDIANTES APLICADOS")
+    elif cluster_data['horas_estudio'].mean() > 3:
+        print("   📖 Interpretación: ESTUDIANTES PROMEDIO")
+    else:
+        print("   📝 Interpretación: ESTUDIANTES CON DIFICULTADES")
+
+print("\n✅ CONCLUSIÓN: El algoritmo descubrió automáticamente 3 tipos de estudiantes")
+print("   sin necesidad de etiquetas previas!")
+```
+
+### **📚 Ejemplo 2: Clustering de Productos de E-commerce**
+
+Un ejemplo más complejo y realista para mostrar aplicaciones empresariales.
+
+```python
+# EJEMPLO 2: Segmentación de Productos de E-commerce
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+
+# Crear datos de productos de e-commerce
+np.random.seed(42)
+
+# Generar diferentes tipos de productos
+# Tipo 1: Productos premium (alto precio, baja rotación, alta satisfacción)
+premium = {
+    'precio': np.random.normal(500, 100, 50),
+    'ventas_mensuales': np.random.poisson(20, 50),
+    'rating_promedio': np.random.normal(4.8, 0.2, 50),
+    'stock_dias': np.random.normal(45, 10, 50)
+}
+
+# Tipo 2: Productos populares (precio medio, alta rotación, buen rating)
+populares = {
+    'precio': np.random.normal(150, 30, 100),
+    'ventas_mensuales': np.random.poisson(200, 100),
+    'rating_promedio': np.random.normal(4.2, 0.3, 100),
+    'stock_dias': np.random.normal(15, 5, 100)
+}
+
+# Tipo 3: Productos básicos (bajo precio, rotación media, rating variable)
+basicos = {
+    'precio': np.random.normal(50, 15, 80),
+    'ventas_mensuales': np.random.poisson(80, 80),
+    'rating_promedio': np.random.normal(3.5, 0.5, 80),
+    'stock_dias': np.random.normal(30, 8, 80)
+}
+
+# Combinar datos
+datos_productos = {
+    'precio': np.concatenate([premium['precio'], populares['precio'], basicos['precio']]),
+    'ventas_mensuales': np.concatenate([premium['ventas_mensuales'], populares['ventas_mensuales'], basicos['ventas_mensuales']]),
+    'rating_promedio': np.concatenate([premium['rating_promedio'], populares['rating_promedio'], basicos['rating_promedio']]),
+    'stock_dias': np.concatenate([premium['stock_dias'], populares['stock_dias'], basicos['stock_dias']])
+}
+
+df_productos = pd.DataFrame(datos_productos)
+
+print("=== EJEMPLO 2: PRODUCTOS DE E-COMMERCE ===")
+print("Objetivo: Segmentar productos para estrategias de marketing y pricing")
+print(f"\nDataset shape: {df_productos.shape}")
+print(f"\nEstadísticas descriptivas:")
+print(df_productos.describe())
+
+# Visualización inicial
+plt.figure(figsize=(15, 5))
+
+plt.subplot(1, 3, 1)
+plt.scatter(df_productos['precio'], df_productos['ventas_mensuales'], alpha=0.6)
+plt.xlabel('Precio ($)')
+plt.ylabel('Ventas Mensuales')
+plt.title('Precio vs Ventas')
+
+plt.subplot(1, 3, 2)
+plt.scatter(df_productos['precio'], df_productos['rating_promedio'], alpha=0.6)
+plt.xlabel('Precio ($)')
+plt.ylabel('Rating Promedio')
+plt.title('Precio vs Rating')
+
+plt.subplot(1, 3, 3)
+plt.scatter(df_productos['ventas_mensuales'], df_productos['rating_promedio'], alpha=0.6)
+plt.xlabel('Ventas Mensuales')
+plt.ylabel('Rating Promedio')
+plt.title('Ventas vs Rating')
+
+plt.tight_layout()
+plt.show()
+
+# Normalizar datos
+scaler_productos = StandardScaler()
+X_productos = scaler_productos.fit_transform(df_productos)
+
+# Aplicar K-Means
+kmeans_productos = KMeans(n_clusters=3, random_state=42, n_init=10)
+clusters_productos = kmeans_productos.fit_predict(X_productos)
+
+# Agregar clusters
+df_productos['cluster'] = clusters_productos
+
+# Visualizar resultados
+plt.figure(figsize=(15, 5))
+
+plt.subplot(1, 3, 1)
+scatter = plt.scatter(df_productos['precio'], df_productos['ventas_mensuales'], 
+                     c=df_productos['cluster'], cmap='viridis', alpha=0.7)
+plt.xlabel('Precio ($)')
+plt.ylabel('Ventas Mensuales')
+plt.title('K-Means: Precio vs Ventas')
+plt.colorbar(scatter, label='Cluster')
+
+plt.subplot(1, 3, 2)
+scatter = plt.scatter(df_productos['precio'], df_productos['rating_promedio'], 
+                     c=df_productos['cluster'], cmap='viridis', alpha=0.7)
+plt.xlabel('Precio ($)')
+plt.ylabel('Rating Promedio')
+plt.title('K-Means: Precio vs Rating')
+plt.colorbar(scatter, label='Cluster')
+
+plt.subplot(1, 3, 3)
+scatter = plt.scatter(df_productos['ventas_mensuales'], df_productos['rating_promedio'], 
+                     c=df_productos['cluster'], cmap='viridis', alpha=0.7)
+plt.xlabel('Ventas Mensuales')
+plt.ylabel('Rating Promedio')
+plt.title('K-Means: Ventas vs Rating')
+plt.colorbar(scatter, label='Cluster')
+
+plt.tight_layout()
+plt.show()
+
+# Análisis de clusters
+print("\n=== ANÁLISIS DE SEGMENTOS DE PRODUCTOS ===")
+for i in range(3):
+    cluster_data = df_productos[df_productos['cluster'] == i]
+    print(f"\n🔹 Segmento {i} ({len(cluster_data)} productos):")
+    print(f"   Precio promedio: ${cluster_data['precio'].mean():.0f}")
+    print(f"   Ventas promedio: {cluster_data['ventas_mensuales'].mean():.0f} unidades/mes")
+    print(f"   Rating promedio: {cluster_data['rating_promedio'].mean():.1f}/5")
+    print(f"   Stock promedio: {cluster_data['stock_dias'].mean():.0f} días")
+    
+    # Estrategia de negocio
+    if cluster_data['precio'].mean() > 300:
+        print("   💎 Estrategia: PRODUCTOS PREMIUM - Marketing exclusivo, alta calidad")
+    elif cluster_data['ventas_mensuales'].mean() > 150:
+        print("   🚀 Estrategia: PRODUCTOS POPULARES - Promociones, stock alto")
+    else:
+        print("   📦 Estrategia: PRODUCTOS BÁSICOS - Precios competitivos, rotación media")
+
+# Calcular métricas de calidad
+silhouette_avg = silhouette_score(X_productos, clusters_productos)
+print(f"\n📊 Métrica de Calidad:")
+print(f"   Silhouette Score: {silhouette_avg:.3f} (0.5+ es bueno)")
+
+print("\n✅ APLICACIÓN PRÁCTICA:")
+print("   - Segmento 0: Estrategia de pricing premium")
+print("   - Segmento 1: Campañas de marketing masivo")
+print("   - Segmento 2: Optimización de inventario")
+```
+
+---
+
+## 📋 **8.2.4 Resumen de Algoritmos de Clustering**
+
+### **🎯 Comparación de Algoritmos Populares**
+
+| Algoritmo | Mejor Para | Ventajas | Desventajas | Cuándo Usar |
+|-----------|------------|----------|-------------|-------------|
+| **K-Means** | Clusters esféricos bien separados | Simple, rápido, escalable | Requiere K, sensible a outliers | Datos con clusters claros y esféricos |
+| **DBSCAN** | Clusters de forma arbitraria | No requiere K, maneja outliers | Sensible a parámetros | Datos con ruido, formas irregulares |
+| **Jerárquico** | Exploración de estructura | No requiere K, interpretable | Costoso computacionalmente | Datasets pequeños, exploración |
+
+### **🔍 Clustering Basado en Densidad (DBSCAN)**
+
+Los métodos de clustering basados en densidad identifican grupos en un conjunto de datos considerando la densidad de puntos en el espacio de datos. A diferencia de otros métodos como K-means, que dependen de la distancia entre puntos y requieren definir el número de clústeres, estos métodos se enfocan en encontrar regiones densamente pobladas separadas por áreas de baja densidad.
+
+#### **🎯 ¿Cómo Funcionan?**
+
+El principio central es que los clústeres se forman en áreas contiguas de alta densidad, con las regiones de baja densidad actuando como separadores. Un algoritmo destacado es **DBSCAN** (Density-Based Spatial Clustering of Applications with Noise), que funciona así:
+
+1. **Vecindad ε (epsilon)**: Define un radio alrededor de un punto. Si hay suficientes puntos dentro de este radio (MinPts), el área es densa.
+2. **Puntos Centrales y Frontera**: Un punto central tiene al menos MinPts en su vecindad ε; un punto frontera tiene menos pero está cerca de un punto central.
+3. **Expansión de Clústeres**: Un clúster crece incluyendo puntos en la vecindad ε hasta que no se puedan agregar más.
+4. **Ruido**: Los puntos que no pertenecen a una vecindad densa se consideran ruido o outliers.
+
+#### **🎯 Propósito y Aplicaciones**
+
+DBSCAN es útil para detectar clústeres de formas arbitrarias y manejar outliers sin necesidad de especificar el número de clústeres. Es aplicado en:
+- **Análisis geoespacial**: Agrupar ubicaciones por densidad
+- **Segmentación de clientes**: En marketing, donde los datos no tienen formas esféricas definidas
+- **Detección de anomalías**: Identificar patrones inusuales
+
+### **🌳 Clustering Jerárquico y Dendrogramas**
+
+Un **dendrograma** es una representación visual que muestra cómo se agrupan y dividen los clústeres en un proceso de clustering jerárquico. Cada bifurcación en el diagrama representa un punto de unión entre los datos, ayudando a visualizar las relaciones entre diferentes clústeres y la estructura jerárquica de los mismos.
+
+#### **🎯 Interpretación del Dendrograma:**
+- **Altura de las líneas**: Indica la distancia entre clusters
+- **Bifurcaciones**: Muestran cómo se fusionan los clusters
+- **Corte horizontal**: Determina el número final de clusters
+
+### **✅ Resumen Final**
+
+En resumen, el clustering es una herramienta poderosa en el análisis de datos no etiquetados, proporcionando un método para organizar y explorar grandes volúmenes de datos al identificar patrones y estructuras ocultas, sin necesidad de etiquetas o categorías predefinidas.
+
+**🎯 Consejos para Elegir el Algoritmo Correcto:**
+1. **K-Means**: Ideal para clusters bien definidos, rápido y sencillo, pero sensible a los outliers y requiere que se especifique K.
+2. **DBSCAN**: Eficaz para clusters de formas arbitrarias y robusto contra outliers, no requiere especificar el número de clusters, pero depende de la correcta elección de parámetros.
+3. **Clustering Jerárquico**: Ofrece una estructura completa de clusters y no necesita predefinir el número de clusters, aunque puede ser costoso en términos de tiempo de cálculo para grandes datasets.
+
+Estos algoritmos son fundamentales en el análisis de datos no etiquetados, proporcionando diferentes enfoques para descubrir patrones ocultos y estructurar la información de manera significativa.
+
+---
+
+## 📊 **8.2.3 Ejemplo Práctico Avanzado: Segmentación de Clientes**
 
 ```python
 import pandas as pd
