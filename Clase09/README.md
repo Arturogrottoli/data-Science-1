@@ -1,4 +1,189 @@
 """
+----------------------------------------------------------
+📘 CURSO DE CIENCIA DE DATOS - REPASO GENERAL
+----------------------------------------------------------
+
+Clase 7 - Aprendizaje Supervisado
+Clase 8 - Aprendizaje No Supervisado
+----------------------------------------------------------
+"""
+
+# ==========================================================
+# 🧠 CLASE 7 - APRENDIZAJE SUPERVISADO
+# ==========================================================
+
+"""
+En el aprendizaje supervisado, el modelo aprende a partir de datos etiquetados,
+es decir, ejemplos donde conocemos tanto las variables de entrada (X)
+como las de salida (y).
+
+📌 Objetivo: predecir la salida para nuevos datos.
+
+Ejemplos comunes:
+- Clasificación (spam / no spam, enfermedad / no enfermedad)
+- Regresión (predicción de precios, demanda, temperatura)
+
+"""
+
+# Ejemplo simple de clasificación con árboles de decisión
+from sklearn.datasets import load_iris
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Dataset de flores Iris
+iris = load_iris()
+X_train, X_test, y_train, y_test = train_test_split(
+    iris.data, iris.target, test_size=0.3, random_state=42
+)
+
+modelo = DecisionTreeClassifier()
+modelo.fit(X_train, y_train)
+predicciones = modelo.predict(X_test)
+
+print("🌸 Precisión Árbol de Decisión:", accuracy_score(y_test, predicciones))
+
+
+# ==========================================================
+# 🤖 CLASE 8 - APRENDIZAJE NO SUPERVISADO
+# ==========================================================
+
+"""
+En el aprendizaje no supervisado no hay etiquetas o resultados conocidos.
+El objetivo es **descubrir patrones o estructuras ocultas** en los datos.
+
+Ejemplos:
+- Agrupar clientes por comportamiento
+- Reducir la cantidad de variables
+- Encontrar asociaciones entre productos
+"""
+
+# ----------------------------------------------------------
+# 8.1 Introducción al Aprendizaje No Supervisado
+# ----------------------------------------------------------
+"""
+El modelo explora los datos sin una variable objetivo.
+Busca similitudes, relaciones o patrones automáticamente.
+"""
+
+# ----------------------------------------------------------
+# 8.2 Algoritmos de Clustering
+# ----------------------------------------------------------
+"""
+📍 El clustering agrupa observaciones similares entre sí.
+
+El algoritmo más popular: K-Means.
+Divide los datos en K grupos, minimizando la distancia dentro de cada grupo.
+"""
+
+from sklearn.cluster import KMeans
+import numpy as np
+
+# Datos simulados (clientes con ingresos y gastos)
+X = np.array([[15, 39], [16, 81], [17, 6], [18, 77], [19, 40],
+              [20, 76], [25, 6], [40, 77], [42, 40], [50, 76]])
+
+kmeans = KMeans(n_clusters=3, random_state=42)
+kmeans.fit(X)
+
+print("🏷️ Etiquetas de los grupos:", kmeans.labels_)
+print("📍 Centros de los clusters:\n", kmeans.cluster_centers_)
+
+# ----------------------------------------------------------
+# 8.3 Reducción de Dimensionalidad
+# ----------------------------------------------------------
+"""
+📉 Objetivo: simplificar los datos reduciendo el número de variables.
+
+Ejemplo común: PCA (Análisis de Componentes Principales)
+Permite visualizar datos complejos en 2D o 3D.
+"""
+
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+X_reducido = pca.fit_transform(X)
+print("🔻 Datos reducidos a 2 dimensiones:\n", X_reducido[:5])
+
+# ----------------------------------------------------------
+# 8.4 Reglas de Asociación
+# ----------------------------------------------------------
+"""
+💡 Buscan relaciones entre ítems en transacciones (como en un supermercado).
+Ejemplo: “Si compra pan y manteca, probablemente compre leche”.
+
+Algoritmos: Apriori, FP-Growth
+"""
+
+# Ejemplo teórico (sin ejecutar):
+# Transacciones = [
+#     ["pan", "manteca", "leche"],
+#     ["pan", "manteca"],
+#     ["leche", "galletitas"],
+#     ["pan", "galletitas", "leche"],
+# ]
+
+# ----------------------------------------------------------
+# 8.5 Evaluación y Comparación
+# ----------------------------------------------------------
+"""
+A diferencia del aprendizaje supervisado, acá no hay etiquetas verdaderas.
+Se usan métricas como:
+- Inercia (K-Means)
+- Silhouette Score (cohesión y separación de grupos)
+"""
+
+from sklearn.metrics import silhouette_score
+sil = silhouette_score(X, kmeans.labels_)
+print("✨ Silhouette Score:", round(sil, 3))
+
+# ----------------------------------------------------------
+# 8.6 Actividad práctica
+# ----------------------------------------------------------
+"""
+👉 Agrupar datos de clientes según variables de comportamiento
+   (ejemplo: frecuencia de compra, gasto promedio, visitas mensuales).
+"""
+
+# ----------------------------------------------------------
+# 8.7 Recursos complementarios
+# ----------------------------------------------------------
+"""
+- Documentación oficial de Scikit-learn: https://scikit-learn.org/stable/
+- Libro: “Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow”
+- Dataset recomendado: Mall Customers (Kaggle)
+"""
+
+# ----------------------------------------------------------
+# 8.8 Glosario
+# ----------------------------------------------------------
+"""
+Cluster: grupo de elementos similares.
+Centroide: punto medio de un cluster.
+Inercia: medida de qué tan cerca están los puntos de su centroide.
+Silhouette: evalúa la separación entre grupos.
+PCA: técnica de reducción de dimensiones.
+"""
+
+# ----------------------------------------------------------
+# 8.9 Agrupación y Segmentación con IA
+# ----------------------------------------------------------
+"""
+Los algoritmos de clustering permiten segmentar clientes, productos o usuarios
+de manera automática, ayudando a personalizar estrategias de marketing,
+ofertas o análisis de comportamiento.
+
+🔍 Ejemplo de uso real:
+Segmentar clientes según sus hábitos de compra para campañas publicitarias.
+"""
+
+# ==========================================================
+# ✅ FIN DEL REPASO CLASES 7 y 8
+# ==========================================================
+
+
+
+"""
 ## Clase 9.1: Introducción a la Inteligencia Artificial
 
 ### Diapositivas
