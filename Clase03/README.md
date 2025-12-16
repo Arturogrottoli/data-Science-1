@@ -11,6 +11,94 @@
 
 ---
 
+## 🔄 Repaso Rápido: Fundamentos de Python (Clase 2)
+
+Antes de sumergirnos en NumPy y Pandas, recordemos algunos conceptos clave de Python que usaremos constantemente:
+
+### 💡 Conceptos Clave
+
+**1. Tipos de Datos y Estructuras:**
+- `list`: Listas ordenadas y mutables `[1, 2, 3]`
+- `dict`: Diccionarios clave-valor `{"nombre": "Ana", "edad": 25}`
+- `tuple`: Tuplas inmutables `(1, 2, 3)`
+
+**2. Estructuras de Control:**
+- `if/elif/else`: Condicionales
+- `for`: Bucles para iterar
+- `while`: Bucles condicionales
+
+**3. Funciones:**
+- Definición: `def nombre_funcion(parametros):`
+- Retorno: `return valor`
+
+### 🧪 Ejemplo 1: De Listas de Python a NumPy
+
+```python
+# Trabajando con listas de Python (lo que vimos en Clase 2)
+temperaturas_python = [20, 22, 25, 23, 21, 24, 26]
+
+# Calcular promedio con Python puro
+suma = 0
+for temp in temperaturas_python:
+    suma += temp
+promedio_python = suma / len(temperaturas_python)
+print(f"Promedio con Python: {promedio_python:.2f}")
+
+# Ahora con NumPy (más eficiente y simple)
+import numpy as np
+temperaturas_numpy = np.array([20, 22, 25, 23, 21, 24, 26])
+promedio_numpy = np.mean(temperaturas_numpy)
+print(f"Promedio con NumPy: {promedio_numpy:.2f}")
+
+# Operaciones vectorizadas (sin bucles)
+temperaturas_fahrenheit = temperaturas_numpy * 9/5 + 32
+print(f"Temperaturas en Fahrenheit: {temperaturas_fahrenheit}")
+```
+
+### 🧪 Ejemplo 2: De Diccionarios a DataFrames de Pandas
+
+```python
+# Trabajando con diccionarios de Python (Clase 2)
+datos_python = {
+    'nombres': ['Ana', 'Luis', 'María'],
+    'edades': [25, 30, 28],
+    'ciudades': ['Córdoba', 'Buenos Aires', 'Rosario']
+}
+
+# Acceder a datos con Python
+print("Edad de Ana:", datos_python['edades'][0])
+print("Ciudad de Luis:", datos_python['ciudades'][1])
+
+# Filtrar con list comprehension (Clase 2)
+mayores_27 = [datos_python['nombres'][i] 
+               for i in range(len(datos_python['nombres'])) 
+               if datos_python['edades'][i] > 27]
+print("Personas mayores de 27:", mayores_27)
+
+# Ahora con Pandas (más intuitivo y potente)
+import pandas as pd
+df = pd.DataFrame(datos_python)
+print("\nDataFrame con Pandas:")
+print(df)
+
+# Filtrar es mucho más simple
+mayores_27_pandas = df[df['edades'] > 27]['nombres']
+print("\nPersonas mayores de 27 (Pandas):", mayores_27_pandas.tolist())
+
+# Calcular estadísticas fácilmente
+print(f"\nEdad promedio: {df['edades'].mean():.1f}")
+print(f"Edad máxima: {df['edades'].max()}")
+```
+
+### 🎯 Conexión con NumPy y Pandas
+
+Como verás en esta clase:
+- **NumPy** mejora el rendimiento de operaciones con listas numéricas
+- **Pandas** facilita el trabajo con datos estructurados (como diccionarios de listas)
+- Ambos mantienen la sintaxis intuitiva de Python pero con capacidades superiores
+
+---
+
 ## 📌 ¿Por qué es importante NumPy?
 
 En ciencia de datos, trabajamos con **grandes volúmenes de datos numéricos**. Las listas de Python funcionan bien, pero no están optimizadas para cálculos científicos.
