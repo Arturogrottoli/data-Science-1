@@ -35,12 +35,25 @@ La Industria 4.0 integra múltiples tecnologías que no actúan en forma aislada
 
 Cada revolución industrial redefinió las relaciones de trabajo, la organización empresarial y el rol de la tecnología en la producción.
 
-| Revolución | Época | Tecnología Clave | Impacto Principal |
-|-----------|-------|-----------------|-------------------|
-| **Industria 1.0** | Fines s. XVIII - XIX | Máquina de vapor | Mecanización, reemplazo del trabajo manual, centralización en fábricas. |
-| **Industria 2.0** | Fines s. XIX - XX | Electricidad | Producción en masa, líneas de ensamblaje, estandarización y especialización del trabajo. |
-| **Industria 3.0** | Segunda mitad s. XX | Electrónica e Informática | Automatización, sistemas de control, inicio de gestión por datos (ERP, PLC). |
-| **Industria 4.0** | Siglo XXI (Hoy) | IoT, IA, Big Data | Fábricas inteligentes, interconexión total, decisiones en tiempo real, personalización en masa. |
+### Industria 1.0 — Fines s. XVIII al XIX
+**Tecnología clave:** Máquina de vapor · Carbón · Ferrocarril
+
+La primera revolución transformó una economía agraria y artesanal en una industrial. El vapor permitió mover maquinaria pesada sin depender de la fuerza humana o animal. Las fábricas centralizaron la producción por primera vez, y el ferrocarril habilitó el comercio a escala nacional. El trabajo dejó de ser manual y disperso para volverse mecánico y concentrado.
+
+### Industria 2.0 — Fines s. XIX al XX
+**Tecnología clave:** Electricidad · Motor de combustión interna · Línea de ensamblaje (Ford)
+
+La electricidad permitió iluminar fábricas y alimentar motores con mayor precisión que el vapor. Henry Ford popularizó la línea de ensamblaje: cada operario hace una sola tarea repetida, acelerando la producción masiva y bajando costos. Aparecen el acero, el petróleo y los primeros sistemas de comunicación (telégrafo, teléfono). El trabajo se estandariza y especializa.
+
+### Industria 3.0 — Segunda mitad s. XX
+**Tecnología clave:** Electrónica · Computadoras · Automatización programable (PLC)
+
+Los Controladores Lógicos Programables (PLC) permitieron automatizar procesos físicos sin intervención humana constante. Las computadoras comenzaron a gestionar información empresarial (ERP: planificación de recursos). La producción se volvió más precisa, los errores humanos se redujeron y comenzó la digitalización de registros. Es el inicio de la gestión basada en datos, aunque aún de forma aislada por sistema.
+
+### Industria 4.0 — Siglo XXI (Hoy)
+**Tecnología clave:** IoT · Inteligencia Artificial · Big Data · Cloud · CPS
+
+Los sistemas ya no solo automatizan: **aprenden, se comunican entre sí y toman decisiones en tiempo real**. Las máquinas están conectadas a internet (IoT), los datos fluyen de forma continua, y los modelos de IA optimizan procesos sin intervención humana. La fábrica inteligente puede reconfigurar su propia producción ante cambios de demanda. El dato es el insumo central, no la materia prima.
 
 > La diferencia clave entre la 3.0 y la 4.0 es que antes se automatizaban tareas; ahora los sistemas **aprenden y se adaptan solos**.
 
@@ -211,3 +224,72 @@ Probar la solución en un entorno real a escala limitada para medir KPIs concret
 
 **¿Cuál es el rol de los sensores en un CPS?**
 Capturar datos del entorno físico (temperatura, presión, movimiento) para su posterior análisis y acción automática por parte de los actuadores.
+
+---
+
+## Actividad 1 — Discusión: Revolcuiones Industriales
+
+**Objetivo:** Identificar el cambio de paradigma entre cada revolución.
+
+Para cada etapa, pensar: ¿qué dejó de hacerse a mano? ¿qué habilitó la tecnología que antes era imposible?
+
+- **1ra (Vapor):** Se reemplazó la fuerza humana y animal. Por primera vez una máquina podía mover cargas pesadas de forma continua. Nacen las fábricas como concepto.
+- **2da (Electricidad):** Se estandarizó y aceleró la producción. Ford demostró que dividir el trabajo en tareas repetidas bajaba costos masivamente. Nace el consumo en masa.
+- **3ra (Informática):** Las máquinas empezaron a recibir instrucciones programadas (PLC). Las empresas comenzaron a gestionar datos, aunque en sistemas aislados entre sí.
+- **4ta (Digital):** Los sistemas ya no solo ejecutan instrucciones: aprenden, se comunican entre sí y actúan solos. La diferencia con la 3.0 es que ahora todo está conectado y los datos fluyen entre máquinas, personas y procesos en tiempo real.
+
+> Cada revolución no eliminó la anterior: la incorporó. La 4.0 no existe sin la base eléctrica de la 2.0 ni la automatización de la 3.0.
+
+---
+
+## Casos Reales Vistos en Clase
+
+### Caso 1 — Mantenimiento Predictivo con IoT
+
+Una planta embotelladora perdía el **15% de su producción** por paradas inesperadas en la cinta transportadora.
+
+**Solución aplicada:**
+- Se instalaron sensores de vibración y temperatura en los motores.
+- Los datos se enviaron a la nube en tiempo real.
+- Un modelo de IA detectó patrones que preceden a una falla, anticipándola **48 horas antes**.
+
+**La pregunta que resume todo:**
+> *¿Qué es más barato: cambiar un rodamiento de $50 hoy, o detener la planta 5 horas mañana?*
+
+El costo de la intervención planificada siempre es menor al costo de la falla no anticipada: parada de producción + reparación de emergencia + producto perdido.
+
+### Caso 2 — Control de Calidad Inteligente
+
+| Campo | Detalle |
+|-------|---------|
+| Proceso ineficiente | Inspección manual de piezas en línea de ensamblaje |
+| Tecnología aplicada | Visión artificial + IA |
+| KPI a mejorar | Tasa de defectos |
+| Resultado esperado | Reducción de devoluciones en un 20% |
+
+---
+
+## Actividad Grupal — Plan Ejecutivo Data-Driven
+
+**Consigna:** elegir un proceso ineficiente (de una empresa real o inventada) y armar un plan de mejora con datos.
+
+1. **Identificar** el proceso con problema: ¿dónde se pierden tiempo, dinero o calidad?
+2. **Seleccionar** 1 o 2 tecnologías de los 9 pilares que podrían resolverlo.
+3. **Definir el KPI** que va a medir el éxito: tiene que ser un número concreto, no una sensación.
+
+*Tip: usar la matriz Impacto vs. Esfuerzo para priorizar. Atacar primero lo de alto impacto y bajo esfuerzo.*
+
+---
+
+## Cierre — Tres ideas para llevarse de esta clase
+
+**1. La evolución es constante.**
+La Industria 4.0 no es un destino, es un proceso en curso. Las organizaciones que no adoptan una mentalidad de mejora basada en datos quedan fuera de competencia.
+
+**2. La conectividad es la base.**
+Sin IoT no hay datos. Sin datos no hay modelos. Sin modelos no hay automatización inteligente. Todo empieza por conectar el mundo físico al digital.
+
+**3. No alcanza con la tecnología: hace falta cultura data-driven.**
+Una organización data-driven es aquella donde las decisiones —en todos los niveles— se basan en datos reales, no en intuición o jerarquía. Implica medir todo lo que se pueda, iterar rápido y democratizar el acceso a la información. Si los líderes siguen decidiendo por instinto y los equipos no confían en los datos, la transformación digital no ocurre aunque tengan todo el stack tecnológico.
+
+> *"Los datos son el nuevo petróleo, pero la analítica es el motor que los procesa."*
