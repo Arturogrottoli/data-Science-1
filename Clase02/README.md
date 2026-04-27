@@ -1,991 +1,781 @@
-# 🐍 Clase 02: Fundamentos de Python para Ciencia de Datos
+# Clase 02: Fundamentos de Python para Ciencia de Datos
 
-### **1. Introducción a Python**
-[GUIA DE CLASE](https://docs.google.com/presentation/d/1jMeDrYaVZE7IYGxo6fF4dGYgT-KHFZJmzr-vAKvVGes/edit#slide=id.g2204f2a9531_0_0)
-
-### 2.1 Python: Concepto, Variables y Asignación
-### 2.2 Tipos de Datos en Python  
-### 2.3 Operadores, Objetos y Punteros en Python
-### 2.4 Estructuras de Control
-### 2.5 Funciones
-### 2.6 IPython y Jupyter Notebooks
+**[GUIA DE CLASE (PPTX)](https://docs.google.com/presentation/d/1jMeDrYaVZE7IYGxo6fF4dGYgT-KHFZJmzr-vAKvVGes/edit#slide=id.g2204f2a9531_0_0)**
 
 ---
 
-## 2.1 Python: Concepto, Variables y Asignación
+### Contenidos
+1. [¿Qué es Python?](#1-qué-es-python)
+2. [Variables y Asignación](#2-variables-y-asignación)
+3. [Tipos de Datos](#3-tipos-de-datos)
+4. [Operadores](#4-operadores)
+5. [Estructuras de Control: Condicionales](#5-estructuras-de-control-condicionales)
+6. [Bucles](#6-bucles)
+7. [Funciones](#7-funciones)
+8. [NumPy: arreglos y operaciones vectorizadas](#8-numpy-arreglos-y-operaciones-vectorizadas)
+9. [Visualización con Plotly Express](#9-visualización-con-plotly-express)
+10. [Pandas: primera mirada](#10-pandas-primera-mirada)
 
-### 🎯 **Teoría**
+---
 
-**¿Qué es Python?**
-Python es un lenguaje de programación de alto nivel, interpretado y orientado a objetos. Fue creado por Guido van Rossum en 1991. Sus características principales incluyen:
+## 1. ¿Qué es Python?
 
-- **Sintaxis simple y legible**: Similar al inglés natural
-- **Tipado dinámico**: No necesitas declarar el tipo de variable
-- **Interpretado**: Se ejecuta línea por línea
-- **Multiplataforma**: Funciona en Windows, Mac, Linux
-- **Gran ecosistema**: Miles de librerías para ciencia de datos
+Python es un lenguaje de programación de alto nivel, interpretado y de tipado dinámico. Creado por Guido van Rossum en 1991, hoy es el lenguaje más usado en ciencia de datos, machine learning e inteligencia artificial.
 
-**Variables en Python**
-Una variable es un contenedor que almacena datos en memoria. En Python:
-- No necesitas declarar el tipo
-- Se crean al asignar un valor
-- Son referencias a objetos en memoria
+**Características clave:**
+- Sintaxis simple y legible, similar al inglés
+- Tipado dinámico: no declarás el tipo de la variable
+- Interpretado: se ejecuta línea a línea
+- Multiplataforma: Windows, Mac, Linux
+- Ecosistema enorme: pandas, NumPy, scikit-learn, Plotly, etc.
 
-### 💡 **Ejemplos**
+**¿Dónde vamos a trabajar?**
+
+En esta materia usamos **Google Colab** — un entorno de notebooks en la nube que no requiere instalar nada. Cada celda puede contener código Python o texto Markdown.
 
 ```python
-# Asignación básica de variables
+# Mi primer programa en Python
+print("Hola, Data Science!")
+
+# Python como calculadora
+print(2 + 3)
+print(10 / 3)
+print(2 ** 8)  # 2 elevado a la 8
+```
+
+---
+
+## 2. Variables y Asignación
+
+Una variable es un nombre que apunta a un valor en memoria. En Python no hay que declarar el tipo — se infiere automáticamente.
+
+```python
+# Asignación básica
 nombre = "María"
 edad = 25
 altura = 1.75
 es_estudiante = True
 
-# Múltiples asignaciones
+# Asignación múltiple
 x, y, z = 1, 2, 3
 a = b = c = 0
 
-# Nombres de variables válidos
-mi_variable = 10
-variable123 = "texto"
-_variable_privada = 42
-
-# Nombres inválidos (comentar para evitar error)
-# 2variable = 10  # No puede empezar con número
-# mi-variable = 10  # No puede tener guiones
-# class = "texto"   # No puede ser palabra reservada
+# Ver el valor de una variable
+print(nombre)
+print(type(edad))   # <class 'int'>
 ```
 
-### 🧪 **Ejercicios Prácticos**
+**Reglas para nombres de variables:**
+- Pueden contener letras, números y `_`
+- No pueden empezar con número
+- No pueden ser palabras reservadas (`if`, `for`, `class`, etc.)
+- Se recomienda usar `snake_case`
 
-**Ejercicio 1: Crear variables básicas**
 ```python
-# Crea variables para almacenar:
-# - Tu nombre completo
-# - Tu edad
-# - Tu altura en metros
-# - Si te gusta la programación (True/False)
-# Luego imprime toda la información
+# Válidos
+precio_por_unidad = 15.5
+total_ventas_2024 = 100000
 
-nombre_completo = "Tu nombre aquí"
-edad = 0
-altura = 0.0
-gusta_programacion = True
-
-print(f"Nombre: {nombre_completo}")
-print(f"Edad: {edad} años")
-print(f"Altura: {altura} metros")
-print(f"¿Te gusta programar? {gusta_programacion}")
+# Inválidos
+# 2ventas = 100    # empieza con número
+# precio-final = 5 # guión no permitido
 ```
 
-**Ejercicio 2: Intercambio de variables**
+### Expresiones y f-strings
+
 ```python
-# Intercambia los valores de dos variables sin usar una tercera variable
-a = 10
-b = 20
+nombre = "Carlos"
+edad = 30
 
-print(f"Antes: a = {a}, b = {b}")
+# f-string: forma moderna de formatear texto
+print(f"Me llamo {nombre} y tengo {edad} años")
+print(f"El doble de mi edad es {edad * 2}")
+```
 
-# Tu código aquí para intercambiar valores
-a, b = b, a
+### Ejercicio: Variables de un dataset
 
-print(f"Después: a = {a}, b = {b}")
+```python
+# Creá variables para describir una acción de bolsa
+ticker = "AAPL"
+precio_actual = 189.50
+variacion_diaria = 2.35
+es_ganancia = variacion_diaria > 0
+
+print(f"Acción: {ticker}")
+print(f"Precio: ${precio_actual}")
+print(f"Variación: {variacion_diaria:+.2f}")
+print(f"¿Subió? {es_ganancia}")
 ```
 
 ---
 
-## 2.2 Tipos de Datos en Python
+## 3. Tipos de Datos
 
-### 🎯 **Teoría**
+### Tipos básicos
 
-Python tiene varios tipos de datos fundamentales:
-
-**Tipos Básicos:**
-- `int`: Números enteros (positivos, negativos, cero)
-- `float`: Números decimales
-- `str`: Cadenas de texto
-- `bool`: Valores booleanos (True/False)
-
-**Tipos Compuestos:**
-- `list`: Listas ordenadas y mutables
-- `tuple`: Tuplas ordenadas e inmutables
-- `dict`: Diccionarios (clave-valor)
-- `set`: Conjuntos únicos y desordenados
-
-**Funciones útiles:**
-- `type()`: Muestra el tipo de dato
-- `isinstance()`: Verifica si un objeto es de cierto tipo
-
-### 💡 **Ejemplos**
+| Tipo | Descripción | Ejemplo |
+|------|-------------|---------|
+| `int` | Número entero | `42`, `-7`, `0` |
+| `float` | Número decimal | `3.14`, `-0.5` |
+| `str` | Texto (cadena) | `"hola"`, `'mundo'` |
+| `bool` | Verdadero/Falso | `True`, `False` |
 
 ```python
-# Tipos básicos
 entero = 42
 decimal = 3.14159
-texto = "Hola mundo"
+texto = "Ciencia de Datos"
 booleano = True
 
-print(f"Tipo de {entero}: {type(entero)}")
-print(f"Tipo de {decimal}: {type(decimal)}")
-print(f"Tipo de {texto}: {type(texto)}")
-print(f"Tipo de {booleano}: {type(booleano)}")
+print(type(entero))    # <class 'int'>
+print(type(decimal))   # <class 'float'>
+print(type(texto))     # <class 'str'>
+print(type(booleano))  # <class 'bool'>
+```
 
-# Conversión de tipos
+### Conversión de tipos
+
+```python
+# str → int / float
 numero_texto = "123"
-numero_convertido = int(numero_texto)
-print(f"Convertido: {numero_convertido}, Tipo: {type(numero_convertido)}")
+numero = int(numero_texto)      # 123
+precio = float("19.99")         # 19.99
 
-# Tipos compuestos
-mi_lista = [1, 2, 3, "python"]
-mi_tupla = (1, 2, 3)
-mi_dict = {"nombre": "Ana", "edad": 25}
-mi_set = {1, 2, 3, 3, 4}  # El 3 se elimina por duplicado
+# int → str
+codigo = str(42)                # "42"
 
-print(f"Lista: {mi_lista}")
-print(f"Tupla: {mi_tupla}")
-print(f"Dict: {mi_dict}")
-print(f"Set: {mi_set}")
+# Cuidado: esto genera error
+# int("3.14")  → ValueError
+int(float("3.14"))              # primero float, luego int → 3
 ```
 
-### 🧪 **Ejercicios Prácticos**
+### Tipos compuestos
 
-**Ejercicio 1: Identificar tipos de datos**
 ```python
-# Identifica el tipo de cada variable y explica por qué
-datos = [
-    42,
-    3.14,
-    "Python",
-    True,
-    [1, 2, 3],
-    (1, 2, 3),
-    {"a": 1, "b": 2},
-    {1, 2, 3}
-]
+# Lista: ordenada, mutable
+acciones = ["AAPL", "GOOG", "AMZN", "MSFT"]
+acciones.append("TSLA")
+print(acciones[0])   # AAPL
 
-for dato in datos:
-    print(f"Valor: {dato} -> Tipo: {type(dato).__name__}")
-```
+# Tupla: ordenada, inmutable
+coordenadas = (40.7128, -74.0060)
 
-**Ejercicio 2: Conversiones de tipo**
-```python
-# Convierte los siguientes datos al tipo especificado
-texto_numero = "42"
-decimal_texto = "3.14"
-lista_texto = "[1, 2, 3]"
-
-# Convierte texto_numero a entero
-numero_entero = int(texto_numero)
-
-# Convierte decimal_texto a float
-numero_decimal = float(decimal_texto)
-
-# Convierte lista_texto a lista (investiga eval())
-lista_convertida = eval(lista_texto)
-
-print(f"Entero: {numero_entero}, Tipo: {type(numero_entero)}")
-print(f"Decimal: {numero_decimal}, Tipo: {type(numero_decimal)}")
-print(f"Lista: {lista_convertida}, Tipo: {type(lista_convertida)}")
-```
-
-**Ejercicio 3: Crear estructuras de datos**
-```python
-# Crea las siguientes estructuras de datos:
-# 1. Una lista con 5 frutas
-# 2. Una tupla con coordenadas (x, y, z)
-# 3. Un diccionario con información de un libro
-# 4. Un set con colores únicos
-
-frutas = ["manzana", "banana", "naranja", "uva", "pera"]
-coordenadas = (10, 20, 30)
-libro = {
-    "titulo": "Python para Ciencia de Datos",
-    "autor": "John Smith",
-    "año": 2023,
-    "paginas": 400
+# Diccionario: clave → valor
+accion_info = {
+    "ticker": "AAPL",
+    "precio": 189.50,
+    "sector": "Technology"
 }
-colores = {"rojo", "azul", "verde", "amarillo", "rojo"}  # El rojo se elimina
+print(accion_info["precio"])  # 189.5
 
-print("Frutas:", frutas)
-print("Coordenadas:", coordenadas)
-print("Libro:", libro)
-print("Colores:", colores)
+# Set: valores únicos
+sectores = {"Technology", "Finance", "Health", "Technology"}
+print(sectores)  # {'Technology', 'Finance', 'Health'}
 ```
 
 ---
 
-## 2.3 Operadores, Objetos y Punteros en Python
+## 4. Operadores
 
-### 🎯 **Teoría**
-
-**Operadores en Python:**
-
-**Operadores Aritméticos:**
-- `+` : Suma
-- `-` : Resta
-- `*` : Multiplicación
-- `/` : División (siempre devuelve float)
-- `//` : División entera
-- `%` : Módulo (resto)
-- `**` : Potencia
-
-**Operadores de Comparación:**
-- `==` : Igual a
-- `!=` : Diferente de
-- `<` : Menor que
-- `>` : Mayor que
-- `<=` : Menor o igual
-- `>=` : Mayor o igual
-
-**Operadores Lógicos:**
-- `and` : Y lógico
-- `or` : O lógico
-- `not` : NO lógico
-
-**Objetos y Referencias:**
-En Python, todo es un objeto. Las variables son referencias (punteros) a objetos en memoria.
-
-### 💡 **Ejemplos**
+### Aritméticos
 
 ```python
-# Operadores aritméticos
 a = 10
 b = 3
 
-print(f"Suma: {a + b}")
-print(f"Resta: {a - b}")
-print(f"Multiplicación: {a * b}")
-print(f"División: {a / b}")
-print(f"División entera: {a // b}")
-print(f"Módulo: {a % b}")
-print(f"Potencia: {a ** b}")
-
-# Operadores de comparación
-x = 5
-y = 10
-
-print(f"{x} == {y}: {x == y}")
-print(f"{x} != {y}: {x != y}")
-print(f"{x} < {y}: {x < y}")
-print(f"{x} > {y}: {x > y}")
-
-# Operadores lógicos
-es_mayor = True
-es_estudiante = False
-
-print(f"Es mayor Y estudiante: {es_mayor and es_estudiante}")
-print(f"Es mayor O estudiante: {es_mayor or es_estudiante}")
-print(f"NO es estudiante: {not es_estudiante}")
-
-# Referencias de objetos
-lista1 = [1, 2, 3]
-lista2 = lista1  # Misma referencia
-
-print(f"lista1: {lista1}")
-print(f"lista2: {lista2}")
-print(f"¿Son el mismo objeto? {lista1 is lista2}")
-
-lista2.append(4)
-print(f"Después de modificar lista2:")
-print(f"lista1: {lista1}")
-print(f"lista2: {lista2}")
+print(a + b)    # 13   suma
+print(a - b)    # 7    resta
+print(a * b)    # 30   multiplicación
+print(a / b)    # 3.33 división (siempre float)
+print(a // b)   # 3    división entera
+print(a % b)    # 1    módulo (resto)
+print(a ** b)   # 1000 potencia
 ```
 
-### 🧪 **Ejercicios Prácticos**
+### Comparación y lógicos
 
-**Ejercicio 1: Calculadora básica**
 ```python
-# Crea una calculadora que realice las 4 operaciones básicas
-num1 = 15
-num2 = 4
+x = 15
+print(x > 10)          # True
+print(x == 15)         # True
+print(x != 10)         # True
+print(x >= 20)         # False
 
-suma = num1 + num2
-resta = num1 - num2
-multiplicacion = num1 * num2
-division = num1 / num2
-
-print(f"{num1} + {num2} = {suma}")
-print(f"{num1} - {num2} = {resta}")
-print(f"{num1} * {num2} = {multiplicacion}")
-print(f"{num1} / {num2} = {division}")
+# Lógicos: and, or, not
+print(x > 10 and x < 20)   # True
+print(x > 20 or x == 15)   # True
+print(not (x == 15))        # False
 ```
 
-**Ejercicio 2: Verificar condiciones**
+### Operadores de asignación compuesta
+
 ```python
-# Verifica si un número es par, positivo y mayor que 10
-numero = 16
-
-es_par = numero % 2 == 0
-es_positivo = numero > 0
-es_mayor_10 = numero > 10
-
-cumple_todas = es_par and es_positivo and es_mayor_10
-
-print(f"Número: {numero}")
-print(f"¿Es par? {es_par}")
-print(f"¿Es positivo? {es_positivo}")
-print(f"¿Es mayor que 10? {es_mayor_10}")
-print(f"¿Cumple todas las condiciones? {cumple_todas}")
+precio = 100
+precio += 10    # precio = precio + 10 → 110
+precio *= 1.21  # aplica IVA
+precio -= 5     # descuento
+print(round(precio, 2))
 ```
 
-**Ejercicio 3: Referencias y copias**
+### Ejercicio: Calcular rentabilidad
+
 ```python
-# Demuestra la diferencia entre referencias y copias
-original = [1, 2, 3]
+precio_compra = 150.0
+precio_venta = 189.5
+cantidad = 10
 
-# Referencia (mismo objeto)
-referencia = original
+ganancia_por_accion = precio_venta - precio_compra
+ganancia_total = ganancia_por_accion * cantidad
+rentabilidad_pct = (ganancia_por_accion / precio_compra) * 100
 
-# Copia (objeto diferente)
-copia = original.copy()
-
-print("Original:", original)
-print("Referencia:", referencia)
-print("Copia:", copia)
-
-# Modificar la referencia
-referencia.append(4)
-print("\nDespués de modificar referencia:")
-print("Original:", original)
-print("Referencia:", referencia)
-print("Copia:", copia)
-
-# Modificar la copia
-copia.append(5)
-print("\nDespués de modificar copia:")
-print("Original:", original)
-print("Referencia:", referencia)
-print("Copia:", copia)
+print(f"Ganancia por acción: ${ganancia_por_accion:.2f}")
+print(f"Ganancia total: ${ganancia_total:.2f}")
+print(f"Rentabilidad: {rentabilidad_pct:.1f}%")
 ```
 
 ---
 
-## 2.4 Estructuras de Control
+## 5. Estructuras de Control: Condicionales
 
-### 🎯 **Teoría**
+Los condicionales permiten ejecutar código solo si se cumple una condición.
 
-Las estructuras de control permiten alterar el flujo de ejecución del programa:
-
-**Condicionales:**
-- `if`: Ejecuta código si la condición es verdadera
-- `elif`: Condición adicional si la anterior es falsa
-- `else`: Ejecuta código si ninguna condición es verdadera
-
-**Bucles:**
-- `for`: Itera sobre una secuencia (lista, tupla, string, etc.)
-- `while`: Repite mientras la condición sea verdadera
-- `break`: Sale del bucle inmediatamente
-- `continue`: Salta a la siguiente iteración
-
-### 💡 **Ejemplos**
+```
+if <condición>:
+    # se ejecuta si condición es True
+elif <otra condición>:
+    # se ejecuta si la primera es False y esta es True
+else:
+    # se ejecuta si ninguna condición fue True
+```
 
 ```python
-# Estructuras condicionales
-edad = 18
+precio = 189.50
+precio_referencia = 180.0
 
-if edad < 13:
-    print("Eres un niño")
-elif edad < 18:
-    print("Eres un adolescente")
-elif edad < 65:
-    print("Eres un adulto")
+if precio > precio_referencia * 1.10:
+    recomendacion = "VENDER"
+elif precio > precio_referencia:
+    recomendacion = "MANTENER"
 else:
-    print("Eres un adulto mayor")
+    recomendacion = "COMPRAR"
 
-# Bucle for
-frutas = ["manzana", "banana", "naranja"]
+print(f"Precio: ${precio} → {recomendacion}")
+```
 
-for fruta in frutas:
-    print(f"Me gusta la {fruta}")
+### Condicional anidado
 
-# Bucle for con range
-for i in range(5):
-    print(f"Número: {i}")
+```python
+temperatura = 28
+humedad = 85
 
-# Bucle while
-contador = 0
-while contador < 3:
-    print(f"Contador: {contador}")
-    contador += 1
+if temperatura > 30:
+    if humedad > 70:
+        print("Muy bochornoso")
+    else:
+        print("Caluroso pero tolerable")
+elif temperatura > 20:
+    print("Agradable")
+else:
+    print("Frío")
+```
 
-# Break y continue
-for i in range(10):
-    if i == 3:
-        continue  # Salta el 3
-    if i == 7:
-        break     # Para en el 7
+### Ejercicio: Clasificar rendimiento de acciones
+
+```python
+def clasificar_accion(variacion_pct):
+    if variacion_pct >= 5:
+        return "Fuerte alza"
+    elif variacion_pct >= 1:
+        return "Alza moderada"
+    elif variacion_pct > -1:
+        return "Estable"
+    elif variacion_pct > -5:
+        return "Baja moderada"
+    else:
+        return "Fuerte caída"
+
+variaciones = [7.2, 1.8, -0.3, -3.5, -6.1]
+
+for v in variaciones:
+    print(f"{v:+.1f}% → {clasificar_accion(v)}")
+```
+
+---
+
+## 6. Bucles
+
+### for: iterar sobre una secuencia
+
+```python
+acciones = ["AAPL", "GOOG", "AMZN"]
+
+for ticker in acciones:
+    print(f"Procesando: {ticker}")
+
+# range(): generar secuencias numéricas
+for i in range(5):          # 0, 1, 2, 3, 4
+    print(i)
+
+for i in range(1, 6):       # 1, 2, 3, 4, 5
+    print(i)
+
+for i in range(0, 10, 2):   # 0, 2, 4, 6, 8
     print(i)
 ```
 
-### 🧪 **Ejercicios Prácticos**
+### while: repetir mientras se cumpla una condición
 
-**Ejercicio 1: Sistema de calificaciones**
 ```python
-# Crea un sistema que asigne letras según la calificación
-def asignar_letra(calificacion):
-    if calificacion >= 90:
-        return "A"
-    elif calificacion >= 80:
-        return "B"
-    elif calificacion >= 70:
-        return "C"
-    elif calificacion >= 60:
-        return "D"
-    else:
-        return "F"
+intentos = 0
+maximo = 3
 
-# Prueba con diferentes calificaciones
-calificaciones = [95, 85, 75, 65, 55]
+while intentos < maximo:
+    print(f"Intento {intentos + 1}")
+    intentos += 1
 
-for cal in calificaciones:
-    letra = asignar_letra(cal)
-    print(f"Calificación {cal} = {letra}")
+print("Fin del bucle")
 ```
 
-**Ejercicio 2: Contador de vocales**
+### break y continue
+
 ```python
-# Cuenta las vocales en una palabra
-palabra = "programacion"
-vocales = "aeiou"
-contador = 0
+precios = [120, 145, 98, 200, 85, 160]
 
-for letra in palabra:
-    if letra in vocales:
-        contador += 1
-
-print(f"La palabra '{palabra}' tiene {contador} vocales")
-```
-
-**Ejercicio 3: Números pares e impares**
-```python
-# Separa números pares e impares
-numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-pares = []
-impares = []
-
-for numero in numeros:
-    if numero % 2 == 0:
-        pares.append(numero)
-    else:
-        impares.append(numero)
-
-print(f"Números pares: {pares}")
-print(f"Números impares: {impares}")
-```
-
-**Ejercicio 4: Búsqueda en lista**
-```python
-# Busca un elemento en una lista
-lista = ["python", "java", "javascript", "c++"]
-buscar = "python"
-encontrado = False
-
-for elemento in lista:
-    if elemento == buscar:
-        encontrado = True
+# break: salir del bucle al encontrar precio > 180
+for precio in precios:
+    if precio > 180:
+        print(f"Precio muy alto encontrado: {precio}. Deteniendo.")
         break
+    print(f"Precio OK: {precio}")
 
-if encontrado:
-    print(f"'{buscar}' está en la lista")
-else:
-    print(f"'{buscar}' no está en la lista")
+print("---")
+
+# continue: saltear precios menores a 100
+for precio in precios:
+    if precio < 100:
+        continue   # salta este y sigue al siguiente
+    print(f"Precio válido: {precio}")
+```
+
+### Ejercicio colaborativo: análisis de precios históricos
+
+```python
+precios_historicos = [150, 155, 148, 162, 170, 165, 180, 175, 190, 185]
+
+# Calcular la variación entre días consecutivos
+variaciones = []
+for i in range(1, len(precios_historicos)):
+    variacion = precios_historicos[i] - precios_historicos[i - 1]
+    variaciones.append(variacion)
+
+dias_alza = sum(1 for v in variaciones if v > 0)
+dias_baja = sum(1 for v in variaciones if v < 0)
+max_subida = max(variaciones)
+max_caida = min(variaciones)
+
+print(f"Días de alza:  {dias_alza}")
+print(f"Días de baja:  {dias_baja}")
+print(f"Mayor subida:  +{max_subida}")
+print(f"Mayor caída:   {max_caida}")
 ```
 
 ---
 
-## 2.5 Funciones
+## 7. Funciones
 
-### 🎯 **Teoría**
+Una función es un bloque de código con nombre que podemos reutilizar.
 
-Las funciones son bloques de código reutilizables que realizan una tarea específica:
-
-**Características:**
-- **Reutilización**: Evita repetir código
-- **Modularidad**: Divide el programa en partes manejables
-- **Abstracción**: Oculta la complejidad
-- **Mantenibilidad**: Facilita cambios y correcciones
-
-**Sintaxis:**
 ```python
-def nombre_funcion(parametros):
-    # Código de la función
-    return valor
+def nombre_funcion(parametro1, parametro2):
+    # código
+    return resultado
 ```
-
-**Tipos de parámetros:**
-- **Posicionales**: Se pasan en orden
-- **Con nombre**: Se especifica el nombre del parámetro
-- **Por defecto**: Tienen un valor predeterminado
-- **Arbitrarios**: `*args` (tupla) y `**kwargs` (diccionario)
-
-### 💡 **Ejemplos**
 
 ```python
 # Función básica
 def saludar(nombre):
-    return f"¡Hola {nombre}!"
+    return f"Hola, {nombre}!"
 
-# Función con parámetro por defecto
-def saludar_con_titulo(nombre, titulo="Sr."):
-    return f"¡Hola {titulo} {nombre}!"
+print(saludar("Ana"))
 
-# Función con múltiples parámetros
-def calcular_area(base, altura):
-    return base * altura
+# Parámetro con valor por defecto
+def calcular_iva(precio, tasa=0.21):
+    return precio * (1 + tasa)
 
-# Función con parámetros arbitrarios
-def sumar_todos(*numeros):
+print(calcular_iva(100))         # 121.0
+print(calcular_iva(100, 0.105))  # 110.5
+```
+
+### Funciones con múltiples retornos
+
+```python
+def estadisticas(numeros):
+    return min(numeros), max(numeros), sum(numeros) / len(numeros)
+
+minimo, maximo, promedio = estadisticas([10, 20, 30, 40, 50])
+print(f"Min: {minimo}, Max: {maximo}, Promedio: {promedio}")
+```
+
+### Ejercicio: función para analizar una acción
+
+```python
+def analizar_accion(ticker, precios):
+    """Recibe el nombre de una acción y una lista de precios históricos."""
+    precio_inicial = precios[0]
+    precio_final = precios[-1]
+    rentabilidad = (precio_final - precio_inicial) / precio_inicial * 100
+    volatilidad = max(precios) - min(precios)
+
+    return {
+        "ticker": ticker,
+        "precio_inicial": precio_inicial,
+        "precio_final": precio_final,
+        "rentabilidad_pct": round(rentabilidad, 2),
+        "volatilidad": volatilidad
+    }
+
+resultado = analizar_accion("AAPL", [150, 155, 162, 170, 189])
+for clave, valor in resultado.items():
+    print(f"{clave}: {valor}")
+```
+
+### *args y **kwargs (parámetros arbitrarios)
+
+```python
+def sumar(*numeros):
     return sum(numeros)
 
-# Función con parámetros con nombre
-def crear_persona(nombre, edad, ciudad="Desconocida"):
-    return {
-        "nombre": nombre,
-        "edad": edad,
-        "ciudad": ciudad
-    }
+print(sumar(1, 2, 3))        # 6
+print(sumar(10, 20, 30, 40)) # 100
 
-# Llamadas a funciones
-print(saludar("Ana"))
-print(saludar_con_titulo("Juan", "Dr."))
-print(saludar_con_titulo("María"))  # Usa el valor por defecto
-print(f"Área: {calcular_area(5, 3)}")
-print(f"Suma: {sumar_todos(1, 2, 3, 4, 5)}")
+def mostrar_info(**datos):
+    for clave, valor in datos.items():
+        print(f"{clave}: {valor}")
 
-persona = crear_persona(edad=25, nombre="Carlos")
-print(f"Persona: {persona}")
-```
-
-### 🧪 **Ejercicios Prácticos**
-
-**Ejercicio 1: Calculadora de estadísticas**
-```python
-def calcular_estadisticas(numeros):
-    """Calcula estadísticas básicas de una lista de números"""
-    if not numeros:
-        return None
-    
-    total = sum(numeros)
-    promedio = total / len(numeros)
-    maximo = max(numeros)
-    minimo = min(numeros)
-    
-    return {
-        "total": total,
-        "promedio": promedio,
-        "maximo": maximo,
-        "minimo": minimo,
-        "cantidad": len(numeros)
-    }
-
-# Prueba la función
-datos = [10, 20, 30, 40, 50]
-stats = calcular_estadisticas(datos)
-
-if stats:
-    print("Estadísticas:")
-    for key, value in stats.items():
-        print(f"{key}: {value}")
-```
-
-**Ejercicio 2: Validador de contraseña**
-```python
-def validar_contraseña(contraseña):
-    """Valida si una contraseña cumple con los requisitos"""
-    errores = []
-    
-    if len(contraseña) < 8:
-        errores.append("Debe tener al menos 8 caracteres")
-    
-    if not any(c.isupper() for c in contraseña):
-        errores.append("Debe tener al menos una mayúscula")
-    
-    if not any(c.islower() for c in contraseña):
-        errores.append("Debe tener al menos una minúscula")
-    
-    if not any(c.isdigit() for c in contraseña):
-        errores.append("Debe tener al menos un número")
-    
-    return len(errores) == 0, errores
-
-# Prueba diferentes contraseñas
-contraseñas = ["abc", "password", "Password123", "MySecurePass1"]
-
-for pwd in contraseñas:
-    es_valida, errores = validar_contraseña(pwd)
-    print(f"Contraseña: '{pwd}'")
-    print(f"¿Es válida? {es_valida}")
-    if not es_valida:
-        print(f"Errores: {errores}")
-    print()
-```
-
-**Ejercicio 3: Generador de secuencias**
-```python
-def generar_fibonacci(n):
-    """Genera los primeros n números de la secuencia Fibonacci"""
-    if n <= 0:
-        return []
-    elif n == 1:
-        return [0]
-    elif n == 2:
-        return [0, 1]
-    
-    secuencia = [0, 1]
-    for i in range(2, n):
-        siguiente = secuencia[i-1] + secuencia[i-2]
-        secuencia.append(siguiente)
-    
-    return secuencia
-
-def generar_pares(n):
-    """Genera los primeros n números pares"""
-    return [i * 2 for i in range(n)]
-
-# Prueba las funciones
-print("Fibonacci (10):", generar_fibonacci(10))
-print("Pares (8):", generar_pares(8))
-```
-
-**Ejercicio 4: Función con múltiples retornos**
-```python
-def analizar_texto(texto):
-    """Analiza un texto y retorna estadísticas"""
-    if not texto:
-        return 0, 0, 0, 0
-    
-    palabras = texto.split()
-    caracteres = len(texto)
-    caracteres_sin_espacios = len(texto.replace(" ", ""))
-    oraciones = texto.count('.') + texto.count('!') + texto.count('?')
-    
-    return len(palabras), caracteres, caracteres_sin_espacios, oraciones
-
-# Prueba la función
-texto_ejemplo = "¡Hola mundo! Este es un ejemplo de texto. ¿Te gusta Python?"
-palabras, chars, chars_sin_esp, oraciones = analizar_texto(texto_ejemplo)
-
-print(f"Texto: '{texto_ejemplo}'")
-print(f"Palabras: {palabras}")
-print(f"Caracteres totales: {chars}")
-print(f"Caracteres sin espacios: {chars_sin_esp}")
-print(f"Oraciones: {oraciones}")
+mostrar_info(nombre="GOOG", precio=175.3, sector="Tech")
 ```
 
 ---
 
-## 2.6 IPython y Jupyter Notebooks
+## 8. NumPy: arreglos y operaciones vectorizadas
 
-### 🎯 **Teoría**
-
-**¿Qué es Jupyter Notebook?**
-Jupyter Notebook es una herramienta ampliamente utilizada en el desarrollo con Python, especialmente en el ámbito de la ciencia de datos. Su popularidad se debe a su capacidad para combinar código, texto y visualizaciones en un solo documento, lo que facilita la experimentación y la presentación de resultados.
-
-**Características principales:**
-- **Interactividad**: Permite la ejecución parcial de código y ver resultados de inmediato
-- **Documentación**: Combina código y texto en un solo documento
-- **Visualización**: Facilita la inclusión de gráficos y visualizaciones
-- **Reproducibilidad**: Los notebooks pueden ser guardados y compartidos
-
-**Celdas: Segmentación del Código**
-En un Jupyter Notebook, el código se organiza en celdas:
-
-**Celdas de Código**: Son las celdas donde se escribe y ejecuta el código Python. Al ejecutar una celda, Jupyter envía el código al kernel de Python, que lo procesa y devuelve los resultados directamente en el notebook.
-
-**Celdas de Markdown**: Estas celdas se utilizan para agregar texto formateado, como explicaciones, títulos, listas o ecuaciones matemáticas.
-
-### 💡 **Ejemplos**
+NumPy es la librería fundamental para computación numérica en Python. Permite trabajar con arreglos (arrays) de forma mucho más eficiente que con listas.
 
 ```python
-# Ejemplo de celda de código
-a = 5
-b = 10
-print(a + b)
+import numpy as np
+```
 
-# Trabajo con datos en tiempo real
+### Crear arreglos
+
+```python
+# Desde una lista
+arr = np.array([1, 2, 3, 4, 5])
+print(arr)           # [1 2 3 4 5]
+print(arr.dtype)     # int64
+print(arr.shape)     # (5,)
+
+# Arreglos especiales
+np.zeros(5)          # [0. 0. 0. 0. 0.]
+np.ones(5)           # [1. 1. 1. 1. 1.]
+np.arange(0, 10, 2)  # [0 2 4 6 8]
+np.linspace(0, 1, 5) # [0.   0.25 0.5  0.75 1.  ]
+
+# Arreglo 2D (matriz)
+matriz = np.array([[1, 2, 3],
+                   [4, 5, 6]])
+print(matriz.shape)  # (2, 3)
+```
+
+### Operaciones vectorizadas
+
+Con NumPy, las operaciones se aplican elemento a elemento sin necesidad de bucles:
+
+```python
+precios = np.array([150.0, 155.0, 162.0, 170.0, 189.0])
+
+# Operaciones sobre todo el arreglo
+print(precios * 1.21)           # aplicar IVA a todos
+print(precios - precios[0])     # diferencia respecto al primero
+print(precios > 160)            # máscara booleana
+
+# Estadísticas
+print(f"Mínimo:  {precios.min()}")
+print(f"Máximo:  {precios.max()}")
+print(f"Promedio: {precios.mean():.2f}")
+print(f"Desvío:  {precios.std():.2f}")
+```
+
+### Indexing y slicing
+
+```python
+arr = np.array([10, 20, 30, 40, 50])
+
+print(arr[0])      # 10  (primer elemento)
+print(arr[-1])     # 50  (último elemento)
+print(arr[1:4])    # [20 30 40]
+print(arr[::2])    # [10 30 50]  (cada dos)
+
+# Filtrar con condición
+grandes = arr[arr > 25]
+print(grandes)     # [30 40 50]
+```
+
+---
+
+## 9. Visualización con Plotly Express
+
+Plotly Express es una librería de visualización interactiva. Con pocas líneas de código se crean gráficos publicables.
+
+```python
+import plotly.express as px
+import pandas as pd
+```
+
+### Tipos de gráficos
+
+| Función | Cuándo usarla |
+|---------|---------------|
+| `px.line()` | Evolución temporal, tendencias |
+| `px.bar()` | Comparar categorías |
+| `px.scatter()` | Relación entre dos variables numéricas |
+| `px.histogram()` | Distribución de una variable |
+| `px.box()` | Distribución + outliers por grupo |
+| `px.pie()` | Proporciones (usar con moderación) |
+
+### Gráfico de línea: precio histórico
+
+```python
+import plotly.express as px
 import pandas as pd
 
-# Cargar datos (ejemplo)
-datos = {
-    'nombre': ['Ana', 'Carlos', 'María', 'Juan'],
-    'edad': [25, 30, 22, 28],
-    'ciudad': ['Madrid', 'Barcelona', 'Valencia', 'Sevilla']
-}
+fechas = pd.date_range("2024-01-01", periods=10, freq="W")
+precios = [150, 155, 148, 162, 170, 165, 180, 175, 190, 185]
 
-df = pd.DataFrame(datos)
-print("DataFrame creado:")
-print(df.head())
+df = pd.DataFrame({"fecha": fechas, "precio": precios})
 
-# Análisis básico
-print(f"\nPromedio de edades: {df['edad'].mean():.1f}")
-print(f"Personas en Madrid: {len(df[df['ciudad'] == 'Madrid'])}")
+fig = px.line(
+    df,
+    x="fecha",
+    y="precio",
+    title="Evolución del precio de AAPL",
+    labels={"precio": "Precio (USD)", "fecha": "Fecha"}
+)
+fig.show()
 ```
 
-```markdown
-## Ejemplo de Celda Markdown
+### Gráfico de barras: comparar sectores
 
-Este es un ejemplo de cómo se puede utilizar Markdown para dar formato al texto en un Jupyter Notebook.
-
-### Características de Markdown:
-- **Negrita** para énfasis
-- *Cursiva* para términos técnicos
-- `código` para fragmentos de código
-- Listas numeradas y con viñetas
-
-### Fórmulas matemáticas:
-La media aritmética se calcula como: $\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$
-```
-
-### 🧪 **Ejercicios Prácticos**
-
-**Ejercicio 1: Crear tu primer notebook**
 ```python
-# Crea un notebook con las siguientes celdas:
+df_sectores = pd.DataFrame({
+    "sector": ["Technology", "Finance", "Health", "Energy", "Consumer"],
+    "rendimiento_pct": [18.5, 7.2, 12.1, -3.4, 5.8]
+})
 
-# Celda 1: Importar librerías
-import numpy as np
-import matplotlib.pyplot as plt
-
-# Celda 2: Crear datos de ejemplo
-x = np.linspace(0, 10, 100)
-y = np.sin(x)
-
-# Celda 3: Crear una visualización
-plt.figure(figsize=(10, 6))
-plt.plot(x, y, 'b-', linewidth=2, label='sin(x)')
-plt.title('Función Seno')
-plt.xlabel('x')
-plt.ylabel('sin(x)')
-plt.grid(True)
-plt.legend()
-plt.show()
-
-# Celda 4: Análisis de datos
-print(f"Valor máximo: {np.max(y):.3f}")
-print(f"Valor mínimo: {np.min(y):.3f}")
-print(f"Promedio: {np.mean(y):.3f}")
+fig = px.bar(
+    df_sectores,
+    x="sector",
+    y="rendimiento_pct",
+    color="rendimiento_pct",
+    color_continuous_scale="RdYlGn",
+    title="Rendimiento por sector (YTD)"
+)
+fig.show()
 ```
 
-**Ejercicio 2: Análisis exploratorio básico**
+### Gráfico de dispersión: precio vs volumen
+
 ```python
-# Crea un análisis exploratorio de datos
-import pandas as pd
 import numpy as np
 
-# Generar datos de ejemplo
 np.random.seed(42)
+n = 50
+df_scatter = pd.DataFrame({
+    "precio": np.random.uniform(50, 300, n),
+    "volumen_millones": np.random.uniform(1, 100, n),
+    "sector": np.random.choice(["Tech", "Finance", "Health"], n)
+})
+
+fig = px.scatter(
+    df_scatter,
+    x="precio",
+    y="volumen_millones",
+    color="sector",
+    size="volumen_millones",
+    title="Precio vs Volumen por sector",
+    hover_data=["sector"]
+)
+fig.show()
+```
+
+### Histograma: distribución de retornos
+
+```python
+retornos_diarios = np.random.normal(0.001, 0.02, 252)  # 1 año de trading
+
+fig = px.histogram(
+    x=retornos_diarios,
+    nbins=30,
+    title="Distribución de retornos diarios",
+    labels={"x": "Retorno diario"},
+    color_discrete_sequence=["steelblue"]
+)
+fig.add_vline(x=0, line_dash="dash", line_color="red")
+fig.show()
+```
+
+### Ejercicio colaborativo: dashboard de acciones
+
+```python
+import plotly.express as px
+import pandas as pd
+
+# Dataset de acciones ficticias
+data = {
+    "ticker": ["AAPL", "GOOG", "AMZN", "MSFT", "TSLA"] * 4,
+    "trimestre": ["Q1", "Q1", "Q1", "Q1", "Q1",
+                  "Q2", "Q2", "Q2", "Q2", "Q2",
+                  "Q3", "Q3", "Q3", "Q3", "Q3",
+                  "Q4", "Q4", "Q4", "Q4", "Q4"],
+    "precio_cierre": [175, 140, 180, 370, 250,
+                      185, 145, 185, 380, 265,
+                      189, 150, 190, 390, 248,
+                      195, 155, 200, 410, 260]
+}
+df = pd.DataFrame(data)
+
+# Gráfico de líneas por empresa
+fig = px.line(
+    df,
+    x="trimestre",
+    y="precio_cierre",
+    color="ticker",
+    markers=True,
+    title="Evolución de precios por trimestre"
+)
+fig.show()
+
+# Promedio anual por empresa
+resumen = df.groupby("ticker")["precio_cierre"].mean().reset_index()
+resumen.columns = ["ticker", "precio_promedio"]
+
+fig2 = px.bar(
+    resumen,
+    x="ticker",
+    y="precio_promedio",
+    color="ticker",
+    title="Precio promedio anual por acción"
+)
+fig2.show()
+```
+
+---
+
+## 10. Pandas: primera mirada
+
+Pandas es la librería principal para manipular datos tabulares en Python. Trabaja con **DataFrames** (tablas) y **Series** (columnas).
+
+```python
+import pandas as pd
+```
+
+### Crear un DataFrame
+
+```python
 datos = {
-    'temperatura': np.random.normal(25, 5, 100),
-    'humedad': np.random.uniform(30, 80, 100),
-    'presion': np.random.normal(1013, 10, 100)
+    "ticker":  ["AAPL", "GOOG", "AMZN", "MSFT"],
+    "precio":  [189.5,  155.0,  195.2,  410.0],
+    "sector":  ["Tech",  "Tech", "Consumer", "Tech"],
+    "pe_ratio": [28.5,   24.1,   65.3,    35.2]
 }
 
 df = pd.DataFrame(datos)
-
-# Análisis descriptivo
-print("=== ANÁLISIS DESCRIPTIVO ===")
-print(df.describe())
-
-print("\n=== INFORMACIÓN DEL DATASET ===")
-print(df.info())
-
-print("\n=== PRIMERAS 5 FILAS ===")
-print(df.head())
-
-# Visualización básica
-import matplotlib.pyplot as plt
-
-fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-
-axes[0].hist(df['temperatura'], bins=20, alpha=0.7, color='red')
-axes[0].set_title('Distribución de Temperatura')
-axes[0].set_xlabel('Temperatura (°C)')
-
-axes[1].hist(df['humedad'], bins=20, alpha=0.7, color='blue')
-axes[1].set_title('Distribución de Humedad')
-axes[1].set_xlabel('Humedad (%)')
-
-axes[2].hist(df['presion'], bins=20, alpha=0.7, color='green')
-axes[2].set_title('Distribución de Presión')
-axes[2].set_xlabel('Presión (hPa)')
-
-plt.tight_layout()
-plt.show()
+print(df)
 ```
 
-**Ejercicio 3: Documentación con Markdown**
-```markdown
-# Análisis de Datos Climáticos
-
-## Objetivo
-Este notebook tiene como objetivo analizar datos climáticos simulados para entender patrones meteorológicos.
-
-## Metodología
-1. **Carga de datos**: Generación de datos simulados
-2. **Limpieza**: Verificación de valores nulos y outliers
-3. **Análisis**: Estadísticas descriptivas y visualizaciones
-4. **Conclusiones**: Interpretación de resultados
-
-## Resultados Principales
-- La temperatura promedio es de 25°C
-- La humedad varía entre 30% y 80%
-- La presión atmosférica se mantiene alrededor de 1013 hPa
-
-## Próximos Pasos
-- Implementar análisis de correlación
-- Crear modelos predictivos
-- Validar con datos reales
-```
-
-### 🔧 **Comandos Útiles de Jupyter**
+### Exploración básica
 
 ```python
-# Comandos mágicos de IPython
-%timeit  # Mide el tiempo de ejecución
-%matplotlib inline  # Muestra gráficos en el notebook
-%pwd  # Muestra el directorio actual
-%ls  # Lista archivos en el directorio
-%run archivo.py  # Ejecuta un archivo Python
-
-# Atajos de teclado importantes:
-# Shift + Enter: Ejecutar celda y pasar a la siguiente
-# Ctrl + Enter: Ejecutar celda sin pasar a la siguiente
-# A: Insertar celda arriba
-# B: Insertar celda abajo
-# DD: Eliminar celda
-# M: Cambiar a celda Markdown
-# Y: Cambiar a celda de código
+print(df.head())          # primeras 5 filas
+print(df.tail(2))         # últimas 2 filas
+print(df.shape)           # (filas, columnas)
+print(df.dtypes)          # tipo de cada columna
+print(df.describe())      # estadísticas descriptivas
+print(df.isnull().sum())  # valores faltantes por columna
 ```
 
-### 📊 **Ventajas del Uso de Jupyter Notebooks**
+### Selección de datos
 
-1. **Interactividad**: Permite la ejecución parcial de código y ver resultados de inmediato
-2. **Documentación**: Combina código y texto en un solo documento
-3. **Visualización**: Facilita la inclusión de gráficos y visualizaciones
-4. **Reproducibilidad**: Los notebooks pueden ser guardados y compartidos
-5. **Educación**: Ideal para enseñar y aprender programación
-6. **Colaboración**: Fácil de compartir y revisar
+```python
+# Seleccionar una columna → Series
+print(df["precio"])
+print(df["precio"].mean())
 
-### 🚀 **Instalación y Configuración**
+# Seleccionar varias columnas
+print(df[["ticker", "precio"]])
 
-```bash
-# Instalar Jupyter Notebook
-pip install jupyter
+# Filtrar filas por condición
+tech = df[df["sector"] == "Tech"]
+baratas = df[df["precio"] < 200]
 
-# Instalar JupyterLab (interfaz más moderna)
-pip install jupyterlab
-
-# Iniciar Jupyter Notebook
-jupyter notebook
-
-# Iniciar JupyterLab
-jupyter lab
+# Ordenar
+df_ordenado = df.sort_values("precio", ascending=False)
+print(df_ordenado)
 ```
 
 ---
 
-## 🏁 Desafío Final: Sistema de Gestión de Alumnos
+## Desafío integrador
 
-Crea un sistema completo que combine todos los conceptos aprendidos:
+Combiná todo lo visto para construir un análisis de acciones:
 
 ```python
-class Alumno:
-    def __init__(self, nombre, edad):
-        self.nombre = nombre
-        self.edad = edad
-        self.calificaciones = []
-    
-    def agregar_calificacion(self, calificacion):
-        """Agrega una calificación a la lista"""
-        if 0 <= calificacion <= 100:
-            self.calificaciones.append(calificacion)
-            return True
-        return False
-    
-    def calcular_promedio(self):
-        """Calcula el promedio de calificaciones"""
-        if not self.calificaciones:
-            return 0
-        return sum(self.calificaciones) / len(self.calificaciones)
-    
-    def obtener_estado(self):
-        """Determina el estado académico del alumno"""
-        promedio = self.calcular_promedio()
-        if promedio >= 90:
-            return "Excelente"
-        elif promedio >= 80:
-            return "Bueno"
-        elif promedio >= 70:
-            return "Regular"
-        else:
-            return "Necesita mejorar"
-    
-    def __str__(self):
-        return f"Alumno: {self.nombre}, Edad: {self.edad}, Promedio: {self.calcular_promedio():.2f}"
+import numpy as np
+import pandas as pd
+import plotly.express as px
 
-# Función para crear y gestionar alumnos
-def gestionar_alumnos():
-    alumnos = []
-    
-    # Crear algunos alumnos de ejemplo
-    alumno1 = Alumno("Ana García", 20)
-    alumno1.agregar_calificacion(95)
-    alumno1.agregar_calificacion(88)
-    alumno1.agregar_calificacion(92)
-    
-    alumno2 = Alumno("Carlos López", 19)
-    alumno2.agregar_calificacion(75)
-    alumno2.agregar_calificacion(82)
-    alumno2.agregar_calificacion(78)
-    
-    alumnos.extend([alumno1, alumno2])
-    
-    # Mostrar información de todos los alumnos
-    print("=== SISTEMA DE GESTIÓN DE ALUMNOS ===\n")
-    
-    for alumno in alumnos:
-        print(f"Nombre: {alumno.nombre}")
-        print(f"Edad: {alumno.edad}")
-        print(f"Calificaciones: {alumno.calificaciones}")
-        print(f"Promedio: {alumno.calcular_promedio():.2f}")
-        print(f"Estado: {alumno.obtener_estado()}")
-        print("-" * 40)
-    
-    # Estadísticas generales
-    promedios = [alumno.calcular_promedio() for alumno in alumnos]
-    promedio_general = sum(promedios) / len(promedios)
-    
-    print(f"Promedio general de la clase: {promedio_general:.2f}")
+# 1. Generar datos simulados
+np.random.seed(42)
+tickers = ["AAPL", "GOOG", "AMZN", "MSFT", "TSLA"]
+fechas = pd.date_range("2024-01-01", periods=52, freq="W")
 
-# Ejecutar el sistema
-if __name__ == "__main__":
-    gestionar_alumnos()
+filas = []
+for ticker in tickers:
+    precio_base = np.random.uniform(100, 400)
+    precios = precio_base + np.cumsum(np.random.normal(0, 5, 52))
+    for i, fecha in enumerate(fechas):
+        filas.append({"ticker": ticker, "fecha": fecha, "precio": round(precios[i], 2)})
+
+df = pd.DataFrame(filas)
+
+# 2. Función para calcular rentabilidad
+def rentabilidad_accion(df, ticker):
+    datos = df[df["ticker"] == ticker].sort_values("fecha")
+    p0 = datos["precio"].iloc[0]
+    pf = datos["precio"].iloc[-1]
+    return round((pf - p0) / p0 * 100, 2)
+
+print("Rentabilidad anual por acción:")
+for t in tickers:
+    r = rentabilidad_accion(df, t)
+    emoji = "↑" if r > 0 else "↓"
+    print(f"  {t}: {r:+.1f}% {emoji}")
+
+# 3. Visualización
+fig = px.line(
+    df,
+    x="fecha",
+    y="precio",
+    color="ticker",
+    title="Evolución de precios — 2024"
+)
+fig.show()
 ```
-
-### 🎯 **Ejercicios Adicionales para Practicar**
-
-1. **Extender el sistema de alumnos:**
-   - Agregar más campos (email, carrera, etc.)
-   - Implementar búsqueda por nombre
-   - Agregar funcionalidad para eliminar calificaciones
-
-2. **Crear una calculadora científica:**
-   - Implementar funciones trigonométricas
-   - Agregar operaciones con números complejos
-   - Crear un menú interactivo
-
-3. **Sistema de inventario:**
-   - Crear clase Producto con stock, precio, categoría
-   - Implementar funciones para agregar/quitar productos
-   - Calcular valor total del inventario
 
 ---
 
-## 📖 Recursos Adicionales
+## Recursos
 
 - [Documentación oficial de Python](https://docs.python.org/3/)
-- [Tutorial de Python](https://docs.python.org/3/tutorial/)
-- [Python para Ciencia de Datos](https://pandas.pydata.org/docs/)
-
----
-
-*¡Recuerda practicar todos los conceptos y experimentar con el código!*
+- [NumPy — quickstart](https://numpy.org/doc/stable/user/quickstart.html)
+- [Plotly Express — galería](https://plotly.com/python/plotly-express/)
+- [Pandas — getting started](https://pandas.pydata.org/docs/getting_started/index.html)
+- [Google Colab](https://colab.research.google.com/)
