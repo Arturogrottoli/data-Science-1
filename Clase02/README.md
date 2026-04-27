@@ -458,7 +458,30 @@ mostrar_info(nombre="GOOG", precio=175.3, sector="Tech")
 
 ## 8. NumPy: arreglos y operaciones vectorizadas
 
-NumPy es la librería fundamental para computación numérica en Python. Permite trabajar con arreglos (arrays) de forma mucho más eficiente que con listas.
+### ¿Qué es NumPy?
+
+**NumPy** (Numerical Python) es la librería base para computación numérica en Python. Fue creada en 2005 y hoy es la fundación sobre la que se construyen casi todas las demás herramientas de Data Science: Pandas, scikit-learn, TensorFlow y SciPy dependen de NumPy internamente.
+
+Su estructura central es el **ndarray** (N-dimensional array): una grilla de elementos del mismo tipo, mucho más eficiente en memoria y velocidad que una lista de Python.
+
+### ¿Por qué es beneficioso usarlo?
+
+| Aspecto | Lista de Python | Array de NumPy |
+|---------|----------------|----------------|
+| Velocidad | Lenta (bucle elemento por elemento) | Muy rápida (operaciones vectorizadas en C) |
+| Memoria | Mayor consumo (objetos Python) | Mucho menor (tipos nativos) |
+| Operaciones matemáticas | Hay que escribir bucles | Una sola línea |
+| Matrices y álgebra lineal | No soporta nativamente | Soporte completo |
+
+Con una lista necesitás un `for` para multiplicar cada elemento por 2. Con NumPy escribís `arr * 2` y ya está — y además es 10 a 100 veces más rápido.
+
+### ¿Para qué se usa en Data Science?
+
+- **Procesamiento de series de tiempo**: precios de acciones, temperaturas, señales
+- **Álgebra lineal**: multiplicación de matrices, cálculo de autovalores (base de ML)
+- **Estadística**: media, desvío, percentiles, correlación sobre grandes datasets
+- **Generación de datos**: simulaciones, datos aleatorios para prototipos
+- **Preprocesamiento**: normalización, filtrado, transformaciones antes de entrenar modelos
 
 ```python
 import numpy as np
@@ -523,7 +546,34 @@ print(grandes)     # [30 40 50]
 
 ## 9. Visualización con Plotly Express
 
-Plotly Express es una librería de visualización interactiva. Con pocas líneas de código se crean gráficos publicables.
+### ¿Qué es Plotly?
+
+**Plotly** es una librería de visualización de datos que genera gráficos **interactivos**: se puede hacer zoom, ver valores al pasar el mouse, ocultar/mostrar series, exportar como imagen, etc. Todo esto directamente en el navegador o en Google Colab, sin configuración extra.
+
+**Plotly Express** (`px`) es la interfaz de alto nivel de Plotly — la versión simplificada que permite crear gráficos complejos con muy pocas líneas de código.
+
+### ¿Por qué es beneficioso usarlo?
+
+**Comparado con Matplotlib** (la librería clásica de Python):
+
+| Aspecto | Matplotlib | Plotly Express |
+|---------|-----------|----------------|
+| Interactividad | No (imágenes estáticas) | Sí (zoom, hover, filtros) |
+| Líneas de código | Muchas | Muy pocas |
+| Calidad visual | Básica sin mucho esfuerzo | Profesional por defecto |
+| Integración con Pandas | Manual | Directa (acepta DataFrames) |
+| Dashboards web | No | Sí (con Dash) |
+
+Plotly es el estándar en la industria para reportes de datos, dashboards de negocio y presentaciones. Es la herramienta que usan empresas como Uber, Netflix y bancos de inversión para visualizar métricas.
+
+### ¿Para qué se usa en Data Science?
+
+- **Análisis exploratorio**: entender la distribución y relaciones en los datos antes de modelar
+- **Series de tiempo**: ver la evolución de precios, ventas, tráfico
+- **Comparación de grupos**: rendimiento por sector, categoría, región
+- **Detección de outliers**: gráficos de caja (box plots) que muestran valores extremos
+- **Presentación de resultados**: gráficos listos para informes o dashboards
+- **Comunicación con no-técnicos**: los gráficos interactivos son más fáciles de explorar para stakeholders
 
 ```python
 import plotly.express as px
@@ -671,7 +721,45 @@ fig2.show()
 
 ## 10. Pandas: primera mirada
 
-Pandas es la librería principal para manipular datos tabulares en Python. Trabaja con **DataFrames** (tablas) y **Series** (columnas).
+### ¿Qué es Pandas?
+
+**Pandas** (Panel Data) es la librería más usada en Data Science para trabajar con datos tabulares — el equivalente de Excel/SQL pero dentro de Python, con la potencia de programación encima.
+
+Fue creada en 2008 por Wes McKinney mientras trabajaba en AQR Capital Management (un hedge fund) porque necesitaba una herramienta para analizar datos financieros que Excel no podía manejar eficientemente. Hoy es usada en prácticamente todos los proyectos de Data Science del mundo.
+
+Sus dos estructuras principales son:
+- **DataFrame**: una tabla con filas y columnas etiquetadas (como una hoja de Excel)
+- **Series**: una sola columna de datos (como un vector con etiquetas)
+
+### ¿Por qué es beneficioso usarlo?
+
+**Comparado con trabajar con listas y diccionarios de Python puro:**
+
+| Tarea | Python puro | Pandas |
+|-------|------------|--------|
+| Cargar un CSV | 10+ líneas con `csv` module | `pd.read_csv("archivo.csv")` |
+| Calcular el promedio de una columna | Bucle manual | `df["col"].mean()` |
+| Filtrar filas por condición | List comprehension compleja | `df[df["col"] > valor]` |
+| Agrupar y agregar | Diccionarios anidados | `df.groupby("col").mean()` |
+| Unir dos tablas | Bucles y lógica compleja | `pd.merge(df1, df2, on="id")` |
+| Manejar valores faltantes | Verificaciones manuales | `df.fillna(0)` / `df.dropna()` |
+
+**Comparado con Excel:**
+- Puede manejar millones de filas sin colgarse
+- Todo queda documentado y reproducible (código vs. clicks)
+- Se integra directamente con NumPy, Plotly, scikit-learn
+
+### ¿Para qué se usa en Data Science?
+
+- **Carga de datos**: leer CSV, Excel, JSON, bases de datos SQL, APIs
+- **Limpieza de datos**: tratar valores nulos, corregir tipos, eliminar duplicados
+- **Exploración**: `describe()`, `value_counts()`, correlaciones
+- **Transformación**: crear nuevas columnas, normalizar, codificar categorías
+- **Agrupación y resumen**: `groupby()` para calcular métricas por grupo
+- **Preparación para modelos**: dejar los datos listos para scikit-learn o cualquier modelo de ML
+- **Análisis financiero**: series de tiempo, retornos, métricas de acciones
+
+En la práctica, el 80% del tiempo de un Data Scientist se pasa en limpieza y transformación de datos — Pandas es la herramienta central para eso.
 
 ```python
 import pandas as pd
