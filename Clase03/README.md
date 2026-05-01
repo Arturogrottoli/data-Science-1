@@ -1,451 +1,87 @@
-# 🧪 Clase 3: Introducción a NumPy y Pandas
+# Clase 03: NumPy y Pandas
 
 [Presentacion](https://docs.google.com/presentation/d/135XQdDjAvsoXtqDWhASGQ8-YWBFS5bDgxyJjfycykYs/edit?slide=id.g2204e13b0d5_2_631#slide=id.g2204e13b0d5_2_631)
 
-## 🎯 Objetivos de la clase
+---
 
-- Comprender la importancia de usar bibliotecas optimizadas como **NumPy** y **Pandas** en proyectos de ciencia de datos.
-- Manipular estructuras de datos con **NumPy**: arrays, operaciones vectorizadas, álgebra lineal.
-- Explorar los componentes fundamentales de **Pandas**: Series y DataFrames.
-- Aplicar técnicas de indexación, selección y transformación de datos reales.
+### Contenidos
+1. [Repaso Python — Clase 2](#1-repaso-python--clase-2)
+2. [Pandas](#2-pandas)
+   - [2.1 Series](#21-series)
+   - [2.2 DataFrames](#22-dataframes)
+   - [2.3 Selección e Indexación](#23-selección-e-indexación)
+   - [2.4 Valores Ausentes (NaN)](#24-valores-ausentes-nan)
+   - [2.5 Agrupación y Agregación](#25-agrupación-y-agregación)
+   - [2.6 Transformación y Limpieza](#26-transformación-y-limpieza)
+3. [Lectura y Escritura de Archivos](#3-lectura-y-escritura-de-archivos)
+4. [Ejercicio: Análisis de Acciones](#4-ejercicio-análisis-de-acciones)
+5. [NumPy](#5-numpy)
+   - [5.1 Tipos y Atributos del ndarray](#51-tipos-y-atributos-del-ndarray)
+   - [5.2 Creación de Arrays](#52-creación-de-arrays)
+   - [5.3 Operaciones Vectorizadas](#53-operaciones-vectorizadas)
+   - [5.4 Estadísticas con NumPy](#54-estadísticas-con-numpy)
+   - [5.5 Álgebra Lineal](#55-álgebra-lineal)
+   - [5.6 Reshape, Concatenación y Splitting](#56-reshape-concatenación-y-splitting)
+6. [Cierre: NumPy + Pandas juntos](#6-cierre-numpy--pandas-juntos)
 
 ---
 
-## 🔄 Repaso Rápido: Fundamentos de Python (Clase 2)
+## 1. Repaso Python — Clase 2
 
-Antes de sumergirnos en NumPy y Pandas, recordemos algunos conceptos clave de Python que usaremos constantemente:
-
-### 💡 Conceptos Clave
-
-**1. Tipos de Datos y Estructuras:**
-- `list`: Listas ordenadas y mutables `[1, 2, 3]`
-- `dict`: Diccionarios clave-valor `{"nombre": "Ana", "edad": 25}`
-- `tuple`: Tuplas inmutables `(1, 2, 3)`
-
-**2. Estructuras de Control:**
-- `if/elif/else`: Condicionales
-- `for`: Bucles para iterar
-- `while`: Bucles condicionales
-
-**3. Funciones:**
-- Definición: `def nombre_funcion(parametros):`
-- Retorno: `return valor`
-
-### 🧪 Ejemplo 1: De Listas de Python a NumPy
+Antes de arrancar con NumPy y Pandas, repasamos las estructuras de Python que vamos a usar constantemente:
 
 ```python
-# Trabajando con listas de Python (lo que vimos en Clase 2)
-temperaturas_python = [20, 22, 25, 23, 21, 24, 26]
+# Listas y diccionarios
+lista = [1, 2, 3, 4]
+diccionario = {"nombre": "Ana", "edad": 25}
 
-# Calcular promedio con Python puro
-suma = 0
-for temp in temperaturas_python:
-    suma += temp
-promedio_python = suma / len(temperaturas_python)
-print(f"Promedio con Python: {promedio_python:.2f}")
+# For y while
+for item in lista:
+    print(item)
 
-# Ahora con NumPy (más eficiente y simple)
-import numpy as np
-temperaturas_numpy = np.array([20, 22, 25, 23, 21, 24, 26])
-promedio_numpy = np.mean(temperaturas_numpy)
-print(f"Promedio con NumPy: {promedio_numpy:.2f}")
-
-# Operaciones vectorizadas (sin bucles)
-temperaturas_fahrenheit = temperaturas_numpy * 9/5 + 32
-print(f"Temperaturas en Fahrenheit: {temperaturas_fahrenheit}")
+# Funciones
+def calcular_promedio(numeros):
+    return sum(numeros) / len(numeros)
 ```
 
-### 🧪 Ejemplo 2: De Diccionarios a DataFrames de Pandas
+**¿Por qué importa el repaso?** NumPy y Pandas son extensiones naturales de estas estructuras: los arrays de NumPy mejoran las listas, y los DataFrames de Pandas mejoran los diccionarios de listas.
 
 ```python
-# Trabajando con diccionarios de Python (Clase 2)
-datos_python = {
-    'nombres': ['Ana', 'Luis', 'María'],
-    'edades': [25, 30, 28],
-    'ciudades': ['Córdoba', 'Buenos Aires', 'Rosario']
-}
+# De lista a NumPy array
+import numpy as np
+temperaturas = [20, 22, 25, 23, 21]
+arr = np.array(temperaturas)
+print(arr * 9/5 + 32)   # vectorizado, sin bucle
 
-# Acceder a datos con Python
-print("Edad de Ana:", datos_python['edades'][0])
-print("Ciudad de Luis:", datos_python['ciudades'][1])
-
-# Filtrar con list comprehension (Clase 2)
-mayores_27 = [datos_python['nombres'][i] 
-               for i in range(len(datos_python['nombres'])) 
-               if datos_python['edades'][i] > 27]
-print("Personas mayores de 27:", mayores_27)
-
-# Ahora con Pandas (más intuitivo y potente)
+# De diccionario a DataFrame
 import pandas as pd
-df = pd.DataFrame(datos_python)
-print("\nDataFrame con Pandas:")
-print(df)
-
-# Filtrar es mucho más simple
-mayores_27_pandas = df[df['edades'] > 27]['nombres']
-print("\nPersonas mayores de 27 (Pandas):", mayores_27_pandas.tolist())
-
-# Calcular estadísticas fácilmente
-print(f"\nEdad promedio: {df['edades'].mean():.1f}")
-print(f"Edad máxima: {df['edades'].max()}")
+datos = {"nombres": ["Ana", "Luis"], "edades": [25, 30]}
+df = pd.DataFrame(datos)
+print(df[df["edades"] > 27])   # filtro simple
 ```
-
-### 🎯 Conexión con NumPy y Pandas
-
-Como verás en esta clase:
-- **NumPy** mejora el rendimiento de operaciones con listas numéricas
-- **Pandas** facilita el trabajo con datos estructurados (como diccionarios de listas)
-- Ambos mantienen la sintaxis intuitiva de Python pero con capacidades superiores
 
 ---
 
-## 📌 ¿Por qué es importante NumPy?
+## 2. Pandas
 
-En ciencia de datos, trabajamos con **grandes volúmenes de datos numéricos**. Las listas de Python funcionan bien, pero no están optimizadas para cálculos científicos.
+### ¿Qué es Pandas?
 
-**NumPy**:
-- Permite realizar **operaciones vectorizadas** (sin bucles explícitos).
-- Ofrece estructuras de datos eficientes como `ndarray` (arrays multidimensionales).
-- Integra funciones de **álgebra lineal**, estadísticas y manipulación matemática.
+Pandas es una librería de Python para manipular y analizar datos tabulares. Construida sobre NumPy, extiende sus capacidades con estructuras de datos flexibles y funciones optimizadas para análisis de datos del mundo real.
 
-✅ Usar NumPy puede significar mejoras de **10x a 100x en performance** comparado con listas nativas de Python.
+**Historia:** lanzada en 2008 por Wes McKinney en AQR Capital Management para análisis financiero. Su nombre viene de "Panel Data". Hoy es la herramienta estándar del ecosistema de Data Science en Python.
 
----
+**Estructuras principales:**
+- **Series**: array unidimensional con índice etiquetado
+- **DataFrame**: tabla bidimensional — filas y columnas etiquetadas
 
-## 📚 Parte 1: NumPy
-[Video sobre Numpy](https://www.youtube.com/watch?v=cYm3DBG6KfI&t=16s)
+**Por qué conviene sobre diccionarios y listas:**
 
-## 3.1 Introducción a NumPy
-
-### 🎯 **Teoría**
-
-**¿Qué es NumPy?**
-NumPy es una librería fundamental para el manejo de datos numéricos en Python, especialmente diseñada para realizar operaciones matemáticas y de álgebra lineal de manera eficiente.
-
-**Historia y Evolución:**
-- Fue creada en 2005 como una evolución de las bibliotecas Numeric y Numarray
-- Su objetivo principal es optimizar el trabajo con grandes volúmenes de datos numéricos
-- Permite a científicos de datos y desarrolladores manipular y analizar datos de manera más rápida y eficiente
-
-**Estructura de Datos Principal:**
-NumPy introduce una estructura de datos llamada **ndarray** (N-dimensional array), que es un array multidimensional optimizado para operaciones numéricas. Estos arrays son similares a las listas de Python, pero con la restricción de que todos los elementos deben ser del mismo tipo de dato, lo que permite:
-- Almacenamiento más eficiente
-- Operaciones más rápidas
-- Mejor rendimiento con grandes conjuntos de datos
-
-### 🔑 **Características Clave de NumPy**
-
-1. **Arreglos multidimensionales (ndarrays)**: Permite la creación de arrays de una, dos o más dimensiones
-2. **Operaciones matemáticas rápidas**: Las operaciones sobre ndarrays están altamente optimizadas
-3. **Compatibilidad con otras librerías**: Es la base sobre la cual se construyen Pandas, SciPy y scikit-learn
-
-### ✳️ **Importación de la librería**
-
-```python
-import numpy as np
-````
-
-### 💡 **Arrays en NumPy: Creación y Tipos**
-
-**Tipos y Atributos**
-En NumPy, los arrays (ndarrays) son estructuras de datos que solo pueden contener elementos de un mismo tipo. Esto es una de las principales diferencias con las listas en Python, que pueden almacenar elementos de diferentes tipos.
-
-**Tipos de Datos Soportados:**
-- `int` (enteros): Para representar números enteros
-- `float` (números flotantes): Para representar números reales con decimales
-- `bool` (booleanos): Para representar valores True o False
-- `complex` (números complejos): Para representar números complejos
-- `str` (cadenas de texto): Para representar datos textuales
-- `object`: Para almacenar objetos arbitrarios
-- `datetime` y `timedelta`: Para trabajar con fechas
-
-**Atributos Importantes de los ndarrays:**
-- `ndim`: Número de dimensiones del array
-- `shape`: Tupla que indica el tamaño del array en cada dimensión
-- `size`: Número total de elementos en el array
-- `dtype`: Tipo de dato de los elementos del array
-- `itemsize`: Tamaño en bytes de cada elemento
-- `nbytes`: Tamaño total en bytes que ocupa el array en memoria
-
-### 💡 **Ejemplos de Creación y Atributos**
-
-```python
-import numpy as np
-
-# Crear un ndarray de ceros con 10 elementos
-arr = np.zeros(10)
-
-print("Atributos del array:")
-print(f"ndim: {arr.ndim}")       # 1 (una dimensión)
-print(f"shape: {arr.shape}")     # (10,) (10 elementos en una sola dimensión)
-print(f"size: {arr.size}")       # 10 (10 elementos en total)
-print(f"dtype: {arr.dtype}")     # float64 (tipo de dato de los elementos)
-print(f"itemsize: {arr.itemsize}")   # 8 (cada elemento ocupa 8 bytes)
-print(f"nbytes: {arr.nbytes}")   # 80 (10 elementos * 8 bytes por elemento)
-
-# Crear arrays con diferentes tipos de datos
-arr_int = np.array([1, 2, 3, 4], dtype=np.int32)
-arr_float = np.array([1.1, 2.2, 3.3], dtype=np.float64)
-arr_bool = np.array([True, False, True], dtype=np.bool_)
-
-print(f"\nArray entero: {arr_int}, dtype: {arr_int.dtype}")
-print(f"Array flotante: {arr_float}, dtype: {arr_float.dtype}")
-print(f"Array booleano: {arr_bool}, dtype: {arr_bool.dtype}")
-```
-
-### 🔢 **Ejercicio 1: Crear vectores**
-
-```python
-# Crear un vector desde una lista
-v = np.array([1, 2, 3, 4])
-print(f"Vector: {v}")
-print(f"Tipo: {type(v)}")
-print(f"Shape: {v.shape}")
-print(f"Dtype: {v.dtype}")
-
-# Crear arrays con diferentes métodos
-zeros = np.zeros(5)
-ones = np.ones(5)
-range_array = np.arange(0, 10, 2)  # De 0 a 10 con paso 2
-linspace_array = np.linspace(0, 1, 5)  # 5 puntos entre 0 y 1
-
-print(f"\nArray de ceros: {zeros}")
-print(f"Array de unos: {ones}")
-print(f"Array con arange: {range_array}")
-print(f"Array con linspace: {linspace_array}")
-```
-
-### 🧪 **Ejercicios Prácticos de Creación**
-
-**Ejercicio 1: Explorar atributos de arrays**
-```python
-# Crea diferentes tipos de arrays y explora sus atributos
-arrays = [
-    np.array([1, 2, 3, 4, 5]),
-    np.zeros((3, 4)),
-    np.ones((2, 3, 2)),
-    np.random.rand(5, 5)
-]
-
-for i, arr in enumerate(arrays):
-    print(f"\nArray {i+1}:")
-    print(f"  Contenido: {arr}")
-    print(f"  Dimensiones: {arr.ndim}")
-    print(f"  Forma: {arr.shape}")
-    print(f"  Tamaño total: {arr.size}")
-    print(f"  Tipo de datos: {arr.dtype}")
-```
-
-**Ejercicio 2: Crear arrays con tipos específicos**
-```python
-# Crea arrays con tipos de datos específicos
-int_array = np.array([1, 2, 3, 4], dtype=np.int32)
-float_array = np.array([1.1, 2.2, 3.3], dtype=np.float32)
-complex_array = np.array([1+2j, 3+4j, 5+6j], dtype=np.complex64)
-
-print(f"Array entero (32 bits): {int_array}, dtype: {int_array.dtype}")
-print(f"Array flotante (32 bits): {float_array}, dtype: {float_array.dtype}")
-print(f"Array complejo (64 bits): {complex_array}, dtype: {complex_array.dtype}")
-
-# Comparar uso de memoria
-print(f"\nUso de memoria:")
-print(f"int_array: {int_array.nbytes} bytes")
-print(f"float_array: {float_array.nbytes} bytes")
-print(f"complex_array: {complex_array.nbytes} bytes")
-```
-
-### 🔁 **Ejercicio 2: Operaciones vectorizadas**
-
-```python
-a = np.array([10, 20, 30])
-b = np.array([1, 2, 3])
-
-# Suma elemento a elemento
-print(f"Suma: {a + b}")
-
-# Multiplicación escalar
-print(f"Multiplicación escalar: {a * 2}")
-
-# Potencia
-print(f"Potencia: {b ** 2}")
-
-# Otras operaciones vectorizadas
-print(f"Raíz cuadrada: {np.sqrt(b)}")
-print(f"Exponencial: {np.exp(b)}")
-print(f"Logaritmo natural: {np.log(b)}")
-print(f"Valor absoluto: {np.abs([-1, -2, -3])}")
-```
-
-### 🧪 **Ejercicios Prácticos de Operaciones**
-
-**Ejercicio 1: Comparar rendimiento con listas de Python**
-```python
-import time
-
-# Crear datos de prueba
-size = 1000000
-python_list = list(range(size))
-numpy_array = np.array(range(size))
-
-# Operación con lista de Python
-start_time = time.time()
-result_python = [x * 2 for x in python_list]
-python_time = time.time() - start_time
-
-# Operación con NumPy
-start_time = time.time()
-result_numpy = numpy_array * 2
-numpy_time = time.time() - start_time
-
-print(f"Tiempo con lista de Python: {python_time:.4f} segundos")
-print(f"Tiempo con NumPy: {numpy_time:.4f} segundos")
-print(f"NumPy es {python_time/numpy_time:.1f}x más rápido")
-```
-
-**Ejercicio 2: Operaciones estadísticas básicas**
-```python
-# Crear un array de datos
-data = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
-
-# Estadísticas básicas
-print(f"Datos: {data}")
-print(f"Media: {np.mean(data)}")
-print(f"Mediana: {np.median(data)}")
-print(f"Desviación estándar: {np.std(data)}")
-print(f"Varianza: {np.var(data)}")
-print(f"Mínimo: {np.min(data)}")
-print(f"Máximo: {np.max(data)}")
-print(f"Suma: {np.sum(data)}")
-print(f"Producto: {np.prod(data)}")
-```
-
-### 🧮 **Ejercicio 3: Matrices y álgebra lineal**
-
-```python
-# Matriz 2x2
-A = np.array([[1, 2], [3, 4]])
-B = np.array([[5, 6], [7, 8]])
-
-print(f"Matriz A:\n{A}")
-print(f"Matriz B:\n{B}")
-
-# Transpuesta
-print(f"\nTranspuesta de A:\n{A.T}")
-
-# Inversa
-print(f"\nInversa de A:\n{np.linalg.inv(A)}")
-
-# Producto matricial
-print(f"\nProducto matricial A × B:\n{np.dot(A, B)}")
-
-# Determinante
-print(f"\nDeterminante de A: {np.linalg.det(A)}")
-
-# Valores propios
-eigenvalues, eigenvectors = np.linalg.eig(A)
-print(f"\nValores propios de A: {eigenvalues}")
-print(f"Vectores propios de A:\n{eigenvectors}")
-```
-
-### 🧪 **Ejercicios Prácticos de Álgebra Lineal**
-
-**Ejercicio 1: Resolver sistema de ecuaciones lineales**
-```python
-# Sistema de ecuaciones:
-# 2x + y = 5
-# x + 3y = 6
-
-# Matriz de coeficientes
-A = np.array([[2, 1], [1, 3]])
-# Vector de términos independientes
-b = np.array([5, 6])
-
-# Resolver el sistema
-x = np.linalg.solve(A, b)
-print(f"Solución del sistema:")
-print(f"x = {x[0]:.2f}")
-print(f"y = {x[1]:.2f}")
-
-# Verificar la solución
-verification = np.dot(A, x)
-print(f"\nVerificación:")
-print(f"A × x = {verification}")
-print(f"b = {b}")
-```
-
-**Ejercicio 2: Operaciones con matrices**
-```python
-# Crear matrices de ejemplo
-matrix_3x3 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-identity_3x3 = np.eye(3)
-random_matrix = np.random.rand(3, 3)
-
-print(f"Matriz 3x3:\n{matrix_3x3}")
-print(f"\nMatriz identidad 3x3:\n{identity_3x3}")
-print(f"\nMatriz aleatoria 3x3:\n{random_matrix}")
-
-# Operaciones básicas
-print(f"\nSuma de matrices:\n{matrix_3x3 + identity_3x3}")
-print(f"\nMultiplicación elemento a elemento:\n{matrix_3x3 * identity_3x3}")
-print(f"\nTraza de la matriz: {np.trace(matrix_3x3)}")
-print(f"Rango de la matriz: {np.linalg.matrix_rank(matrix_3x3)}")
-```
-
-**Ejercicio 3: Decomposición de matrices**
-```python
-# Crear una matriz simétrica positiva definida
-A = np.array([[4, 2], [2, 5]])
-
-# Descomposición de Cholesky
-L = np.linalg.cholesky(A)
-print(f"Matriz original:\n{A}")
-print(f"\nFactor de Cholesky L:\n{L}")
-print(f"\nVerificación: L × L^T =\n{np.dot(L, L.T)}")
-
-# Descomposición QR
-Q, R = np.linalg.qr(A)
-print(f"\nDescomposición QR:")
-print(f"Q:\n{Q}")
-print(f"R:\n{R}")
-print(f"\nVerificación: Q × R =\n{np.dot(Q, R)}")
-```
-
-### 🎯 **Resumen de NumPy**
-
-**Ventajas principales:**
-- **Rendimiento**: Operaciones vectorizadas 10-100x más rápidas que listas de Python
-- **Memoria eficiente**: Arrays homogéneos con tipos de datos optimizados
-- **Funcionalidad matemática**: Amplia biblioteca de funciones matemáticas y estadísticas
-- **Interoperabilidad**: Base para otras librerías de ciencia de datos
-
-**Casos de uso típicos:**
-- Procesamiento de datos numéricos a gran escala
-- Cálculos matemáticos y estadísticos
-- Álgebra lineal y computación científica
-- Manipulación de imágenes y señales
-- Simulaciones y modelado numérico
-
----
-
-## 📚 Parte 2: Pandas
-
-### 🎯 **Teoría: Introducción a Pandas**
-
-**¿Qué es Pandas?**
-Pandas es una librería de Python diseñada para facilitar el manejo y análisis de datos. Construida sobre NumPy, Pandas extiende sus capacidades, proporcionando estructuras de datos y funciones avanzadas que permiten una manipulación más flexible y eficiente de datos tabulares y de series temporales.
-
-**Historia y Evolución:**
-- Lanzada inicialmente en 2008, Pandas se ha convertido en una herramienta indispensable para científicos de datos
-- Es parte del proyecto NUMFOCUS, que apoya el desarrollo de herramientas de código abierto para ciencia de datos
-- Su nombre proviene de "Panel Data", reflejando su capacidad para manejar datos estructurados
-
-**Características Destacadas:**
-- **Series y DataFrames**: Estructuras de datos principales para datos unidimensionales y bidimensionales
-- **Operaciones de manipulación**: Filtrado, agregación y transformación de datos de manera intuitiva
-- **Compatibilidad múltiple**: Lectura y escritura desde CSV, Excel, SQL, JSON y más formatos
-- **Manejo de datos ausentes**: Herramientas robustas para detectar, gestionar y llenar valores faltantes
-
-### ✳️ **Importación de la librería**
+| Tarea | Python puro | Pandas |
+|-------|------------|--------|
+| Cargar CSV | 10+ líneas | `pd.read_csv("archivo.csv")` |
+| Promedio de columna | bucle manual | `df["col"].mean()` |
+| Filtrar filas | list comprehension | `df[df["col"] > valor]` |
+| Agrupar y agregar | diccionarios anidados | `df.groupby("col").mean()` |
 
 ```python
 import pandas as pd
@@ -453,1058 +89,653 @@ import pandas as pd
 
 ---
 
-### 📊 **Series y DataFrames: Estructuras Fundamentales**
+### 2.1 Series
 
-**Series:**
-Una Serie es una estructura de datos unidimensional que puede almacenar datos de cualquier tipo. Es similar a un array unidimensional de NumPy, pero con la ventaja adicional de que cada elemento tiene un índice asociado.
-
-**Características de las Series:**
-- **Índices**: Cada elemento tiene un índice asociado (numérico o texto)
-- **Homogeneidad**: Todos los elementos deben ser del mismo tipo de datos
-- **Funcionalidades**: Métodos incorporados para filtrado, agregación y operaciones aritméticas
-
-### 📊 **Ejercicio 1: Crear Series**
+Una Serie es un array unidimensional donde cada elemento tiene un índice asociado (número, texto o fecha).
 
 ```python
 import pandas as pd
 
-# Crear una Serie básica
+# Desde una lista
 s = pd.Series([10, 20, 30], index=['a', 'b', 'c'])
-print("Serie básica:")
 print(s)
 
-# Crear Serie desde diccionario
+# Desde diccionario
 data_dict = {"día1": 420, "día2": 380, "día3": 390}
 serie_dict = pd.Series(data_dict)
-print("\nSerie desde diccionario:")
 print(serie_dict)
 
-# Crear Serie con diferentes tipos de datos
-serie_mixta = pd.Series([1, 2.5, "texto", True], index=['num1', 'num2', 'texto', 'booleano'])
-print("\nSerie con diferentes tipos:")
-print(serie_mixta)
+# Acceder a elementos
+print(s['a'])           # por etiqueta
+print(s.iloc[1])        # por posición
 
-# Acceder a elementos por índice
-print(f"\nValor en 'a': {s['a']}")
-print(f"Valor en posición 1: {s.iloc[1]}")
-
-# Operaciones básicas
-print(f"\nSuma de la serie: {s.sum()}")
-print(f"Media de la serie: {s.mean()}")
-print(f"Valor máximo: {s.max()}")
+# Operaciones
+print(s.sum())
+print(s.mean())
+print(s.max())
 ```
 
-### 📊 **Ejercicio 2: Crear DataFrames**
+---
 
-**DataFrames:**
-El DataFrame es una estructura de datos bidimensional que puede considerarse como una tabla, similar a una hoja de cálculo o una tabla en una base de datos. Un DataFrame está compuesto por múltiples Series, donde cada columna representa una Serie con su propio tipo de dato.
+### 2.2 DataFrames
 
-**Características de los DataFrames:**
-- **Estructura tabular**: Filas y columnas para visualización y manipulación de datos
-- **Índices en filas y columnas**: Acceso eficiente a datos por etiquetas
-- **Manipulación de datos**: Funciones para selección, filtrado, agregación y fusión
-- **Soporte para datos ausentes**: Manejo robusto de valores NaN
+Un DataFrame es una tabla: filas y columnas, cada columna es una Serie.
 
 ```python
-# Crear DataFrame desde diccionario
 data = {
     'nombre': ['Ana', 'Luis', 'Juan', 'María'],
-    'edad': [23, 35, 29, 28],
+    'edad':   [23, 35, 29, 28],
     'ciudad': ['Córdoba', 'Buenos Aires', 'Rosario', 'Madrid'],
     'salario': [45000, 55000, 48000, 52000]
 }
 
 df = pd.DataFrame(data)
-print("DataFrame básico:")
 print(df)
 
-# Crear DataFrame con índice personalizado
-df_indexed = pd.DataFrame(data, index=['emp1', 'emp2', 'emp3', 'emp4'])
-print("\nDataFrame con índice personalizado:")
-print(df_indexed)
-
 # Información del DataFrame
-print(f"\nForma del DataFrame: {df.shape}")
-print(f"Tipos de datos:\n{df.dtypes}")
-print(f"Información general:")
-print(df.info())
-
-# Estadísticas descriptivas
-print(f"\nEstadísticas descriptivas:")
-print(df.describe())
+print(f"Forma: {df.shape}")          # (4, 4)
+print(df.dtypes)                      # tipos de cada columna
+print(df.info())                      # resumen completo
+print(df.describe())                  # estadísticas descriptivas
+print(df.head(2))                     # primeras 2 filas
+print(df.tail(2))                     # últimas 2 filas
 ```
 
 ---
 
-### 🔍 **Ejercicio 3: Selección e indexación**
+### 2.3 Selección e Indexación
 
 ```python
-# Seleccionar columna
-print("Columna 'edad':")
+# Seleccionar columna → Series
 print(df['edad'])
 
 # Seleccionar múltiples columnas
-print("\nColumnas 'nombre' y 'edad':")
 print(df[['nombre', 'edad']])
 
 # Filtrar por condición
-print("\nPersonas mayores de 30 años:")
 print(df[df['edad'] > 30])
 
-# Filtros múltiples
-print("\nPersonas entre 25 y 35 años con salario > 50000:")
-print(df[(df['edad'] >= 25) & (df['edad'] <= 35) & (df['salario'] > 50000)])
+# Filtros múltiples (& para AND, | para OR)
+resultado = df[(df['edad'] >= 25) & (df['salario'] > 50000)]
+print(resultado)
 
-# Acceder por etiqueta o posición
-print("\nFila con índice 1 (loc):")
-print(df.loc[1])
+# loc: por etiqueta
+print(df.loc[1])                         # fila con índice 1
+print(df.loc[df['nombre'] == 'Ana'])     # filas donde nombre es Ana
 
-print("\nPrimera fila (iloc):")
-print(df.iloc[0])
+# iloc: por posición numérica
+print(df.iloc[0])       # primera fila
+print(df.iloc[0:2])     # primeras 2 filas
+print(df.iloc[0, 1])    # fila 0, columna 1
 
-# Selección por posición
-print("\nPrimeras 2 filas:")
-print(df.iloc[0:2])
-
-# Selección por etiquetas
-print("\nFilas 'emp1' y 'emp3' (si usamos índice personalizado):")
-print(df_indexed.loc[['emp1', 'emp3']])
-
-# Acceder a valores específicos
-print(f"\nEdad de Ana: {df.loc[df['nombre'] == 'Ana', 'edad'].iloc[0]}")
-print(f"Salario de Luis: {df.loc[df['nombre'] == 'Luis', 'salario'].iloc[0]}")
+# Acceder a un valor específico
+edad_ana = df.loc[df['nombre'] == 'Ana', 'edad'].iloc[0]
+print(f"Edad de Ana: {edad_ana}")
 ```
 
-### 🚨 **Manejo de Datos Ausentes (NaN)**
+---
 
-En el análisis de datos, es común encontrarse con conjuntos de datos incompletos donde faltan algunos valores. Pandas representa estos valores ausentes con `NaN` (Not a Number) y proporciona herramientas robustas para manejarlos.
+### 2.4 Valores Ausentes (NaN)
 
-**¿Por qué son importantes los datos ausentes?**
-- Pueden surgir por errores en la recopilación de datos
-- Problemas de transmisión o almacenamiento
-- Datos simplemente no disponibles
-- El manejo adecuado es crucial para la calidad del análisis
+En análisis de datos reales, siempre hay valores faltantes. Pandas los representa como `NaN` (Not a Number) y provee herramientas para manejarlos.
 
-### 🔍 **Ejercicio 4: Detección y Manejo de Datos Ausentes**
+**¿Por qué aparecen?** Errores de carga, datos no disponibles, problemas de transmisión o simplemente que el dato no existía.
 
 ```python
 import pandas as pd
 import numpy as np
 
-# Crear un DataFrame con valores ausentes
 data_with_nan = {
-    'nombre': ['Ana', 'Luis', 'Juan', 'María', 'Pedro'],
-    'edad': [23, 35, np.nan, 28, 42],
-    'ciudad': ['Córdoba', np.nan, 'Rosario', 'Madrid', 'Barcelona'],
-    'salario': [45000, 55000, 48000, np.nan, 60000],
+    'nombre':      ['Ana', 'Luis', 'Juan', 'María', 'Pedro'],
+    'edad':        [23, 35, np.nan, 28, 42],
+    'ciudad':      ['Córdoba', np.nan, 'Rosario', 'Madrid', 'Barcelona'],
+    'salario':     [45000, 55000, 48000, np.nan, 60000],
     'departamento': ['IT', 'Ventas', np.nan, 'Marketing', 'IT']
 }
-
 df_nan = pd.DataFrame(data_with_nan)
-print("DataFrame con valores ausentes:")
-print(df_nan)
-
-# 1. DETECCIÓN DE VALORES AUSENTES
-print("\n=== DETECCIÓN DE VALORES AUSENTES ===")
 
 # Detectar valores ausentes
-print("Valores ausentes por columna:")
-print(df_nan.isnull().sum())
+print(df_nan.isnull().sum())              # conteo por columna
+print(df_nan.isnull().any().any())        # ¿hay algún NaN?
 
-print("\nMatriz de valores ausentes:")
-print(df_nan.isnull())
+# Porcentaje de ausentes
+pct = (df_nan.isnull().sum() / len(df_nan)) * 100
+print(pct)
 
-# Verificar si hay valores ausentes en todo el DataFrame
-print(f"\n¿Hay valores ausentes?: {df_nan.isnull().any().any()}")
+# Eliminar filas con NaN
+df_clean = df_nan.dropna()               # filas con cualquier NaN
+df_clean2 = df_nan.dropna(how='all')     # solo filas completamente vacías
+df_clean3 = df_nan.dropna(axis=1)        # eliminar columnas con NaN
 
-# 2. ELIMINACIÓN DE VALORES AUSENTES
-print("\n=== ELIMINACIÓN DE VALORES AUSENTES ===")
+# Rellenar valores ausentes
+df_nan['edad'] = df_nan['edad'].fillna(df_nan['edad'].mean())
+df_nan['ciudad'] = df_nan['ciudad'].fillna('Desconocida')
+df_nan['salario'] = df_nan['salario'].fillna(df_nan['salario'].median())
 
-# Eliminar filas con cualquier valor ausente
-df_clean_rows = df_nan.dropna()
-print("DataFrame sin filas con valores ausentes:")
-print(df_clean_rows)
+# Forward fill / backward fill (útil para series temporales)
+df_ffill = df_nan.fillna(method='ffill')  # propagar valor anterior
+df_bfill = df_nan.fillna(method='bfill')  # propagar valor siguiente
 
-# Eliminar solo filas donde TODAS las columnas tienen valores ausentes
-df_clean_all = df_nan.dropna(how='all')
-print("\nDataFrame eliminando solo filas completamente vacías:")
-print(df_clean_all)
-
-# Eliminar columnas con valores ausentes
-df_clean_cols = df_nan.dropna(axis=1)
-print("\nDataFrame sin columnas con valores ausentes:")
-print(df_clean_cols)
-
-# 3. RELLENO DE VALORES AUSENTES
-print("\n=== RELLENO DE VALORES AUSENTES ===")
-
-# Rellenar con valor constante
-df_fill_constant = df_nan.fillna(0)
-print("Rellenando con 0:")
-print(df_fill_constant)
-
-# Rellenar con valores específicos por columna
-df_fill_specific = df_nan.fillna({
-    'edad': df_nan['edad'].mean(),
-    'ciudad': 'Desconocida',
-    'salario': df_nan['salario'].median(),
-    'departamento': 'Sin asignar'
-})
-print("\nRellenando con valores específicos:")
-print(df_fill_specific)
-
-# Rellenar con el valor anterior (forward fill)
-df_ffill = df_nan.fillna(method='ffill')
-print("\nRellenando con valor anterior (forward fill):")
-print(df_ffill)
-
-# Rellenar con el valor siguiente (backward fill)
-df_bfill = df_nan.fillna(method='bfill')
-print("\nRellenando con valor siguiente (backward fill):")
-print(df_bfill)
-
-# 4. INTERPOLACIÓN
-print("\n=== INTERPOLACIÓN ===")
-
-# Interpolación lineal (útil para series temporales)
-df_interpolate = df_nan.interpolate()
-print("Interpolación lineal:")
-print(df_interpolate)
-
-# 5. ANÁLISIS DE DATOS AUSENTES
-print("\n=== ANÁLISIS DE DATOS AUSENTES ===")
-
-# Porcentaje de valores ausentes por columna
-missing_percentage = (df_nan.isnull().sum() / len(df_nan)) * 100
-print("Porcentaje de valores ausentes por columna:")
-for col, pct in missing_percentage.items():
-    print(f"  {col}: {pct:.1f}%")
-
-# Estrategia recomendada basada en el análisis
-print("\nEstrategia recomendada:")
-if missing_percentage['edad'] < 20:
-    print("  - Edad: Rellenar con media/mediana")
-else:
-    print("  - Edad: Eliminar filas o usar técnicas avanzadas")
-
-if missing_percentage['ciudad'] < 10:
-    print("  - Ciudad: Rellenar con moda")
-else:
-    print("  - Ciudad: Crear categoría 'Desconocida'")
+# Interpolación lineal
+df_interp = df_nan.interpolate()
 ```
 
-### 🧪 **Ejercicios Prácticos de Manejo de Datos Ausentes**
+**Estrategia recomendada:**
+- Variables numéricas continuas → rellenar con media o mediana
+- Variables categóricas → rellenar con moda o "Desconocido"
+- Si hay >40% de NaN en una columna → considerar eliminarla
+- Si hay >40% de NaN en una fila → considerar eliminarla
 
-**Ejercicio 1: Análisis de dataset real con valores ausentes**
-```python
-# Crear dataset más complejo
-np.random.seed(42)
-n_rows = 100
+---
 
-data_complex = {
-    'id': range(1, n_rows + 1),
-    'edad': np.random.normal(35, 10, n_rows),
-    'ingresos': np.random.exponential(50000, n_rows),
-    'educacion': np.random.choice(['Primaria', 'Secundaria', 'Universidad', 'Postgrado'], n_rows),
-    'satisfaccion': np.random.uniform(1, 10, n_rows)
-}
+### 2.5 Agrupación y Agregación
 
-# Introducir valores ausentes de manera realista
-df_complex = pd.DataFrame(data_complex)
-
-# Simular valores ausentes (5-15% por columna)
-for col in ['edad', 'ingresos', 'educacion', 'satisfaccion']:
-    mask = np.random.random(n_rows) < 0.1  # 10% de valores ausentes
-    df_complex.loc[mask, col] = np.nan
-
-print("Dataset con valores ausentes:")
-print(df_complex.head(10))
-print(f"\nValores ausentes por columna:")
-print(df_complex.isnull().sum())
-
-# Estrategia de limpieza
-print("\n=== ESTRATEGIA DE LIMPIEZA ===")
-
-# 1. Análisis inicial
-print("1. Análisis inicial:")
-print(f"   - Total de filas: {len(df_complex)}")
-print(f"   - Filas con al menos un valor ausente: {df_complex.isnull().any(axis=1).sum()}")
-
-# 2. Limpieza por columnas
-print("\n2. Limpieza por columnas:")
-
-# Edad: rellenar con mediana
-df_complex['edad'] = df_complex['edad'].fillna(df_complex['edad'].median())
-print("   - Edad: rellenada con mediana")
-
-# Ingresos: rellenar con media
-df_complex['ingresos'] = df_complex['ingresos'].fillna(df_complex['ingresos'].mean())
-print("   - Ingresos: rellenados con media")
-
-# Educación: rellenar con moda
-education_mode = df_complex['educacion'].mode()[0]
-df_complex['educacion'] = df_complex['educacion'].fillna(education_mode)
-print(f"   - Educación: rellenada con moda ({education_mode})")
-
-# Satisfacción: eliminar filas (pocos valores ausentes)
-df_complex = df_complex.dropna(subset=['satisfaccion'])
-print("   - Satisfacción: filas eliminadas")
-
-print(f"\nDataset final: {len(df_complex)} filas")
-print("Valores ausentes restantes:")
-print(df_complex.isnull().sum())
-```
-
-### 🔧 **Operaciones Avanzadas con Pandas**
-
-### 📊 **Ejercicio 5: Agrupación y Agregación**
+`groupby` divide el DataFrame por grupos, aplica una función y combina los resultados. Flujo: **Split → Apply → Combine**.
 
 ```python
-# Crear dataset para análisis de ventas
 ventas_data = {
     'vendedor': ['Ana', 'Luis', 'Juan', 'María', 'Ana', 'Luis', 'Juan', 'María'],
     'producto': ['A', 'B', 'A', 'B', 'A', 'B', 'A', 'B'],
-    'ventas': [100, 150, 200, 120, 180, 90, 220, 160],
-    'region': ['Norte', 'Sur', 'Norte', 'Sur', 'Norte', 'Sur', 'Norte', 'Sur'],
-    'mes': ['Enero', 'Enero', 'Enero', 'Enero', 'Febrero', 'Febrero', 'Febrero', 'Febrero']
+    'ventas':   [100, 150, 200, 120, 180, 90, 220, 160],
+    'region':   ['Norte', 'Sur', 'Norte', 'Sur', 'Norte', 'Sur', 'Norte', 'Sur'],
+    'mes':      ['Enero', 'Enero', 'Enero', 'Enero', 'Febrero', 'Febrero', 'Febrero', 'Febrero']
 }
-
 df_ventas = pd.DataFrame(ventas_data)
-print("Dataset de ventas:")
-print(df_ventas)
 
-# 1. AGRUPACIÓN SIMPLE
-print("\n=== AGRUPACIÓN SIMPLE ===")
-
-# Agrupar por vendedor y calcular estadísticas
+# Agrupación simple
 ventas_por_vendedor = df_ventas.groupby('vendedor')['ventas'].agg(['sum', 'mean', 'count'])
-print("Ventas por vendedor:")
 print(ventas_por_vendedor)
 
-# 2. AGRUPACIÓN MÚLTIPLE
-print("\n=== AGRUPACIÓN MÚLTIPLE ===")
+# Agrupación múltiple
+multi = df_ventas.groupby(['vendedor', 'producto'])['ventas'].sum()
+print(multi)
 
-# Agrupar por vendedor y producto
-ventas_vendedor_producto = df_ventas.groupby(['vendedor', 'producto'])['ventas'].sum()
-print("Ventas por vendedor y producto:")
-print(ventas_vendedor_producto)
-
-# 3. FUNCIONES DE AGREGACIÓN PERSONALIZADAS
-print("\n=== FUNCIONES PERSONALIZADAS ===")
-
-def rango_ventas(x):
+# Función de agregación personalizada
+def rango(x):
     return x.max() - x.min()
 
-ventas_stats = df_ventas.groupby('vendedor')['ventas'].agg([
-    'sum', 'mean', 'std', rango_ventas, 'count'
-]).rename(columns={'rango_ventas': 'rango'})
+stats = df_ventas.groupby('vendedor')['ventas'].agg(['sum', 'mean', 'std', rango])
+print(stats)
 
-print("Estadísticas completas por vendedor:")
-print(ventas_stats)
-
-# 4. PIVOT TABLES
-print("\n=== PIVOT TABLES ===")
-
-# Crear tabla pivote
-pivot_ventas = df_ventas.pivot_table(
+# Pivot table
+pivot = df_ventas.pivot_table(
     values='ventas',
     index='vendedor',
     columns='producto',
     aggfunc='sum',
     fill_value=0
 )
-print("Tabla pivote - Ventas por vendedor y producto:")
-print(pivot_ventas)
-
-# 5. CROSS TABULATION
-print("\n=== CROSS TABULATION ===")
+print(pivot)
 
 # Tabla de contingencia
-crosstab_region_producto = pd.crosstab(df_ventas['region'], df_ventas['producto'])
-print("Distribución de productos por región:")
-print(crosstab_region_producto)
+crosstab = pd.crosstab(df_ventas['region'], df_ventas['producto'])
+print(crosstab)
 
-# 6. ANÁLISIS TEMPORAL
-print("\n=== ANÁLISIS TEMPORAL ===")
-
-# Agrupar por mes y calcular totales
+# Análisis temporal: agrupar por mes
 ventas_mensuales = df_ventas.groupby('mes')['ventas'].sum()
-print("Ventas totales por mes:")
-print(ventas_mensuales)
-
-# Calcular crecimiento mensual
-crecimiento_mensual = ventas_mensuales.pct_change() * 100
-print("\nCrecimiento mensual (%):")
-print(crecimiento_mensual)
+crecimiento = ventas_mensuales.pct_change() * 100
+print(crecimiento)
 ```
 
-### 🔄 **Ejercicio 6: Transformación y Limpieza de Datos**
+---
+
+### 2.6 Transformación y Limpieza
 
 ```python
-# Crear dataset con datos "sucios"
 datos_sucios = {
-    'nombre': ['  Ana  ', 'Luis', '  Juan  ', 'María', 'Pedro'],
-    'edad': ['25', '30', '35', '28', '42'],
-    'email': ['ana@email.com', 'luis@email.com', 'juan@email.com', 'maria@email.com', 'pedro@email.com'],
+    'nombre':         ['  Ana  ', 'Luis', '  Juan  ', 'María', 'Pedro'],
+    'edad':           ['25', '30', '35', '28', '42'],
     'fecha_registro': ['2023-01-15', '2023-02-20', '2023-03-10', '2023-01-25', '2023-04-05'],
-    'puntuacion': ['8.5', '7.2', '9.1', '6.8', '8.9'],
-    'activo': ['Sí', 'No', 'Sí', 'Sí', 'No']
+    'puntuacion':     ['8.5', '7.2', '9.1', '6.8', '8.9'],
+    'activo':         ['Sí', 'No', 'Sí', 'Sí', 'No']
 }
-
 df_sucio = pd.DataFrame(datos_sucios)
-print("Dataset original (sucio):")
-print(df_sucio)
-
-# 1. LIMPIEZA DE TEXTO
-print("\n=== LIMPIEZA DE TEXTO ===")
 
 # Limpiar espacios en blanco
 df_sucio['nombre'] = df_sucio['nombre'].str.strip()
-print("Nombres limpios:")
-print(df_sucio['nombre'])
 
-# 2. CONVERSIÓN DE TIPOS
-print("\n=== CONVERSIÓN DE TIPOS ===")
-
-# Convertir edad a numérico
-df_sucio['edad'] = pd.to_numeric(df_sucio['edad'])
-print("Edad convertida a numérico:")
-print(df_sucio['edad'])
-
-# Convertir puntuación a float
-df_sucio['puntuacion'] = pd.to_numeric(df_sucio['puntuacion'])
-print("Puntuación convertida a float:")
-print(df_sucio['puntuacion'])
-
-# Convertir fecha a datetime
+# Convertir tipos
+df_sucio['edad']           = pd.to_numeric(df_sucio['edad'])
+df_sucio['puntuacion']     = pd.to_numeric(df_sucio['puntuacion'])
 df_sucio['fecha_registro'] = pd.to_datetime(df_sucio['fecha_registro'])
-print("Fecha convertida a datetime:")
-print(df_sucio['fecha_registro'])
+df_sucio['activo']         = df_sucio['activo'].map({'Sí': True, 'No': False})
 
-# Convertir activo a booleano
-df_sucio['activo'] = df_sucio['activo'].map({'Sí': True, 'No': False})
-print("Activo convertido a booleano:")
-print(df_sucio['activo'])
+# Extraer información
+df_sucio['año_registro']   = df_sucio['fecha_registro'].dt.year
+df_sucio['dominio_email']  = df_sucio.get('email', pd.Series(dtype=str))
 
-# 3. EXTRACCIÓN DE INFORMACIÓN
-print("\n=== EXTRACCIÓN DE INFORMACIÓN ===")
-
-# Extraer dominio del email
-df_sucio['dominio_email'] = df_sucio['email'].str.split('@').str[1]
-print("Dominio del email:")
-print(df_sucio['dominio_email'])
-
-# Extraer año de registro
-df_sucio['año_registro'] = df_sucio['fecha_registro'].dt.year
-print("Año de registro:")
-print(df_sucio['año_registro'])
-
-# 4. CREACIÓN DE CATEGORÍAS
-print("\n=== CREACIÓN DE CATEGORÍAS ===")
-
-# Crear categoría de edad
+# Crear categorías con apply
 def categorizar_edad(edad):
-    if edad < 30:
-        return 'Joven'
-    elif edad < 40:
-        return 'Adulto'
-    else:
-        return 'Senior'
+    if edad < 30:   return 'Joven'
+    elif edad < 40: return 'Adulto'
+    else:           return 'Senior'
 
 df_sucio['categoria_edad'] = df_sucio['edad'].apply(categorizar_edad)
-print("Categoría de edad:")
-print(df_sucio['categoria_edad'])
 
-# Crear categoría de puntuación
+# Crear categorías con pd.cut
 df_sucio['nivel_puntuacion'] = pd.cut(
     df_sucio['puntuacion'],
     bins=[0, 7, 8, 10],
     labels=['Bajo', 'Medio', 'Alto']
 )
-print("Nivel de puntuación:")
-print(df_sucio['nivel_puntuacion'])
 
-# 5. DATASET FINAL LIMPIO
-print("\n=== DATASET FINAL LIMPIO ===")
-print("Tipos de datos finales:")
 print(df_sucio.dtypes)
-
-print("\nDataset limpio:")
-print(df_sucio)
-
-# 6. RESUMEN ESTADÍSTICO
-print("\n=== RESUMEN ESTADÍSTICO ===")
-print("Estadísticas numéricas:")
 print(df_sucio.describe())
-
-print("\nDistribución por categorías:")
-print("Categoría de edad:")
-print(df_sucio['categoria_edad'].value_counts())
-
-print("\nNivel de puntuación:")
-print(df_sucio['nivel_puntuacion'].value_counts())
 ```
 
 ---
 
-## 💬 **Discusión Guiada**
+## 3. Lectura y Escritura de Archivos
 
-### 🤔 **Preguntas para Reflexión:**
+Pandas puede leer y escribir en la mayoría de los formatos de datos usados en la industria: CSV, Excel, JSON, SQL, HTML.
 
-**Sobre NumPy:**
-- ¿Cuáles son las ventajas prácticas de usar NumPy frente a listas de Python?
-- ¿En qué situaciones específicas notarías la diferencia de rendimiento?
-- ¿Por qué es importante la homogeneidad de tipos en los arrays de NumPy?
-
-**Sobre Pandas:**
-- ¿Por qué Pandas es más útil que un diccionario de listas para análisis de datos?
-- ¿Qué ventajas ofrece el sistema de indexación de Pandas?
-- ¿Cuándo usarías Series vs DataFrame?
-
-**Sobre Datos Ausentes:**
-- ¿Qué estrategia usarías para manejar datos ausentes en un dataset de ventas?
-- ¿Cómo decidirías entre eliminar vs rellenar valores faltantes?
-- ¿Qué impacto pueden tener los datos ausentes en tus análisis?
-
-**Sobre Integración:**
-- ¿Cómo aprovechas las fortalezas de ambas librerías en un proyecto real?
-- ¿Qué patrones de uso has identificado que funcionan mejor?
-- ¿Cómo escalarías estas técnicas a datasets más grandes?
-
-### 💡 **Errores Comunes y Mejores Prácticas:**
-
-**Errores Comunes:**
-- Usar bucles en lugar de operaciones vectorizadas
-- No verificar tipos de datos antes de operaciones
-- Ignorar valores ausentes sin analizarlos
-- Confundir `loc` vs `iloc` en Pandas
-
-**Mejores Prácticas:**
-- Siempre verificar la forma y tipos de datos
-- Usar operaciones vectorizadas cuando sea posible
-- Documentar estrategias de manejo de datos ausentes
-- Validar resultados después de transformaciones
-
----
-
-# 📝 Actividad práctica 
-
-## Actividad Práctica: NumPy y Pandas en Python
-
-## 1. NumPy: Manipulación de Arrays
-
-**Creación de arrays básicos:**
-
-```python
-import numpy as np
-
-# Crear un array simple
-array_simple = np.array([1, 2, 3, 4, 5])
-print("Array simple:", array_simple)
-
-# Crear una matriz 2D
-matriz_2d = np.array([[1, 2, 3], [4, 5, 6]])
-print("Matriz 2D:\n", matriz_2d)
-
-# Crear arrays con valores específicos
-zeros = np.zeros((3, 3))
-ones = np.ones((2, 4))
-print("Array de ceros:\n", zeros)
-print("Array de unos:\n", ones)
-```
-
-**Operaciones matemáticas con arrays:**
-
-```python
-# Operaciones aritméticas básicas
-a = np.array([1, 2, 3])
-b = np.array([4, 5, 6])
-
-print("Suma:", a + b)  # o np.add(a, b)
-print("Resta:", a - b)  # o np.subtract(a, b)
-print("Multiplicación:", a * b)  # o np.multiply(a, b)
-print("División:", a / b)  # o np.divide(a, b)
-print("Exponenciación:", a ** 2)  # o np.power(a, 2)
-
-# Operaciones estadísticas
-print("Suma de elementos:", np.sum(a))
-print("Media:", np.mean(a))
-print("Desviación estándar:", np.std(a))
-```
-
-## 2. Pandas como Herramienta de Analítica
-
-### Series en Pandas
+### Leer CSV
 
 ```python
 import pandas as pd
 
-# Crear una Serie desde una lista
-serie_lista = pd.Series([10, 20, 30, 40])
-print("Serie desde lista:\n", serie_lista)
-
-# Crear una Serie desde un diccionario
-datos_diccionario = {"día1": 420, "día2": 380, "día3": 390}
-serie_dict = pd.Series(datos_diccionario)
-print("Serie desde diccionario:\n", serie_dict)
-
-# Selección específica con índice
-serie_filtrada = pd.Series(datos_diccionario, index=["día1", "día2"])
-print("Serie filtrada:\n", serie_filtrada)
-```
-
-### DataFrames en Pandas
-
-```python
-# Crear DataFrame desde diccionario
-datos = {
-    "Nombre": ["Juan", "María", "Pedro"],
-    "Edad": [30, 25, 40],
-    "Ciudad": ["Caracas", "Maracaibo", "Valencia"]
-}
-df = pd.DataFrame(datos)
-print("DataFrame desde diccionario:\n", df)
-
-# Acceder a datos del DataFrame
-print("\nColumna de nombres:\n", df["Nombre"])
-print("\nPrimeras filas:\n", df.head(2))
-print("\nInformación del DataFrame:\n", df.info())
-print("\nEstadísticas descriptivas:\n", df.describe())
-```
-
-### Operaciones Básicas con DataFrames
-
-```python
-# Filtrado de datos
-mayores_30 = df[df["Edad"] > 30]
-print("Personas mayores de 30:\n", mayores_30)
-
-# Añadir nueva columna
-df["Activo"] = [True, False, True]
-print("\nDataFrame con nueva columna:\n", df)
-
-# Operaciones en columnas
-df["Edad_en_meses"] = df["Edad"] * 12
-print("\nEdad en meses:\n", df)
-
-# Agrupar y resumir datos
-promedio_edad_por_ciudad = df.groupby("Ciudad")["Edad"].mean()
-print("\nPromedio de edad por ciudad:\n", promedio_edad_por_ciudad)
-```
-
-## 3. **Lectura de Archivos con Pandas**
-
-Pandas es una herramienta poderosa para la manipulación de datos, y una de sus capacidades más útiles es la de leer y escribir datos en una variedad de formatos de archivo. Esta funcionalidad es crucial para la mayoría de los proyectos de análisis de datos, ya que los datos suelen estar almacenados en archivos externos como CSV, TXT, o Excel. Pandas proporciona funciones sencillas y eficientes para leer estos archivos y convertirlos en DataFrames, que son estructuras de datos fáciles de manipular y analizar.
-
-### 📄 **Lectura de Archivos CSV**
-
-Los archivos CSV (Comma-Separated Values) son uno de los formatos más comunes para almacenar datos tabulares. Pandas facilita la lectura de estos archivos mediante la función `pd.read_csv()`. Esta función es muy flexible y permite manejar archivos con delimitadores distintos a la coma, manejar encabezados, y gestionar datos faltantes.
-
-**Ejemplo básico:**
-
-```python
-import pandas as pd
-
-# Leer un archivo CSV básico
+# Lectura básica
 df = pd.read_csv('archivo.csv')
-print("Primeras filas del CSV:")
-print(df.head())
 
-# Leer CSV desde URL
-url_csv = 'https://raw.githubusercontent.com/JJTorresDS/stocks-ds-edu/main/stocks.csv'
-df_stocks = pd.read_csv(url_csv)
-print("\nCSV desde URL:")
+# Desde URL (GitHub, datasets públicos)
+url = 'https://raw.githubusercontent.com/JJTorresDS/stocks-ds-edu/main/stocks.csv'
+df_stocks = pd.read_csv(url)
 print(df_stocks.head())
 ```
 
-**Opciones comunes al leer archivos CSV:**
+**Opciones más usadas:**
 
 ```python
-# 1. Delimitador personalizado
-df_tab = pd.read_csv('archivo.txt', sep='\t')  # Para archivos delimitados por tabuladores
-df_semicolon = pd.read_csv('archivo.csv', sep=';')  # Para archivos delimitados por punto y coma
-
-# 2. Manejo de encabezados
-df_no_header = pd.read_csv('archivo.csv', header=None)  # Si el archivo no tiene encabezado
-df_custom_header = pd.read_csv('archivo.csv', header=2)  # Si el encabezado está en la fila 3
-
-# 3. Especificación de columnas
-df_selected = pd.read_csv('archivo.csv', usecols=['Columna1', 'Columna3'])
-
-# 4. Saltar filas
-df_skip = pd.read_csv('archivo.csv', skiprows=2)  # Saltar las primeras 2 filas
-
-# 5. Establecer columna como índice
-df_indexed = pd.read_csv('archivo.csv', index_col='fecha')
-
-# 6. Parsear fechas automáticamente
-df_dates = pd.read_csv('archivo.csv', parse_dates=['fecha_registro'])
-
-# 7. Manejo de valores faltantes
-df_na = pd.read_csv('archivo.csv', na_values=['N/A', 'NA', '--', ''])
-
-# 8. Combinación de opciones
-df_complete = pd.read_csv(
-    'archivo.csv',
-    sep=',',
-    header=0,
-    usecols=['nombre', 'edad', 'ciudad'],
-    index_col='id',
-    parse_dates=['fecha'],
-    na_values=['N/A', ''],
-    skiprows=1
+pd.read_csv('archivo.csv',
+    sep=';',                        # delimitador (por defecto coma)
+    header=0,                       # fila que contiene los nombres de columna
+    usecols=['col1', 'col3'],        # leer solo esas columnas
+    index_col='id',                  # usar columna como índice
+    parse_dates=['fecha'],           # parsear fechas automáticamente
+    na_values=['N/A', '--', ''],     # qué valores tratar como NaN
+    skiprows=2                       # saltear primeras 2 filas
 )
 ```
 
-### 📝 **Lectura de Archivos de Texto (TXT)**
-
-Los archivos de texto también pueden ser leídos con `pd.read_csv()` si están estructurados en un formato tabular con un delimitador constante, como espacios o tabuladores. Si el archivo no tiene una estructura fija, se puede procesar de forma personalizada.
+### Leer Excel
 
 ```python
-# Leer un archivo TXT delimitado por tabuladores
-df_txt_tab = pd.read_csv('archivo.txt', sep='\t')
-print("Archivo TXT con delimitador de tabuladores:")
-print(df_txt_tab.head())
+# Hoja específica
+df = pd.read_excel('archivo.xlsx', sheet_name='Hoja1')
 
-# Leer un archivo TXT delimitado por espacios
-df_txt_space = pd.read_csv('archivo.txt', sep='\s+')  # Uno o más espacios
-print("\nArchivo TXT delimitado por espacios:")
-print(df_txt_space.head())
+# Múltiples hojas
+hojas = pd.read_excel('archivo.xlsx', sheet_name=['Hoja1', 'Hoja2'])
+for nombre, df in hojas.items():
+    print(nombre, df.shape)
 
-# Leer archivo con delimitador personalizado
-df_custom = pd.read_csv('archivo.txt', sep='|')  # Delimitador pipe
-print("\nArchivo con delimitador pipe:")
-print(df_custom.head())
+# Todas las hojas
+todas = pd.read_excel('archivo.xlsx', sheet_name=None)
+print(list(todas.keys()))
 ```
 
-### 📊 **Lectura de Archivos Excel**
-
-Pandas también soporta la lectura de archivos Excel, que son ampliamente utilizados para almacenar y compartir datos en un formato de hoja de cálculo. La función `pd.read_excel()` permite leer datos desde archivos Excel, y es posible especificar la hoja de la cual se quiere extraer los datos.
-
-**Ejemplo básico:**
+### Leer desde otros formatos
 
 ```python
-# Leer un archivo Excel básico
-df_excel = pd.read_excel('archivo.xlsx', sheet_name='Hoja1')
-print("Archivo Excel - Hoja1:")
-print(df_excel.head())
-
-# Leer múltiples hojas
-excel_sheets = pd.read_excel('archivo.xlsx', sheet_name=['Hoja1', 'Hoja2'])
-print("\nMúltiples hojas:")
-for sheet_name, df in excel_sheets.items():
-    print(f"\n{sheet_name}:")
-    print(df.head())
-
-# Leer todas las hojas
-all_sheets = pd.read_excel('archivo.xlsx', sheet_name=None)
-print(f"\nTodas las hojas disponibles: {list(all_sheets.keys())}")
-```
-
-**Opciones avanzadas para archivos Excel:**
-
-```python
-# 1. Especificación de columnas
-df_excel_cols = pd.read_excel('archivo.xlsx', usecols=['Columna1', 'Columna3'])
-
-# 2. Manejo de datos faltantes
-df_excel_na = pd.read_excel('archivo.xlsx', na_values=['N/A', 'NA', '--'])
-
-# 3. Leer rango específico de celdas
-df_range = pd.read_excel('archivo.xlsx', sheet_name='Hoja1', usecols='A:C')
-
-# 4. Saltar filas y columnas
-df_skip_excel = pd.read_excel('archivo.xlsx', skiprows=2, skipcols=1)
-
-# 5. Leer desde una celda específica
-df_start = pd.read_excel('archivo.xlsx', sheet_name='Hoja1', header=None, skiprows=5)
-```
-
-### 🔧 **Lectura de Otros Formatos**
-
-```python
-# Leer archivo JSON
+# JSON
 df_json = pd.read_json('archivo.json')
-print("Archivo JSON:")
-print(df_json.head())
 
-# Leer JSON con líneas múltiples
-df_json_lines = pd.read_json('archivo.json', lines=True)
+# HTML (extrae tablas de páginas web)
+tablas = pd.read_html('pagina.html')
+df = tablas[0]
 
-# Leer archivo HTML (tablas)
-df_html = pd.read_html('archivo.html')
-print("Tablas HTML:")
-for i, df in enumerate(df_html):
-    print(f"\nTabla {i+1}:")
-    print(df.head())
-
-# Leer desde SQL (requiere sqlalchemy)
-"""
-from sqlalchemy import create_engine
-engine = create_engine('sqlite:///mi_base.db')
-df_sql = pd.read_sql('SELECT * FROM mi_tabla', con=engine)
-"""
+# SQL (requiere sqlalchemy)
+# from sqlalchemy import create_engine
+# engine = create_engine('sqlite:///mi_base.db')
+# df = pd.read_sql('SELECT * FROM tabla', con=engine)
 ```
 
-### 💾 **Escritura de Archivos**
+### Escritura
 
 ```python
-# Guardar como CSV
-df.to_csv('mi_dataframe.csv', index=False)
-
-# Guardar como Excel
-df.to_excel('mi_dataframe.xlsx', sheet_name='Datos', index=False)
-
-# Guardar como JSON
-df.to_json('mi_dataframe.json', orient='records')
-
-# Guardar como HTML
-df.to_html('mi_dataframe.html')
-
-# Guardar como pickle (formato binario de Python)
-df.to_pickle('mi_dataframe.pkl')
+df.to_csv('salida.csv', index=False)
+df.to_excel('salida.xlsx', sheet_name='Datos', index=False)
+df.to_json('salida.json', orient='records')
 ```
 
-### 🎯 **Mejores Prácticas para Lectura de Archivos**
+### Tabla resumen
+
+| Formato | Función lectura | Función escritura |
+|---------|----------------|-------------------|
+| CSV | `pd.read_csv()` | `df.to_csv()` |
+| Excel | `pd.read_excel()` | `df.to_excel()` |
+| JSON | `pd.read_json()` | `df.to_json()` |
+| HTML | `pd.read_html()` | `df.to_html()` |
+| SQL | `pd.read_sql()` | `df.to_sql()` |
+
+### Buenas prácticas al leer archivos
 
 ```python
-# 1. Verificar el archivo antes de procesarlo
 import os
+
+# Verificar que existe antes de leer
 file_path = 'archivo.csv'
 if os.path.exists(file_path):
-    # Verificar tamaño del archivo
-    file_size = os.path.getsize(file_path)
-    print(f"Tamaño del archivo: {file_size} bytes")
-    
-    # Leer solo las primeras líneas para inspección
-    with open(file_path, 'r') as f:
-        first_lines = [f.readline() for _ in range(5)]
-    print("Primeras líneas del archivo:")
-    for i, line in enumerate(first_lines):
-        print(f"Línea {i+1}: {line.strip()}")
+    df = pd.read_csv(file_path)
 
-# 2. Manejo de errores
+# Manejo de errores
 try:
     df = pd.read_csv('archivo.csv')
-    print("Archivo leído exitosamente")
 except FileNotFoundError:
-    print("Error: El archivo no existe")
+    print("El archivo no existe")
 except pd.errors.EmptyDataError:
-    print("Error: El archivo está vacío")
-except pd.errors.ParserError:
-    print("Error: Problema al parsear el archivo")
+    print("El archivo está vacío")
 
-# 3. Optimización para archivos grandes
-# Leer en chunks para archivos muy grandes
-chunk_size = 10000
-chunks = []
-for chunk in pd.read_csv('archivo_grande.csv', chunksize=chunk_size):
-    # Procesar cada chunk
-    processed_chunk = chunk[chunk['columna'] > 0]  # Ejemplo de filtrado
-    chunks.append(processed_chunk)
-
-# Combinar todos los chunks
-df_final = pd.concat(chunks, ignore_index=True)
-```
-
-### 📋 **Resumen de Funciones de Lectura**
-
-| Formato | Función | Parámetros Comunes |
-|---------|---------|-------------------|
-| CSV | `pd.read_csv()` | `sep`, `header`, `usecols`, `index_col` |
-| Excel | `pd.read_excel()` | `sheet_name`, `usecols`, `na_values` |
-| JSON | `pd.read_json()` | `orient`, `lines` |
-| HTML | `pd.read_html()` | `header`, `index_col` |
-| SQL | `pd.read_sql()` | `query`, `con` |
-
-**Conclusión:**
-La capacidad de leer archivos de diferentes formatos es esencial en el análisis de datos, y Pandas facilita este proceso con funciones como `pd.read_csv()` y `pd.read_excel()`. Estas funciones permiten importar datos de manera rápida y flexible, preparándolos para el análisis y la manipulación dentro de un entorno de DataFrame. Con el manejo adecuado de los parámetros, Pandas se convierte en una herramienta extremadamente potente para trabajar con datos provenientes de diferentes fuentes y formatos.
-
-
-
-## Ejercicio Práctico
-
-Para consolidar los conocimientos adquiridos, se propone el siguiente ejercicio:
-
-1. Cargar el archivo de stocks desde GitHub
-2. Calcular el rendimiento promedio mensual de cada acción
-3. Identificar la acción con mayor volatilidad
-4. Crear un gráfico que muestre la evolución de las 3 acciones con mejor rendimiento
-
-```python
-# Solución parcial del ejercicio
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-
-# Cargar los datos
-url = 'https://raw.githubusercontent.com/JJTorresDS/stocks-ds-edu/main/stocks.csv'
-stocks_df = pd.read_csv(url)
-stocks_df['formatted_date'] = pd.to_datetime(stocks_df['formatted_date'])
-
-# Establecer la fecha como índice
-stocks_df = stocks_df.set_index('formatted_date')
-
-# Las primeras filas del dataset
-print(stocks_df.head())
+# Archivos muy grandes: leer por chunks
+for chunk in pd.read_csv('archivo_grande.csv', chunksize=10000):
+    procesar(chunk)
 ```
 
 ---
 
-## 🎯 **Cierre y Conclusión: NumPy y Pandas en el Ecosistema de Data Science**
-
-### 📊 **Resumen Integrador: El Ecosistema Completo**
-
-Hemos explorado las dos bibliotecas fundamentales que forman la base del ecosistema de ciencia de datos en Python:
-
-**🔢 NumPy (Numerical Python):**
-- **Propósito**: Computación numérica eficiente y operaciones matemáticas vectorizadas
-- **Fortaleza**: Rendimiento optimizado para cálculos científicos y álgebra lineal
-- **Casos de uso**: Procesamiento de datos numéricos, simulaciones, análisis estadístico
-
-**📈 Pandas (Panel Data):**
-- **Propósito**: Manipulación y análisis de datos estructurados en formato tabular
-- **Fortaleza**: Flexibilidad para trabajar con datos heterogéneos y series temporales
-- **Casos de uso**: Limpieza de datos, análisis exploratorio, preparación para machine learning
-
-### 🚀 **Ejemplo Integrador: Análisis de Rendimiento de Acciones**
+## 4. Ejercicio: Análisis de Acciones
 
 ```python
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
-# Cargar datos de acciones
+# Cargar datos de stocks desde GitHub
+url = 'https://raw.githubusercontent.com/JJTorresDS/stocks-ds-edu/main/stocks.csv'
+stocks_df = pd.read_csv(url)
+stocks_df['formatted_date'] = pd.to_datetime(stocks_df['formatted_date'])
+stocks_df = stocks_df.set_index('formatted_date')
+
+print(stocks_df.head())
+print(f"Forma: {stocks_df.shape}")
+print(f"Rango: {stocks_df.index.min()} → {stocks_df.index.max()}")
+print(stocks_df.describe())
+```
+
+Actividades:
+1. Calcular el rendimiento promedio mensual de cada acción
+2. Identificar la acción con mayor volatilidad (desvío estándar de retornos)
+3. Filtrar los días en que AAPL subió más de 2%
+4. Crear una tabla pivot con precio promedio por mes y por acción
+
+---
+
+## 5. NumPy
+
+### ¿Qué es NumPy?
+
+NumPy (Numerical Python) es la librería base para computación numérica en Python. Creada en 2005, es la fundación sobre la que se construyen Pandas, scikit-learn, TensorFlow y SciPy.
+
+Su estructura central es el **ndarray**: una grilla N-dimensional de elementos del mismo tipo, mucho más eficiente en memoria y velocidad que una lista de Python.
+
+**¿Por qué es más rápido?**
+
+| Aspecto | Lista Python | NumPy array |
+|---------|-------------|-------------|
+| Velocidad | Lenta (bucle en Python) | Rápida (C internamente) |
+| Memoria | Mayor (objetos Python) | Menor (tipos nativos) |
+| Operaciones matemáticas | Bucles explícitos | Vectorizadas (una línea) |
+| Matrices y álgebra lineal | No soporta nativamente | Soporte completo |
+
+```python
+import numpy as np
+```
+
+---
+
+### 5.1 Tipos y Atributos del ndarray
+
+```python
+import numpy as np
+
+arr = np.zeros(10)
+
+print(arr.ndim)       # 1 (dimensiones)
+print(arr.shape)      # (10,)
+print(arr.size)       # 10 (total de elementos)
+print(arr.dtype)      # float64
+print(arr.itemsize)   # 8 bytes por elemento
+print(arr.nbytes)     # 80 bytes en total
+
+# Tipos de datos disponibles
+arr_int   = np.array([1, 2, 3, 4], dtype=np.int32)
+arr_float = np.array([1.1, 2.2, 3.3], dtype=np.float64)
+arr_bool  = np.array([True, False, True], dtype=np.bool_)
+
+print(f"int:   {arr_int},   dtype: {arr_int.dtype}")
+print(f"float: {arr_float}, dtype: {arr_float.dtype}")
+print(f"bool:  {arr_bool},  dtype: {arr_bool.dtype}")
+
+# Comparar memoria
+arr_32 = np.array([1, 2, 3, 4], dtype=np.int32)
+arr_64 = np.array([1, 2, 3, 4], dtype=np.int64)
+print(f"int32: {arr_32.nbytes} bytes")
+print(f"int64: {arr_64.nbytes} bytes")
+```
+
+---
+
+### 5.2 Creación de Arrays
+
+```python
+import numpy as np
+
+# Desde una lista
+arr = np.array([1, 2, 3, 4, 5])
+
+# Arrays predefinidos
+np.zeros(5)           # [0. 0. 0. 0. 0.]
+np.ones(5)            # [1. 1. 1. 1. 1.]
+np.zeros((3, 4))      # matriz 3x4 de ceros
+np.eye(3)             # matriz identidad 3x3
+
+# Secuencias
+np.arange(0, 10, 2)    # [0 2 4 6 8]
+np.linspace(0, 1, 5)   # [0. 0.25 0.5 0.75 1.]
+
+# Aleatorios
+np.random.rand(5)         # valores uniformes [0, 1)
+np.random.randn(5)        # distribución normal estándar
+np.random.randint(0, 10, 5)  # enteros entre 0 y 9
+
+# Matriz 2D
+matriz = np.array([[1, 2, 3],
+                   [4, 5, 6]])
+print(f"Shape: {matriz.shape}")   # (2, 3)
+print(f"ndim: {matriz.ndim}")     # 2
+```
+
+---
+
+### 5.3 Operaciones Vectorizadas
+
+```python
+import numpy as np
+
+a = np.array([10, 20, 30])
+b = np.array([1, 2, 3])
+
+# Aritméticas (elemento a elemento)
+print(a + b)          # [11 22 33]
+print(a * 2)          # [20 40 60]
+print(b ** 2)         # [1  4  9]
+
+# Funciones matemáticas
+print(np.sqrt(b))     # [1. 1.41 1.73]
+print(np.exp(b))      # [e, e², e³]
+print(np.log(b))      # logaritmo natural
+print(np.abs([-1, -2, 3]))  # [1 2 3]
+
+# Indexing y slicing
+arr = np.array([10, 20, 30, 40, 50])
+print(arr[0])         # 10
+print(arr[-1])        # 50
+print(arr[1:4])       # [20 30 40]
+print(arr[::2])       # [10 30 50]
+
+# Filtro con condición booleana
+grandes = arr[arr > 25]
+print(grandes)        # [30 40 50]
+```
+
+Comparativa de rendimiento:
+
+```python
+import time
+
+size = 1_000_000
+python_list = list(range(size))
+numpy_array = np.array(range(size))
+
+start = time.time()
+result = [x * 2 for x in python_list]
+print(f"Lista Python: {time.time() - start:.4f}s")
+
+start = time.time()
+result = numpy_array * 2
+print(f"NumPy:        {time.time() - start:.4f}s")
+```
+
+---
+
+### 5.4 Estadísticas con NumPy
+
+```python
+import numpy as np
+
+data = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+
+print(f"Media:    {np.mean(data)}")
+print(f"Mediana:  {np.median(data)}")
+print(f"Desvío:   {np.std(data):.2f}")
+print(f"Varianza: {np.var(data):.2f}")
+print(f"Mínimo:   {np.min(data)}")
+print(f"Máximo:   {np.max(data)}")
+print(f"Suma:     {np.sum(data)}")
+print(f"Producto: {np.prod(data)}")
+
+# Percentiles
+print(np.percentile(data, [25, 50, 75]))
+
+# Sobre matrices: axis=0 por columna, axis=1 por fila
+matriz = np.array([[1, 2, 3],
+                   [4, 5, 6]])
+print(np.mean(matriz, axis=0))  # promedio por columna: [2.5, 3.5, 4.5]
+print(np.mean(matriz, axis=1))  # promedio por fila:    [2., 5.]
+
+# Correlación entre arrays
+a = np.array([1, 2, 3, 4, 5])
+b = np.array([5, 4, 3, 2, 1])
+print(f"Correlación: {np.corrcoef(a, b)[0, 1]:.2f}")
+```
+
+---
+
+### 5.5 Álgebra Lineal
+
+```python
+import numpy as np
+
+A = np.array([[1, 2], [3, 4]])
+B = np.array([[5, 6], [7, 8]])
+
+print(A.T)                    # Transpuesta
+print(np.linalg.inv(A))       # Inversa
+print(np.dot(A, B))           # Producto matricial
+print(np.linalg.det(A))       # Determinante
+print(np.trace(A))            # Traza
+
+# Valores propios (eigenvalues)
+valores, vectores = np.linalg.eig(A)
+print(f"Eigenvalues: {valores}")
+
+# Resolver sistema de ecuaciones lineales
+# 2x + y = 5
+# x + 3y = 6
+coefs = np.array([[2, 1], [1, 3]])
+terminos = np.array([5, 6])
+solucion = np.linalg.solve(coefs, terminos)
+print(f"x = {solucion[0]:.2f}, y = {solucion[1]:.2f}")
+
+# Descomposición QR
+Q, R = np.linalg.qr(A)
+print(f"Q:\n{Q}")
+print(f"R:\n{R}")
+```
+
+---
+
+### 5.6 Reshape, Concatenación y Splitting
+
+```python
+import numpy as np
+
+arr = np.arange(12)
+print(arr)              # [ 0  1  2 ... 11]
+
+# Reshape
+matriz = arr.reshape(3, 4)
+print(matriz)           # 3 filas, 4 columnas
+print(matriz.reshape(2, 6))
+print(matriz.reshape(-1))   # volver a 1D
+
+# Concatenar
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+print(np.concatenate([a, b]))       # [1 2 3 4 5 6]
+
+m1 = np.array([[1, 2], [3, 4]])
+m2 = np.array([[5, 6], [7, 8]])
+print(np.vstack([m1, m2]))   # apilar verticalmente
+print(np.hstack([m1, m2]))   # apilar horizontalmente
+
+# Splitting
+arr = np.arange(9)
+partes = np.array_split(arr, 3)
+for p in partes:
+    print(p)
+```
+
+---
+
+## 6. Cierre: NumPy + Pandas juntos
+
+En proyectos reales, NumPy y Pandas se usan en conjunto: Pandas para estructurar y limpiar datos, NumPy para los cálculos numéricos pesados.
+
+```python
+import pandas as pd
+import numpy as np
+
+# Cargar datos
 url = 'https://raw.githubusercontent.com/JJTorresDS/stocks-ds-edu/main/stocks.csv'
 df = pd.read_csv(url)
 df['formatted_date'] = pd.to_datetime(df['formatted_date'])
 df = df.set_index('formatted_date')
 
-# 1. USANDO PANDAS: Preparación y limpieza de datos
-print("=== ANÁLISIS CON PANDAS ===")
-print(f"Forma del dataset: {df.shape}")
-print(f"Columnas disponibles: {list(df.columns)}")
-print(f"Rango de fechas: {df.index.min()} a {df.index.max()}")
+# Pandas: preparación
+print(f"Forma: {df.shape}")
+print(f"Columnas: {list(df.columns)}")
 
-# Información básica del dataset
-print("\nInformación del dataset:")
-print(df.info())
+# NumPy: cálculos de rendimientos
+prices = df[['MSFT', 'AMZN', 'AAPL']].values
+returns = np.diff(prices, axis=0) / prices[:-1]
 
-# 2. USANDO NUMPY: Cálculos estadísticos avanzados
-print("\n=== ANÁLISIS CON NUMPY ===")
+returns_df = pd.DataFrame(
+    returns,
+    index=df.index[1:],
+    columns=['MSFT', 'AMZN', 'AAPL']
+)
 
-# Convertir a arrays de NumPy para cálculos rápidos
-prices_array = df[['MSFT', 'AMZN', 'AAPL']].values
-
-# Calcular rendimientos diarios usando NumPy
-returns = np.diff(prices_array, axis=0) / prices_array[:-1]
-returns_df = pd.DataFrame(returns, 
-                         index=df.index[1:], 
-                         columns=['MSFT', 'AMZN', 'AAPL'])
-
-# Estadísticas usando NumPy
-print("Estadísticas de rendimientos diarios:")
+# Estadísticas con NumPy
 for col in returns_df.columns:
-    print(f"\n{col}:")
-    print(f"  Media: {np.mean(returns_df[col]):.4f}")
-    print(f"  Desv. Estándar: {np.std(returns_df[col]):.4f}")
-    print(f"  Volatilidad anual: {np.std(returns_df[col]) * np.sqrt(252):.4f}")
+    media = np.mean(returns_df[col])
+    vol   = np.std(returns_df[col]) * np.sqrt(252)
+    print(f"{col}: media={media:.4f}, volatilidad anual={vol:.4f}")
 
-# 3. INTEGRACIÓN: Análisis combinado
-print("\n=== ANÁLISIS INTEGRADO ===")
-
-# Usar Pandas para agrupar por mes y NumPy para cálculos
-monthly_returns = returns_df.resample('M').apply(lambda x: np.prod(1 + x) - 1)
-
-print("Rendimientos mensuales promedio:")
-for col in monthly_returns.columns:
-    avg_return = np.mean(monthly_returns[col])
-    print(f"  {col}: {avg_return:.4f} ({avg_return*100:.2f}%)")
-
-# 4. Visualización del análisis
-plt.figure(figsize=(12, 8))
-
-# Subplot 1: Precios históricos (Pandas)
-plt.subplot(2, 2, 1)
-df[['MSFT', 'AMZN', 'AAPL']].plot()
-plt.title('Precios Históricos')
-plt.ylabel('Precio ($)')
-plt.legend()
-
-# Subplot 2: Rendimientos diarios (NumPy + Pandas)
-plt.subplot(2, 2, 2)
-returns_df.plot()
-plt.title('Rendimientos Diarios')
-plt.ylabel('Rendimiento')
-plt.legend()
-
-# Subplot 3: Distribución de rendimientos (NumPy)
-plt.subplot(2, 2, 3)
-for col in returns_df.columns:
-    plt.hist(returns_df[col].dropna(), bins=50, alpha=0.7, label=col)
-plt.title('Distribución de Rendimientos')
-plt.xlabel('Rendimiento')
-plt.ylabel('Frecuencia')
-plt.legend()
-
-# Subplot 4: Correlación entre acciones (NumPy)
-plt.subplot(2, 2, 4)
-correlation_matrix = np.corrcoef(returns_df.dropna().T)
-plt.imshow(correlation_matrix, cmap='coolwarm', aspect='auto')
-plt.colorbar()
-plt.xticks(range(len(returns_df.columns)), returns_df.columns, rotation=45)
-plt.yticks(range(len(returns_df.columns)), returns_df.columns)
-plt.title('Matriz de Correlación')
-
-plt.tight_layout()
-plt.show()
-
-# 5. Conclusiones del análisis
-print("\n=== CONCLUSIONES DEL ANÁLISIS ===")
-print("1. La integración de NumPy y Pandas permite:")
-print("   - Pandas: Manejo eficiente de datos temporales y heterogéneos")
-print("   - NumPy: Cálculos matemáticos rápidos y precisos")
-print("   - Combinación: Análisis completo y visualización profesional")
-
-print("\n2. Ventajas del ecosistema:")
-print("   - Flexibilidad: Pandas para datos, NumPy para cálculos")
-print("   - Rendimiento: Operaciones vectorizadas optimizadas")
-print("   - Interoperabilidad: Fácil conversión entre estructuras")
-print("   - Escalabilidad: Manejo eficiente de grandes volúmenes de datos")
+# Pandas: agrupar por mes
+rendimientos_mensuales = returns_df.resample('M').apply(
+    lambda x: np.prod(1 + x) - 1
+)
+print("\nRendimientos mensuales promedio:")
+print(rendimientos_mensuales.mean())
 ```
 
-### 🎓 **Lecciones Clave Aprendidas**
-
-**🔧 NumPy:**
-- Los arrays homogéneos permiten operaciones vectorizadas ultra-rápidas
-- Las funciones matemáticas optimizadas son esenciales para cálculos científicos
-- La interoperabilidad con otras librerías es fundamental en el ecosistema
-
-**📊 Pandas:**
-- Los DataFrames proporcionan una interfaz intuitiva para datos tabulares
-- Las operaciones de indexación y filtrado son poderosas y expresivas
-- La integración con NumPy permite lo mejor de ambos mundos
-
-**🔄 Sinergia:**
-- NumPy maneja la computación numérica pesada
-- Pandas maneja la estructuración y manipulación de datos
-- Juntos forman la base sólida para cualquier proyecto de data science
-
-### 🚀 **Próximos Pasos en tu Journey de Data Science**
-
-1. **Profundizar en NumPy**: Explorar álgebra lineal avanzada, broadcasting, y operaciones con arrays multidimensionales
-2. **Dominar Pandas**: Aprender groupby avanzado, pivot tables, merging y joining de datasets
-3. **Integración con otras librerías**: Conectar con Matplotlib/Seaborn para visualización, scikit-learn para machine learning
-4. **Optimización**: Aprender técnicas de vectorización y evitar bucles cuando sea posible
-
-### 💡 **Reflexión Final**
-
-NumPy y Pandas no son solo herramientas, sino **fundamentos** del ecosistema de data science en Python. Su combinación te permite:
-
-- **Transformar datos** de manera eficiente y expresiva
-- **Realizar análisis** complejos con código simple y legible
-- **Escalar** tus soluciones desde prototipos hasta sistemas de producción
-- **Colaborar** con otros científicos de datos usando estándares de la industria
-
-**Recuerda**: La maestría en estas bibliotecas te abrirá las puertas a todo el ecosistema de data science en Python. ¡Son tu base sólida para construir soluciones de datos impactantes! 🎯
-```
+**Regla práctica:** usá Pandas para estructurar y manipular datos, y NumPy cuando necesités cálculos matemáticos puros — son complementarios, no competidores.
