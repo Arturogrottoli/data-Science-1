@@ -1,0 +1,50 @@
+No se encuentra el tipo [System.IO.Compression.ZipFile].
+En l¡nea: 1 Car cter: 54
++ ... System.IO.Compression; $zip = [System.IO.Compression.ZipFile]::OpenRe ...
++                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.IO.Compression.ZipFile:TypeName) [], RuntimeException
+    + FullyQualifiedErrorId : TypeNotFound
+ 
+No se puede llamar a un m‚todo en una expresi¢n con valor NULL.
+En l¡nea: 1 Car cter: 192
++ ... _.FullName -eq 'word/document.xml' }; $stream = $entry.Open(); $reade ...
++                                           ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+New-Object : No se encontr¢ un constructor. No se encuentra ning£n constructor adecuado para el tipo 
+System.IO.StreamReader.
+En l¡nea: 1 Car cter: 227
++ ... .Open(); $reader = New-Object System.IO.StreamReader($stream); $xml = ...
++                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (:) [New-Object], PSArgumentException
+    + FullyQualifiedErrorId : CannotFindAppropriateCtor,Microsoft.PowerShell.Commands.NewObjectCommand
+ 
+No se puede llamar a un m‚todo en una expresi¢n con valor NULL.
+En l¡nea: 1 Car cter: 271
++ ... t System.IO.StreamReader($stream); $xml = $reader.ReadToEnd(); $reade ...
++                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+No se puede llamar a un m‚todo en una expresi¢n con valor NULL.
+En l¡nea: 1 Car cter: 299
++ ... mReader($stream); $xml = $reader.ReadToEnd(); $reader.Close(); $strea ...
++                                                   ~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+No se puede llamar a un m‚todo en una expresi¢n con valor NULL.
+En l¡nea: 1 Car cter: 316
++ ...  $xml = $reader.ReadToEnd(); $reader.Close(); $stream.Close(); $zip.C ...
++                                                   ~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
+No se puede llamar a un m‚todo en una expresi¢n con valor NULL.
+En l¡nea: 1 Car cter: 333
++ ... der.ReadToEnd(); $reader.Close(); $stream.Close(); $zip.Close(); $xml
++                                                        ~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [], RuntimeException
+    + FullyQualifiedErrorId : InvokeMethodOnNull
+ 
