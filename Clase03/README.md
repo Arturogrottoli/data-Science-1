@@ -68,6 +68,10 @@ print(df[df["edades"] > 27])   # filtro simple
 
 Pandas es una librería de Python para manipular y analizar datos tabulares. Construida sobre NumPy, extiende sus capacidades con estructuras de datos flexibles y funciones optimizadas para análisis de datos del mundo real.
 
+**¿Por qué Pandas y no Python solo?**
+
+Con Python puro se puede hacer todo, pero rápidamente se vuelve engorroso: leer un CSV implica abrir el archivo, iterar línea por línea, separar por coma, convertir tipos... y eso antes de hacer cualquier análisis. Pandas resuelve eso con una sola línea (`pd.read_csv`). Además, opera sobre columnas enteras a la vez sin necesidad de bucles, lo que hace el código más corto, más legible y considerablemente más rápido cuando los datos crecen.
+
 **Historia:** lanzada en 2008 por Wes McKinney en AQR Capital Management para análisis financiero. Su nombre viene de "Panel Data". Hoy es la herramienta estándar del ecosistema de Data Science en Python.
 
 **Estructuras principales:**
