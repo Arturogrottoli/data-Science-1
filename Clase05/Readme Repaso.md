@@ -464,9 +464,516 @@ print(reporte)
 
 ---
 
-## PARTE 2 — Clase 05: Visualizaciones Avanzadas
+## PARTE 2 — Visualizaciones Avanzadas en Data Science
 
-Abrir el notebook: `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_.ipynb`
+---
+
+### ¿Por qué importa diseñar bien un gráfico?
+
+**Qué decir:**
+
+Arrancar con esta pregunta para la clase:
+
+> "¿Alguna vez vieron un gráfico en un diario, una presentación o una red social que los confundió más de lo que los ayudó? ¿O que les pareció convincente y después se dieron cuenta que estaba manipulado?"
+
+La visualización de datos no es solo hacer gráficos bonitos. Es diseñar imágenes que comuniquen información de forma **clara, precisa y honesta**. Un gráfico mal diseñado puede generar decisiones equivocadas en una empresa, malinterpretar resultados científicos o directamente engañar a la audiencia.
+
+En ciencia de datos, el 80% del trabajo es analizar y modelar los datos. Pero el 100% de ese trabajo se comunica a través de gráficos. Si el gráfico falla, el análisis falla también, aunque los números sean perfectos.
+
+---
+
+### 1 — Principios de Diseño de Visualizaciones
+
+**Qué decir:**
+
+El diseño visual no es subjetivo ni cuestión de gusto. Existe un conjunto de principios concretos basados en cómo el ojo y el cerebro humano procesan imágenes. El investigador Colin Ware documentó esto en *Information Visualization: Perception for Design*: la percepción visual tiene reglas, y los gráficos que las respetan se entienden más rápido y con menos errores.
+
+---
+
+#### 1.1 — Encuadre (Framing)
+
+El **encuadre** define el espacio visual donde presentamos la información. La idea es eliminar todo lo que no agrega significado y enfocar la atención del observador en lo que importa.
+
+**Reglas concretas:**
+- Título claro que diga **qué** muestra el gráfico, no solo el nombre de las variables.
+- Etiquetas en los ejes con la unidad de medida siempre visible (ej: "Temperatura (°C)", no solo "Temperatura").
+- Sin elementos decorativos que no aporten: fondos con textura, sombras, bordes 3D, imágenes detrás del gráfico.
+- El espacio en blanco es intencional: los márgenes dan respiro visual y facilitan la lectura.
+
+**Ejemplo de título malo vs. bueno:**
+
+| Malo | Bueno |
+|------|-------|
+| `temp_vs_fecha` | `Temperatura promedio diaria — Planta Alta (enero 2026)` |
+| `ventas` | `Ventas totales por producto (en miles de pesos)` |
+| `scatter_1` | `Relación entre precio y satisfacción del cliente` |
+
+---
+
+#### 1.2 — Jerarquía Visual
+
+La **jerarquía visual** guía la mirada del observador. El ojo no mira un gráfico al azar: va primero a los elementos más grandes, más brillantes y con mayor contraste. Un buen diseño usa eso a propósito para que el dato más importante sea lo primero que se ve.
+
+Las herramientas para crear jerarquía:
+
+| Herramienta | Cómo se usa |
+|-------------|-------------|
+| **Tamaño** | El elemento más grande atrae primero la mirada |
+| **Color** | Un elemento con color distinto al resto resalta inmediatamente |
+| **Contraste** | Fondo claro + elemento oscuro, o viceversa |
+| **Posición** | El ojo occidental lee de arriba a la izquierda hacia abajo a la derecha |
+| **Grosor** | Una línea más gruesa o un borde más marcado señala importancia |
+
+**Ejemplo práctico:** En un gráfico de barras con 12 meses, si el mes que nos interesa destacar (por ejemplo diciembre, el de mayor venta) se pinta de azul oscuro y los otros 11 de gris claro, la jerarquía visual hace que la mirada vaya directo a diciembre. No hay que leer nada: el mensaje es inmediato.
+
+```python
+import matplotlib.pyplot as plt
+
+meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+         'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+ventas = [40, 38, 45, 42, 50, 48, 47, 53, 55, 60, 62, 80]
+
+# Colorear solo el mes destacado
+colores = ['#AAAAAA'] * 11 + ['#1a5276']  # 11 grises + 1 azul oscuro
+
+fig, ax = plt.subplots(figsize=(10, 4))
+ax.bar(meses, ventas, color=colores)
+ax.set_title("Ventas mensuales — Diciembre rompe el récord", fontsize=13)
+ax.set_ylabel("Ventas (miles $)")
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+#### 1.3 — Anotaciones
+
+Las **anotaciones** son etiquetas, líneas de referencia, flechas o recuadros de texto que agregan contexto directamente sobre el gráfico. Cuando el dato por sí solo no se explica (por ejemplo, una caída repentina en una curva), una anotación le dice al observador "esto pasó por X motivo".
+
+**Cuándo usar anotaciones:**
+- Para señalar un evento específico en una serie temporal ("Inicio de pandemia").
+- Para destacar el valor de un punto en un scatter plot.
+- Para marcar un umbral o límite ("Objetivo de ventas: 50.000").
+- Para nombrar directamente las líneas en lugar de usar una leyenda separada.
+
+**Cuándo NO usarlas:** Cuando hay tantas que el gráfico se lee como un prospecto médico. Una anotación que señala todo no señala nada.
+
+```python
+import matplotlib.pyplot as plt
+
+meses = list(range(1, 13))
+ventas = [40, 38, 20, 42, 50, 48, 47, 53, 55, 60, 62, 80]
+
+fig, ax = plt.subplots(figsize=(9, 4))
+ax.plot(meses, ventas, marker='o', color='#2c3e50', linewidth=2)
+
+# Anotación de la caída en marzo
+ax.annotate(
+    'Caída por cierre\nde planta (Mar)',
+    xy=(3, 20),              # punto donde apunta la flecha
+    xytext=(5, 25),          # posición del texto
+    arrowprops=dict(arrowstyle='->', color='red'),
+    fontsize=9, color='red'
+)
+
+# Línea de referencia para el objetivo
+ax.axhline(y=50, color='gray', linestyle='--', linewidth=1, label='Objetivo mensual')
+ax.legend()
+ax.set_title("Ventas 2026 con contexto")
+ax.set_xlabel("Mes")
+ax.set_ylabel("Ventas (miles $)")
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+### 2 — Cómo Elegir el Tipo de Gráfico Correcto
+
+**Qué decir:**
+
+El error más común es elegir el gráfico por costumbre o por estética, no por el mensaje que queremos transmitir. La pregunta que siempre hay que hacerse antes de graficar es: **¿qué relación entre los datos quiero mostrar?**
+
+Hay cuatro tipos de relaciones fundamentales, y cada una tiene sus gráficos:
+
+| Relación que quiero mostrar | Gráficos adecuados |
+|-----------------------------|-------------------|
+| **Comparación** entre categorías | Barras verticales u horizontales, Lollipop |
+| **Evolución** a lo largo del tiempo | Líneas, Área |
+| **Distribución** de valores | Histograma, Boxplot, Violín |
+| **Correlación** entre dos variables | Scatter plot, Heatmap |
+| **Proporción** de un total | Barras apiladas (porcentaje), Treemap |
+| **Composición** geográfica | Mapa de calor geográfico |
+
+**Los gráficos más usados en Data Science, uno por uno:**
+
+---
+
+#### Gráfico de Barras — Comparar categorías
+
+**Para qué sirve:** Comparar un mismo valor numérico entre categorías distintas. La pregunta que responde es: *"¿cuánto tiene cada uno?"*
+
+**Ejemplos cotidianos:**
+- Comparar las ventas mensuales de tres sucursales de un negocio: ¿cuál vendió más en julio?
+- Comparar la cantidad de alumnas y alumnos aprobados por materia en una universidad.
+- Ver cuántas personas votaron a cada candidato en una elección (las barras del canal 7 en la noche del escrutinio).
+- Comparar el precio promedio del alquiler por barrio en CABA.
+
+**Cuándo usarlo:**
+- Pocas categorías (idealmente 3 a 15). Con más de 15 categorías las barras quedan muy delgadas y difíciles de leer.
+- Cuando el orden de las barras no importa (si importara el tiempo, usarías líneas).
+
+**Cuándo NO usarlo:**
+- Si las categorías son momentos en el tiempo consecutivos → usá líneas en su lugar.
+- Si tenés más de 20 categorías → usá barras horizontales o lollipop.
+
+**Trampa común:** Empezar el eje Y en un valor distinto de 0. Si las barras van de 95% a 100%, empezar en 94% hace que la diferencia parezca enorme cuando en realidad es mínima. Las barras **siempre** deben empezar en 0.
+
+> En esta clase lo usamos en: ejemplo del Bloque 1 con `ax2.bar(["A", "B", "C"], ...)`.
+
+---
+
+#### Gráfico de Barras Horizontales — Comparar categorías con nombres largos
+
+**Para qué sirve:** Exactamente lo mismo que las barras verticales, pero rotadas 90°. La ventaja es que los nombres de las categorías en el eje Y tienen mucho más espacio para escribirse.
+
+**Ejemplos cotidianos:**
+- Ranking de los 20 países con mayor PIB: los nombres de los países caben bien en el eje Y.
+- Comparar los partidos políticos por cantidad de bancas (los nombres de los partidos son largos).
+- Listar las marcas de autos más vendidas en Argentina con sus unidades.
+
+**Cuándo usarlo:**
+- Cuando los nombres de las categorías son largos y se superpondrían en un gráfico vertical.
+- Cuando querés que el observador sienta que está leyendo un "ranking" de arriba hacia abajo.
+
+---
+
+#### Gráfico de Líneas — Evolución en el tiempo
+
+**Para qué sirve:** Mostrar cómo cambia un valor a lo largo del tiempo. La línea conecta los puntos para que el ojo vea la tendencia: ¿está subiendo? ¿bajando? ¿estable?
+
+**Ejemplos cotidianos:**
+- La curva de temperatura durante el día (8:00, 12:00, 16:00, 20:00 → picos y valles).
+- El precio del dólar blue semana a semana durante el año.
+- El peso de un paciente durante un tratamiento médico mes a mes.
+- Los seguidores de una cuenta de Instagram semana a semana.
+- La evolución de casos de COVID-19 por día durante la pandemia.
+
+**Cuándo usarlo:**
+- Cuando el eje X es **tiempo** o cualquier variable continua con orden natural.
+- Cuando queremos que el observador vea la tendencia o el patrón temporal.
+- Con múltiples líneas se puede comparar la evolución de varias categorías a la vez.
+
+**Cuándo NO usarlo:**
+- Si el eje X son categorías sin orden (países, sucursales, productos): la línea implica "continuidad entre categorías" que no existe → usá barras.
+- Si solo hay 2 o 3 puntos de datos: la línea no tiene sentido con tan pocos puntos.
+
+**Trampa común:** Conectar categorías que no son continuas. Si graficamos "lunes, miércoles, viernes" con una línea, estamos diciendo implícitamente que algo pasó "entre" esos días, cuando no hay datos.
+
+> En esta clase lo usamos en: Bloque 2, análisis temporal de pasajeros 2023 con `sns.lineplot()`.
+
+---
+
+#### Histograma — Distribución de una variable numérica
+
+**Para qué sirve:** Mostrar cómo se reparten los valores de una variable. La pregunta que responde es: *"¿en qué rango están concentrados la mayoría de los datos?"* No muestra categorías separadas — muestra la "forma" de los datos.
+
+**Ejemplos cotidianos:**
+- Las notas de un examen de 100 alumnos: ¿la mayoría sacó entre 6 y 8? ¿Hay muchos aplazados? ¿Hay un grupo de alumnos muy avanzados con notas de 10?
+- Los sueldos de los empleados de una empresa: ¿están todos agrupados cerca del promedio o hay una gran diferencia entre los que ganan poco y los que ganan mucho?
+- Los tiempos de espera en una guardia de emergencias: ¿la mayoría espera menos de 30 minutos? ¿Hay casos extremos de 4 horas?
+- Las alturas de los jugadores de un club de básquet.
+- Los tiempos de entrega de los pedidos de un e-commerce.
+
+**Cómo leerlo:**
+- **Distribución normal (campana de Gauss):** La mayoría está en el centro, pocos en los extremos. Ejemplo: alturas humanas.
+- **Distribución sesgada a la derecha:** La mayoría tiene valores bajos pero hay algunos muy altos. Ejemplo: ingresos (pocos ricos, muchos de clase media/baja).
+- **Distribución bimodal (dos picos):** Hay dos grupos bien diferenciados. Ejemplo: notas de un examen fácil para algunos y difícil para otros.
+
+**Diferencia clave con barras:**
+
+| | Barras | Histograma |
+|---|---|---|
+| Eje X | Categorías separadas (Prod A, Prod B...) | Una variable continua dividida en rangos |
+| Pregunta | ¿Cuánto tiene cada uno? | ¿Cómo se distribuyen los valores? |
+| Barra | Cada barra = una categoría | Cada barra = un rango de valores |
+
+**Cuándo NO usarlo:**
+- Para comparar categorías separadas → usá barras.
+- Para datos muy escasos (menos de 30 valores): la distribución no se puede ver bien.
+
+> En esta clase lo usamos en: Actividad práctica Paso 1, distribución de vuelos diarios con `sns.histplot()`.
+
+---
+
+#### Boxplot (Diagrama de Caja) — Resumen estadístico de una distribución
+
+**Para qué sirve:** Mostrar el resumen estadístico completo de una variable (mínimo, Q1, mediana, Q3, máximo) en un solo símbolo compacto. Muy útil para comparar la distribución de una variable entre varios grupos.
+
+**Cómo leerlo:**
+
+```
+     ┌──────────────┐
+─────┤              ├─────    ← Bigotes: mínimo y máximo (sin outliers)
+     │   Caja       │         ← Caja: entre Q1 (25%) y Q3 (75%) = el 50% central de los datos
+     │   ═══════    │         ← Línea del medio: mediana (el valor de la mitad exacta)
+     └──────────────┘
+  ○  ← Puntos fuera de los bigotes: outliers (valores atípicos)
+```
+
+**Ejemplos cotidianos:**
+- Comparar los sueldos de empleados por área en una empresa: ¿el área de sistemas tiene sueldos más altos que el área de administración? ¿Hay más dispersión en un área que en otra?
+- Comparar los tiempos de entrega de tres servicios de mensajería: ¿cuál es más consistente (caja más pequeña)?
+- Comparar las notas de un examen en tres turnos diferentes.
+- En medicina: comparar la presión arterial de pacientes con tres tratamientos distintos.
+- Comparar el tiempo de espera en cajeros de supermercados según el día de la semana.
+
+**Cuándo usarlo:**
+- Cuando querés comparar la distribución entre grupos.
+- Cuando necesitás identificar outliers (valores extremos) de forma visual.
+- Cuando tenés muchos datos y el histograma sería demasiado denso.
+
+**Cuándo NO usarlo:**
+- Si solo tenés un grupo (usa histograma en su lugar, que es más informativo).
+- Si los datos son muy escasos (menos de 20 valores): el boxplot se vuelve engañoso.
+
+**Lo que no se ve en un boxplot:** La distribución interna. Un boxplot con la misma mediana y los mismos bigotes puede representar una distribución normal, una bimodal o una distribución con todos los valores concentrados en un punto. Siempre combinar con un histograma o violinplot para ver la forma real.
+
+---
+
+#### Scatter Plot (Dispersión) — Relación entre dos variables numéricas
+
+**Para qué sirve:** Mostrar si existe una relación entre dos variables numéricas. La pregunta que responde es: *"¿cuando una variable sube, la otra también sube (o baja)?"* Cada punto en el gráfico es una observación.
+
+**Ejemplos cotidianos:**
+- ¿Los alumnos que estudian más horas sacan mejores notas? (Eje X: horas de estudio, Eje Y: nota del examen)
+- ¿Las casas con más metros cuadrados tienen mayor precio? (Eje X: m², Eje Y: precio)
+- ¿Las personas que consumen más calorías tienen mayor peso? (Eje X: calorías diarias, Eje Y: kg)
+- ¿Los días con más temperatura se vende más helado? (Eje X: temperatura °C, Eje Y: unidades vendidas)
+- ¿Los autos más viejos consumen más nafta? (Eje X: año del auto, Eje Y: litros cada 100km)
+
+**Cómo interpretar la nube de puntos:**
+- **Nube en diagonal ascendente (↗):** Correlación positiva. Cuando una sube, la otra también.
+- **Nube en diagonal descendente (↘):** Correlación negativa. Cuando una sube, la otra baja.
+- **Nube circular/dispersa sin forma:** No hay correlación entre las variables.
+- **Puntos alejados del grupo:** Outliers → observaciones atípicas que vale la pena investigar.
+
+**Cuándo NO usarlo:**
+- Si una de las variables es categórica → usá boxplot para ver la distribución por categoría.
+- Si hay demasiados puntos superpuestos (overplotting) → usá hexbin o reducí el tamaño de los puntos con `alpha=0.3`.
+
+> En esta clase lo usamos en: Actividad práctica Paso 3, asientos vs pasajeros por tipo de vuelo con `px.scatter()` interactivo.
+
+---
+
+#### Heatmap (Mapa de Calor) — Intensidad de un valor en una grilla
+
+**Para qué sirve:** Mostrar el valor de una variable en la intersección de dos categorías, usando el color como canal de información. Permite ver patrones en grillas de datos de un golpe de vista.
+
+**Ejemplos cotidianos:**
+- **Horario de mayor actividad en una tienda:** Filas = días de la semana, Columnas = horas del día, Color = cantidad de clientes. De un vistazo se ve cuándo hay picos (rojo = muy ocupado, azul = tranquilo).
+- **Mapa de calor del clima:** Filas = meses del año, Columnas = ciudades, Color = temperatura promedio. Se ve rápidamente qué ciudad es más calurosa en qué época.
+- **Matriz de correlación entre variables:** Cada celda muestra qué tan relacionadas están dos variables del dataset (1 = correlación perfecta, 0 = sin correlación, -1 = correlación inversa). Fundamental antes de construir un modelo de machine learning.
+- **Ventas por región y producto:** Filas = regiones del país, Columnas = productos, Color = unidades vendidas. Se ven los "huecos de mercado" de un vistazo.
+
+**Cómo leerlo:** El color es el dato. Una escala de color típica va de azul oscuro (valor bajo) a rojo intenso (valor alto), o de blanco a un color saturado.
+
+**Cuándo usarlo:**
+- Cuando tenés datos en formato de grilla (filas × columnas = valor).
+- Para matrices de correlación entre variables numéricas de un dataset.
+- Para patrones temporales con dos dimensiones (hora × día, mes × año).
+
+**Cuándo NO usarlo:**
+- Para comparar valores exactos: el ojo es malo comparando matices de color con precisión.
+- Si la grilla es muy grande: las celdas quedan tan chicas que los colores son ilegibles.
+
+---
+
+#### Lollipop — Alternativa visual a las barras
+
+**Para qué sirve:** Exactamente lo mismo que las barras verticales u horizontales, pero con un diseño más liviano. En lugar de una barra sólida, muestra una línea delgada con un punto al final. El mensaje es idéntico pero el gráfico "pesa" visualmente menos.
+
+**Ejemplos cotidianos:**
+- Ranking de los 25 países con mayor esperanza de vida: con 25 barras sólidas el gráfico queda muy pesado; con lollipop se respira mejor.
+- Comparar el NPS (Net Promoter Score) de 20 productos de una empresa.
+- Listar los 30 empleados con mayor productividad en un mes.
+
+**Cuándo usarlo:**
+- Cuando hay muchas categorías (más de 15) y las barras sólidas saturan visualmente.
+- Cuando queremos un diseño más moderno y limpio para una presentación ejecutiva.
+
+**Diferencia visual con barras:** El lollipop elimina el "ruido visual" de las barras anchas. Esto le da más protagonismo a los valores extremos y hace que las diferencias entre categorías se lean más fácilmente. El contenido informativo es idéntico.
+
+---
+
+#### Gráfico de Torta / Pie Chart — Proporciones de un total
+
+**Para qué sirve:** Mostrar cómo se divide un total (100%) entre categorías. La pregunta que responde es: *"¿qué parte del total representa cada categoría?"*
+
+**Ejemplos cotidianos donde SÍ tiene sentido:**
+- El presupuesto mensual de una familia dividido en categorías: 40% alquiler, 20% comida, 15% transporte, 25% otros. Con solo 4 categorías y diferencias grandes, la torta funciona.
+- Cuota de mercado de 3 empresas que se reparten el 100%: si una tiene 60%, la segunda 30% y la tercera 10%, la torta lo muestra claramente.
+- Distribución de sangre en una población: A (42%), O (44%), B (10%), AB (4%).
+
+**Por qué los gráficos de torta tienen tan mala reputación:**
+
+El ojo humano es MUCHO más preciso comparando **longitudes** (barras) que comparando **ángulos** (sectores de torta). Una diferencia de 5 puntos porcentuales entre dos barras es obvia. La misma diferencia entre dos sectores de torta es casi imperceptible.
+
+Experimento: ¿cuál de estos sectores es más grande?
+
+```
+Sector A: 32%   Sector B: 29%   Sector C: 25%   Sector D: 14%
+```
+
+Con una torta es muy difícil saberlo sin leer los números. Con barras, la diferencia es inmediata.
+
+**Cuándo NO usar la torta:**
+- Si hay más de 5 o 6 categorías: los sectores se vuelven tan pequeños que son ilegibles.
+- Si las proporciones son similares entre sí (ej: 28%, 26%, 24%, 22%): el ojo no puede distinguirlas.
+- Si el mensaje principal es comparar valores entre categorías (en lugar de mostrar la parte del todo).
+
+**La alternativa honesta:** Una barra horizontal apilada al 100% o barras simples ordenadas de mayor a menor comunican exactamente la misma información con mucha más precisión visual.
+
+> En esta clase aparece en la sección de ética (Sección 3.2) como ejemplo de gráfico potencialmente manipulador, con el ejemplo de Apple/Google/Microsoft.
+
+---
+
+### 3 — Ética y Percepción Visual: Gráficos que Mienten
+
+**Qué decir:**
+
+Los gráficos son la forma más efectiva de comunicar datos, y también la forma más efectiva de manipularlos. Un gráfico puede presentar los mismos números y contar dos historias completamente distintas según cómo se diseñe. Esto es un problema ético serio en periodismo, política y ciencia.
+
+Hay tres formas principales de manipular con visualizaciones:
+
+---
+
+#### 3.1 — Manipulación del eje Y (la más común)
+
+Cuando el eje Y no empieza en cero, las diferencias entre barras se ven exageradas. La barra más alta puede parecer el doble de la más baja, cuando en realidad es solo un 2% mayor.
+
+**Ejemplo concreto:** Cuota de mercado real de tres empresas tecnológicas:
+
+```
+Apple:     35%
+Google:    33%
+Microsoft: 32%
+```
+
+Estas tres empresas están prácticamente empatadas. Pero si graficamos con el eje Y entre 31% y 36%:
+- Apple parece tener el triple de mercado que Microsoft.
+- La diferencia real es 3 puntos porcentuales, pero visualmente parece enorme.
+
+**Regla:** En gráficos de barras, el eje Y siempre debe empezar en 0 a menos que haya una justificación explícita y visible. En gráficos de líneas, es aceptable no empezar en 0 cuando los valores están todos en un rango acotado, pero hay que indicarlo claramente.
+
+---
+
+#### 3.2 — Gráficos de torta con demasiadas categorías o sectores manipulados
+
+Los gráficos de torta son problemáticos porque el ojo humano es malo comparando ángulos. Si hay más de 4 o 5 categorías, los sectores se vuelven indistinguibles. Y si el sector que "importa" se saca hacia afuera (el efecto "pull"), parece más grande de lo que es aunque el ángulo sea el mismo.
+
+**Código para demostrar el gráfico manipulado vs. el correcto:**
+
+```python
+import plotly.express as px
+import pandas as pd
+
+data = {
+    'Compañía': ['Apple', 'Google', 'Microsoft', 'Otras'],
+    'Cuota de Mercado (%)': [35, 15, 10, 40]
+}
+df = pd.DataFrame(data)
+
+# Gráfico manipulado: Apple "separada" y con título que exagera su dominio
+fig = px.pie(
+    df,
+    values='Cuota de Mercado (%)',
+    names='Compañía',
+    title='Cuota de Mercado Global de Tecnología (35% Apple)',
+    hole=0.4,
+    color_discrete_sequence=px.colors.qualitative.Pastel
+)
+fig.update_traces(
+    textinfo='percent+label',
+    hoverinfo='label+percent',
+    textfont_size=14,
+    pull=[0.15, 0, 0, 0]  # Apple separada para que parezca más dominante
+)
+fig.show()
+```
+
+**Qué señalar en el gráfico manipulado:**
+- Apple tiene 35% pero el sector separado y el título que la nombra explícitamente da la impresión de que domina el mercado.
+- "Otras" tiene 40% (más que Apple) pero está visualmente minimizado.
+- El título ya implica un mensaje: "35% Apple" en lugar de "distribución equitativa".
+
+**La versión honesta:**
+
+```python
+# Gráfico honesto: barras horizontales, todas iguales, eje desde 0
+import matplotlib.pyplot as plt
+
+empresas = ['Otras', 'Apple', 'Google', 'Microsoft']
+cuotas = [40, 35, 15, 10]
+
+fig, ax = plt.subplots(figsize=(7, 3))
+ax.barh(empresas, cuotas, color='#5DADE2')
+ax.set_xlabel('Cuota de mercado (%)')
+ax.set_title('Cuota de mercado — sin destacar ninguna empresa')
+ax.set_xlim(0, 50)  # eje desde 0
+for i, v in enumerate(cuotas):
+    ax.text(v + 0.5, i, f'{v}%', va='center')
+plt.tight_layout()
+plt.show()
+```
+
+**Qué remarcar:** El mismo dato, pero ahora "Otras" queda en primer lugar (más cuota que Apple). Ningún sector está separado. El mensaje es neutro. Los datos son idénticos.
+
+---
+
+#### 3.3 — Omisión selectiva de datos
+
+Mostrar solo la parte del tiempo donde algo creció y omitir la caída anterior. Mostrar el promedio sin la distribución para ocultar que hay un grupo muy perjudicado. Usar datos sin normalizar para comparar cosas que no son comparables (ej: comparar ventas de una empresa grande con una chica en valores absolutos en lugar de porcentuales).
+
+---
+
+#### 3.4 — Accesibilidad: El daltonismo y la impresión en B&N
+
+El **8% de los hombres** y el 0.5% de las mujeres tienen algún tipo de daltonismo. El tipo más común confunde rojo y verde. Si un gráfico usa solo color para diferenciar categorías (sin forma, sin patrón, sin etiqueta directa), esas personas no pueden leerlo.
+
+**Reglas de accesibilidad:**
+- Usar `palette="colorblind"` en Seaborn para paletas diseñadas científicamente.
+- Respaldar el color con forma (`style="month", markers=True` en Seaborn).
+- Nunca confiar solo en la diferencia rojo vs. verde para distinguir "bueno" vs. "malo".
+- Verificar el gráfico en escala de grises antes de enviarlo (imprimir en B&N).
+
+---
+
+### 4 — Tipos de Gráfico y lo que Vamos a Usar en Semana 5
+
+**Qué decir:**
+
+> "Ahora que entendemos cuándo y por qué usar cada tipo de gráfico, y qué errores evitar, en la segunda parte de la clase vamos a ver cómo construir gráficos avanzados en Python. Estos son los tipos que vamos a usar:"
+
+| Gráfico | Librería | Para qué lo vamos a usar |
+|---------|----------|--------------------------|
+| `histplot` con KDE | Seaborn | Distribución de vuelos diarios (actividad práctica) |
+| `lineplot` multivariado | Seaborn | Evolución temporal de pasajeros con accesibilidad cromática |
+| `scatterplot` con `hue` + `size` | Seaborn | Análisis multivariado: 4 variables en 2D |
+| `scatter` interactivo | Plotly Express | Relación asientos vs. pasajeros con zoom y tooltips |
+| Subplots con `GridSpec` | Matplotlib | Layout asimétrico: gráfico principal + resumen |
+| Gráfico de líneas con `mdates` | Matplotlib + Seaborn | Eje de fechas formateado correctamente |
+| Exportación `.png` 300dpi | Matplotlib | Reporte de alta resolución para presentación |
+
+**Transición:** 
+
+> "Antes de arrancar con el código, ¿preguntas sobre los principios de diseño o los errores éticos que vimos? El objetivo no es que se memoricen todo esto, sino que cuando hagan un gráfico se pregunten: ¿qué mensaje quiero transmitir? ¿Estoy usando el tipo correcto? ¿Estoy siendo honesto con los datos?"
+
+---
+
+---
+
+## Código de la Clase — Abrir: `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_.ipynb`
 
 ---
 
@@ -475,6 +982,45 @@ Abrir el notebook: `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_.ipynb`
 ---
 
 ### Tema 1 — La Jerarquía de Matplotlib: Figure y Axes
+
+**Contexto teórico:**
+
+Matplotlib fue creado en 2003 por John Hunter, un neurocientífico que necesitaba una herramienta de gráficos en Python similar a MATLAB. Su diseño principal es una **jerarquía de objetos** que refleja cómo funcionan los gráficos en el mundo real: primero existe el soporte físico (el lienzo), y encima se dibuja el contenido (el gráfico).
+
+Esta jerarquía tiene dos niveles clave:
+
+| Objeto | Nombre técnico | Qué contiene | Analogía |
+|---|---|---|---|
+| `Figure` | La figura completa | Todos los Axes, el fondo, el título general | El cuadro físico colgado en la pared |
+| `Axes` | Un subgráfico | Los ejes X e Y, las líneas, las barras, el título, las etiquetas | Una pintura dentro del cuadro |
+
+**Los dos estilos de programación en Matplotlib:**
+
+**Estilo funcional (pyplot):** Se usa `plt.plot()`, `plt.title()`, `plt.xlabel()`. Matplotlib mantiene internamente un estado que dice "el gráfico activo es este", y todos los comandos de `plt.` afectan a ese gráfico activo. Es cómodo para hacer un solo gráfico rápido, pero cuando hay múltiples subgráficos, el "estado activo" es ambiguo y genera errores.
+
+**Estilo orientado a objetos (OOP):** Se guardan el `Figure` y los `Axes` en variables (`fig` y `ax`), y se dibujan las cosas explícitamente en el eje correcto con `ax.plot()`, `ax.set_title()`. Esto es **la forma correcta para múltiples subgráficos**: no hay ambigüedad sobre dónde va cada cosa.
+
+La función `plt.subplots(nrows, ncols)` devuelve AMBOS objetos a la vez:
+- `fig` → el lienzo completo (solo hay uno)
+- `axes` → lista de Axes (tantos como `nrows × ncols`)
+
+Con `nrows=1, ncols=3`, axes es una lista `[ax1, ax2, ax3]` donde cada elemento es un gráfico independiente.
+
+**Parámetros importantes de `plt.subplots()`:**
+
+| Parámetro | Qué hace | Ejemplo |
+|---|---|---|
+| `nrows`, `ncols` | Número de filas y columnas de gráficos | `nrows=2, ncols=3` → 6 gráficos |
+| `figsize=(w, h)` | Tamaño del lienzo en pulgadas | `(10, 4)` → ancho=10, alto=4 |
+| `sharex=True` | Todos los gráficos comparten el eje X | Útil en series temporales |
+| `sharey=True` | Todos los gráficos comparten el eje Y | Útil para comparar escalas |
+
+**Diferencia crítica entre títulos:**
+
+```python
+ax.set_title("...")   # Título de ESE gráfico específico (aparece encima del Axes)
+fig.suptitle("...")   # Título de TODA la figura (aparece por encima de todos los Axes)
+```
 
 **Qué decir:**
 - Matplotlib funciona como un artista. Hay dos objetos principales:
@@ -504,10 +1050,42 @@ plt.show()
 
 **Qué remarcar:**
 - Cuando tienen un solo subplot pueden usar `plt.plot()` directamente. Cuando tienen varios, usan `ax1.plot()`, `ax2.bar()`, etc. para controlar en cuál dibujan.
+- `fig.suptitle()` pone el título general por encima de todo. `ax.set_title()` pone el título de ese subplot específico.
 
 ---
 
 ### Tema 2 — Seaborn: Axes-level vs Figure-level
+
+**Contexto teórico:**
+
+Seaborn fue creado por Michael Waskom (2012) originalmente como una capa de estilos más bonitos encima de Matplotlib. Con el tiempo se convirtió en su propia librería con funciones propias. Esta historia dual explica por qué Seaborn tiene dos APIs completamente distintas:
+
+**API Axes-level:** Diseñada para convivir con el modelo de objetos de Matplotlib. Cada función dibuja en un `Axes` existente. Acepta el parámetro `ax=` para saber exactamente dónde dibujar. Devuelve el mismo `Axes` de Matplotlib que recibió. Ejemplos: `sns.scatterplot()`, `sns.boxplot()`, `sns.histplot()`, `sns.lineplot()`, `sns.barplot()`.
+
+**API Figure-level:** Diseñada para análisis exploratorio rápido. Cada función crea su propio `Figure` completo internamente. No acepta `ax=` porque no trabaja con Axes individuales sino con grillas de paneles. Devuelve un objeto `FacetGrid` (no un Axes). Ejemplos: `sns.displot()`, `sns.relplot()`, `sns.catplot()`, `sns.lmplot()`.
+
+**¿Qué es un FacetGrid?**
+
+Un FacetGrid es un objeto de Seaborn que maneja internamente una grilla de paneles. Cuando usamos `col="time"`, Seaborn crea automáticamente un panel por cada valor único de la columna `time`. El número de paneles es dinámico: si `time` tiene 3 valores, crea 3 paneles. Si tiene 10, crea 10.
+
+Un FacetGrid NO es un Axes de Matplotlib. Tiene su propia API:
+```python
+g = sns.displot(...)
+g.set(xlabel="Etiqueta X")           # cambiar etiquetas de todos los paneles
+g.set_titles("{col_name}")            # cambiar títulos de los paneles
+g.figure.suptitle("Título general")  # título de toda la figura
+```
+
+**Regla de oro para elegir:**
+
+| Situación | Usar |
+|---|---|
+| Quiero un gráfico dentro de un subplot que yo controlo | Axes-level + `ax=mi_eje` |
+| Quiero combinar con GridSpec o un layout personalizado | Axes-level |
+| Quiero dividir los datos en paneles por categoría | Figure-level (`col=`, `row=`) |
+| Quiero explorar rápidamente sin preocuparme por el layout | Figure-level |
+
+> ⚠️ **Error frecuente:** Pasar `ax=` a `sns.displot()` o a cualquier función figure-level genera error. Figure-level no sabe trabajar con Axes individuales.
 
 **Qué decir:**
 - Seaborn tiene dos tipos de funciones:
@@ -536,6 +1114,46 @@ plt.show()
 ---
 
 ### Tema 3 — GridSpec: Layouts Personalizados
+
+**Contexto teórico:**
+
+`plt.subplots(nrows, ncols)` divide el lienzo en una grilla perfectamente simétrica: todos los gráficos tienen exactamente el mismo tamaño. Para muchos reportes esto no es ideal. Un dashboard profesional típico tiene un gráfico principal grande, un par de métricas pequeñas arriba, y una leyenda a la derecha.
+
+`matplotlib.gridspec.GridSpec` resuelve este problema definiendo una **cuadrícula de proporciones** invisible sobre el lienzo. Cada gráfico luego se asigna a una posición (o a varias posiciones fusionadas) dentro de esa cuadrícula.
+
+**El sistema de ratios:**
+
+```python
+gs = gridspec.GridSpec(nrows=2, ncols=1, height_ratios=[1, 3])
+```
+
+Esto dice: "Divide el alto del lienzo en 4 partes (1+3). La fila 0 ocupa 1 parte. La fila 1 ocupa 3 partes." Las proporciones son relativas, no absolutas.
+
+**Parámetros clave de GridSpec:**
+
+| Parámetro | Qué controla | Ejemplo |
+|---|---|---|
+| `height_ratios` | Altura relativa de cada fila | `[1, 3]` → abajo es 3× más alto |
+| `width_ratios` | Ancho relativo de cada columna | `[2, 1]` → izquierda es 2× más ancha |
+| `hspace` | Espacio vertical entre gráficos | `0.4` = 40% del alto promedio |
+| `wspace` | Espacio horizontal entre gráficos | `0.3` = 30% del ancho promedio |
+
+**Asignación de posiciones:**
+
+```python
+ax_superior = fig.add_subplot(gs[0])    # slot 0 = primera fila completa
+ax_inferior = fig.add_subplot(gs[1])    # slot 1 = segunda fila completa
+
+# Con 2 filas y 2 columnas:
+ax_a = fig.add_subplot(gs[0, 0])        # fila 0, columna 0
+ax_b = fig.add_subplot(gs[0, 1])        # fila 0, columna 1
+ax_c = fig.add_subplot(gs[1, :])        # fila 1, TODAS las columnas (gráfico ancho)
+```
+
+**Casos de uso reales:**
+- Dashboard de monitoreo: métrica pequeña arriba (ratio 1) + gráfico detallado abajo (ratio 4)
+- Reporte de análisis: histograma de distribución izquierda + boxplot derecha (ancho 2:1)
+- Comparación temporal: gráfico principal + zoom de un período específico encuadrado arriba
 
 **Qué decir:**
 - Por defecto, `plt.subplots()` divide la figura en partes iguales.
@@ -572,6 +1190,50 @@ plt.show()
 
 ### Tema 4 — Series Temporales: Por Qué Importa el Tipo `datetime`
 
+**Contexto teórico:**
+
+Internamente, Python y Pandas almacenan las fechas como **números enteros que representan los nanosegundos transcurridos desde el 1 de enero de 1970** (el llamado Unix epoch). Un datetime que diga "2024-07-15 14:30:00" es, por debajo, simplemente el número `1721051400000000000`.
+
+Esta representación numérica es lo que permite que las fechas se **ordenen cronológicamente, se puedan restar entre sí, se puedan agrupar por mes o año**, y se puedan graficar en un eje continuo. Cuando Pandas lee una fecha como texto, ese número no existe: la fecha es solo una cadena de caracteres como `"ABC"`. No se puede ordenar cronológicamente, no se puede restar, no se puede usar `.dt.year`.
+
+**¿Qué hace `pd.to_datetime()` internamente?**
+
+1. Lee la cadena de texto (`"2024-07-15"`).
+2. La interpreta según el `format` especificado (`'%Y-%m-%d'`).
+3. Convierte el texto al número entero de nanosegundos desde el epoch.
+4. Almacena ese número en la columna con tipo `datetime64[ns]`.
+
+**Cadenas de formato — tabla completa:**
+
+| Código | Significado | Texto de entrada |
+|---|---|---|
+| `%Y` | Año 4 dígitos | `"2024"` |
+| `%m` | Mes 2 dígitos | `"07"` |
+| `%d` | Día 2 dígitos | `"15"` |
+| `%H` | Hora 24h | `"14"` |
+| `%M` | Minutos | `"30"` |
+| `%b` | Mes abreviado inglés | `"Jul"` |
+
+Combinaciones comunes:
+- Fecha argentina: `"15/07/2024"` → `format='%d/%m/%Y'`
+- Fecha ISO: `"2024-07-15"` → `format='%Y-%m-%d'`
+- Fecha con hora: `"2024-07-15 14:30:00"` → `format='%Y-%m-%d %H:%M:%S'`
+
+**Verificación rápida:**
+```python
+df.dtypes                  # debe decir 'datetime64[ns]', no 'object'
+df['fecha'].dt.year        # el accessor .dt solo funciona en columnas datetime
+df['fecha'].dt.month       # extrae el mes
+df['fecha'].dt.day_of_week # 0=lunes, 6=domingo
+```
+
+**Truco para fechas mal formateadas:**
+```python
+df['fecha'] = pd.to_datetime(df['fecha'], errors='coerce')
+# errors='coerce' → las fechas que no se puedan convertir quedan como NaT (Not a Time)
+# en lugar de tirar un error y detener todo el programa
+```
+
 **Qué decir:**
 - Cuando pandas lee una columna de fechas desde un CSV, la lee como texto (`object`) por defecto.
 - Si graficamos fechas como texto, el eje X las ordena **alfabéticamente** (Abril, Agosto, Diciembre, Enero...) y destruye la cronología.
@@ -600,11 +1262,48 @@ plt.title("Cronología correcta con datetime")
 plt.show()
 ```
 
-**Tip de profesor:** Mostrar ambos gráficos lado a lado para que el contraste sea visible de golpe.
+**Tip de profesor:** Mostrar ambos gráficos lado a lado para que el contraste sea visible de golpe. Ejecutar también `df.dtypes` después de la conversión para mostrar el cambio de tipo de `object` a `datetime64[ns]`.
 
 ---
 
 ### Tema 5 — Formatear el Eje de Fechas con `matplotlib.dates`
+
+**Contexto teórico:**
+
+Cuando el eje X tiene valores `datetime`, Matplotlib elige automáticamente cómo mostrar las etiquetas. El problema es que esa elección automática a veces genera etiquetas muy largas (`"2023-01-01 00:00:00"`) o demasiado densas (una etiqueta por cada punto de datos cuando hay 365 puntos en el año).
+
+`matplotlib.dates` (`mdates`) es el módulo que controla los dos aspectos del eje de fechas:
+
+**1. El Formatter — controla CÓMO SE MUESTRA cada etiqueta:**
+```python
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+```
+Controla el texto que aparece en cada marca del eje. Usa los mismos códigos de formato (`%Y`, `%m`, `%d`) que `pd.to_datetime()`.
+
+Ejemplos de formatos:
+- `'%Y'` → `"2024"` (solo año)
+- `'%b %Y'` → `"Jul 2024"` (mes abreviado + año)
+- `'%d/%m'` → `"15/07"` (día/mes)
+- `'%Y-%m-%d'` → `"2024-07-15"` (formato ISO completo)
+
+**2. El Locator — controla DÓNDE aparece cada marca:**
+```python
+ax.xaxis.set_major_locator(mdates.YearLocator())
+```
+
+| Locator | Frecuencia |
+|---|---|
+| `mdates.YearLocator()` | Una marca por año |
+| `mdates.MonthLocator()` | Una marca por mes |
+| `mdates.MonthLocator(bymonth=[1, 7])` | Solo enero y julio |
+| `mdates.DayLocator(interval=7)` | Una marca cada 7 días |
+| `mdates.HourLocator(interval=6)` | Una marca cada 6 horas |
+
+**Cómo obtener el eje activo:**
+```python
+ax = plt.gca()   # "get current axes" → obtiene el Axes del gráfico activo
+```
+Necesitamos el objeto `ax` para poder llamar a `ax.xaxis.set_major_formatter()`. Si creamos el gráfico con OOP (`fig, ax = plt.subplots()`), ya tenemos `ax` directamente y no necesitamos `gca()`.
 
 **Qué decir:**
 - Cuando el eje X tiene fechas completas (año, mes, día), matplotlib a veces muestra el formato completo y queda ilegible.
@@ -629,6 +1328,28 @@ plt.show()
 ---
 
 ### Tema 6 — Análisis Multivariado: Canales Estéticos
+
+**Contexto teórico:**
+
+Un gráfico 2D tiene exactamente dos ejes. Pero los datasets del mundo real tienen decenas de variables. La pregunta es: ¿cómo mostramos más de dos variables en una superficie plana?
+
+La respuesta está en los **canales estéticos** o **atributos preatentivos**: propiedades visuales que el ojo humano procesa de forma automática e instantánea, sin necesidad de "leer" el gráfico conscientemente. El investigador Colin Ware (2004) demostró que el cerebro detecta estas propiedades en menos de 200 milisegundos, antes de que pueda razonar conscientemente sobre el gráfico.
+
+**Los canales disponibles en Seaborn y su fuerza perceptual:**
+
+| Canal | Parámetro | Tipo ideal de variable | Fuerza perceptual |
+|---|---|---|---|
+| Posición X | `x=` | Cualquiera | ★★★★★ Más precisa |
+| Posición Y | `y=` | Cualquiera | ★★★★★ Más precisa |
+| Color (hue) | `hue=` | Categórica | ★★★★ Muy buena |
+| Tamaño | `size=` | Numérica continua | ★★★ Moderada |
+| Forma/trazo | `style=` | Categórica (pocas) | ★★ Débil |
+
+La posición es la más precisa porque el ojo puede comparar distancias con mucha exactitud. El color funciona bien para categorías pero el ojo es malo comparando tonos para valores numéricos continuos. El tamaño comunica una jerarquía pero es impreciso: es difícil determinar si un círculo es el doble o el triple que otro. La forma es la más débil y solo debe usarse como respaldo.
+
+**Cuándo dejar de agregar canales:**
+
+Con 4–5 variables cruzadas en un único gráfico, la carga cognitiva se vuelve muy alta. El observador tiene que recordar qué significa cada color, cada tamaño y cada forma simultáneamente. En esos casos es mejor dividir en múltiples paneles (`col=` en Seaborn) o usar una visualización interactiva con Plotly donde el hover tooltip muestre los detalles.
 
 **Qué decir:**
 - La pantalla es plana: solo tiene X e Y (2 dimensiones).
@@ -661,6 +1382,37 @@ plt.show()
 ---
 
 ### Tema 7 — Accesibilidad Cromática
+
+**Contexto teórico:**
+
+El daltonismo (deficiencia de visión del color) afecta a **aproximadamente el 8% de los hombres y al 0.5% de las mujeres** en poblaciones de ascendencia europea. Los tipos más comunes son:
+
+| Tipo | Qué afecta | Prevalencia en hombres |
+|---|---|---|
+| **Deuteranopía** | No puede distinguir rojo del verde | ~5% |
+| **Protanopía** | Dificultad para percibir el rojo | ~2% |
+| **Tritanopía** | Dificultad para percibir el azul | <0.1% |
+
+El problema práctico: si usamos una línea roja para "malo" y una verde para "bueno" (la combinación más intuitiva), el 5–7% de los hombres en el salón no puede distinguirlas.
+
+**La paleta colorblind de Seaborn** fue diseñada por los investigadores Masataka Okabe y Kei Ito (2008) específicamente para que sea distinguible por personas con los tipos más comunes de daltonismo. Usa naranja, azul claro, verde oscuro y violeta, que mantienen contraste incluso en deuteranopía.
+
+**La regla del respaldo de forma:**
+
+El color comunica una sola dimensión: el matiz. Si el color desaparece (impresión en B&N, proyector viejo, pantalla en modo económico), toda esa información se pierde. La solución es **siempre respaldar el color con una segunda dimensión visual**:
+
+- En líneas: `style=` cambia el patrón del trazo (continuo, punteado, guionado).
+- En puntos: `style=` + `markers=True` cambia la figura geométrica (○, □, △, ×).
+
+El efecto es que el gráfico es legible por **tres caminos redundantes**: color, forma Y posición. Perder uno de los tres no destruye la comunicación.
+
+**Paletas recomendadas en Seaborn:**
+
+| Paleta | Descripción | Cuándo usar |
+|---|---|---|
+| `"colorblind"` | Paleta Okabe-Ito, diseñada para daltonismo | Primera opción siempre |
+| `"muted"` | Colores desaturados, suaves | Reportes formales |
+| `"deep"` | Colores saturados con buen contraste | Presentaciones con proyector |
 
 **Qué decir:**
 - Nunca confíen toda la información al color. Dos razones principales:
@@ -700,6 +1452,51 @@ plt.show()
 
 ### Tema 8 — Plotly Express: Gráficos Interactivos
 
+**Contexto teórico:**
+
+Matplotlib y Seaborn generan imágenes **rasterizadas** (mapas de píxeles) que se muestran como una foto estática. Una vez renderizada, no se puede interactuar con ella.
+
+Plotly es una empresa de software que desarrolló una librería de visualización basada en **D3.js** (una librería de gráficos en JavaScript). En lugar de generar una imagen, genera **código HTML+JavaScript** que el navegador ejecuta de forma dinámica.
+
+`plotly.express` (o `px`) es la API de alto nivel de Plotly: permite crear gráficos interactivos complejos con muy pocas líneas de código. Internamente, cada función de `px` genera un objeto `plotly.graph_objects.Figure` que contiene toda la definición del gráfico en formato JSON.
+
+**Lo que puede hacer el usuario sin escribir código:**
+
+- **Hover (tooltip):** Al pasar el cursor sobre cualquier punto aparece una etiqueta con los valores exactos de ese punto, el nombre de su categoría, y cualquier columna extra que hayamos incluido con `hover_data=`.
+- **Zoom:** Arrastrando un rectángulo en el gráfico hace zoom en esa zona. Los ejes se reescalan automáticamente para mostrar solo esa región.
+- **Pan (arrastrar):** Después de hacer zoom, se puede arrastrar el gráfico para moverlo.
+- **Leyenda interactiva:** Clic en una categoría en la leyenda la oculta/muestra en el gráfico. Doble clic aísla esa categoría (oculta todas las demás).
+- **Reset:** Doble clic en el área del gráfico vuelve al zoom original.
+
+**Plotly Express vs Matplotlib/Seaborn — cuándo usar cada uno:**
+
+| Situación | Herramienta |
+|---|---|
+| Exploración rápida de datos (uso propio) | Plotly Express |
+| Dashboard en una app web | Plotly Express |
+| Presentación interactiva en un notebook compartido | Plotly Express |
+| Imagen para PDF, Word, PowerPoint | Matplotlib / Seaborn |
+| Paper científico o tesis | Matplotlib / Seaborn |
+| Reporte para impresión | Matplotlib / Seaborn |
+
+> ⚠️ **Limitación importante:** Los gráficos de Plotly son interactivos en el navegador, pero **no se pueden exportar directamente como imagen** sin instalar la librería `kaleido`. Para reportes impresos, hay que recrear el gráfico con Matplotlib y exportarlo con `plt.savefig()`.
+
+**Parámetros útiles de Plotly Express:**
+
+```python
+px.scatter(
+    df,
+    x="col_x",
+    y="col_y",
+    color="categoria",            # diferencia por color
+    size="variable_numerica",     # tamaño del punto según valor
+    hover_data=["col_extra"],     # agrega esta columna al tooltip
+    labels={"col_x": "Eje X"},    # renombra ejes en el gráfico (no el DataFrame)
+    template="plotly_white",      # tema: fondo blanco limpio
+    title="Mi título"
+)
+```
+
 **Qué decir:**
 - Matplotlib y Seaborn generan imágenes estáticas: una foto del dato.
 - **Plotly Express** genera gráficos basados en HTML y JavaScript.
@@ -735,6 +1532,43 @@ fig.show()
 
 ### Tema 9 — Exportación: Rasterizado vs Vectorial
 
+**Contexto teórico:**
+
+Cuando guardamos un gráfico a un archivo, la extensión determina fundamentalmente cómo se almacena la información visual. Hay dos tecnologías completamente distintas:
+
+**Formatos Rasterizados (Mapas de bits):**
+
+Almacenan el gráfico como una grilla rectangular de píxeles de color. Cada píxel es un número que indica su color exacto (en formato RGB: rojo, verde, azul).
+
+- **Resolución fija:** Una vez guardado a 800×600 píxeles, ampliar la imagen la pixela porque no hay información entre los píxeles.
+- **DPI (Dots Per Inch):** Define cuántos píxeles por pulgada tiene la imagen al imprimirse.
+  - `dpi=72` → resolución de pantalla. Se ve bien en monitor, borroso al imprimir en papel.
+  - `dpi=150` → impresión aceptable para uso interno.
+  - `dpi=300` → **estándar profesional**. Nítido en cualquier tamaño de impresión en papel.
+  - `dpi=600` → estándar de publicaciones científicas de alta calidad.
+
+| Formato | Características | Cuándo usar |
+|---|---|---|
+| `.png` | Sin pérdida de calidad, fondo transparente posible | Presentaciones, web, correo |
+| `.jpg` | Compresión con pérdida, fondo blanco siempre | Fotografías, web liviano |
+
+**Formatos Vectoriales (Basados en fórmulas matemáticas):**
+
+No almacenan píxeles. Almacenan las **instrucciones matemáticas** para dibujar cada elemento: "dibujá una línea desde el punto (x1,y1) hasta (x2,y2) con color #2c3e50 y grosor 2pt". Al mostrar el archivo, el software ejecuta esas instrucciones recalculándolas para el tamaño actual.
+
+- **Resolución infinita:** Ampliar un vector al 1000% no pierde nitidez porque las instrucciones se recalculan con la nueva escala.
+- **Editable:** Un archivo `.svg` se puede abrir en Inkscape o Illustrator y editar cada elemento individualmente.
+
+| Formato | Características | Cuándo usar |
+|---|---|---|
+| `.pdf` | Estándar de documentos, soporte universal | Papers, tesis, reportes para imprimir |
+| `.svg` | Formato web estándar, editable en editores gráficos | Web, presentaciones editables |
+
+**Regla de decisión:**
+
+> Si el gráfico va a un documento de texto (Word, PDF de tesis, informe técnico) → **PDF vectorial**.
+> Si el gráfico va a una presentación, correo o web → **PNG a 300dpi**.
+
 **Qué decir:**
 - Cuando guardamos un gráfico, el formato define su comportamiento:
   - **Rasterizado** (`.png`, `.jpg`): guardamos píxeles. Si el `dpi` es bajo, se ve borroso al ampliar. Para presentaciones y web siempre usar `dpi=300`.
@@ -763,6 +1597,42 @@ print("Archivos guardados.")
 ---
 
 ### Tema 10 — `bbox_inches='tight'`: El Encuadre Perfecto
+
+**Contexto teórico:**
+
+Cuando Matplotlib calcula la imagen a guardar con `savefig()`, usa el `figsize` que se especificó al crear la figura para determinar el área de la imagen. El problema es que los **elementos decorativos** (títulos, etiquetas de ejes, leyendas) pueden quedar **fuera** del área `figsize` original, especialmente cuando:
+
+- El título tiene muchas palabras o un `pad` extra.
+- Las etiquetas del eje X están rotadas (`plt.xticks(rotation=45)`) y quedan más largas.
+- La leyenda está posicionada fuera del gráfico.
+- El `xlabel` tiene un `labelpad` grande.
+
+`bbox_inches='tight'` le ordena a Matplotlib que **recalcule el bounding box** (área delimitadora) de la imagen justo antes de guardar, incluyendo absolutamente todo el contenido visual que exista fuera del área original.
+
+**"Bounding box"** significa literalmente "caja que delimita". El bounding box tight es el rectángulo más pequeño posible que contiene todo el contenido del gráfico, desde el borde del título hasta el borde de la etiqueta del eje X, pasando por cualquier leyenda o anotación.
+
+**`plt.tight_layout()` vs `bbox_inches='tight'` — son cosas distintas:**
+
+| | `plt.tight_layout()` | `bbox_inches='tight'` |
+|---|---|---|
+| **Qué hace** | Ajusta el espaciado ENTRE subgráficos para que no se superpongan | Ajusta el ÁREA DE LA IMAGEN al guardar |
+| **Cuándo actúa** | Al renderizar en pantalla | Solo al guardar con `savefig()` |
+| **Para qué sirve** | Evitar que los títulos de un subplot tapen las etiquetas del otro | Evitar que el texto se corte en la imagen guardada |
+
+En la práctica, se usan AMBOS juntos:
+```python
+plt.tight_layout()                                        # ajusta el layout interno
+plt.savefig("reporte.png", dpi=300, bbox_inches='tight')  # encuadre perfecto al guardar
+```
+
+**Parámetros adicionales de `savefig()`:**
+
+| Parámetro | Qué hace | Cuándo usarlo |
+|---|---|---|
+| `dpi=300` | Resolución de la imagen | Siempre para PNG de calidad |
+| `bbox_inches='tight'` | Encuadre que no corta texto | Siempre, es gratuito |
+| `transparent=True` | Fondo transparente (sin rectángulo blanco) | PNG sobre slides de color |
+| `facecolor='white'` | Fondo blanco explícito | Cuando el tema del notebook tiene fondo oscuro |
 
 **Qué decir:**
 - Por defecto, `savefig()` calcula el tamaño de la imagen basándose en el lienzo, pero "se olvida" de medir textos decorativos como títulos largos o etiquetas rotadas.
