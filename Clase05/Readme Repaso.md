@@ -19,10 +19,30 @@ Abrir el notebook: `Repaso_Data_Science_I_Fundamentos_para_la_Ciencia_de_Datos_.
 ### Semana 1 — Variables y Tipos de Datos
 
 **Qué decir:**
-- Una variable es una caja con una etiqueta. El tipo de dato define qué operaciones podemos hacerle.
-- Los cuatro tipos básicos: `int` (entero), `float` (decimal), `str` (texto), `bool` (verdadero/falso).
-- Las f-strings (`f"texto {variable}"`) son la forma más cómoda de mezclar texto y variables.
-- Los diccionarios modelan un "registro" del mundo real: la máquina, el sensor, el cliente. Cada clave es un campo, cada valor es el dato.
+
+Una **variable** es un nombre que le ponemos a un espacio en la memoria de la computadora donde guardamos un valor. Cada vez que escribimos `edad = 25`, Python reserva un espacio en la RAM, guarda el número 25, y le cuelga la etiqueta `edad` para poder encontrarlo más tarde.
+
+El **tipo de dato** determina qué cosas podemos hacerle a ese valor. No es lo mismo guardar el número `25` que el texto `"25"`: con el número podemos sumar, restar o comparar; con el texto solo podemos concatenar, buscar, dividir en partes. Python distingue cuatro tipos básicos:
+
+| Tipo | Nombre técnico | Ejemplo | Para qué se usa |
+|------|---------------|---------|-----------------|
+| Entero | `int` | `25`, `-3`, `1000` | Conteos, edades, cantidades sin decimales |
+| Decimal | `float` | `99.99`, `3.14`, `-0.5` | Precios, temperaturas, mediciones |
+| Texto | `str` | `"Planta Alta"`, `"2026-01-01"` | Nombres, categorías, fechas como texto |
+| Booleano | `bool` | `True`, `False` | Condiciones, flags de estado, activado/desactivado |
+
+Las **f-strings** son la forma moderna de mezclar texto y variables. La `f` antes de las comillas le dice a Python que busque variables entre `{}` y las reemplace con su valor. Es equivalente a la función `format()` pero mucho más legible.
+
+```python
+nombre = "Planta Alta"
+temperatura = 82.5
+# Sin f-string (viejo estilo, más verbose):
+print("El sensor " + nombre + " registró " + str(temperatura) + "°C.")
+# Con f-string (estilo moderno):
+print(f"El sensor {nombre} registró {temperatura}°C.")
+```
+
+Los **diccionarios** (`dict`) son la estructura de datos más cercana a cómo el mundo real organiza la información. Un sensor de temperatura no manda solo un número: manda su ID, la fecha y hora, la lectura y el estado. Un diccionario agrupa todo eso bajo un solo nombre usando pares **clave: valor**. Se accede a cada campo con su clave entre corchetes: `evento["temperatura"]`.
 
 **Ejecutar:**
 ```python
@@ -43,18 +63,71 @@ evento_maquina = {
 print(f"El sensor {evento_maquina['sensor_id']} registró {evento_maquina['temperatura']}°C.")
 ```
 
+**Qué mostrar en detalle:**
+- Ejecutar `type(edad)` → `<class 'int'>`
+- Ejecutar `type(precio)` → `<class 'float'>`
+- Ejecutar `type(nombre)` → `<class 'str'>`
+- Mostrar qué pasa si sumamos: `"25" + 5` → `TypeError`. El tipo importa.
+
 **Preguntar a la clase:**
-- ¿Por qué usamos un diccionario y no cuatro variables separadas?
-  - Porque agrupa toda la información de un solo evento. Si el sensor manda 1.000 registros, manejamos 1.000 diccionarios, no 4.000 variables sueltas.
+
+> ¿Por qué usamos un diccionario y no cuatro variables separadas (`sensor_id = "TERM-04"`, `fecha_hora = "2026-05-17"`, etc.)?
+
+**Respuesta:** Porque agrupa toda la información de un solo evento bajo un único nombre. Si el sensor manda 1.000 registros por día, manejamos una lista de 1.000 diccionarios, no 4.000 variables sueltas flotando en el código. Además, si el día de mañana el sensor agrega un campo nuevo (por ejemplo `"humedad"`), solo hay que agregar una clave más al diccionario sin tocar el resto del código.
+
+> ¿Qué diferencia hay entre `temperatura = 0` y `temperatura = None`?
+
+**Respuesta:** `0` es un valor válido que dice "la temperatura medida es cero grados". `None` (o `np.nan` en NumPy) significa que no hay ningún dato: el sensor falló, no hubo medición, el campo está vacío. Son semánticamente muy distintos: un promedio de temperaturas que incluye un `0` se va a ver afectado; uno que ignora los `None` no.
 
 ---
 
 ### Semana 2 — Control de Flujo: `if/else` y `for`
 
 **Qué decir:**
-- El `for` le pone automatización al script: procesa cada elemento de una lista sin que escribamos una línea por cada uno.
-- El `if/else` le da "cerebro": toma decisiones distintas según el dato.
-- El patrón "lista vacía + for + append" es uno de los más usados en data science para filtrar o transformar datos.
+
+Hasta la Semana 1, los scripts ejecutaban cada línea de arriba hacia abajo, en orden, sin saltear nada ni repetir nada. El **control de flujo** le agrega inteligencia: el programa puede tomar caminos distintos según los datos, y puede repetir tareas automáticamente.
+
+**El bloque `if/elif/else`** evalúa una condición (algo que da `True` o `False`) y decide qué código ejecutar. La condición puede usar los operadores de comparación `>`, `<`, `>=`, `<=`, `==` (igual), `!=` (distinto), y los operadores lógicos `and`, `or`, `not` para combinar condiciones.
+
+```python
+temperatura = 91.0
+
+if temperatura > 90:
+    print("PELIGRO CRÍTICO: apagar máquina")
+elif temperatura > 80:
+    print("ALERTA: temperatura elevada")
+elif temperatura > 70:
+    print("PRECAUCIÓN: monitorear")
+else:
+    print("NORMAL: todo bien")
+```
+
+Python evalúa cada condición de arriba hacia abajo y ejecuta el primer bloque que se cumpla. Si ninguna se cumple, ejecuta el `else`. Si no hay `else`, simplemente no hace nada.
+
+**El bucle `for`** itera sobre cualquier colección de elementos (lista, rango, tupla, string, etc.) y ejecuta el mismo bloque de código para cada uno. Sin `for`, si queremos procesar 1.000 temperaturas, necesitaríamos escribir 1.000 líneas de código. Con `for`, escribimos el procesamiento una sola vez.
+
+```python
+# Sin for: inmanejable
+print(historial[0] > 80)
+print(historial[1] > 80)
+# ... 998 líneas más
+
+# Con for: escalable a cualquier cantidad de datos
+for temp in historial:
+    print(temp > 80)
+```
+
+La función `range(inicio, fin, paso)` genera una secuencia de números. Se usa cuando necesitamos iterar una cantidad fija de veces en lugar de sobre una lista existente:
+
+```python
+for i in range(5):        # 0, 1, 2, 3, 4
+    print(i)
+
+for i in range(0, 10, 2): # 0, 2, 4, 6, 8
+    print(i)
+```
+
+El **patrón lista vacía + for + append** es uno de los más usados en data science: creamos una lista vacía, iteramos sobre los datos originales, y agregamos a la lista solo los que cumplen algún criterio.
 
 **Ejecutar:**
 ```python
@@ -64,23 +137,151 @@ temps_altas = []
 for temp in historial_temps:
     if temp > 80.0:
         temps_altas.append(temp)
+    # else: pass  ← el else es opcional si no hay nada que hacer
 
 print(f"Todas las mediciones: {historial_temps}")
 print(f"Mediciones peligrosas (>80): {temps_altas}")
 ```
 
+**Qué mostrar en detalle:**
+- Agregar un `print(f"Evaluando {temp}...")` dentro del for para que vean cómo itera paso a paso.
+- Mostrar que `append()` modifica la lista en el lugar: `temps_altas` crece con cada iteración.
+- Mostrar la diferencia entre `=` (asignación) y `==` (comparación): `temp = 80` guarda el valor, `temp == 80` pregunta si son iguales.
+
 **Preguntar a la clase:**
-- ¿Qué pasa si sacamos el `else: pass`? — Nada, `pass` es opcional cuando el bloque `else` no hace nada.
-- ¿Cómo filtrarían los menores a 70? — Cambiar el `>` por `<` y el umbral.
+
+> ¿Qué pasa si sacamos el `else: pass`?
+
+**Respuesta:** Absolutamente nada cambia. `pass` es una instrucción vacía que solo existe para que Python no tire error de sintaxis cuando un bloque debería tener al menos una línea. Si el bloque `else` no tiene código útil, se puede omitir directamente. En este ejemplo, cuando `temp <= 80.0` simplemente no hacemos nada, y eso es válido sin escribir `else: pass`.
+
+> ¿Cómo modificarían el código para filtrar las temperaturas menores a 70?
+
+**Respuesta:** Cambiar la condición de `temp > 80.0` por `temp < 70.0`. También habría que renombrar la lista `temps_altas` por algo como `temps_bajas` para que el nombre tenga sentido.
+
+> ¿Qué pasa si la lista `historial_temps` está vacía?
+
+**Respuesta:** El bucle `for` simplemente no ejecuta ninguna iteración. No da error. `temps_altas` queda como lista vacía `[]`. Esto es importante en producción: siempre hay que pensar qué pasa cuando no hay datos.
+
+---
+
+---
+
+### Concepto previo — ¿Qué es una librería y por qué las usamos?
+
+Antes de ver NumPy y Pandas, hay que entender qué es una **librería** y por qué existe.
+
+**Analogía cotidiana:** Imaginate que te mudás a un departamento nuevo y necesitás un taladro. Tenés dos opciones:
+1. Fabricar el taladro vos mismo: comprar el motor, las piezas, armarlo desde cero.
+2. Ir al ferretería y comprarlo ya hecho.
+
+Una **librería** es la ferretería. Alguien ya escribió ese código, lo probó, lo optimizó durante años, y lo empaquetó para que nosotros lo podamos usar con una sola línea: `import numpy`. No tenemos que saber cómo está construido por dentro; solo tenemos que saber cómo usarlo.
+
+La línea `import numpy as np` hace dos cosas:
+1. Le dice a Python "buscá el paquete llamado numpy que ya está instalado".
+2. Le da el apodo `np` para no tener que escribir `numpy.` completo cada vez.
+
+Sin esa línea, todas las funciones de NumPy son inaccesibles, como si el taladro estuviera en el depósito con llave. Con esa línea, todo el poder de NumPy queda disponible en el script.
+
+Python solo ya trae muchas cosas útiles (`len`, `range`, `print`, `sorted`, etc.). Pero para matemática científica, tablas de datos, gráficos y machine learning, esas herramientas built-in no alcanzan. Las librerías extienden Python con funcionalidades especializadas que la comunidad científica fue construyendo durante décadas.
 
 ---
 
 ### Semana 3 — NumPy: Cálculos en Bloque
 
 **Qué decir:**
-- Con listas de Python puro, para multiplicar cada precio por el tipo de cambio necesitaríamos un `for`.
-- NumPy inventa el **array**: aplicás la misma operación a todos los elementos de una vez. Esto se llama **vectorización**.
-- Las **máscaras booleanas** permiten filtrar el array usando una condición directamente entre corchetes, sin bucles.
+
+**¿Por qué no alcanza Python puro para matemática con datos?**
+
+Pensemos en un caso concreto: tenemos el sueldo de 50.000 empleados en una lista y queremos aplicarles un aumento del 12%. Con Python puro:
+
+```python
+sueldos = [45000, 62000, 38000, ...]  # 50.000 valores
+
+sueldos_nuevos = []
+for s in sueldos:
+    sueldos_nuevos.append(s * 1.12)
+```
+
+Esto funciona, pero Python tiene que:
+1. Leer la variable del bucle `s`.
+2. Buscar el valor `1.12` en memoria.
+3. Invocar la operación de multiplicación del intérprete de Python.
+4. Crear un objeto Python nuevo con el resultado.
+5. Llamar a `.append()` para agregarlo a la lista.
+6. Repetir todo esto 50.000 veces.
+
+Son al menos 6 pasos por elemento. Para 50.000 empleados, eso es 300.000 operaciones de overhead solo del intérprete.
+
+**Analogía cotidiana:** Es como si en una fábrica de empanadas hubiera un solo operario que agarra una empanada, la rellena, la cierra, la lleva a la bandeja, vuelve, agarra la siguiente... una por una. Tarda horas.
+
+NumPy es la línea de ensamblaje automatizada: las 50.000 empanadas pasan por la máquina al mismo tiempo. Un solo clic, resultado instantáneo.
+
+```python
+import numpy as np
+
+sueldos = np.array([45000, 62000, 38000, ...])  # 50.000 valores
+sueldos_nuevos = sueldos * 1.12  # una sola operación, 50.000 resultados
+```
+
+Internamente, NumPy pasa el array a rutinas escritas en **C compilado** (un lenguaje de bajísimo nivel que la CPU ejecuta directamente sin intérprete). El tiempo pasa de segundos a milisegundos.
+
+Python puro es un lenguaje interpretado: ejecuta las instrucciones una por una, en tiempo real, con mucho overhead. Cuando queremos hacer la misma operación matemática sobre millones de datos, esto se vuelve lento.
+
+**NumPy** (Numerical Python) soluciona esto con el **array**: una estructura de datos que almacena elementos del mismo tipo en bloques contiguos de memoria, y cuyas operaciones están implementadas en **C compilado**. El resultado es que NumPy puede ser entre 10 y 1.000 veces más rápido que un bucle `for` de Python para operaciones matemáticas.
+
+La diferencia fundamental entre una lista de Python y un array de NumPy:
+
+| Característica | Lista Python | Array NumPy |
+|----------------|-------------|-------------|
+| Tipos de datos | Puede mezclar int, str, float | Solo un tipo por array |
+| Velocidad | Lenta (Python puro) | Muy rápida (C compilado) |
+| Operaciones matemáticas | Una por una con `for` | Sobre todo el array a la vez |
+| Memoria | Dispersa en RAM | Contigua y eficiente |
+
+**Otro ejemplo cotidiano para explicar la diferencia:** Tenés que calcular el promedio de temperatura de 1 millón de sensores industriales. Con Python puro necesitás un `for` que suma cada valor uno por uno. Con NumPy escribís `datos.mean()` y el resultado sale en microsegundos porque NumPy usa instrucciones especiales de la CPU (SIMD) que calculan múltiples sumas en paralelo a nivel de hardware.
+
+**Vectorización:** aplicar una operación a todo el array de una sola vez, sin bucles. `array * 1000` multiplica cada elemento por 1000 internamente en paralelo.
+
+```python
+import numpy as np
+
+# Con lista Python (necesita for):
+precios = [10.0, 25.5, 100.0, 5.25]
+precios_ars_lista = []
+for p in precios:
+    precios_ars_lista.append(p * 1000)
+
+# Con NumPy (vectorización, una línea):
+precios_np = np.array([10.0, 25.5, 100.0, 5.25])
+precios_ars_np = precios_np * 1000   # ← una operación, todos los elementos
+```
+
+**Funciones estadísticas** que NumPy calcula sobre el array completo de una sola vez:
+
+```python
+datos = np.array([72.0, 85.3, 91.0, 68.4, 88.9])
+
+print(f"Suma:     {datos.sum()}")
+print(f"Promedio: {datos.mean():.2f}")
+print(f"Mínimo:   {datos.min()}")
+print(f"Máximo:   {datos.max()}")
+print(f"Desvío:   {datos.std():.2f}")
+```
+
+**Máscaras booleanas:** cuando escribimos `array > 80`, NumPy evalúa la condición para cada elemento y devuelve un nuevo array de `True`/`False`. Si usamos ese array de `True`/`False` como índice, obtenemos solo los elementos donde la condición fue verdadera. Todo sin escribir un `for`.
+
+```python
+temps = np.array([72.0, 85.3, 91.0, 68.4, 88.9])
+
+mascara = temps > 80.0
+print(mascara)               # [False  True  True False  True]
+
+temps_altas = temps[mascara] # selecciona solo los True
+print(temps_altas)           # [85.3 91.  88.9]
+
+# Se puede hacer en una sola línea:
+temps_altas = temps[temps > 80.0]
+```
 
 **Ejecutar:**
 ```python
@@ -89,24 +290,130 @@ import numpy as np
 precios_usd = np.array([10.0, 25.5, 100.0, 5.25])
 tipo_cambio = 1000
 
-precios_ars = precios_usd * tipo_cambio   # vectorización
-print(f"En ARS: {precios_ars}")
+precios_ars = precios_usd * tipo_cambio
+print(f"En USD:  {precios_usd}")
+print(f"En ARS:  {precios_ars}")
 
-precios_caros = precios_usd[precios_usd > 20.0]   # máscara booleana
-print(f"Más de 20 USD: {precios_caros}")
+print(f"\nPromedio USD: {precios_usd.mean():.2f}")
+print(f"Máximo USD:   {precios_usd.max():.2f}")
+
+precios_caros = precios_usd[precios_usd > 20.0]
+print(f"\nMás de 20 USD: {precios_caros}")
 ```
 
+**Qué mostrar en detalle:**
+- Ejecutar `type(precios_usd)` → `<class 'numpy.ndarray'>`
+- Ejecutar `precios_usd.dtype` → `float64` (NumPy eligió el tipo automáticamente)
+- Mostrar `precios_usd > 20.0` antes de usarlo como índice para que vean el array de booleanos.
+- Ejecutar `precios_usd.shape` → `(4,)` (un array 1D con 4 elementos).
+
 **Preguntar a la clase:**
-- ¿Por qué NumPy es más rápido que un `for`? — Porque las operaciones se ejecutan en C por debajo, no en Python puro.
+
+> ¿Por qué NumPy es más rápido que un bucle `for` de Python para operaciones matemáticas?
+
+**Respuesta:** Porque las operaciones de NumPy están escritas en C compilado y se ejecutan directamente en la CPU sin el overhead del intérprete de Python. Además, los arrays almacenan los datos de forma contigua en memoria, lo que permite a la CPU cargarlos de forma eficiente en caché. Un bucle `for` de Python tiene que interpretar cada línea, crear objetos nuevos, manejar la memoria, etc. Para un millón de elementos, la diferencia puede ser de segundos vs. milisegundos.
+
+> ¿Qué pasa si intentamos crear un array con tipos mezclados: `np.array([1, 2.5, "tres"])`?
+
+**Respuesta:** NumPy va a convertir todos los elementos al tipo más general que los pueda representar. En este caso, va a convertir todo a `str` (`'<U32'` o similar), porque no puede representar texto como número, pero sí puede representar números como texto. El array resultante no sirve para operaciones matemáticas. NumPy no tira error, simplemente hace la conversión, lo cual puede generar bugs silenciosos.
 
 ---
 
 ### Semana 4 — Pandas: El Excel de Python
 
 **Qué decir:**
-- Pandas toma arrays de NumPy y les pone filas y columnas: el **DataFrame**.
-- Los tres movimientos más comunes en limpieza de datos: **fillna** (rellenar vacíos), **columna calculada** (nueva columna a partir de otras), **groupby** (agrupar y agregar).
-- `np.nan` representa un dato faltante. Es diferente a cero: no sabemos cuánto vale.
+
+**¿Por qué no alcanza Python puro (ni NumPy solo) para trabajar con tablas de datos?**
+
+Imaginemos que tenemos una tabla de ventas con tres columnas: Producto (texto), Unidades (número), Precio (número). En Python puro, la única forma de representar esto es con una lista de listas o un diccionario de listas:
+
+```python
+# Python puro: funciona, pero es engorroso
+datos = {
+    "Producto":  ["Teclado", "Mouse", "Monitor"],
+    "Unidades":  [10, 15, 5],
+    "Precio":    [50, 25, 300]
+}
+
+# Para calcular el total de ventas de cada producto:
+totales = []
+for i in range(len(datos["Producto"])):
+    totales.append(datos["Unidades"][i] * datos["Precio"][i])
+print(totales)  # [500, 375, 1500]
+
+# Para filtrar solo los productos con más de 8 unidades:
+filtrados = []
+for i in range(len(datos["Producto"])):
+    if datos["Unidades"][i] > 8:
+        filtrados.append(datos["Producto"][i])
+print(filtrados)  # ["Teclado", "Mouse"]
+```
+
+Esto funciona, pero tiene problemas serios:
+- Para cada operación hay que escribir un bucle completo.
+- Si las columnas tienen distinto largo, todo explota silenciosamente.
+- No hay forma simple de agrupar por categoría, de ordenar, de unir con otra tabla.
+- No hay ningún manejo automático de valores faltantes.
+- Si el dataset tiene 500 columnas y 1 millón de filas, este enfoque se vuelve imposible de manejar.
+
+**NumPy tampoco alcanza**, porque un array de NumPy solo puede tener un tipo de dato. Si mezclamos texto (`"Teclado"`) con números (`50`), NumPy convierte todo a texto y perdemos la capacidad de hacer matemática. Las tablas reales siempre mezclan tipos.
+
+**Analogía cotidiana:** Python puro para tablas es como llevar la contabilidad de una empresa en un cuaderno rayado: técnicamente funciona, pero es lento, propenso a errores y no escala. NumPy solo es como tener una calculadora científica muy rápida pero sin hojas de cálculo. **Pandas es Excel automatizable**: tiene las filas, las columnas, los tipos, el filtrado, el ordenamiento, el groupby... y además se puede programar y combinar con modelos de machine learning.
+
+Con Pandas, lo que antes era un bucle de 6 líneas se convierte en una sola expresión:
+
+```python
+import pandas as pd
+
+df = pd.DataFrame(datos)
+
+# Columna calculada (sin for):
+df["Total"] = df["Unidades"] * df["Precio"]
+
+# Filtrado (sin for):
+df_filtrado = df[df["Unidades"] > 8]
+
+# Agrupación y suma (equivalente a GROUP BY de SQL):
+df.groupby("Producto")["Total"].sum()
+```
+
+Pandas toma los arrays de NumPy y les agrega dos cosas fundamentales: **etiquetas en filas y columnas** (el índice y los nombres de columna), y la capacidad de manejar columnas con **tipos distintos** en la misma tabla. El resultado es el **DataFrame**: la estructura de datos central de todo el análisis de datos en Python.
+
+Un DataFrame tiene:
+- **Filas**: cada fila es una observación (un registro, un evento, un cliente, una transacción).
+- **Columnas**: cada columna es una variable o característica (el nombre, la edad, el precio, la fecha).
+- **Índice**: la etiqueta de cada fila. Por defecto es 0, 1, 2, 3... pero puede ser cualquier cosa (fechas, IDs, etc.).
+- **dtype**: cada columna tiene su propio tipo de dato (int, float, object, datetime, etc.).
+
+Las operaciones más comunes al trabajar con un DataFrame real:
+
+```python
+df.head()        # primeras 5 filas (para ver cómo son los datos)
+df.tail()        # últimas 5 filas
+df.shape         # (filas, columnas) — cuánto pesa el dataset
+df.info()        # tipos de dato por columna y conteo de no-nulos
+df.describe()    # estadísticas descriptivas de las columnas numéricas
+df.isnull().sum()  # cuenta cuántos valores faltantes hay por columna
+```
+
+**`np.nan` vs `0` vs `None`:** `np.nan` es el valor especial de NumPy/Pandas para representar un dato ausente. Es diferente a cero (que es un valor válido). Pandas lo excluye automáticamente de los cálculos estadísticos (`.mean()`, `.sum()`, etc.), lo que es el comportamiento correcto. Siempre hay que saber cuántos NaN tiene cada columna antes de analizar.
+
+**`fillna(valor)`:** rellena los NaN con el valor indicado. Estrategias comunes:
+- `fillna(0)` → cuando el NaN significa "cero" (sin actividad, sin venta).
+- `fillna(df["col"].mean())` → cuando queremos no distorsionar el promedio.
+- `fillna(method="ffill")` → en series temporales: propaga el último valor conocido.
+
+**Columnas calculadas:** se crea una nueva columna asignando el resultado de una operación sobre columnas existentes. Como NumPy por debajo, la operación se aplica fila por fila automáticamente sin `for`.
+
+**`groupby`:** agrupa las filas que comparten el mismo valor en una columna, y luego aplica una función de agregación (sum, mean, count, max, etc.) a cada grupo. Es la operación más poderosa de Pandas para obtener resúmenes.
+
+```python
+# groupby en acción:
+# 1. Agrupa las filas por la columna "Producto"
+# 2. Para cada grupo, toma la columna "Total_Venta"
+# 3. Suma todos los valores de ese grupo
+df.groupby("Producto")["Total_Venta"].sum()
+```
 
 **Ejecutar:**
 ```python
@@ -122,17 +429,38 @@ datos_ventas = {
 df = pd.DataFrame(datos_ventas)
 print("Tabla original:")
 print(df)
+print(f"\nShape: {df.shape}")
+print(f"\nNaN por columna:\n{df.isnull().sum()}")
 
-df["Unidades"] = df["Unidades"].fillna(0)           # rellenar NaN
-df["Total_Venta"] = df["Unidades"] * df["Precio_Unitario"]  # columna nueva
-reporte = df.groupby("Producto")["Total_Venta"].sum()       # agrupar
+df["Unidades"] = df["Unidades"].fillna(0)
+df["Total_Venta"] = df["Unidades"] * df["Precio_Unitario"]
+reporte = df.groupby("Producto")["Total_Venta"].sum()
 
+print("\nTabla final:")
+print(df)
 print("\nTotal por producto:")
 print(reporte)
 ```
 
+**Qué mostrar en detalle:**
+- Ejecutar `df.dtypes` antes y después del fillna para ver los tipos.
+- Ejecutar `df.info()` para ver el resumen completo de la tabla.
+- Mostrar `df.describe()` para ver las estadísticas descriptivas rápidas.
+- Mostrar qué pasa sin `fillna`: `df["Unidades"] * df["Precio_Unitario"]` con NaN → la fila entera se convierte en NaN.
+
 **Preguntar a la clase:**
-- ¿Qué pasaría si en vez de `fillna(0)` usáramos `fillna(df["Unidades"].mean())`? — Completaríamos con el promedio del resto.
+
+> ¿Qué pasaría si en vez de `fillna(0)` usáramos `fillna(df["Unidades"].mean())`?
+
+**Respuesta:** Completaríamos el NaN con el promedio de las otras unidades. En este caso, la media de `[10, 15, 5, 20]` es 12.5, así que la fila de Teclado faltante quedaría con 12.5 unidades. Esta estrategia es mejor cuando no tenemos razón para creer que el NaN significa "cero": simplemente no se registró el dato, pero el valor real probablemente estuvo cerca del promedio.
+
+> ¿Qué diferencia hay entre `df["Producto"]` y `df[["Producto"]]`?
+
+**Respuesta:** `df["Producto"]` (un solo par de corchetes) devuelve una **Serie** de Pandas: una columna individual, como un array con etiquetas. `df[["Producto"]]` (doble par de corchetes) devuelve un **DataFrame** con una sola columna. La diferencia importa cuando encadenamos operaciones: algunas funciones solo aceptan DataFrames, otras solo aceptan Series.
+
+> ¿Qué hace `groupby` internamente?
+
+**Respuesta:** Pandas recorre el DataFrame y separa las filas en grupos según el valor de la columna indicada. Luego aplica la función de agregación (`.sum()`, `.mean()`, etc.) dentro de cada grupo por separado y devuelve un resultado por grupo. Es el equivalente a un `GROUP BY` de SQL. Internamente usa hashing para asignar cada fila a su grupo de forma muy eficiente.
 
 ---
 
