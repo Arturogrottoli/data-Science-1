@@ -1,69 +1,188 @@
-# DS
-📦 Análisis 360 del Ciclo de Vida del Cliente B2B en E-commerce (Veeqo - Amazon) (link del dataset: https://docs.google.com/spreadsheets/d/1lh5AACg42dKT8NWyR-Gi_pV9rPNqdMEFqniMVNA4jRw/edit?gid=573541234#gid=573541234)
-📖 Abstracto y Objetivo del Proyecto
-Este proyecto analiza un dataset transaccional y operativo de 84,063 registros de empresas que utilizan Veeqo, una plataforma de gestión de inventarios y envíos perteneciente a Amazon.
+# Análisis 360 del Ciclo de Vida del Cliente B2B en E-commerce — Veeqo (Amazon)
 
-A diferencia de un análisis B2C clásico, este estudio se enfoca en la "salud" de la cuenta del vendedor (Business-to-Business). El objetivo principal es identificar qué factores operativos, tecnológicos y de comportamiento distinguen a los usuarios de alto valor y activos (Live) de aquellos que abandonan la plataforma o se estancan en la fase de prueba (Churn/Trialing).
+**Materia:** Data Science I  
+**Dataset:** [Acceder desde Google Drive](https://docs.google.com/spreadsheets/d/1lh5AACg42dKT8NWyR-Gi_pV9rPNqdMEFqniMVNA4jRw/edit?gid=573541234#gid=573541234)  
+**Notebook:** `ProyectoEjemplo.ipynb` (abrir en Google Colab)
 
-🛠️ Procesamiento y Limpieza de Datos
-El dataset original constaba de 37 variables que requerían un tratamiento profundo para asegurar la calidad del modelo:
+---
 
-Transformación de Tipos: Conversión de fechas a formato fecha (datetime), corrección de IDs y métricas numéricas.
+## ¿De qué trata este proyecto?
 
-Tratamiento de Nulos (Imputación Lógica): * Eliminación de variables irrecuperables (ej. PHONE con 99% de nulos).
+Este proyecto analiza datos reales de **Veeqo**, una plataforma de gestión de inventarios y envíos adquirida por Amazon, orientada a pequeñas y medianas empresas que venden en múltiples canales (Shopify, eBay, Amazon, etc.).
 
-Imputación de canales inactivos con 0.
+El dataset contiene **84.063 registros** de empresas que se registraron en la plataforma, con información sobre su comportamiento operativo, los canales que conectaron, cuántos usuarios crearon y su estado final de suscripción.
 
-Creación de variables booleanas de presencia/ausencia para eventos temporales (ej. HAS_FIRST_SHIPMENT_DATE).
+### El problema de negocio
 
-Tratamiento de Outliers (Capping Híbrido): Se implementó una estrategia de winsorización para domar valores extremos sin perder clientes corporativos grandes.
+En el ecosistema B2B de SaaS (Software as a Service), el mayor costo no es adquirir un cliente sino **retenerlo**. La pregunta que guía este proyecto es:
 
-Se usó IQR Suavizado (3.0) y Percentil 99 según la distribución de la columna.
+> ¿Qué características operativas y de comportamiento distinguen a un cliente que se convierte en usuario activo y de alto valor (`live`) de uno que abandona la plataforma o se queda en fase de prueba (`trialing`, `canceled`)?
 
-Resultado: Solo el 8.73% de los registros fueron ajustados (manteniendo las modificaciones individuales de cada columna por debajo del 5%), logrando el estándar de oro analítico.
+Poder predecir esto permite al equipo de Customer Success de Veeqo saber **a cuáles clientes dedicarle recursos de onboarding** antes de que abandonen.
 
-🤖 Modelado Predictivo (Machine Learning)
-Se estructuró un modelo de Clasificación Binaria enfrentando un fuerte desbalance de clases (83,376 en Trial/Churn vs 687 Activos).
+---
 
-Target (TARGET): 1 (High Value: live, implementation) vs 0 (Churn/Trial: trialing, canceled, etc.).
+## Dataset
 
-Feature Selection: Mediante Random Forest, aislando las 26 características más predictivas.
+- **Fuente:** Google Drive (link arriba)
+- **Filas:** 84.063 empresas registradas
+- **Columnas:** 37 variables operativas, de suscripción y de comportamiento
+- **Período:** Sin fecha fija, corte transversal del estado actual de cada cuenta
 
-Algoritmos Entrenados: 1. Random Forest Classifier
-2. Logistic Regression
-3. K-Nearest Neighbors (KNN)
-4. XGBoost Classifier
+### Variable objetivo (TARGET)
 
-📊 Desempeño de los Modelos
-Debido al desbalance de clases, la métrica guía fue ROC-AUC en lugar de Accuracy (el cual rondaba engañosamente el 99%).
+```
+SUBSCRIPTION_STATUS → TARGET binario
 
-La Regresión Logística demostró ser el mejor modelo general, superando a los ensambles en la detección de la clase minoritaria (empresas exitosas).
+  live | implementation → 1  (High Value: cliente activo, paga y usa la plataforma)
+  trialing | canceled | resto → 0  (Churn/Trial: abandonó o nunca convirtió)
+```
 
-💡 Conclusión Principal del Negocio
-"La adopción de equipo mata a la infraestructura"
+El desbalance de clases es severo: **~99% clase 0 / ~1% clase 1**. Esto es esperable en B2B SaaS: de cada 100 empresas que se registran, solo una pequeña fracción se convierte en cliente real. Por eso se usa **ROC-AUC como métrica guía** en lugar de Accuracy.
 
-Contrario a la intuición en un software logístico (donde se esperaría que la cantidad de almacenes conectados dicte el éxito), todos los modelos coincidieron en un hallazgo fundamental: el predictor más fuerte para la retención es ALL_USERS_COUNT.
+---
 
-Un cliente que ingresa a la plataforma y crea usuarios adicionales para su equipo de trabajo tiene una probabilidad exponencialmente mayor de convertirse en un usuario "High Value" (Live) frente a un usuario solitario, independientemente de la complejidad de sus almacenes (Warehouses/FBA).
+## Estructura del Notebook
 
-🗂️ Diccionario de Datos (Variables Clave)
-SUBSCRIPTION_STATUS: Estado de la suscripción (Target base).
+### 1. Lectura y análisis inicial (EDA)
 
-ALL_USERS_COUNT: Total de usuarios registrados en la misma cuenta.
+- `df.info()` para ver dimensiones, tipos de datos y nulos
+- Conteo de nulos por columna con tabla de porcentaje
+- **Visualización de missingness con `missingno`** para detectar patrones de nulos
 
-INACTIVE_CHANNELS: Cantidad de canales conectados pero inactivos.
+#### Hallazgos principales del EDA
 
-ACTIVE_CHANNELS: Cantidad de canales de venta conectados.
+| Columna | % de nulos | Tipo | Decisión tomada |
+|---|---|---|---|
+| `PHONE` | ~99% | MNAR | Eliminar (empresas no dan su teléfono voluntariamente) |
+| Fechas de hitos (`PQL_DATE`, `FIRST_SHIPMENT_DATE`, etc.) | Variable | MNAR | Convertir a `HAS_X` (booleano: ¿ocurrió o no?) |
+| Canales inactivos (`INACTIVE_CHANNELS`) | ~20% | MAR | Rellenar con 0 (ausencia = no tiene canales inactivos) |
+| Campos de marketing (`MARKETING_CHANNEL`) | ~10% | MAR | Rellenar con "Desconocido" |
 
-DECILE: Clasificación RFM del cliente.
+**¿Qué es MNAR?** Un nulo que tiene significado propio. En Veeqo, que una empresa no tenga `FIRST_SHIPMENT_DATE` no es un error del sistema, sino que **nunca realizó su primer envío**. Imputar esa fecha con la mediana sería incorrecto; en cambio, se crea `HAS_FIRST_SHIPMENT_DATE = 0` (variable booleana de presencia).
 
-WAREHOUSES / FBA_WAREHOUSES: Almacenes propios vs gestionados por Amazon.
+### 2. Limpieza y transformación de datos
 
-🚀 Instalación (Para reproducir el código)
-Si querés correr este análisis en tu máquina:
+Se corrigieron los tipos de dato de 37 columnas:
 
-Cloná este repositorio.
+- **Fechas:** 11 columnas en formato `object` → `datetime64` con `pd.to_datetime(errors='coerce')`
+- **Enteros:** Columnas `float64` que representaban conteos (usuarios, warehouses) → `int64`
+- **Booleanos:** Fechas de hitos → `HAS_X` (1 si ocurrió, 0 si no)
+- **Strings:** Columnas de texto normalizadas (espacios, mayúsculas)
 
-Asegurate de tener instaladas las librerías: pandas, numpy, scikit-learn, xgboost, matplotlib y seaborn.
+### 3. Tratamiento de outliers (Capping Híbrido)
 
-Ejecutá el script principal o Jupyter Notebook asociado.
+El dataset tiene clientes corporativos grandes con valores muy atípicos en variables como `ALL_USERS_COUNT` o `ACTIVE_CHANNELS`. Eliminarlos sería un error (son clientes reales, no errores de carga). En cambio, se aplicó **capping híbrido**:
+
+- Si la columna tiene distribución normal/simétrica → **IQR suavizado × 3.0** como límite
+- Si la columna tiene distribución sesgada → **Percentil 99** como límite
+
+**Resultado obtenido:** Solo el **8.73% de los registros** fueron ajustados, y ninguna columna supera el **5% de registros modificados** individualmente. Esto cumple el "estándar de oro analítico" (< 5% por columna).
+
+> El capping preserva la información (no elimina filas) pero evita que los outliers dominen los coeficientes del modelo.
+
+### 4. Feature Engineering y Feature Selection
+
+**Feature Engineering aplicado:**
+- Variables `HAS_X` (booleanas) para 8 fechas de hitos operativos
+- Conversión de fechas a días transcurridos desde la creación de la cuenta
+- Imputación con 0 para variables de canales (ausencia = 0 activos)
+
+**Feature Selection:**
+Se entrenó un `RandomForestClassifier` preliminar sobre todas las variables disponibles y se usó `SelectFromModel` para conservar únicamente las **variables con importancia por encima de la media**. Esto reduce el ruido y hace el modelo más interpretable.
+
+Variables finales seleccionadas:
+```
+ACTIVE_CHANNELS, INACTIVE_CHANNELS, ACTIVE_USERS_L_28D,
+ALL_USERS_COUNT, ADMIN_USER_COUNT, WAREHOUSES, FBA_WAREHOUSES, DECILE
+```
+
+### 5. Modelado Predictivo
+
+Se entrenaron **4 modelos de clasificación binaria**, comparados por ROC-AUC:
+
+| Modelo | Rol | Por qué se eligió |
+|---|---|---|
+| **Logistic Regression** | Baseline | Modelo más simple; si el RF no lo supera, hay un problema |
+| **Random Forest** | Principal | Robusto a outliers, no requiere normalización, da feature importances |
+| **K-Nearest Neighbors** | Complementario | Detecta patrones locales no lineales |
+| **XGBoost** | Complementario avanzado | Gradient boosting, generalmente el más potente |
+
+**División de datos:**
+```python
+train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+```
+`stratify=y` garantiza que el 1% de clase 1 se mantenga tanto en train como en test.
+
+**Pipeline formal (sección de requisito):**  
+Adicionalmente se construyó un `sklearn.Pipeline` con `SimpleImputer + StandardScaler` combinado con `GridSearchCV + StratifiedKFold(n_splits=5)` para demostrar la metodología correcta de búsqueda de hiperparámetros sin data leakage.
+
+### 6. Evaluación del Modelo
+
+**¿Por qué ROC-AUC y no Accuracy?**
+
+Con 99% de clase 0, un modelo que siempre predice "Churn" tiene 99% de accuracy pero detecta 0 clientes High Value. El ROC-AUC mide la **capacidad de ranking**: de cada par (cliente High Value, cliente Churn), ¿cuántas veces el modelo le asigna mayor puntaje al High Value?
+
+Visualizaciones incluidas en el notebook:
+- **Balance de clases** (barras de conteo y porcentaje)
+- **Confusion Matrix** con etiquetas de negocio (VN, VP, FP, FN y su costo)
+- **Curva ROC** comparando todos los modelos
+- **Feature Importances** del Random Forest (barras horizontales con importancia Gini)
+
+---
+
+## Resultado y Conclusión Principal
+
+**"La adopción de equipo mata a la infraestructura"**
+
+Todos los modelos coinciden en que el predictor más fuerte para identificar un cliente High Value es `ALL_USERS_COUNT`, la cantidad de usuarios registrados en la misma cuenta.
+
+> Un cliente que ingresa a Veeqo y crea usuarios adicionales para su equipo tiene una probabilidad **exponencialmente mayor** de convertirse en cliente `live`, independientemente de la complejidad de su infraestructura (cantidad de warehouses, canales conectados, etc.).
+
+**Implicación de negocio:** El equipo de Customer Success debería priorizar, en la primera semana de onboarding, ayudar al cliente a agregar al menos un usuario adicional a su cuenta. Ese es el comportamiento más predictivo del éxito a largo plazo.
+
+---
+
+## Cómo abrir y ejecutar este proyecto
+
+Este proyecto está diseñado para correr en **Google Colab** con el dataset en **Google Drive**.
+
+### Pasos
+
+1. Abrir el archivo `ProyectoEjemplo.ipynb` desde Google Drive con Google Colab
+2. En la primera celda, montar Google Drive:
+   ```python
+   from google.colab import drive
+   drive.mount('/content/drive')
+   ```
+3. El notebook lee el dataset directamente desde Google Sheets con `pd.read_csv(url)`, por lo que no es necesario descargar el archivo manualmente
+
+### Librerías necesarias
+
+Todas están disponibles en Google Colab sin instalación adicional, excepto:
+
+```python
+pip install missingno   # visualización de nulos
+pip install xgboost     # modelo XGBoost
+```
+
+Estas líneas ya están incluidas en el notebook.
+
+---
+
+## Diccionario de Variables Clave
+
+| Variable | Tipo | Descripción |
+|---|---|---|
+| `SUBSCRIPTION_STATUS` | object | Estado de la suscripción → base del TARGET |
+| `ALL_USERS_COUNT` | int | Total de usuarios registrados en la cuenta |
+| `ACTIVE_CHANNELS` | int | Canales de venta conectados y activos |
+| `INACTIVE_CHANNELS` | int | Canales conectados pero sin actividad reciente |
+| `ACTIVE_USERS_L_28D` | int | Usuarios que usaron la plataforma en los últimos 28 días |
+| `WAREHOUSES` | int | Almacenes propios del cliente conectados |
+| `FBA_WAREHOUSES` | int | Almacenes gestionados por Amazon (Fulfillment by Amazon) |
+| `DECILE` | int | Clasificación RFM del cliente (1 = más valioso, 10 = menos) |
+| `HAS_FIRST_SHIPMENT_DATE` | int (0/1) | ¿El cliente realizó su primer envío? |
+| `HAS_PQL_DATE` | int (0/1) | ¿El cliente alcanzó el hito de Product Qualified Lead? |
+| `MARKETING_CHANNEL` | object | Canal por el que llegó el cliente (orgánico, pagado, etc.) |
+| `TARGET` | int (0/1) | Variable objetivo: 1=High Value (live), 0=Churn/Trial |
