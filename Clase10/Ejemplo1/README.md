@@ -1,7 +1,7 @@
 # Análisis 360 del Ciclo de Vida del Cliente B2B en E-commerce — Veeqo (Amazon)
 
 **Materia:** Data Science I  
-**Dataset:** [Acceder desde Google Drive](https://docs.google.com/spreadsheets/d/1lh5AACg42dKT8NWyR-Gi_pV9rPNqdMEFqniMVNA4jRw/edit?gid=573541234#gid=573541234)  
+**Dataset:** `ecommerce_data.csv` (subir manualmente a Google Colab)  
 **Notebook:** `ProyectoEjemplo.ipynb` (abrir en Google Colab)
 
 ---
@@ -24,7 +24,7 @@ Poder predecir esto permite al equipo de Customer Success de Veeqo saber **a cu�
 
 ## Dataset
 
-- **Fuente:** Google Drive (link arriba)
+- **Archivo:** `ecommerce_data.csv` (subir a `/content/` en Colab)
 - **Filas:** 84.063 empresas registradas
 - **Columnas:** 37 variables operativas, de suscripción y de comportamiento
 - **Período:** Sin fecha fija, corte transversal del estado actual de cada cuenta
@@ -145,17 +145,19 @@ Todos los modelos coinciden en que el predictor más fuerte para identificar un 
 
 ## Cómo abrir y ejecutar este proyecto
 
-Este proyecto está diseñado para correr en **Google Colab** con el dataset en **Google Drive**.
+Este proyecto está diseñado para correr en **Google Colab** con el dataset subido localmente.
 
 ### Pasos
 
-1. Abrir el archivo `ProyectoEjemplo.ipynb` desde Google Drive con Google Colab
-2. En la primera celda, montar Google Drive:
-   ```python
-   from google.colab import drive
-   drive.mount('/content/drive')
-   ```
-3. El notebook lee el dataset directamente desde Google Sheets con `pd.read_csv(url)`, por lo que no es necesario descargar el archivo manualmente
+1. Abrir el archivo `ProyectoEjemplo.ipynb` en Google Colab
+2. En el panel izquierdo (ícono de carpeta), arrastrar el archivo `ecommerce_data.csv`
+3. El archivo queda disponible en `/content/ecommerce_data.csv` y el notebook lo lee automáticamente
+
+```python
+df_retail = pd.read_csv("/content/ecommerce_data.csv")
+```
+
+> **Nota:** los archivos subidos directamente a Colab se borran al cerrar la sesión. Hay que volver a subirlos si se reinicia el runtime.
 
 ### Librerías necesarias
 
