@@ -1699,6 +1699,56 @@ plt.show()
 
 ---
 
+## Distribuciones: Histograma, KDE, Boxplot y Violin
+
+**Contexto teórico:**
+
+Para entender cómo se reparten los valores de una variable numérica hay cuatro herramientas estándar, y cada una muestra algo distinto de la misma información:
+
+| Herramienta | Qué muestra | Cuándo conviene |
+|---|---|---|
+| **Histograma** | Agrupa los valores en barras (bins) y cuenta cuántos caen en cada rango | Vista rápida y simple de dónde se concentran los datos |
+| **KDE** (`kde=True`) | Curva suave que estima la densidad, sin depender de cuántos bins se eligieron | Ver si hay uno o varios picos (multimodalidad) sin el ruido del binning |
+| **Boxplot** | Resume la distribución en 5 números: mínimo, Q1, mediana, Q3, máximo — y marca los outliers como puntos sueltos | Comparar rápido la dispersión entre varias categorías |
+| **Violinplot** | Combina boxplot + KDE: la forma completa de la densidad alrededor de la misma caja | Cuando la forma de la distribución importa tanto como el resumen estadístico (por ejemplo, detectar bimodalidad que el boxplot solo no muestra) |
+
+**Regla de outliers del boxplot:** un punto se marca como outlier si cae fuera del rango `[Q1 - 1.5·IQR, Q3 + 1.5·IQR]`, donde `IQR = Q3 - Q1` (rango intercuartílico). Esa es la "regla del bigote": los bigotes del boxplot se extienden hasta el dato más extremo que sigue dentro de ese rango, y todo lo que queda afuera se dibuja como punto individual.
+
+**Qué decir:**
+- Boxplot y violinplot sirven sobre todo para **comparar categorías** (acá, `total_bill` por `time`: Almuerzo vs Cena).
+- Histograma y KDE sirven para ver la **forma de una sola variable**, sin dividir por categoría.
+- El violinplot no reemplaza al boxplot: agrega la forma de la densidad, pero el boxplot solo sigue siendo más legible cuando hay muchas categorías juntas (el violin se satura visualmente antes).
+
+**Ejecutar:**
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+tips = sns.load_dataset("tips")
+
+fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(14, 4))
+
+sns.histplot(data=tips, x="total_bill", kde=True, ax=axes[0])
+axes[0].set_title("Histograma + KDE: forma general")
+
+sns.boxplot(data=tips, x="time", y="total_bill", ax=axes[1])
+axes[1].set_title("Boxplot: resumen por categoría")
+
+sns.violinplot(data=tips, x="time", y="total_bill", ax=axes[2])
+axes[2].set_title("Violinplot: boxplot + forma")
+
+plt.tight_layout()
+plt.show()
+```
+
+**Preguntar a la clase:**
+
+> ¿Por qué el violinplot de "Cena" (Dinner) es más ancho/alto que el de "Almuerzo" (Lunch)?
+
+**Respuesta:** Porque hay más registros de cenas en el dataset `tips`, y sobre todo porque las cuentas de cena tienden a ser más altas y más dispersas (gente que pide más platos, comparte cuentas grandes) — la forma del violín refleja esa mayor variabilidad, cosa que un boxplot solo (sin la silueta) no deja ver tan claro.
+
+---
+
 ### Tema 8 — Plotly Express: Gráficos Interactivos
 
 **Contexto teórico:**
