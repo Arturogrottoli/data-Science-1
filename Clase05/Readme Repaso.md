@@ -977,6 +977,17 @@ El **8% de los hombres** y el 0.5% de las mujeres tienen algún tipo de daltonis
 
 ---
 
+## Bloque 0 — Principios de Diseño y Ética Visual en la Práctica
+
+El notebook arranca con dos ejemplos que bajan a código lo que ya se vio en teoría:
+
+- **Ejemplo 1 (encuadre + jerarquía + anotación):** el mismo bar chart de la Sección 1.2 — un gráfico "sin curar" al lado del gráfico con título con unidad, color destacado en diciembre y una `ax.annotate()`.
+- **Ejemplo 2 (ética visual):** el pie chart manipulado de Apple/Google/Microsoft de la Sección 3.2, con `pull` separando el sector de Apple, seguido de la versión honesta en barras horizontales.
+
+No hay teoría nueva que agregar acá — es literalmente ejecutar el código de las Secciones 1.2 y 3.2 de arriba. Si algún alumno pregunta algo que no quedó claro en el repaso teórico, es el momento de volver a esas secciones antes de seguir con el Bloque 1.
+
+---
+
 ## Bloque 1 — Arquitectura de Figuras y Diseño Avanzado
 
 ---
@@ -1014,6 +1025,19 @@ Con `nrows=1, ncols=3`, axes es una lista `[ax1, ax2, ax3]` donde cada elemento 
 | `figsize=(w, h)` | Tamaño del lienzo en pulgadas | `(10, 4)` → ancho=10, alto=4 |
 | `sharex=True` | Todos los gráficos comparten el eje X | Útil en series temporales |
 | `sharey=True` | Todos los gráficos comparten el eje Y | Útil para comparar escalas |
+
+**Parámetros visuales básicos (`color`, `marker`, `linewidth`, `s`):**
+
+Estos parámetros aparecen en casi cualquier función de Matplotlib y no cambian de significado entre `plot()`, `bar()` o `scatter()`:
+
+| Parámetro | Qué hace | Ejemplo |
+|---|---|---|
+| `color` | Color de la línea, barra o punto. Acepta nombres (`"blue"`), códigos hex (`"#1a5276"`) o abreviaturas (`"r"`, `"g"`, `"b"`) | `color="orange"` → barras naranjas |
+| `marker` | Símbolo que se dibuja sobre cada punto de datos, además de la línea (parámetro de `plot()`) | `marker="o"` → círculo, `"s"` → cuadrado, `"^"` → triángulo |
+| `linewidth` | Grosor de la línea en puntos tipográficos | `linewidth=2` → línea más gruesa que el default (1) |
+| `s` | Tamaño de cada punto en un `scatter()` (marker size, en puntos al cuadrado) | `s=100` → puntos grandes |
+
+Sin `marker`, `ax.plot()` dibuja solo la línea continua, sin ningún símbolo en los puntos de datos reales. Agregar `marker="o"` deja ver exactamente dónde están medidos los datos — importante con pocos puntos; con series de miles de puntos el marker satura el gráfico y conviene omitirlo.
 
 **Diferencia crítica entre títulos:**
 
