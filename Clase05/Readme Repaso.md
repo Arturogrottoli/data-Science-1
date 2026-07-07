@@ -977,47 +977,6 @@ El **8% de los hombres** y el 0.5% de las mujeres tienen algún tipo de daltonis
 
 ---
 
-## Las Librerías que Vamos a Usar
-
-Toda la clase gira alrededor de tres librerías de Python. Cada una resuelve un problema distinto, y en la práctica se combinan todo el tiempo (por ejemplo, Seaborn dibuja *sobre* un lienzo de Matplotlib, y Plotly se usa aparte para lo interactivo).
-
-### Matplotlib
-
-Es la librería de graficación original de Python, creada en 2003 por John Hunter (ver Tema 1 para la historia completa). Funciona a **bajo nivel**: cada elemento del gráfico —el lienzo, los ejes, cada línea, cada barra, cada etiqueta— es un objeto de Python que se crea y se configura a mano. Eso la hace la más flexible y también la más verbosa: se puede controlar absolutamente todo (posición exacta de una anotación, grosor de cada línea, tipografía de cada texto), pero hay que escribir más código para lograrlo.
-
-La usamos porque:
-- Genera **imágenes estáticas** (PNG, PDF, SVG) ideales para reportes, papers y presentaciones impresas.
-- Es la librería que **todas las demás usan por debajo** — entender su lógica de `Figure`/`Axes` ayuda a entender Seaborn también.
-- Da control total sobre el resultado final, algo clave para GridSpec (layouts asimétricos) y para exportación profesional (`dpi`, `bbox_inches`).
-
-### Seaborn
-
-Está construida **encima de Matplotlib** (no la reemplaza). La creó Michael Waskom en 2012 para reducir la cantidad de código necesaria al graficar datos tabulares (DataFrames de Pandas). En Matplotlib puro hay que decirle a mano qué graficar en X, qué en Y y de qué color cada categoría; en Seaborn se le pasa el DataFrame completo y los nombres de columnas: `sns.scatterplot(data=df, x="col1", y="col2", hue="categoria")` hace en una línea lo que en Matplotlib puro tomaría 5 o 10.
-
-La usamos porque:
-- Tiene **paletas de color y gráficos estadísticos ya resueltos** (boxplot, violinplot, distribuciones) que en Matplotlib habría que programar desde cero.
-- Entiende de forma nativa columnas categóricas (`hue`, `style`, `size`) para análisis multivariado.
-- Sigue siendo Matplotlib por debajo: cada gráfico de Seaborn devuelve un `Axes` de Matplotlib que se puede seguir personalizando con `ax.set_title()`, `ax.set_xlabel()`, etc.
-
-### Plotly (Plotly Express)
-
-Es la única de las tres que **no genera una imagen**, sino código HTML + JavaScript. El resultado se renderiza en el navegador (o en la celda del notebook) como un objeto interactivo: se puede hacer zoom, pasar el mouse sobre un punto para ver su valor exacto (tooltip), y hacer clic en la leyenda para ocultar categorías.
-
-La usamos porque:
-- Sirve para **exploración de datos**: poder hacer zoom e inspeccionar valores exactos ahorra tener que regraficar con distintos rangos cada vez que se quiere mirar un detalle.
-- Es la mejor opción para **dashboards y reportes web**, donde el usuario final interactúa con el gráfico.
-- No reemplaza a Matplotlib/Seaborn: para un documento impreso o un PDF, un gráfico interactivo no sirve de nada — ahí se sigue usando las otras dos.
-
-**Resumen de cuándo usar cada una:**
-
-| Necesito... | Uso |
-|---|---|
-| Un gráfico rápido y estándar (barras, líneas, dispersión) a partir de un DataFrame | Seaborn |
-| Control total del layout (paneles asimétricos, anotaciones a medida, exportación en PDF/SVG) | Matplotlib |
-| Que el usuario final pueda explorar el gráfico (zoom, tooltip, filtrar por leyenda) | Plotly |
-
----
-
 ## Bloque 0 — Principios de Diseño y Ética Visual en la Práctica
 
 Este bloque no trae teoría nueva — es la ejecución en código de lo que ya se explicó en las Secciones 1, 2 y 3 de la Parte 2. Lo que sigue es el detalle línea por línea de los dos ejemplos, para no tener que improvisar la explicación en vivo.
@@ -1116,6 +1075,55 @@ plt.show()
 ---
 
 ## Bloque 1 — Arquitectura de Figuras y Diseño Avanzado
+
+---
+
+## Las Librerías que Vamos a Usar
+
+El primer ejemplo del bloque usa Matplotlib. Antes de entrar en su arquitectura (`Figure`/`Axes`), vale la pena dejar claro qué es cada una de las tres librerías de la clase y cuándo corresponde usar cada una — Seaborn y Plotly aparecen recién más adelante, pero conviene tener el panorama completo desde ahora.
+
+Toda la clase gira alrededor de tres librerías de Python. Cada una resuelve un problema distinto, y en la práctica se combinan todo el tiempo (por ejemplo, Seaborn dibuja *sobre* un lienzo de Matplotlib, y Plotly se usa aparte para lo interactivo).
+
+### Matplotlib
+
+Es la librería de graficación original de Python, creada en 2003 por John Hunter (ver Tema 1 para la historia completa). Funciona a **bajo nivel**: cada elemento del gráfico —el lienzo, los ejes, cada línea, cada barra, cada etiqueta— es un objeto de Python que se crea y se configura a mano. Eso la hace la más flexible y también la más verbosa: se puede controlar absolutamente todo (posición exacta de una anotación, grosor de cada línea, tipografía de cada texto), pero hay que escribir más código para lograrlo.
+
+La usamos porque:
+- Genera **imágenes estáticas** (PNG, PDF, SVG) ideales para reportes, papers y presentaciones impresas.
+- Es la librería que **todas las demás usan por debajo** — entender su lógica de `Figure`/`Axes` ayuda a entender Seaborn también.
+- Da control total sobre el resultado final, algo clave para GridSpec (layouts asimétricos) y para exportación profesional (`dpi`, `bbox_inches`).
+
+**Es la que usamos en el ejemplo que sigue** (Tema 1): ahí no hay ni Seaborn ni Plotly todavía, solo Matplotlib puro, porque el objetivo es entender la arquitectura de base (`Figure`/`Axes`) sobre la que se apoyan las otras dos.
+
+### Seaborn
+
+Está construida **encima de Matplotlib** (no la reemplaza). La creó Michael Waskom en 2012 para reducir la cantidad de código necesaria al graficar datos tabulares (DataFrames de Pandas). En Matplotlib puro hay que decirle a mano qué graficar en X, qué en Y y de qué color cada categoría; en Seaborn se le pasa el DataFrame completo y los nombres de columnas: `sns.scatterplot(data=df, x="col1", y="col2", hue="categoria")` hace en una línea lo que en Matplotlib puro tomaría 5 o 10.
+
+La usamos porque:
+- Tiene **paletas de color y gráficos estadísticos ya resueltos** (boxplot, violinplot, distribuciones) que en Matplotlib habría que programar desde cero.
+- Entiende de forma nativa columnas categóricas (`hue`, `style`, `size`) para análisis multivariado.
+- Sigue siendo Matplotlib por debajo: cada gráfico de Seaborn devuelve un `Axes` de Matplotlib que se puede seguir personalizando con `ax.set_title()`, `ax.set_xlabel()`, etc.
+
+**La usamos a partir del segundo ejemplo de este bloque** (más abajo), una vez que ya se entendió Figure/Axes.
+
+### Plotly (Plotly Express)
+
+Es la única de las tres que **no genera una imagen**, sino código HTML + JavaScript. El resultado se renderiza en el navegador (o en la celda del notebook) como un objeto interactivo: se puede hacer zoom, pasar el mouse sobre un punto para ver su valor exacto (tooltip), y hacer clic en la leyenda para ocultar categorías.
+
+La usamos porque:
+- Sirve para **exploración de datos**: poder hacer zoom e inspeccionar valores exactos ahorra tener que regraficar con distintos rangos cada vez que se quiere mirar un detalle.
+- Es la mejor opción para **dashboards y reportes web**, donde el usuario final interactúa con el gráfico.
+- No reemplaza a Matplotlib/Seaborn: para un documento impreso o un PDF, un gráfico interactivo no sirve de nada — ahí se sigue usando las otras dos.
+
+**La usamos recién en el Bloque 3** (Plotly Express: Interactividad Nativa) y ya apareció una vez en el Bloque 0 (el pie chart de ética visual) — para todo lo demás, esta clase se apoya en Matplotlib y Seaborn.
+
+**Resumen de cuándo usar cada una:**
+
+| Necesito... | Uso |
+|---|---|
+| Un gráfico rápido y estándar (barras, líneas, dispersión) a partir de un DataFrame | Seaborn |
+| Control total del layout (paneles asimétricos, anotaciones a medida, exportación en PDF/SVG) | Matplotlib |
+| Que el usuario final pueda explorar el gráfico (zoom, tooltip, filtrar por leyenda) | Plotly |
 
 ---
 
@@ -1397,7 +1405,7 @@ df['fecha'] = pd.to_datetime(df['fecha'], errors='coerce')
 
 **Qué decir:**
 - Cuando pandas lee una columna de fechas desde un CSV, la lee como texto (`object`) por defecto.
-- Si graficamos fechas como texto, el eje X las ordena **alfabéticamente** (Abril, Agosto, Diciembre, Enero...) y destruye la cronología.
+- Si graficamos fechas como texto, el eje X **no se reordena solo**: mantiene el orden en que aparecen las filas en la tabla (`data = {'Año': ['2025', '2023', '2026', '2024'], ...}` se grafica exactamente en ese orden). Si esas filas no estaban ya en orden cronológico, la cronología queda rota.
 - `pd.to_datetime()` convierte el texto en un tipo especial que pandas y matplotlib entienden como tiempo real.
 
 **Ejecutar:**
