@@ -1029,41 +1029,41 @@ Este bloque no trae teoría nueva — es la ejecución en código de lo que ya s
 **Línea por línea:**
 
 ```python
-fig, (ax_sin_curar, ax_curado) = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
+fig, (ax_sin_diseno, ax_con_diseno) = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
 ```
 
 - `plt.subplots(...)` crea el lienzo Y los ejes al mismo tiempo, y devuelve **dos cosas** — por eso hay dos nombres a la izquierda del `=`.
 - `fig` es el lienzo completo (el objeto `Figure`) — el "cuadro físico" que contiene todo. Solo hay uno, aunque adentro tenga varios gráficos.
 - `nrows=1, ncols=2` le pide a `subplots()` una grilla de 1 fila y 2 columnas → 2 gráficos lado a lado. Como son 2, `subplots()` devuelve una lista de 2 Axes en vez de un Axes solo.
-- `(ax_sin_curar, ax_curado)`: en vez de recibir esa lista en una sola variable (`axes`) e indexarla después (`axes[0]`, `axes[1]`), acá se **desempaqueta directamente en dos variables**. Python permite esto porque a la derecha hay una lista de exactamente 2 elementos y a la izquierda hay 2 nombres entre paréntesis: el primer Axes de la lista va a `ax_sin_curar`, el segundo a `ax_curado`. Se usan esos nombres (y no `ax1`, `ax2`) a propósito — el nombre de la variable ya dice qué va a mostrar cada gráfico, así el código se entiende sin correrlo.
+- `(ax_sin_diseno, ax_con_diseno)`: en vez de recibir esa lista en una sola variable (`axes`) e indexarla después (`axes[0]`, `axes[1]`), acá se **desempaqueta directamente en dos variables**. Python permite esto porque a la derecha hay una lista de exactamente 2 elementos y a la izquierda hay 2 nombres entre paréntesis: el primer Axes de la lista va a `ax_sin_diseno`, el segundo a `ax_con_diseno`. Se usan esos nombres (y no `ax1`, `ax2`) a propósito — el nombre de la variable ya dice qué va a mostrar cada gráfico, así el código se entiende sin correrlo.
 - `figsize=(12, 4)` es el tamaño del lienzo completo en pulgadas: 12 de ancho (para que entren los 2 gráficos con espacio) y 4 de alto.
 
 ```python
-ax_sin_curar.bar(meses, ventas, color="steelblue")
-ax_sin_curar.set_title("ventas")
+ax_sin_diseno.bar(meses, ventas, color="steelblue")
+ax_sin_diseno.set_title("ventas")
 ```
 
-- `ax_sin_curar.bar(...)` dibuja un gráfico de barras **dentro de ese Axes específico**, no en el lienzo entero. `meses` son las categorías del eje X, `ventas` las alturas de cada barra.
+- `ax_sin_diseno.bar(...)` dibuja un gráfico de barras **dentro de ese Axes específico**, no en el lienzo entero. `meses` son las categorías del eje X, `ventas` las alturas de cada barra.
 - `color="steelblue"` pinta **todas** las barras del mismo color — no hay ninguna decisión de jerarquía visual, es lo que sale por defecto si no se piensa el color.
 - `set_title("ventas")` pone un título mínimo, sin decir la unidad (¿pesos? ¿unidades vendidas?) ni destacar ningún dato — el resultado de no aplicar encuadre.
 
 ```python
 colores = ['#AAAAAA'] * 11 + ['#1a5276']
-ax_curado.bar(meses, ventas, color=colores)
+ax_con_diseno.bar(meses, ventas, color=colores)
 ```
 
 - Acá `color` ya no es un string único: es una **lista de 12 colores**, uno por barra. `bar()` acepta esto — si se le pasa una lista del mismo largo que los datos, pinta cada barra con su color correspondiente en vez de usar un solo color para todas.
 - `['#AAAAAA'] * 11` repite el gris 11 veces (los primeros 11 meses) y `+ ['#1a5276']` agrega un azul oscuro al final (diciembre): esa es la jerarquía visual — el color le dice al ojo dónde mirar antes de leer ningún número.
 
 ```python
-ax_curado.set_title("Ventas mensuales 2024 (miles de $)")
-ax_curado.set_ylabel("Ventas (miles $)")
+ax_con_diseno.set_title("Ventas mensuales 2024 (miles de $)")
+ax_con_diseno.set_ylabel("Ventas (miles $)")
 ```
 
 El título ahora es específico e **incluye la unidad** (encuadre: quien mira el gráfico no tiene que adivinar qué se está midiendo), y `set_ylabel()` refuerza lo mismo en el eje Y.
 
 ```python
-ax_curado.annotate(
+ax_con_diseno.annotate(
     'Récord del año',
     xy=(11, 80),
     xytext=(7, 68),
@@ -1339,6 +1339,16 @@ plt.show()
 
 ---
 
+### Recordatorio — ¿Qué es una Serie Temporal?
+
+Una serie temporal es un conjunto de datos donde cada valor está asociado a un momento en el tiempo, **ordenado cronológicamente**: ventas por día, temperatura por hora, precio de una acción por minuto. Lo que la distingue de una tabla común es que el orden importa — no se puede mezclar el dato de enero con el de marzo sin perder la información de tendencia.
+
+Por eso el eje X de estos gráficos casi siempre es tiempo, y por eso Pandas necesita saber que esa columna es realmente una fecha (`datetime`) y no texto: si no lo sabe, no puede ordenar ni operar cronológicamente sobre ella (los Temas 4 y 5 explican esto en profundidad). Una vez que la fecha está bien tipada, se abren dos operaciones muy comunes sobre series temporales que vemos más abajo: **resampling** (cambiar la frecuencia de los datos, por ejemplo de diario a semanal) y **rolling window** (suavizar la serie con una media móvil).
+
+**Qué decir:** "Piensen una serie temporal como una lista de compras, pero donde el orden en que aparecen los ítems SÍ importa y significa algo — no es lo mismo que las ventas suban en diciembre y bajen en enero a que sea al revés."
+
+---
+
 ### Tema 4 — Series Temporales: Por Qué Importa el Tipo `datetime`
 
 **Contexto teórico:**
@@ -1475,6 +1485,86 @@ ax.xaxis.set_major_locator(mdates.YearLocator())
 plt.title("Solo el año en el eje X")
 plt.show()
 ```
+
+---
+
+### Resampling y Rolling Window: Suavizando la Serie
+
+**Contexto teórico:**
+
+Una serie diaria real casi siempre tiene ruido: variación de un día a otro que no aporta información de tendencia (un lunes flojo, un viernes fuerte). Para ver la tendencia de fondo sin ese ruido, se usan dos herramientas de Pandas que suelen combinarse:
+
+**`resample()` — cambia la frecuencia de los datos.** Agrupa las observaciones en baldes de tiempo más grandes y aplica una función de agregación (`.mean()`, `.sum()`, `.max()`...). Es básicamente un `groupby()` pero agrupando por período de tiempo en vez de por categoría.
+
+```python
+serie.resample('W').mean()   # agrupa por semana y promedia
+serie.resample('M').sum()    # agrupa por mes y suma
+```
+
+| Código de frecuencia | Significa |
+|---|---|
+| `'D'` | Diario (ya lo está si no se resamplea) |
+| `'W'` | Semanal (por defecto, semana termina domingo) |
+| `'M'` | Mensual |
+| `'Q'` | Trimestral |
+| `'Y'` | Anual |
+
+**`rolling(window=N)` — media móvil.** En vez de agrupar en baldes fijos, calcula el promedio de las últimas `N` observaciones y se desliza de a una: el primer valor es el promedio de las observaciones 1 a N, el segundo es el promedio de 2 a N+1, y así. El resultado es una curva mucho más suave que conserva casi todos los puntos originales (a diferencia de `resample()`, que reduce la cantidad de puntos).
+
+```python
+semanal.rolling(window=3).mean()   # media móvil de 3 semanas
+```
+
+Las primeras `N-1` posiciones del rolling quedan como `NaN` porque todavía no hay suficientes observaciones previas para calcular el promedio (con `window=3`, recién en la 3ª semana hay 3 valores para promediar).
+
+**¿Por qué se combinan?** Primero `resample()` para bajar la cantidad de puntos (de 90 días a ~13 semanas, por ejemplo), después `rolling()` sobre esa serie ya semanal para suavizar todavía más la tendencia sin perder tanta resolución temporal.
+
+**Anotar eventos importantes:** cuando algo puntual explica un pico o un valle (una promoción, un feriado, una noticia), conviene marcarlo directamente en el gráfico con `plt.annotate()` (visto en el Bloque 0) en vez de dejar que el lector se pregunte por qué hay un salto ahí.
+
+**Qué decir:**
+- Una serie diaria tiene ruido; para ver la tendencia hay que suavizarla.
+- `resample()` cambia la frecuencia (menos puntos, cada uno es un promedio de un período).
+- `rolling()` calcula una media móvil (misma cantidad de puntos, cada uno mira hacia atrás).
+- Si algo puntual explica un pico, se anota — no se deja que el lector adivine.
+
+**Ejecutar:**
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(42)
+
+fechas = pd.date_range("2024-01-01", periods=90, freq="D")
+ventas = np.random.normal(loc=100, scale=10, size=90).round()
+ventas[45] += 60  # evento puntual: una promo dispara las ventas ese día
+
+serie = pd.Series(ventas, index=fechas)
+
+semanal = serie.resample("W").mean()
+rolling_3 = semanal.rolling(window=3).mean()
+
+plt.figure(figsize=(10, 4))
+plt.plot(serie.index, serie, alpha=0.3, label="Diaria (con ruido)")
+plt.plot(semanal.index, semanal, marker="o", label="Media semanal (resample)")
+plt.plot(rolling_3.index, rolling_3, linewidth=2, label="Rolling 3 semanas")
+
+fecha_evento = fechas[45]
+plt.annotate(
+    "Promo puntual",
+    xy=(fecha_evento, serie[fecha_evento]),
+    xytext=(fecha_evento, serie[fecha_evento] + 35),
+    arrowprops=dict(arrowstyle="->")
+)
+
+plt.legend()
+plt.title("Ventas diarias vs. suavizado semanal y rolling")
+plt.show()
+```
+
+**Tip de profesor:** si preguntan por qué el rolling arranca "cortado" (los dos primeros puntos no aparecen), es por las primeras `N-1` posiciones en `NaN` — se puede mostrar con `rolling_3.head()`.
+
+> Ejercicio de referencia con estas mismas herramientas sobre un dataset real (acción GOOGL, resampling semanal con inicio en lunes, `min_periods=3`, eventos desde un CSV): parte "2 - Series temporales" del PDF de la Clase 5. Acá se mantiene la versión simplificada para no extender la práctica.
 
 ---
 
