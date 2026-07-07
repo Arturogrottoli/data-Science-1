@@ -398,10 +398,15 @@ df.isnull().sum()  # cuenta cuántos valores faltantes hay por columna
 
 **`np.nan` vs `0` vs `None`:** `np.nan` es el valor especial de NumPy/Pandas para representar un dato ausente. Es diferente a cero (que es un valor válido). Pandas lo excluye automáticamente de los cálculos estadísticos (`.mean()`, `.sum()`, etc.), lo que es el comportamiento correcto. Siempre hay que saber cuántos NaN tiene cada columna antes de analizar.
 
-**`fillna(valor)`:** rellena los NaN con el valor indicado. Estrategias comunes:
-- `fillna(0)` → cuando el NaN significa "cero" (sin actividad, sin venta).
-- `fillna(df["col"].mean())` → cuando queremos no distorsionar el promedio.
-- `fillna(method="ffill")` → en series temporales: propaga el último valor conocido.
+**Qué hacer con los NaN:** `fillna()` reemplaza cada NaN por un valor — la pregunta es CUÁL valor, y depende de qué signifique el hueco. No son tres pasos que se hacen juntos: son tres estrategias distintas, se elige UNA según el caso. Con los datos del ejemplo de abajo (`Unidades = [10, 15, NaN, 5, 20]`, falta la 3ª fila) esto es lo que haría cada una:
+
+| Estrategia | Qué hace | Cuándo usarla | Resultado con este dataset |
+|---|---|---|---|
+| `fillna(0)` | Reemplaza el NaN por `0` | El hueco significa "no pasó nada" (sin ventas ese día) | La fila queda en `0` unidades |
+| `fillna(df["col"].mean())` | Reemplaza el NaN por el promedio de la columna | No hay razón para pensar que fue cero, solo no se registró el dato | La fila queda en `12.5` (promedio de `10, 15, 5, 20`) |
+| `fillna(method="ffill")` | Repite el último valor válido anterior | Series temporales, donde lo más probable es que el valor se mantuvo | La fila copia el valor de la fila de arriba (`15`) |
+
+**El ejemplo de abajo usa `fillna(0)`** porque tratamos "Unidades faltante" como "no se vendió nada ese día" — es la más simple de las tres, y la que tiene sentido para este negocio en particular. Las otras dos quedan como referencia para cuando el contexto sea distinto (no se usan en el código de abajo).
 
 **Columnas calculadas:** se crea una nueva columna asignando el resultado de una operación sobre columnas existentes. Como NumPy por debajo, la operación se aplica fila por fila automáticamente sin `for`.
 
@@ -432,7 +437,9 @@ print(df)
 print(f"\nShape: {df.shape}")
 print(f"\nNaN por columna:\n{df.isnull().sum()}")
 
-df["Unidades"] = df["Unidades"].fillna(0)
+df["Unidades"] = df["Unidades"].fillna(0)  # busca TODOS los NaN de esa columna y los reemplaza por 0;
+                                            # sin esto, Unidades * Precio_Unitario daría NaN en esa fila.
+                                            # Elegimos "0" acá: sin dato de unidades = no se vendió nada ese día
 df["Total_Venta"] = df["Unidades"] * df["Precio_Unitario"]
 reporte = df.groupby("Producto")["Total_Venta"].sum()
 
@@ -977,6 +984,55 @@ El **8% de los hombres** y el 0.5% de las mujeres tienen algún tipo de daltonis
 
 ---
 
+## Las Librerías que Vamos a Usar
+
+El Bloque 0, el primero del notebook, ya usa Matplotlib (Ejemplo 1) y Plotly (Ejemplo 2) — así que antes de arrancar vale la pena dejar claro qué es cada una de las tres librerías de la clase y cuándo corresponde usar cada una. Seaborn aparece recién en el Bloque 1, pero conviene tener el panorama completo desde ahora.
+
+Toda la clase gira alrededor de tres librerías de Python. Cada una resuelve un problema distinto, y en la práctica se combinan todo el tiempo (por ejemplo, Seaborn dibuja *sobre* un lienzo de Matplotlib, y Plotly se usa aparte para lo interactivo).
+
+### Matplotlib
+
+Es la librería de graficación original de Python, creada en 2003 por John Hunter (ver Tema 1 para la historia completa). Funciona a **bajo nivel**: cada elemento del gráfico —el lienzo, los ejes, cada línea, cada barra, cada etiqueta— es un objeto de Python que se crea y se configura a mano. Eso la hace la más flexible y también la más verbosa: se puede controlar absolutamente todo (posición exacta de una anotación, grosor de cada línea, tipografía de cada texto), pero hay que escribir más código para lograrlo.
+
+La usamos porque:
+- Genera **imágenes estáticas** (PNG, PDF, SVG) ideales para reportes, papers y presentaciones impresas.
+- Es la librería que **todas las demás usan por debajo** — entender su lógica de `Figure`/`Axes` ayuda a entender Seaborn también.
+- Da control total sobre el resultado final, algo clave para GridSpec (layouts asimétricos) y para exportación profesional (`dpi`, `bbox_inches`).
+
+**Es la que usamos ya en el Ejemplo 1 del Bloque 0** (el bar chart de encuadre/jerarquía) y en la versión honesta del Ejemplo 2 — antes de entrar en su arquitectura interna (`Figure`/`Axes`) en el Bloque 1, alcanza con verla funcionar.
+
+### Seaborn
+
+Está construida **encima de Matplotlib** (no la reemplaza). La creó Michael Waskom en 2012 para reducir la cantidad de código necesaria al graficar datos tabulares (DataFrames de Pandas). En Matplotlib puro hay que decirle a mano qué graficar en X, qué en Y y de qué color cada categoría; en Seaborn se le pasa el DataFrame completo y los nombres de columnas: `sns.scatterplot(data=df, x="col1", y="col2", hue="categoria")` hace en una línea lo que en Matplotlib puro tomaría 5 o 10.
+
+La usamos porque:
+- Tiene **paletas de color y gráficos estadísticos ya resueltos** (boxplot, violinplot, distribuciones) que en Matplotlib habría que programar desde cero.
+- Entiende de forma nativa columnas categóricas (`hue`, `style`, `size`) para análisis multivariado.
+- Sigue siendo Matplotlib por debajo: cada gráfico de Seaborn devuelve un `Axes` de Matplotlib que se puede seguir personalizando con `ax.set_title()`, `ax.set_xlabel()`, etc.
+
+**La usamos recién en el Bloque 1** (a partir del segundo ejemplo, una vez que ya se entendió Figure/Axes) — no aparece en el Bloque 0.
+
+### Plotly (Plotly Express)
+
+Es la única de las tres que **no genera una imagen**, sino código HTML + JavaScript. El resultado se renderiza en el navegador (o en la celda del notebook) como un objeto interactivo: se puede hacer zoom, pasar el mouse sobre un punto para ver su valor exacto (tooltip), y hacer clic en la leyenda para ocultar categorías.
+
+La usamos porque:
+- Sirve para **exploración de datos**: poder hacer zoom e inspeccionar valores exactos ahorra tener que regraficar con distintos rangos cada vez que se quiere mirar un detalle.
+- Es la mejor opción para **dashboards y reportes web**, donde el usuario final interactúa con el gráfico.
+- No reemplaza a Matplotlib/Seaborn: para un documento impreso o un PDF, un gráfico interactivo no sirve de nada — ahí se sigue usando las otras dos.
+
+**Ya aparece en el Ejemplo 2 del Bloque 0** (la torta manipulada) — pero en profundidad la vemos recién en el Bloque 3 (Plotly Express: Interactividad Nativa).
+
+**Resumen de cuándo usar cada una:**
+
+| Necesito... | Uso |
+|---|---|
+| Un gráfico rápido y estándar (barras, líneas, dispersión) a partir de un DataFrame | Seaborn |
+| Control total del layout (paneles asimétricos, anotaciones a medida, exportación en PDF/SVG) | Matplotlib |
+| Que el usuario final pueda explorar el gráfico (zoom, tooltip, filtrar por leyenda) | Plotly |
+
+---
+
 ## Bloque 0 — Principios de Diseño y Ética Visual en la Práctica
 
 Este bloque no trae teoría nueva — es la ejecución en código de lo que ya se explicó en las Secciones 1, 2 y 3 de la Parte 2. Lo que sigue es el detalle línea por línea de los dos ejemplos, para no tener que improvisar la explicación en vivo.
@@ -1078,55 +1134,6 @@ plt.show()
 
 ---
 
-## Las Librerías que Vamos a Usar
-
-El primer ejemplo del bloque usa Matplotlib. Antes de entrar en su arquitectura (`Figure`/`Axes`), vale la pena dejar claro qué es cada una de las tres librerías de la clase y cuándo corresponde usar cada una — Seaborn y Plotly aparecen recién más adelante, pero conviene tener el panorama completo desde ahora.
-
-Toda la clase gira alrededor de tres librerías de Python. Cada una resuelve un problema distinto, y en la práctica se combinan todo el tiempo (por ejemplo, Seaborn dibuja *sobre* un lienzo de Matplotlib, y Plotly se usa aparte para lo interactivo).
-
-### Matplotlib
-
-Es la librería de graficación original de Python, creada en 2003 por John Hunter (ver Tema 1 para la historia completa). Funciona a **bajo nivel**: cada elemento del gráfico —el lienzo, los ejes, cada línea, cada barra, cada etiqueta— es un objeto de Python que se crea y se configura a mano. Eso la hace la más flexible y también la más verbosa: se puede controlar absolutamente todo (posición exacta de una anotación, grosor de cada línea, tipografía de cada texto), pero hay que escribir más código para lograrlo.
-
-La usamos porque:
-- Genera **imágenes estáticas** (PNG, PDF, SVG) ideales para reportes, papers y presentaciones impresas.
-- Es la librería que **todas las demás usan por debajo** — entender su lógica de `Figure`/`Axes` ayuda a entender Seaborn también.
-- Da control total sobre el resultado final, algo clave para GridSpec (layouts asimétricos) y para exportación profesional (`dpi`, `bbox_inches`).
-
-**Es la que usamos en el ejemplo que sigue** (Tema 1): ahí no hay ni Seaborn ni Plotly todavía, solo Matplotlib puro, porque el objetivo es entender la arquitectura de base (`Figure`/`Axes`) sobre la que se apoyan las otras dos.
-
-### Seaborn
-
-Está construida **encima de Matplotlib** (no la reemplaza). La creó Michael Waskom en 2012 para reducir la cantidad de código necesaria al graficar datos tabulares (DataFrames de Pandas). En Matplotlib puro hay que decirle a mano qué graficar en X, qué en Y y de qué color cada categoría; en Seaborn se le pasa el DataFrame completo y los nombres de columnas: `sns.scatterplot(data=df, x="col1", y="col2", hue="categoria")` hace en una línea lo que en Matplotlib puro tomaría 5 o 10.
-
-La usamos porque:
-- Tiene **paletas de color y gráficos estadísticos ya resueltos** (boxplot, violinplot, distribuciones) que en Matplotlib habría que programar desde cero.
-- Entiende de forma nativa columnas categóricas (`hue`, `style`, `size`) para análisis multivariado.
-- Sigue siendo Matplotlib por debajo: cada gráfico de Seaborn devuelve un `Axes` de Matplotlib que se puede seguir personalizando con `ax.set_title()`, `ax.set_xlabel()`, etc.
-
-**La usamos a partir del segundo ejemplo de este bloque** (más abajo), una vez que ya se entendió Figure/Axes.
-
-### Plotly (Plotly Express)
-
-Es la única de las tres que **no genera una imagen**, sino código HTML + JavaScript. El resultado se renderiza en el navegador (o en la celda del notebook) como un objeto interactivo: se puede hacer zoom, pasar el mouse sobre un punto para ver su valor exacto (tooltip), y hacer clic en la leyenda para ocultar categorías.
-
-La usamos porque:
-- Sirve para **exploración de datos**: poder hacer zoom e inspeccionar valores exactos ahorra tener que regraficar con distintos rangos cada vez que se quiere mirar un detalle.
-- Es la mejor opción para **dashboards y reportes web**, donde el usuario final interactúa con el gráfico.
-- No reemplaza a Matplotlib/Seaborn: para un documento impreso o un PDF, un gráfico interactivo no sirve de nada — ahí se sigue usando las otras dos.
-
-**La usamos recién en el Bloque 3** (Plotly Express: Interactividad Nativa) y ya apareció una vez en el Bloque 0 (el pie chart de ética visual) — para todo lo demás, esta clase se apoya en Matplotlib y Seaborn.
-
-**Resumen de cuándo usar cada una:**
-
-| Necesito... | Uso |
-|---|---|
-| Un gráfico rápido y estándar (barras, líneas, dispersión) a partir de un DataFrame | Seaborn |
-| Control total del layout (paneles asimétricos, anotaciones a medida, exportación en PDF/SVG) | Matplotlib |
-| Que el usuario final pueda explorar el gráfico (zoom, tooltip, filtrar por leyenda) | Plotly |
-
----
-
 ### Tema 1 — La Jerarquía de Matplotlib: Figure y Axes
 
 **Contexto teórico:**
@@ -1192,30 +1199,70 @@ fig.suptitle("...")   # Título de TODA la figura (aparece por encima de todos l
 ```python
 import matplotlib.pyplot as plt
 
-fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))
+semanas = ["Sem 1", "Sem 2", "Sem 3", "Sem 4"]
 
-ax1 = axes[0]
-ax2 = axes[1]
+fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))
 
-ax1.plot([1, 2, 3], [10, 20, 30], color="blue", marker="o")
-ax1.set_title("Pintura 1 (izquierda)")
+# Izquierda: ventas de Enero, evolución semana a semana
+ventas_enero = [10, 20, 15, 30]
+ax1.plot(semanas, ventas_enero, color="blue", marker="o")
+ax1.set_title("Ventas de Enero (miles $)")
 
-ax2.bar(["A", "B", "C"], [5, 15, 10], color="orange")
-ax2.set_title("Pintura 2 (derecha)")
+# Derecha: ventas de Febrero, comparadas semana a semana
+ventas_febrero = [12, 18, 22, 25]
+ax2.bar(semanas, ventas_febrero, color="orange")
+ax2.set_title("Ventas de Febrero (miles $)")
 
-fig.suptitle("Un solo lienzo con dos gráficos", fontsize=14)
+fig.suptitle("Un solo panel (Figure) con dos gráficos (Axes): Enero vs Febrero", fontsize=14)
 plt.show()
 ```
 
+**Por qué con datos concretos y no `[1, 2, 3]` / `["A", "B", "C"]`:** con números sueltos sin contexto, cuesta ver PARA QUÉ serviría tener dos Axes en la misma Figure. Con "ventas de enero" al lado de "ventas de febrero" queda claro el caso de uso real: comparar dos cosas relacionadas en una sola imagen, cada una con el tipo de gráfico que mejor le queda (línea para ver la evolución, barras para comparar semana a semana).
+
 **Qué remarcar:**
 - Cuando tienen un solo subplot pueden usar `plt.plot()` directamente. Cuando tienen varios, usan `ax1.plot()`, `ax2.bar()`, etc. para controlar en cuál dibujan.
-- `fig.suptitle()` pone el título general por encima de todo. `ax.set_title()` pone el título de ese subplot específico.
+- `fig.suptitle()` pone el título general por encima de todo (acá, "Enero vs Febrero"). `ax.set_title()` pone el título de ese subplot específico (acá, "Ventas de Enero" o "Ventas de Febrero" por separado).
 
 ---
 
 ### Tema 2 — Seaborn: Axes-level vs Figure-level
 
-**Contexto teórico:**
+**¿Por qué Seaborn y no solo Matplotlib?**
+
+Seaborn **no es "mejor"** que Matplotlib — hace más fáciles los gráficos de análisis de datos. Es la misma relación que entre manejar con caja manual (Matplotlib: controlás cada cambio, más flexible) y automática (Seaborn: el mismo motor por debajo, pero mucho menos que pensar para el uso del día a día).
+
+| | Matplotlib | Seaborn |
+|---|---|---|
+| Nivel | Bajo nivel: configurás cada elemento a mano | Alto nivel: le pasás el DataFrame y los nombres de columna |
+| Código para un scatter coloreado por categoría | Loop manual filtrando por categoría + armar la leyenda a mano | Una línea con `hue=` |
+| Cuándo conviene | Personalizar mucho un gráfico puntual, o algo muy específico que Seaborn no resuelve | Análisis exploratorio (EDA): histogramas, boxplots, correlaciones, scatterplots con categorías |
+
+**Mismo gráfico, dos formas de hacerlo** (dataset `tips`, coloreado por `sex`):
+
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+tips = sns.load_dataset("tips")
+
+# Con Matplotlib puro: hay que filtrar y dibujar grupo por grupo
+fig, ax = plt.subplots(figsize=(6, 4))
+for genero, color in [("Male", "steelblue"), ("Female", "orange")]:
+    subset = tips[tips["sex"] == genero]
+    ax.scatter(subset["total_bill"], subset["tip"], color=color, label=genero)
+ax.legend()
+plt.show()
+
+# Con Seaborn: una sola línea hace lo mismo (filtra, colorea y arma la leyenda)
+sns.scatterplot(data=tips, x="total_bill", y="tip", hue="sex")
+plt.show()
+```
+
+Mismo dato, mismo resultado visual — la diferencia es cuánto código hace falta escribir para llegar a él.
+
+---
+
+**Contexto teórico (Axes-level vs Figure-level):**
 
 Seaborn fue creado por Michael Waskom (2012) originalmente como una capa de estilos más bonitos encima de Matplotlib. Con el tiempo se convirtió en su propia librería con funciones propias. Esta historia dual explica por qué Seaborn tiene dos APIs completamente distintas:
 
@@ -1259,14 +1306,20 @@ import seaborn as sns
 
 tips = sns.load_dataset("tips")
 
-# Axes-level: obedece al ax que creamos
+# Axes-level: nosotros creamos el hueco (mi_eje) y Seaborn dibuja adentro, obedece al ax=
 fig, mi_eje = plt.subplots(figsize=(6, 4))
 sns.scatterplot(data=tips, x="total_bill", y="tip", ax=mi_eje, color="purple")
 mi_eje.set_title("Axes-level: yo controlo el eje")
 plt.show()
 
-# Figure-level: hace lo suyo sola
-g = sns.displot(data=tips, x="total_bill", col="time", kind="kde", fill=True)
+# Figure-level: no acepta ax=, arma su propia Figure sola
+g = sns.displot(
+    data=tips,
+    x="total_bill",
+    col="time",   # un panel por cada valor de "time" (Lunch/Dinner) — automático, sin armar subplots
+    kind="kde",   # curva de densidad (KDE) en vez de barras de histograma
+    fill=True     # rellena de color el área bajo la curva
+)
 plt.show()
 ```
 
@@ -1278,7 +1331,31 @@ plt.show()
 
 `plt.subplots(nrows, ncols)` divide el lienzo en una grilla perfectamente simétrica: todos los gráficos tienen exactamente el mismo tamaño. Para muchos reportes esto no es ideal. Un dashboard profesional típico tiene un gráfico principal grande, un par de métricas pequeñas arriba, y una leyenda a la derecha.
 
-`matplotlib.gridspec.GridSpec` resuelve este problema definiendo una **cuadrícula de proporciones** invisible sobre el lienzo. Cada gráfico luego se asigna a una posición (o a varias posiciones fusionadas) dentro de esa cuadrícula.
+**Forma rápida de pensarlo:** un subplot es un gráfico dentro de una figura. `plt.subplots(2, 2)` arma una ventana con 4 gráficos, todos del mismo tamaño:
+
+```
++-------+-------+
+|   1   |   2   |
++-------+-------+
+|   3   |   4   |
++-------+-------+
+```
+
+`matplotlib.gridspec.GridSpec` resuelve el caso en que uno de esos gráficos tiene que ser más importante que los demás: en vez de pedir una grilla pareja, le decís cómo repartir el espacio. Con `height_ratios=[1, 3]` la fila de arriba mide 1 parte y la de abajo 3 partes:
+
+```
++-----------------------+
+|   gráfico pequeño     |
++-----------------------+
+|                       |
+|    gráfico grande     |
+|                       |
++-----------------------+
+```
+
+En una frase: `subplots()` cuando todos los gráficos pueden medir lo mismo, `GridSpec` cuando alguno tiene que ser más grande o más chico que los demás (típico en dashboards).
+
+`GridSpec` resuelve esto definiendo una **cuadrícula de proporciones** invisible sobre el lienzo. Cada gráfico luego se asigna a una posición (o a varias posiciones fusionadas) dentro de esa cuadrícula.
 
 **El sistema de ratios:**
 
@@ -1500,7 +1577,18 @@ plt.show()
 
 **Contexto teórico:**
 
-Una serie diaria real casi siempre tiene ruido: variación de un día a otro que no aporta información de tendencia (un lunes flojo, un viernes fuerte). Para ver la tendencia de fondo sin ese ruido, se usan dos herramientas de Pandas que suelen combinarse:
+**Pensalo con el precio del dólar todos los días:**
+
+```
+Lun 1000
+Mar 1020
+Mié  995
+Jue 1015
+Vie 1005
+...
+```
+
+Sube y baja todo el tiempo, cuesta ver la tendencia de fondo. Una serie diaria real casi siempre tiene ese ruido: variación de un día a otro que no aporta información de tendencia. Para ver la tendencia de fondo sin ese ruido, se usan dos herramientas de Pandas que suelen combinarse:
 
 **`resample()` — cambia la frecuencia de los datos.** Agrupa las observaciones en baldes de tiempo más grandes y aplica una función de agregación (`.mean()`, `.sum()`, `.max()`...). Es básicamente un `groupby()` pero agrupando por período de tiempo en vez de por categoría.
 
@@ -1508,6 +1596,8 @@ Una serie diaria real casi siempre tiene ruido: variación de un día a otro que
 serie.resample('W').mean()   # agrupa por semana y promedia
 serie.resample('M').sum()    # agrupa por mes y suma
 ```
+
+En vez de mirar cada día del dólar, `resample('W').mean()` da algo así: **Semana 1 → 1007, Semana 2 → 1011, Semana 3 → 1009**. Desaparece gran parte del ruido diario.
 
 | Código de frecuencia | Significa |
 |---|---|
@@ -1523,17 +1613,22 @@ serie.resample('M').sum()    # agrupa por mes y suma
 semanal.rolling(window=3).mean()   # media móvil de 3 semanas
 ```
 
+No agrupa: va promediando las últimas 3 observaciones. Si las últimas 3 semanas del dólar fueron `1007, 1011, 1009`, el nuevo valor es `(1007 + 1011 + 1009) / 3 = 1009`. Después la "ventana" avanza una semana y vuelve a calcular.
+
 Las primeras `N-1` posiciones del rolling quedan como `NaN` porque todavía no hay suficientes observaciones previas para calcular el promedio (con `window=3`, recién en la 3ª semana hay 3 valores para promediar).
 
 **¿Por qué se combinan?** Primero `resample()` para bajar la cantidad de puntos (de 90 días a ~13 semanas, por ejemplo), después `rolling()` sobre esa serie ya semanal para suavizar todavía más la tendencia sin perder tanta resolución temporal.
 
 **Anotar eventos importantes:** cuando algo puntual explica un pico o un valle (una promoción, un feriado, una noticia), conviene marcarlo directamente en el gráfico con `plt.annotate()` (visto en el Bloque 0) en vez de dejar que el lector se pregunte por qué hay un salto ahí.
 
+**¿Qué hace `np.random.seed(42)`?** La computadora no genera números realmente al azar: sigue una fórmula que arranca desde un número inicial (la "semilla") y a partir de ahí calcula toda la secuencia. Si fijamos la semilla en 42, esa secuencia sale siempre igual — por eso, cada vez que se corre la celda, el precio del dólar simulado da exactamente los mismos valores. Es lo que se llama **reproducibilidad**: sin esta línea, cada corrida generaría un dataset distinto y el gráfico cambiaría cada vez, lo que hace difícil comparar resultados o explicar un gráfico específico en clase. El número 42 no tiene nada de especial — podría ser cualquier entero, lo importante es fijar alguno.
+
 **Qué decir:**
 - Una serie diaria tiene ruido; para ver la tendencia hay que suavizarla.
 - `resample()` cambia la frecuencia (menos puntos, cada uno es un promedio de un período).
 - `rolling()` calcula una media móvil (misma cantidad de puntos, cada uno mira hacia atrás).
 - Si algo puntual explica un pico, se anota — no se deja que el lector adivine.
+- `np.random.seed(42)` asegura que todos en la clase vean exactamente el mismo gráfico al correr la celda.
 
 **Ejecutar:**
 ```python
@@ -1541,32 +1636,33 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(42)
+np.random.seed(42)  # fija la semilla: mismos valores "al azar" en cada corrida (reproducibilidad)
 
+# Precio simulado del dólar: 90 días, con ruido diario alrededor de $1000
 fechas = pd.date_range("2024-01-01", periods=90, freq="D")
-ventas = np.random.normal(loc=100, scale=10, size=90).round()
-ventas[45] += 60  # evento puntual: una promo dispara las ventas ese día
+precio_dolar = np.random.normal(loc=1000, scale=50, size=90).round()
+precio_dolar[45] += 150  # evento puntual: una corrida cambiaria dispara el precio ese día
 
-serie = pd.Series(ventas, index=fechas)
+serie = pd.Series(precio_dolar, index=fechas)
 
 semanal = serie.resample("W").mean()
 rolling_3 = semanal.rolling(window=3).mean()
 
 plt.figure(figsize=(10, 4))
-plt.plot(serie.index, serie, alpha=0.3, label="Diaria (con ruido)")
-plt.plot(semanal.index, semanal, marker="o", label="Media semanal (resample)")
+plt.plot(serie.index, serie, alpha=0.3, label="Precio diario (con ruido)")
+plt.plot(semanal.index, semanal, marker="o", label="Promedio semanal (resample)")
 plt.plot(rolling_3.index, rolling_3, linewidth=2, label="Rolling 3 semanas")
 
 fecha_evento = fechas[45]
 plt.annotate(
-    "Promo puntual",
+    "Corrida cambiaria",
     xy=(fecha_evento, serie[fecha_evento]),
-    xytext=(fecha_evento, serie[fecha_evento] + 35),
+    xytext=(fecha_evento, serie[fecha_evento] + 100),
     arrowprops=dict(arrowstyle="->")
 )
 
 plt.legend()
-plt.title("Ventas diarias vs. suavizado semanal y rolling")
+plt.title("Precio del dólar: diario vs. suavizado semanal y rolling")
 plt.show()
 ```
 
@@ -1805,6 +1901,14 @@ px.scatter(
   - **Aislar** una categoría haciendo clic en la leyenda
 - Mismo código, experiencia completamente distinta para el usuario final.
 
+**¿De dónde sale exactamente el dataset "penguins"?** `sns.load_dataset("penguins")` no carga un archivo que ya venga instalado con Seaborn. Internamente hace tres cosas:
+
+1. **De dónde viene:** es un CSV real (`penguins.csv`) alojado en un repositorio de GitHub del propio creador de Seaborn: `https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv`.
+2. **Cómo se agrega:** la primera vez que se llama a la función, Seaborn descarga ese CSV por internet (hace falta conexión) y lo carga con `pandas.read_csv()`.
+3. **Cómo se guarda en caché:** después de descargarlo, lo guarda en una carpeta local (en Windows: `%LOCALAPPDATA%\seaborn\seaborn\Cache\penguins.csv`). Las próximas veces que se pide `"penguins"`, Seaborn revisa si ya existe ese archivo en la caché — si existe, lo lee directo del disco sin volver a descargar nada.
+
+Ya usamos "tips" y "flights" antes en la clase — son otros datasets de esa misma familia, con el mismo mecanismo de descarga + caché. El dataset en sí es el **Palmer Penguins**: mediciones reales de 3 especies de pingüinos (Adelie, Chinstrap, Gentoo) en islas de la Antártida, recolectadas por la Dra. Kristen Gorman como parte de una investigación ecológica de largo plazo. Se volvió popular como reemplazo del viejo dataset "Iris" en cursos de ciencia de datos.
+
 **Ejecutar:**
 ```python
 import plotly.express as px
@@ -1836,6 +1940,8 @@ fig.show()
 Cuando guardamos un gráfico a un archivo, la extensión determina fundamentalmente cómo se almacena la información visual. Hay dos tecnologías completamente distintas:
 
 **Formatos Rasterizados (Mapas de bits):**
+
+**Idea intuitiva:** es un mosaico. El archivo guarda una grilla de píxeles de color, uno por uno — no sabe qué es "un círculo" o "una línea", solo sabe "en la posición (120, 45) hay un píxel rojo". Por eso, al ampliar mucho la imagen, no hay más información guardada para mostrar: los cuadraditos se agrandan y se ven como bloques (se "pixela").
 
 Almacenan el gráfico como una grilla rectangular de píxeles de color. Cada píxel es un número que indica su color exacto (en formato RGB: rojo, verde, azul).
 
@@ -1874,23 +1980,34 @@ No almacenan píxeles. Almacenan las **instrucciones matemáticas** para dibujar
   - **Vectorial** (`.pdf`, `.svg`): guardamos la fórmula matemática de cada línea. Resolución infinita: podría imprimirse en un cartel de ruta sin pixelarse.
 - Regla práctica: `.png` para PowerPoint y web, `.pdf` para documentos impresos o publicaciones.
 
+**¿Qué hace exactamente `savefig()` en este ejemplo?** No "crea" una imagen nueva: guarda a un archivo todo lo que ya está dibujado en la figura activa hasta ese momento (acá, el scatter + el título). Por eso se puede llamar dos veces seguidas — la extensión del nombre (`.png`, `.pdf`) decide el formato, pero el contenido dibujado es el mismo. Tiene que ser siempre ANTES de `plt.show()` o `plt.close()`: esos dos "vacían" la figura activa, y si `savefig()` se llamara después, guardaría una imagen en blanco.
+
+**Para que se vea algo en el notebook:** guardar los archivos no muestra nada en pantalla por sí solo. El código vuelve a abrir el PNG ya guardado con `mpimg.imread()` y lo muestra con `imshow()`. El `.pdf` no se puede previsualizar así de simple dentro de una celda — hay que abrirlo aparte (doble clic en el panel de archivos) para confirmar que es vectorial.
+
 **Ejecutar:**
 ```python
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import seaborn as sns
 
 penguins = sns.load_dataset("penguins")
+
+# No hay plt.figure() explícito: Matplotlib crea la figura activa automáticamente
 sns.scatterplot(data=penguins, x="flipper_length_mm", y="body_mass_g")
 plt.title("Gráfico para exportar")
 
-# Rasterizado a alta resolución
-plt.savefig("grafico_alta_resolucion.png", dpi=300)
+plt.savefig("grafico_alta_resolucion.png", dpi=300)  # exporta como PNG (rasterizado)
+plt.savefig("grafico_vectorial.pdf")                  # exporta el MISMO gráfico otra vez, ahora como PDF (vectorial)
 
-# Vectorial
-plt.savefig("grafico_vectorial.pdf")
-
-plt.close()
+plt.close()  # libera la figura de memoria
 print("Archivos guardados.")
+
+# Reabrimos el PNG ya guardado para verlo acá mismo en el notebook
+plt.figure(figsize=(6, 4))
+plt.imshow(mpimg.imread("grafico_alta_resolucion.png"))
+plt.axis("off")
+plt.title("Así quedó el PNG guardado (300dpi)")
+plt.show()
 ```
 
 ---
@@ -1939,9 +2056,12 @@ plt.savefig("reporte.png", dpi=300, bbox_inches='tight')  # encuadre perfecto al
 - `bbox_inches='tight'` le ordena recalcular el encuadre incluyendo absolutamente todo el contenido.
 - Es un parámetro barato que siempre conviene agregar.
 
+**Importante:** este ejemplo guarda dos archivos pero no muestra nada en pantalla si se corta ahí — y el punto entero de la lección es JUSTAMENTE ver la diferencia. Por eso el código vuelve a abrir los dos PNG ya guardados y los muestra uno al lado del otro dentro del notebook (con `plt.imshow()`), en vez de mandar a los alumnos a buscar los archivos en el panel de la izquierda.
+
 **Ejecutar:**
 ```python
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import seaborn as sns
 
 penguins = sns.load_dataset("penguins")
@@ -1949,17 +2069,23 @@ sns.histplot(data=penguins, x="flipper_length_mm", color="teal")
 plt.title("Este título ridículamente largo se suele cortar al exportar", fontsize=14, pad=20)
 plt.xlabel("Largo de la Aleta (mm)", fontsize=14, labelpad=20)
 
-# Sin tight: puede cortar
-plt.savefig("grafico_mal_encuadrado.png")
-
-# Con tight: perfecto
-plt.savefig("grafico_perfecto.png", bbox_inches='tight')
-
+plt.savefig("grafico_mal_encuadrado.png")                 # sin tight: puede cortar
+plt.savefig("grafico_perfecto.png", bbox_inches='tight')  # con tight: perfecto
 plt.close()
-print("Compará ambos archivos.")
+
+# Reabrimos los dos PNG ya guardados y los mostramos lado a lado
+fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+ax1.imshow(mpimg.imread("grafico_mal_encuadrado.png"))
+ax1.set_title("SIN bbox_inches='tight' (título cortado)")
+ax1.axis("off")
+ax2.imshow(mpimg.imread("grafico_perfecto.png"))
+ax2.set_title("CON bbox_inches='tight' (encuadre perfecto)")
+ax2.axis("off")
+plt.tight_layout()
+plt.show()
 ```
 
-**Qué demostrar:** Abrir ambas imágenes y comparar el corte del título.
+**Qué demostrar:** con este código ya no hace falta salir del notebook — la comparación queda a la vista en la misma celda. Verificado corriendo el código: los dos PNG resultantes tienen tamaños distintos (640×480 sin tight vs. 665×503 con tight), confirmando que el recorte es real.
 
 ---
 
