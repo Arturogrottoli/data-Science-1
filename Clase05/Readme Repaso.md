@@ -977,14 +977,141 @@ El **8% de los hombres** y el 0.5% de las mujeres tienen algún tipo de daltonis
 
 ---
 
+## Las Librerías que Vamos a Usar
+
+Toda la clase gira alrededor de tres librerías de Python. Cada una resuelve un problema distinto, y en la práctica se combinan todo el tiempo (por ejemplo, Seaborn dibuja *sobre* un lienzo de Matplotlib, y Plotly se usa aparte para lo interactivo).
+
+### Matplotlib
+
+Es la librería de graficación original de Python, creada en 2003 por John Hunter (ver Tema 1 para la historia completa). Funciona a **bajo nivel**: cada elemento del gráfico —el lienzo, los ejes, cada línea, cada barra, cada etiqueta— es un objeto de Python que se crea y se configura a mano. Eso la hace la más flexible y también la más verbosa: se puede controlar absolutamente todo (posición exacta de una anotación, grosor de cada línea, tipografía de cada texto), pero hay que escribir más código para lograrlo.
+
+La usamos porque:
+- Genera **imágenes estáticas** (PNG, PDF, SVG) ideales para reportes, papers y presentaciones impresas.
+- Es la librería que **todas las demás usan por debajo** — entender su lógica de `Figure`/`Axes` ayuda a entender Seaborn también.
+- Da control total sobre el resultado final, algo clave para GridSpec (layouts asimétricos) y para exportación profesional (`dpi`, `bbox_inches`).
+
+### Seaborn
+
+Está construida **encima de Matplotlib** (no la reemplaza). La creó Michael Waskom en 2012 para reducir la cantidad de código necesaria al graficar datos tabulares (DataFrames de Pandas). En Matplotlib puro hay que decirle a mano qué graficar en X, qué en Y y de qué color cada categoría; en Seaborn se le pasa el DataFrame completo y los nombres de columnas: `sns.scatterplot(data=df, x="col1", y="col2", hue="categoria")` hace en una línea lo que en Matplotlib puro tomaría 5 o 10.
+
+La usamos porque:
+- Tiene **paletas de color y gráficos estadísticos ya resueltos** (boxplot, violinplot, distribuciones) que en Matplotlib habría que programar desde cero.
+- Entiende de forma nativa columnas categóricas (`hue`, `style`, `size`) para análisis multivariado.
+- Sigue siendo Matplotlib por debajo: cada gráfico de Seaborn devuelve un `Axes` de Matplotlib que se puede seguir personalizando con `ax.set_title()`, `ax.set_xlabel()`, etc.
+
+### Plotly (Plotly Express)
+
+Es la única de las tres que **no genera una imagen**, sino código HTML + JavaScript. El resultado se renderiza en el navegador (o en la celda del notebook) como un objeto interactivo: se puede hacer zoom, pasar el mouse sobre un punto para ver su valor exacto (tooltip), y hacer clic en la leyenda para ocultar categorías.
+
+La usamos porque:
+- Sirve para **exploración de datos**: poder hacer zoom e inspeccionar valores exactos ahorra tener que regraficar con distintos rangos cada vez que se quiere mirar un detalle.
+- Es la mejor opción para **dashboards y reportes web**, donde el usuario final interactúa con el gráfico.
+- No reemplaza a Matplotlib/Seaborn: para un documento impreso o un PDF, un gráfico interactivo no sirve de nada — ahí se sigue usando las otras dos.
+
+**Resumen de cuándo usar cada una:**
+
+| Necesito... | Uso |
+|---|---|
+| Un gráfico rápido y estándar (barras, líneas, dispersión) a partir de un DataFrame | Seaborn |
+| Control total del layout (paneles asimétricos, anotaciones a medida, exportación en PDF/SVG) | Matplotlib |
+| Que el usuario final pueda explorar el gráfico (zoom, tooltip, filtrar por leyenda) | Plotly |
+
+---
+
 ## Bloque 0 — Principios de Diseño y Ética Visual en la Práctica
 
-El notebook arranca con dos ejemplos que bajan a código lo que ya se vio en teoría:
+Este bloque no trae teoría nueva — es la ejecución en código de lo que ya se explicó en las Secciones 1, 2 y 3 de la Parte 2. Lo que sigue es el detalle línea por línea de los dos ejemplos, para no tener que improvisar la explicación en vivo.
 
-- **Ejemplo 1 (encuadre + jerarquía + anotación):** el mismo bar chart de la Sección 1.2 — un gráfico "sin curar" al lado del gráfico con título con unidad, color destacado en diciembre y una `ax.annotate()`.
-- **Ejemplo 2 (ética visual):** el pie chart manipulado de Apple/Google/Microsoft de la Sección 3.2, con `pull` separando el sector de Apple, seguido de la versión honesta en barras horizontales.
+### Ejemplo 1 — Encuadre, Jerarquía Visual y Anotaciones
 
-No hay teoría nueva que agregar acá — es literalmente ejecutar el código de las Secciones 1.2 y 3.2 de arriba. Si algún alumno pregunta algo que no quedó claro en el repaso teórico, es el momento de volver a esas secciones antes de seguir con el Bloque 1.
+**Qué compara:** el mismo dato (ventas por mes) graficado dos veces — una vez "como sale" y otra vez aplicando las reglas de diseño de la Sección 1.
+
+**Línea por línea:**
+
+```python
+fig, (ax_sin_curar, ax_curado) = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
+```
+
+- `plt.subplots(...)` crea el lienzo Y los ejes al mismo tiempo, y devuelve **dos cosas** — por eso hay dos nombres a la izquierda del `=`.
+- `fig` es el lienzo completo (el objeto `Figure`) — el "cuadro físico" que contiene todo. Solo hay uno, aunque adentro tenga varios gráficos.
+- `nrows=1, ncols=2` le pide a `subplots()` una grilla de 1 fila y 2 columnas → 2 gráficos lado a lado. Como son 2, `subplots()` devuelve una lista de 2 Axes en vez de un Axes solo.
+- `(ax_sin_curar, ax_curado)`: en vez de recibir esa lista en una sola variable (`axes`) e indexarla después (`axes[0]`, `axes[1]`), acá se **desempaqueta directamente en dos variables**. Python permite esto porque a la derecha hay una lista de exactamente 2 elementos y a la izquierda hay 2 nombres entre paréntesis: el primer Axes de la lista va a `ax_sin_curar`, el segundo a `ax_curado`. Se usan esos nombres (y no `ax1`, `ax2`) a propósito — el nombre de la variable ya dice qué va a mostrar cada gráfico, así el código se entiende sin correrlo.
+- `figsize=(12, 4)` es el tamaño del lienzo completo en pulgadas: 12 de ancho (para que entren los 2 gráficos con espacio) y 4 de alto.
+
+```python
+ax_sin_curar.bar(meses, ventas, color="steelblue")
+ax_sin_curar.set_title("ventas")
+```
+
+- `ax_sin_curar.bar(...)` dibuja un gráfico de barras **dentro de ese Axes específico**, no en el lienzo entero. `meses` son las categorías del eje X, `ventas` las alturas de cada barra.
+- `color="steelblue"` pinta **todas** las barras del mismo color — no hay ninguna decisión de jerarquía visual, es lo que sale por defecto si no se piensa el color.
+- `set_title("ventas")` pone un título mínimo, sin decir la unidad (¿pesos? ¿unidades vendidas?) ni destacar ningún dato — el resultado de no aplicar encuadre.
+
+```python
+colores = ['#AAAAAA'] * 11 + ['#1a5276']
+ax_curado.bar(meses, ventas, color=colores)
+```
+
+- Acá `color` ya no es un string único: es una **lista de 12 colores**, uno por barra. `bar()` acepta esto — si se le pasa una lista del mismo largo que los datos, pinta cada barra con su color correspondiente en vez de usar un solo color para todas.
+- `['#AAAAAA'] * 11` repite el gris 11 veces (los primeros 11 meses) y `+ ['#1a5276']` agrega un azul oscuro al final (diciembre): esa es la jerarquía visual — el color le dice al ojo dónde mirar antes de leer ningún número.
+
+```python
+ax_curado.set_title("Ventas mensuales 2024 (miles de $)")
+ax_curado.set_ylabel("Ventas (miles $)")
+```
+
+El título ahora es específico e **incluye la unidad** (encuadre: quien mira el gráfico no tiene que adivinar qué se está midiendo), y `set_ylabel()` refuerza lo mismo en el eje Y.
+
+```python
+ax_curado.annotate(
+    'Récord del año',
+    xy=(11, 80),
+    xytext=(7, 68),
+    arrowprops=dict(arrowstyle='->')
+)
+```
+
+- `annotate()` dibuja un texto con una flecha que apunta a un punto específico del gráfico.
+- `xy=(11, 80)` es la punta de la flecha: la posición del dato que se quiere señalar (mes en el índice 11 = diciembre; valor 80). Son coordenadas reales del gráfico, no píxeles de pantalla.
+- `xytext=(7, 68)` es dónde se ubica el texto "Récord del año" — deliberadamente separado del dato para no taparlo con la flecha.
+- `arrowprops=dict(arrowstyle='->')` dibuja la flecha que conecta el texto con el dato; sin este parámetro solo aparecería el texto suelto, sin flecha.
+
+```python
+plt.tight_layout()
+plt.show()
+```
+
+`tight_layout()` ajusta el espacio entre los dos subgráficos para que el título de uno no se superponga con las etiquetas del otro, y `plt.show()` renderiza el lienzo completo con los 2 Axes ya dibujados.
+
+**Qué decir:** el dato es idéntico en ambos gráficos. Lo único que cambió es texto (título con unidad), un color por barra en vez de uno solo para todas, y una anotación — tres decisiones de diseño, cero manipulación de los números.
+
+---
+
+### Ejemplo 2 — Ética Visual: el mismo dato, dos historias distintas
+
+**Qué compara:** el pie chart de cuota de mercado tecnológico (código original del material de la materia) contra una versión honesta de los mismos datos.
+
+**¿Por qué pandas acá, con solo 4 filas de datos?** `px.pie()` recibe un DataFrame y referencia las columnas por nombre (`values='Cuota de Mercado (%)'`, `names='Compañía'`). Se podría pasar directo dos listas sueltas, pero armar el `DataFrame` primero es el mismo patrón que se usa en el resto de la clase con Seaborn (`data=df, x="...", y="..."`) — conviene acostumbrarse desde acá aunque el dataset sea chico, porque con datos reales casi siempre van a venir ya en un DataFrame (de un `read_csv`, por ejemplo).
+
+**¿Por qué Plotly Express y no Matplotlib para este ejemplo?** Porque lo que hace más persuasivo (y más fácil de manipular) a un gráfico de torta es justamente poder pasar el mouse por cada sector y ver el tooltip con el % exacto — eso es interactividad nativa de Plotly, que Matplotlib no da sin trabajo extra. Es el mismo motivo por el que la vamos a usar en el Bloque 3 para exploración de datos.
+
+**Puntos clave del gráfico manipulado:**
+
+- `hole=0.4` no manipula nada — es puramente estético (convierte la torta en "donut"). Se aclara para que no se confunda con la manipulación real.
+- `title='Cuota de Mercado Global de Tecnología (35% Apple)'` es la primera manipulación: el título elige remarcar el número de Apple, dirigiendo la lectura antes de que la persona mire el gráfico.
+- `pull=[0.15, 0, 0, 0]` es la segunda: separa físicamente el primer sector (Apple, por el orden en que aparece en `data`) del resto de la torta. Eso hace que el ojo lo perciba como más importante, aunque "Otras Compañías" (40%) sea matemáticamente mayor que Apple (35%).
+
+**Puntos clave de la versión honesta:**
+
+- `empresas` y `cuotas` están **ordenados de mayor a menor** — ninguna empresa está "elegida" al principio de la lista para separarla del resto.
+- `ax.set_xlim(0, 50)` fuerza al eje X (los porcentajes) a arrancar en 0 — la regla de oro para que las barras sean comparables a simple vista.
+- El bucle `for i, v in enumerate(cuotas): ax.text(...)` agrega el valor exacto al lado de cada barra, así no hace falta "leer" la escala del eje para saber el número real.
+
+**Qué decir:** los datos de entrada (`data`, `empresas`/`cuotas`) son los mismos en los dos gráficos. Todo lo que cambió es texto, orden y un parámetro de separación — ninguno de los dos "inventa" números, pero uno presenta el dato para confundir y el otro para informar.
+
+**¿Cuál de los dos es mejor y por qué?** El de barras. El pie chart no está mal hecho técnicamente — el problema es que `pull` + el título eligen y refuerzan una conclusión que el dato real no sostiene ("Apple domina" cuando en realidad "Otras Compañías" tiene más cuota, 40% vs 35%). Un gráfico honesto no es el más prolijo ni el más lindo: es el que un lector puede interpretar correctamente sin que quien lo hizo tenga que aclarar nada. El de barras gana porque, con el mismo dato, el orden por valor real, el eje desde 0 y el porcentaje explícito en cada barra garantizan que la conclusión que saca cualquiera que lo mire sea la correcta.
+
+> Repaso completo de las 4 formas de manipular con gráficos (recorte de eje, tortas engañosas, omisión de datos, colores sesgados): **Sección 3** del Readme Repaso.
 
 ---
 
