@@ -1397,23 +1397,32 @@ ax_c = fig.add_subplot(gs[1, :])        # fila 1, TODAS las columnas (gráfico a
 - Útil cuando tenés un gráfico principal grande y uno secundario de resumen pequeño.
 
 **Ejecutar:**
+**Por qué con un mini-dashboard y no datos sueltos:** con `[1, 2, 4]` / `[5, 4, 3]` sin contexto, cuesta ver PARA QUÉ serviría que un gráfico sea más grande que otro. Con "resumen trimestral arriba, detalle por región abajo" queda claro el caso de uso real de un dashboard.
+
 ```python
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
 fig = plt.figure(figsize=(8, 6))
 
-# 2 filas, 1 columna. La segunda fila es 3 veces más alta que la primera.
+# 2 filas, 1 columna. La fila de abajo mide 3 veces la de arriba.
 gs = gridspec.GridSpec(nrows=2, ncols=1, height_ratios=[1, 3], hspace=0.4)
 
-ax_superior = fig.add_subplot(gs[0])
-ax_inferior = fig.add_subplot(gs[1])
+ax_resumen = fig.add_subplot(gs[0])    # slot 0: fila de arriba (chica)
+ax_principal = fig.add_subplot(gs[1])  # slot 1: fila de abajo (grande)
 
-ax_superior.plot([1, 2, 4], [5, 4, 3], color="red")
-ax_superior.set_title("Resumen (ratio 1)")
+# Arriba (chico): resumen rápido, tendencia trimestral
+trimestres = ["Q1", "Q2", "Q3", "Q4"]
+ventas_trimestre = [120, 145, 130, 180]
+ax_resumen.plot(trimestres, ventas_trimestre, color="red", marker="o", linewidth=2)
+ax_resumen.set_title("Resumen: ventas por trimestre (miles $)")
 
-ax_inferior.scatter([1, 2, 3], [10, 40, 20], color="green", s=100)
-ax_inferior.set_title("Detalle principal (ratio 3)")
+# Abajo (grande): el gráfico principal, detalle por región
+regiones = ["Norte", "Sur", "Este", "Oeste"]
+ventas_region = [95, 60, 150, 80]
+ax_principal.bar(regiones, ventas_region, color="steelblue")
+ax_principal.set_title("Detalle: ventas por región — gráfico principal del dashboard")
+ax_principal.set_ylabel("Ventas (miles $)")
 
 plt.show()
 ```
