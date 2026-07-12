@@ -1,25 +1,47 @@
-## 📚 Repaso Clase Anterior (Clase 6)
+## 📚 Repaso Clase Anterior (Clase 6): Estadística y Preprocesamiento
 
-### Teoría Fundamental del EDA y Preprocesamiento
+En la **Clase 6** construimos las bases estadísticas y de preprocesamiento que hoy usamos sin pensarlo dentro del pipeline de Machine Learning. Antes de avanzar con pipelines reproducibles, clustering y validación, repasamos en detalle los 4 pilares — todos aplicados en la Clase 7 sobre el dataset real de natalidad del DEIS (`tasa-natalidad-deis-2000-2024.csv`), el mismo Bloque 0 del notebook `Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb` lo reproduce en código.
 
-En la **Clase 6** establecimos las bases fundamentales para el análisis de datos que ahora aplicaremos en **Machine Learning**:
+#### 1️⃣ Limpieza e Integración
 
-#### 🔍 **Análisis Exploratorio de Datos (EDA)**
-- **Filosofía**: Acercarse a los datos sin prejuicios para descubrir patrones inesperados
-- **Objetivo**: Entender la estructura de los datos antes de aplicar modelos predictivos
-- **Herramientas**: Estadística descriptiva + visualización de datos
+**Limpieza** es la decisión, no la eliminación automática. Un dataset real trae nulos, duplicados y valores inconsistentes, pero borrar filas a ciegas puede tirar información valiosa. En la Clase 6, al auditar +1 millón de vuelos, encontramos +220.000 nulos en las columnas de provincia — el reflejo, no de haber cometido un error de carga, sino de que esos registros correspondían a vuelos internacionales sin provincia argentina de origen/destino. La estrategia correcta fue:
+- Imputar numéricas con la **mediana** (robusta a outliers) o la **media**.
+- Imputar categóricas con la **moda** o con una etiqueta de negocio explícita (`"No Aplica / Internacional"`), cuando el nulo tiene una causa lógica.
+- Eliminar duplicados exactos con `.drop_duplicates()`.
 
-#### 📊 **Estadística Descriptiva**
-- **Medidas de tendencia central**: Media, mediana, moda
-- **Medidas de dispersión**: Varianza, desviación estándar, IQR
-- **Distribuciones**: Normal, uniforme, y su visualización con histogramas
-- **Correlación**: Relación entre variables (importante: correlación ≠ causalidad)
+**Integración** es crear valor combinando o derivando columnas nuevas a partir de las existentes (ej. `vuelo_escala` categorizando la cantidad de pasajeros), para que un número crudo se convierta en un segmento interpretable para el negocio.
 
-#### 🧹 **Preprocesamiento de Datos**
-- **Limpieza**: Manejo de valores faltantes y outliers
-- **Transformación**: Normalización, codificación de variables categóricas
-- **Integración**: Combinar datos de múltiples fuentes
-- **Reducción**: PCA para simplificar la dimensionalidad
+#### 2️⃣ Medidas de Tendencia Central y Dispersión
+
+La **tendencia central** ubica el "centro" de los datos:
+- **Media**: promedio aritmético, sensible a valores extremos.
+- **Mediana**: valor que divide los datos al 50%, robusta frente a outliers.
+- **Moda**: el valor más frecuente.
+
+Cuando media y mediana difieren mucho, hay asimetría (sesgo) u outliers — por ejemplo, con pasajeros por vuelo, la media superaba a la mediana porque unas pocas rutas troncales "tiran" el promedio hacia arriba.
+
+La **dispersión** mide qué tan esparcidos están los datos respecto al centro:
+- **Desviación estándar**: variación promedio respecto a la media.
+- **IQR (Rango Intercuartílico)** = Q3 − Q1: el ancho del 50% central de los datos, más robusto que el desvío estándar porque ignora los extremos.
+
+#### 3️⃣ Distribuciones y Correlación
+
+La **distribución** es la "silueta" que toman los datos al graficarlos en un histograma: puede ser simétrica (campana/Normal) o sesgada a la izquierda o a la derecha. Nos dice si la mayoría de las observaciones se concentra en valores bajos, altos, o está balanceada.
+
+La **correlación** (coeficiente de Pearson, entre -1 y 1) mide el grado de asociación **lineal** entre dos variables numéricas:
+- Cerca de **1**: cuando una sube, la otra también.
+- Cerca de **-1**: cuando una sube, la otra baja.
+- Cerca de **0**: no hay relación lineal.
+
+> ⚠️ **Correlación no implica causalidad.** Que dos variables se muevan juntas no significa que una cause a la otra — puede haber una tercera variable (o una tendencia general) explicando ambas.
+
+#### 4️⃣ Transformación y Reducción de Dimensionalidad
+
+Para que un algoritmo matemático (regresión, clustering, PCA) pueda procesar los datos, hace falta **transformarlos**:
+- **Codificación**: convertir texto a números (`LabelEncoder`, one-hot encoding / `pd.get_dummies`).
+- **Escalado** (`StandardScaler`): llevar las variables numéricas a una escala comparable (media 0, desvío 1). Es obligatorio antes de algoritmos basados en distancias (K-Means, PCA), porque sin escalar, una columna con números más grandes "pesaría" más solo por su magnitud, no por su relevancia real.
+
+Cuando hay muchas columnas, **PCA (Análisis de Componentes Principales)** comprime esa información en unas pocas dimensiones (componentes principales) que conservan la mayor parte de la varianza original — permitiendo, por ejemplo, visualizar en 2D un dataset con decenas de variables sin perder la estructura esencial de los datos.
 
 ---
 
