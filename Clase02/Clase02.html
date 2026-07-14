@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clase 02 - Estilo Pythonic, NumPy y Visualización | Coderhouse</title>
+    <title>Clase 02 - Fundamentos de Python | Coderhouse</title>
     <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -483,6 +483,14 @@
             white-space: pre-wrap;
             line-height: 1.4;
         }
+
+        /* Small note under tables */
+        .note-text {
+            margin-top: 18px;
+            font-size: 14px;
+            font-style: italic;
+            color: rgba(38, 7, 0, 0.6);
+        }
     </style>
 </head>
 <body>
@@ -494,14 +502,14 @@
         <div></div>
         <div class="transition-layout" style="margin-bottom: 30px;">
             <span class="moment-badge">CODER 4.0 • CLASE 02</span>
-            <h1 style="font-size: 54px;">Estilo Pythonic, NumPy, Pandas y Visualización de Datos</h1>
+            <h1 style="font-size: 54px;">Fundamentos de Python: Tipos Escalares, Colecciones y Operadores</h1>
             <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
-                De código idiomático a estadística descriptiva: el camino hacia el análisis de datos profesional
+                De lo simple a lo complejo: los ladrillos técnicos de todo pipeline de datos
             </p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">01 / 32</div>
+            <div class="slide-index">01 / 36</div>
         </div>
     </div>
 
@@ -516,12 +524,12 @@
                 <div class="slido-code">
                     <i class="fa-solid fa-mobile-screen-button"></i> sli.do &nbsp;#DATA-CLASS
                 </div>
-                <p style="font-weight: 600; color: var(--naranja-oscuro);">¿Qué es lo que más te cuesta al momento de escribir código Python limpio y reutilizable?</p>
+                <p style="font-weight: 600; color: var(--naranja-oscuro);">¿Qué es lo que más te cuesta al distinguir entre tipos escalares, colecciones y operadores en Python?</p>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">02 / 32</div>
+            <div class="slide-index">02 / 36</div>
         </div>
     </div>
 
@@ -531,106 +539,783 @@
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 01</span>
-            <h2>Estilo Pythonic y Estructuras de Datos</h2>
-            <p style="font-size: 20px;">PEP 8, patrones idiomáticos, introducción a Pandas y mutabilidad en profundidad.</p>
+            <h2>Variables, Tipos Escalares y Operadores</h2>
+            <p style="font-size: 20px;">De la etiqueta que nombra un dato a las reglas matemáticas y lógicas que lo transforman.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">03 / 32</div>
+            <div class="slide-index">03 / 36</div>
         </div>
     </div>
 
-    <!-- SLIDE 4: PEP 8 -->
+    <!-- SLIDE 4: Variable y Dato -->
     <div class="slide-container" id="slide4">
-        <h2 class="slide-title">PEP 8: La Guía de Estilo para Python</h2>
+        <h2 class="slide-title">¿Qué es una Variable y qué es un Dato?</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
                     <span class="moment-badge">Fundamentos</span>
                     <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Un equipo donde cada quien programa distinto genera código difícil de leer, mantener y compartir.
+                        Antes de operar necesitamos contenedores: una variable es la etiqueta que le pones a un dato en la memoria.
                     </p>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-indent"></i> <strong>Indentación:</strong> 4 espacios por nivel, evitando tabulaciones.</li>
-                            <li><i class="fa-solid fa-ruler-horizontal"></i> <strong>Longitud de línea:</strong> Máximo 79 caracteres para facilitar la lectura.</li>
-                            <li><i class="fa-solid fa-font"></i> <strong>Nombres:</strong> snake_case para variables/funciones, CamelCase para clases.</li>
-                            <li><i class="fa-solid fa-file-import"></i> <strong>Importaciones:</strong> Una por línea, ordenadas y agrupadas.</li>
+                            <li><i class="fa-solid fa-tag"></i> <strong>El Dato:</strong> La unidad de información. Ejemplo: 25, "Juan", True.</li>
+                            <li><i class="fa-solid fa-note-sticky"></i> <strong>La Variable:</strong> El nombre que usas para referirte a ese dato (edad, nombre_paciente).</li>
+                            <li><i class="fa-solid fa-wand-magic-sparkles"></i> <strong>Tipado dinámico:</strong> Python mira el dato y decide el tipo automáticamente, sin declaraciones previas.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
-<span style="color: #6a737d;"># Correcto según PEP 8</span>
-def calcular_media(valores):
-    suma = sum(valores)
-    cantidad = len(valores)
-    return suma / cantidad
+<span style="color: #6a737d;"># Asignación de datos a variables</span>
+edad = 30
+nombre = <span style="color: #032f62;">"Lucía"</span>
+
+<span style="color: #6a737d;"># Python detecta el tipo automáticamente</span>
+print(type(edad))    <span style="color: #6a737d;"># &lt;class 'int'&gt;</span>
+print(type(nombre))  <span style="color: #6a737d;"># &lt;class 'str'&gt;</span>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">04 / 32</div>
+            <div class="slide-index">04 / 36</div>
         </div>
     </div>
 
-    <!-- SLIDE 5: Patrones idiomáticos -->
+    <!-- SLIDE 5: Tipos Escalares -->
     <div class="slide-container" id="slide5">
-        <h2 class="slide-title">Patrones Idiomáticos en Python</h2>
+        <h2 class="slide-title">Tipos Escalares: Los Átomos de la Información</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-hashtag"></i></div>
+                    <h3>int (Enteros)</h3>
+                    <p>Números sin decimales. Ej: <em>cantidad_productos = 500</em> (transacciones, hijos, edad).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-percent"></i></div>
+                    <h3>float (Flotantes)</h3>
+                    <p>Números con decimales, con punto. Ej: <em>precio_dolar = 850.50</em> (precios, probabilidades).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-font"></i></div>
+                    <h3>str (Cadenas)</h3>
+                    <p>Secuencias de caracteres entre comillas. Ej: <em>usuario = "data_expert_2024"</em>.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-toggle-on"></i></div>
+                    <h3>bool (Booleanos)</h3>
+                    <p>Solo True o False. Ej: <em>es_valido = True</em> (¿tiene nulos?, ¿es premium?).</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">05 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Cadenas como secuencia y Escalar vs Colección -->
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title">Cadenas como Secuencia y Escalares vs. Colecciones</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>El "Collar de Perlas"</h3>
+                    <p>Aunque un string parece un dato simple, Python lo trata como una <strong>secuencia</strong>: puedes contar sus caracteres o pedir uno puntual.<br><br>
+                    <em>ciudad = "Madrid"</em><br><em>len(ciudad)</em> → 6</p>
+                </div>
+                <div>
+                    <h3>Escalar vs. Colección</h3>
+                    <p>Escalar no significa "pequeño": significa <strong>un solo valor</strong>. <em>temperatura = 24.5</em> es escalar; <em>temperaturas_semana = [24.5, 22.0, 26.1]</em> es una colección que agrupa muchos escalares.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">06 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Operadores Aritméticos y de Comparación -->
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title">Operadores Aritméticos y de Comparación</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-wand-magic-sparkles"></i> Código Conciso</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Construcciones que permiten escribir código más compacto, expresivo y fácil de mantener.
-                    </p>
+                    <span class="moment-badge">El motor matemático</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-layer-group"></i> <strong>Comprehensions:</strong> Crean listas, diccionarios o conjuntos de forma concisa.</li>
-                            <li><i class="fa-solid fa-arrows-split-up-and-left"></i> <strong>Unpacking:</strong> Asignan múltiples variables o extraen valores de colecciones en una sola línea.</li>
-                            <li><i class="fa-solid fa-door-open"></i> <strong>Context Managers:</strong> Manejan recursos como archivos de forma segura y automática.</li>
+                            <li><i class="fa-solid fa-plus"></i> <strong>Aritméticos:</strong> +, -, *, / (decimal), // (entera), % (módulo), ** (potencia).</li>
+                            <li><i class="fa-solid fa-equals"></i> <strong>Comparación:</strong> ==, !=, &gt;, &lt;, &gt;=, &lt;= — siempre devuelven un booleano.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>¡Cuidado!</strong> No confundas = (asignar) con == (comparar).</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="code-block" style="border-left-color: var(--amarillo-solar);">
-<span style="color: #6a737d;"># Comprehension</span>
-cuadrados = [x**2 for x in range(10)]
+<span style="color: #6a737d;"># Aritméticos</span>
+7 / 2    <span style="color: #6a737d;"># 3.5 (división decimal)</span>
+7 // 2   <span style="color: #6a737d;"># 3   (división entera)</span>
+7 % 2    <span style="color: #6a737d;"># 1   (resto/módulo)</span>
+2 ** 3   <span style="color: #6a737d;"># 8   (potencia)</span>
 
-<span style="color: #6a737d;"># Unpacking</span>
-x, y, z = (1, 2, 3)
-
-<span style="color: #6a737d;"># Context manager</span>
-with open(<span style="color: #032f62;">'datos.csv'</span>, <span style="color: #032f62;">'r'</span>) as archivo:
-    contenido = archivo.read()
+<span style="color: #6a737d;"># Comparación</span>
+5 == 5   <span style="color: #6a737d;"># True</span>
+5 != 3   <span style="color: #6a737d;"># True</span>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">05 / 32</div>
+            <div class="slide-index">07 / 36</div>
         </div>
     </div>
 
-    <!-- SLIDE 6: Introducción a Pandas -->
-    <div class="slide-container" id="slide6">
-        <h2 class="slide-title">Introducción a Pandas</h2>
+    <!-- SLIDE 8: Operadores Lógicos y Conversión de Tipos -->
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title">Operadores Lógicos y Conversión de Tipos</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge">Series & DataFrames</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Construida sobre NumPy, Pandas facilita la manipulación flexible y eficiente de datos tabulares.
-                    </p>
+                    <span class="moment-badge tip"><i class="fa-solid fa-shuffle"></i> Lógica y Casting</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-table-cells"></i> <strong>Series y DataFrames:</strong> Estructuras unidimensionales y bidimensionales para trabajar con datos.</li>
-                            <li><i class="fa-solid fa-filter"></i> <strong>Manipulación:</strong> Filtrado, transformación y agregación de información.</li>
-                            <li><i class="fa-solid fa-file-csv"></i> <strong>Múltiples formatos:</strong> Compatible con CSV, Excel, SQL y JSON, entre otros.</li>
-                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Datos ausentes:</strong> Incluye funciones para detectar y tratar valores faltantes.</li>
+                            <li><i class="fa-solid fa-code-branch"></i> <strong>and:</strong> True solo si ambas condiciones son ciertas.</li>
+                            <li><i class="fa-solid fa-code-fork"></i> <strong>or:</strong> True si al menos una condición se cumple.</li>
+                            <li><i class="fa-solid fa-ban"></i> <strong>not:</strong> invierte el valor booleano.</li>
+                            <li><i class="fa-solid fa-broom"></i> <strong>Conversión de tipos:</strong> "limpia" datos que llegan en el formato incorrecto (ej. un sensor que envía "25.4" como texto).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;"># Operadores lógicos</span>
+es_mayor and tiene_saldo
+pago_tarjeta or pago_efectivo
+not True   <span style="color: #6a737d;"># False</span>
+
+<span style="color: #6a737d;"># Conversión (Casting)</span>
+int(<span style="color: #032f62;">"10"</span>)      <span style="color: #6a737d;"># 10</span>
+float(<span style="color: #032f62;">"10.5"</span>)  <span style="color: #6a737d;"># 10.5</span>
+str(100)       <span style="color: #6a737d;"># "100"</span>
+bool(1)        <span style="color: #6a737d;"># True</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">08 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Precedencia y Errores Comunes -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">Precedencia de Operadores y Errores Comunes</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> ¿Qué va primero?</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Orden</th>
+                            <th>Operadores</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Paréntesis <strong>()</strong> — úsalos siempre para mayor claridad</td></tr>
+                        <tr><td>2</td><td>Potencias <strong>**</strong></td></tr>
+                        <tr><td>3</td><td>Multiplicación, División, Módulo</td></tr>
+                        <tr><td>4</td><td>Suma y Resta</td></tr>
+                        <tr><td>5</td><td>Comparaciones (==, &gt;, etc.)</td></tr>
+                        <tr><td>6</td><td>Operadores lógicos (not, and, or)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Error común: 10 + 5 * 2 es 20, no 30 (el * va antes que el +). Para forzar el orden: (10 + 5) * 2. También cuidado con comparar tipos incompatibles ("5" &gt; 3) y con escribir nombre = Juan sin comillas.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">09 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: División Módulo 2 -->
+    <div class="slide-container" id="slide10">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 02</span>
+            <h2>Colecciones a Fondo</h2>
+            <p style="font-size: 20px;">Cuando los datos vienen en manada: listas, tuplas, diccionarios anidados y sets.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Listas vs Tuplas -->
+    <div class="slide-container" id="slide11">
+        <h2 class="slide-title">Listas vs. Tuplas: El Dilema de la Mutabilidad</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Mutables vs. Inmutables</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-list"></i> <strong>Listas [] (Mutables):</strong> crecen, se achican y modifican. Ideales para flujos de datos dinámicos.</li>
+                            <li><i class="fa-solid fa-lock"></i> <strong>Tuplas () (Inmutables):</strong> una vez creadas no cambian. Protegen la integridad del dato (ej. una fila de base de datos).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+<span style="color: #6a737d;"># Listas: Dinámicas</span>
+ventas_del_dia = [1500, 2300, 4200]
+ventas_del_dia.append(3100)  <span style="color: #6a737d;"># Permitido</span>
+
+<span style="color: #6a737d;"># Tuplas: Protegidas</span>
+registro_cliente = (1024, <span style="color: #032f62;">"2026-05-29"</span>, <span style="color: #032f62;">"Juan Pérez"</span>)
+<span style="color: #6a737d;"># registro_cliente[1] = "2026-06-01"  # TypeError</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">11 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Diccionarios Anidados -->
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title">Diccionarios Anidados: El Modelo Mental de un JSON</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-sitemap"></i> Respuestas de una API</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-sitemap"></i> <strong>Modelo mental de un JSON:</strong> diccionarios dentro de diccionarios o listas.</li>
+                            <li><i class="fa-solid fa-key"></i> <strong>Capa por capa:</strong> se avanza usando llaves (keys) o índices para extraer valores.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+api_response = {
+  <span style="color: #032f62;">"status"</span>: <span style="color: #032f62;">"success"</span>,
+  <span style="color: #032f62;">"data"</span>: {
+    <span style="color: #032f62;">"cliente_id"</span>: 5582,
+    <span style="color: #032f62;">"historial_compras"</span>: [
+      {<span style="color: #032f62;">"producto"</span>: <span style="color: #032f62;">"Teclado"</span>, <span style="color: #032f62;">"precio"</span>: 85},
+      {<span style="color: #032f62;">"producto"</span>: <span style="color: #032f62;">"Mouse Pad"</span>, <span style="color: #032f62;">"precio"</span>: 30}
+    ]
+  }
+}
+
+precio = api_response[<span style="color: #032f62;">"data"</span>][<span style="color: #032f62;">"historial_compras"</span>][0][<span style="color: #032f62;">"precio"</span>]
+print(precio)  <span style="color: #6a737d;"># 85</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">12 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Sets -->
+    <div class="slide-container" id="slide13">
+        <h2 class="slide-title">Sets: El Arma Secreta para la Limpieza de Datos</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Elementos únicos</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-object-ungroup"></i> <strong>Set {}:</strong> colección desordenada de elementos únicos.</li>
+                            <li><i class="fa-solid fa-copy"></i> <strong>Deduplicación:</strong> elimina registros duplicados en una sola línea de código.</li>
+                            <li><i class="fa-solid fa-circle-nodes"></i> <strong>Operaciones de conjuntos:</strong> cruzar listas de usuarios (intersección, unión).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;"># Eliminar duplicados</span>
+emails = [<span style="color: #032f62;">"a@x.com"</span>, <span style="color: #032f62;">"b@x.com"</span>, <span style="color: #032f62;">"a@x.com"</span>]
+unicos = list(set(emails))
+
+<span style="color: #6a737d;"># Intersección de campañas</span>
+cyber = {<span style="color: #032f62;">"user_1"</span>, <span style="color: #032f62;">"user_2"</span>, <span style="color: #032f62;">"user_3"</span>}
+black = {<span style="color: #032f62;">"user_3"</span>, <span style="color: #032f62;">"user_4"</span>}
+ambos = cyber.intersection(black)  <span style="color: #6a737d;"># {'user_3'}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">13 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: División Módulo 3 -->
+    <div class="slide-container" id="slide14">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 03</span>
+            <h2>Control de Flujo: Decisiones y Bucles</h2>
+            <p style="font-size: 20px;">Los datos perfectos no existen: if, elif, else, for y while filtran la "basura" en milisegundos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: if / elif / else -->
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title">Decisiones Inteligentes: if, elif y else</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-code-branch"></i> Bifurcador de caminos</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-code-branch"></i> <strong>if:</strong> evalúa la condición booleana principal.</li>
+                            <li><i class="fa-solid fa-shuffle"></i> <strong>elif:</strong> plan alternativo si la primera condición fue falsa; se pueden encadenar varios.</li>
+                            <li><i class="fa-solid fa-inbox"></i> <strong>else:</strong> caso por defecto, captura registros sospechosos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+score_crediticio = 650
+
+if score_crediticio &gt;= 750:
+    estado = <span style="color: #032f62;">"Aprobado Automático"</span>
+elif score_crediticio &gt;= 600:
+    estado = <span style="color: #032f62;">"Revisión Manual"</span>
+else:
+    estado = <span style="color: #032f62;">"Rechazado"</span>
+
+print(estado)  <span style="color: #6a737d;"># Revisión Manual</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Álgebra Booleana -->
+    <div class="slide-container" id="slide16">
+        <h2 class="slide-title">Álgebra Booleana: Lógica Combinada</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>and (Estricto)</h3>
+                    <p>True solo si todas las condiciones son ciertas. Ej: ¿inició sesión Y supera su límite? → Alerta de fraude.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-arrows-split-up-and-left"></i></div>
+                    <h3>or (Flexible)</h3>
+                    <p>True si al menos una condición se cumple. Ej: ¿email vacío O sin arroba? → Registro inválido.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-rotate"></i></div>
+                    <h3>not (Inversión)</h3>
+                    <p>Invierte el booleano. Ej: si el registro NO es nulo (not None), procesarlo.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">16 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: Bucles for y while -->
+    <div class="slide-container" id="slide17">
+        <h2 class="slide-title">Automatización Masiva: Bucles for y while</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">El motor de la Ciencia de Datos</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrows-rotate"></i> <strong>for:</strong> itera sobre colecciones; sabemos cuándo empieza y termina. El "rey" de Data Science.</li>
+                            <li><i class="fa-solid fa-hourglass-half"></i> <strong>while:</strong> se ejecuta mientras una condición sea verdadera; útil para reintentos de API o algoritmos iterativos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+precios_usd = [10, 45, 120, 5]
+tipo_cambio = 1000
+precios_ars = []
+
+for precio in precios_usd:
+    precios_ars.append(precio * tipo_cambio)
+
+print(precios_ars)
+<span style="color: #6a737d;"># [10000, 45000, 120000, 5000]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">17 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: break y continue -->
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title">Ajuste Fino de Algoritmos: break y continue</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Superpoderes sobre la ejecución</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-door-open"></i> <strong>break:</strong> salida de emergencia, interrumpe el bucle al encontrar el primer error.</li>
+                            <li><i class="fa-solid fa-forward"></i> <strong>continue:</strong> salta al siguiente elemento, ideal para ignorar filas con datos nulos sin romper el script.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+registro_ventas = [150, -20, 300, 0, 450]
+
+for venta in registro_ventas:
+    if venta &lt;= 0:
+        continue  <span style="color: #6a737d;"># ignora negativos/cero</span>
+    impuesto = venta * 0.21
+    print(f<span style="color: #032f62;">"Venta: {venta} | Imp: {impuesto}"</span>)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">18 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: División Módulo 4 -->
+    <div class="slide-container" id="slide19">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 04</span>
+            <h2>Funciones Reutilizables</h2>
+            <p style="font-size: 20px;">El principio DRY: encapsular la lógica de limpieza en bloques reutilizables, profesionales y escalables.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: Qué es una función -->
+    <div class="slide-container" id="slide20">
+        <h2 class="slide-title">Qué es una Función y por qué Reutilizarla</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-puzzle-piece"></i></div>
+                    <h3>Modularidad</h3>
+                    <p>Divide un problema complejo (un pipeline de limpieza) en piezas manejables.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-recycle"></i></div>
+                    <h3>Reutilización</h3>
+                    <p>Escribes la lógica una vez y la usas mil veces en distintos proyectos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-wrench"></i></div>
+                    <h3>Mantenibilidad</h3>
+                    <p>Corriges un error en un solo lugar y el cambio se aplica en todo el programa.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-car"></i></div>
+                    <h3>Abstracción</h3>
+                    <p>Usas la función sabiendo qué necesita y qué entrega, sin pensar en el cómo.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">20 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: def, Parámetros, Argumentos y Return -->
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title">def, Parámetros, Argumentos y return</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">La anatomía de una función</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-code"></i> <strong>def:</strong> define la función; el nombre debe ser descriptivo (usa verbos).</li>
+                            <li><i class="fa-solid fa-box-open"></i> <strong>Parámetros:</strong> moldes que reciben los datos; los argumentos son los valores reales.</li>
+                            <li><i class="fa-solid fa-arrow-right-to-bracket"></i> <strong>Posicionales vs. con nombre:</strong> el orden importa o no según cómo llames a los argumentos.</li>
+                            <li><i class="fa-solid fa-comment"></i> <strong>print() vs return:</strong> print() solo muestra en pantalla; return entrega el resultado para reutilizarlo.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+def normalizar_categoria(texto):
+    return texto.strip().lower()
+
+print(normalizar_categoria(<span style="color: #032f62;">" ELECTRONICA "</span>))
+<span style="color: #6a737d;"># "electronica"</span>
+
+def crear_etiqueta(producto, precio):
+    return f<span style="color: #032f62;">"{producto}: ${precio}"</span>
+
+print(crear_etiqueta(precio=40, producto=<span style="color: #032f62;">"Pantalón"</span>))
+<span style="color: #6a737d;"># Pantalón: $40</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">21 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Valores por defecto, múltiples retornos y scope -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">Valores por Defecto, Múltiples Retornos y Scope</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Valores por Defecto y Múltiples Retornos</h3>
+                    <p>Un parámetro opcional evita repetir siempre el mismo valor (ej. tasa=0.92). Una función puede devolver varios resultados a la vez como tupla (ej. el mínimo y el máximo de una lista de precios).</p>
+                </div>
+                <div>
+                    <h3>Ámbito Local (Scope)</h3>
+                    <p>Las variables creadas dentro de una función son <strong>locales</strong>: solo existen mientras se ejecuta y desaparecen al terminar, manteniendo el programa principal ordenado.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: Break de Coder ("Recreo") -->
+    <div class="slide-container break-slide" id="slide23">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
+            <h2>Break del Coder</h2>
+            <p>Andá por un cafecito o mate, ¡y en 10 minutos volvemos!</p>
+        </div>
+        <div class="slide-footer" style="border-top: 1px solid rgba(248, 242, 232, 0.2);">
+            <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span style="color: var(--naranja-horizonte);">HOUSE</span></div>
+            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">23 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: División Módulo 5 -->
+    <div class="slide-container" id="slide24">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 05</span>
+            <h2>Funciones Avanzadas</h2>
+            <p style="font-size: 20px;">*args, **kwargs, el peligro del scope global y funciones lambda para transformaciones express.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">24 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: *args y **kwargs -->
+    <div class="slide-container" id="slide25">
+        <h2 class="slide-title">Parámetros Avanzados: *args y **kwargs</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-asterisk"></i> Flexibilidad total</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-asterisk"></i> <strong>*args:</strong> captura cualquier cantidad de argumentos posicionales.</li>
+                            <li><i class="fa-solid fa-key"></i> <strong>**kwargs:</strong> captura argumentos con nombre sin declararlos de antemano.</li>
+                            <li><i class="fa-solid fa-gears"></i> <strong>Clave para ML:</strong> así están programadas muchas librerías de Machine Learning.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+def formatear_metricas(valor, moneda=<span style="color: #032f62;">"USD"</span>, **detalles):
+    texto = f<span style="color: #032f62;">"Monto: {valor} {moneda}"</span>
+    if detalles.get(<span style="color: #032f62;">"notificar_gerencia"</span>):
+        texto += <span style="color: #032f62;">" [ALERTA]"</span>
+    return texto
+
+print(formatear_metricas(750000, moneda=<span style="color: #032f62;">"ARS"</span>,
+      notificar_gerencia=True))
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">25 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 26: Peligro del Scope Global -->
+    <div class="slide-container" id="slide26">
+        <h2 class="slide-title">El Peligro del Scope (Global vs. Local)</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Efectos secundarios</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-globe"></i> <strong>Variable global:</strong> vive fuera de las funciones; todo el script la ve.</li>
+                            <li><i class="fa-solid fa-lock"></i> <strong>Variable local:</strong> nace y muere dentro de la función.</li>
+                            <li><i class="fa-solid fa-shield-halved"></i> <strong>Regla de oro:</strong> nunca modifiques una variable global dentro de una función de limpieza; pasa el dato como argumento y retorna la copia.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+dataset_global = [10, 20, 30]
+
+def duplicar_datos(lista_datos):
+    return [x * 2 for x in lista_datos]
+
+nuevos_datos = duplicar_datos(dataset_global)
+print(dataset_global)  <span style="color: #6a737d;"># [10, 20, 30] intacto</span>
+print(nuevos_datos)    <span style="color: #6a737d;"># [20, 40, 60]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">26 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 27: Funciones Lambda -->
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title">Funciones Lambda: Transformaciones Express</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-bolt"></i> De un solo uso</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-bolt"></i> <strong>Función anónima:</strong> se escribe en una sola línea, para tareas de "un solo uso".</li>
+                            <li><i class="fa-solid fa-not-equal"></i> <strong>No reemplaza a def:</strong> se usa para transformaciones simples y específicas.</li>
+                            <li><i class="fa-solid fa-filter"></i> <strong>Se combina con map() y filter():</strong> la antesala de .apply() en Pandas.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+calcular_iva = lambda precio: precio * 1.21
+print(calcular_iva(100))  <span style="color: #6a737d;"># 121.0</span>
+
+precios = [100, 250, 400]
+actualizados = list(map(lambda x: x * 1.10, precios))
+print(actualizados)
+<span style="color: #6a737d;"># [110.0, 275.0, 440.0]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">27 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 28: División Módulo 6 -->
+    <div class="slide-container" id="slide28">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 06</span>
+            <h2>Ingesta y Radiografía Inicial con Pandas</h2>
+            <p style="font-size: 20px;">De listas y diccionarios nativos al DataFrame: la herramienta profesional para miles de filas.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">28 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 29: DataFrame + Ingesta -->
+    <div class="slide-container" id="slide29">
+        <h2 class="slide-title">¿Qué es un DataFrame? Ingesta de Datos</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">La era de la eficiencia</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-table"></i> <strong>DataFrame:</strong> tabla bidimensional con índices, similar a Excel o SQL pero optimizada.</li>
+                            <li><i class="fa-solid fa-file-csv"></i> <strong>read_csv():</strong> para archivos .csv (usa sep=";" si el separador no es coma).</li>
+                            <li><i class="fa-solid fa-file-excel"></i> <strong>read_excel():</strong> para archivos .xlsx (usa sheet_name para elegir la pestaña).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+import pandas as pd
+
+df = pd.read_csv(<span style="color: #032f62;">"mi_dataset.csv"</span>)
+<span style="color: #6a737d;"># df = pd.read_csv("mi_dataset.csv", sep=";")</span>
+
+df = pd.read_excel(<span style="color: #032f62;">"mi_dataset.xlsx"</span>,
+    sheet_name=<span style="color: #032f62;">"Ventas2026"</span>)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">29 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: head, tail y display -->
+    <div class="slide-container" id="slide30">
+        <h2 class="slide-title">Primer Ojo a la Tabla: head, tail y display</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-magnifying-glass"></i> Vistas controladas</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-eye"></i> <strong>df.head(n):</strong> primeras n filas (5 por defecto), ideal para verificar columnas.</li>
+                            <li><i class="fa-solid fa-eye-slash"></i> <strong>df.tail(n):</strong> últimas n filas, útil para chequear cortes o filas vacías al final.</li>
+                            <li><i class="fa-solid fa-table-cells"></i> <strong>display() vs print():</strong> en notebooks, display() renderiza una tabla interactiva y estilizada.</li>
                         </ul>
                     </div>
                 </div>
@@ -643,728 +1328,131 @@ with open(<span style="color: #032f62;">'datos.csv'</span>, <span style="color: 
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">06 / 32</div>
+            <div class="slide-index">30 / 36</div>
         </div>
     </div>
 
-    <!-- SLIDE 7: Mutabilidad y Aliasing -->
-    <div class="slide-container" id="slide7">
-        <h2 class="slide-title">Mutabilidad y el Problema del Aliasing</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-copy"></i> Copias vs Referencias</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Las funciones en Python reciben referencias a objetos, no copias automáticas.
-                    </p>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-lock"></i> <strong>Inmutables:</strong> int, float, str, tuple — cada operación crea un nuevo objeto en memoria.</li>
-                            <li><i class="fa-solid fa-lock-open"></i> <strong>Mutables:</strong> list, dict, set, DataFrame — se modifican en el mismo lugar de memoria.</li>
-                            <li><i class="fa-solid fa-clone"></i> <strong>Aliasing:</strong> Dos variables distintas apuntan al mismo objeto en memoria.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
-def modificar(lista):
-    lista.append(<span style="color: #005cc5;">100</span>)
-
-mi_lista = [1, 2, 3]
-modificar(mi_lista)
-
-print(mi_lista)
-<span style="color: #6a737d;"># Resultado: [1, 2, 3, 100] → Aliasing</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">07 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 8: División Módulo 2 -->
-    <div class="slide-container" id="slide8">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 02</span>
-            <h2>NumPy: Arreglos, Broadcasting y Rendimiento</h2>
-            <p style="font-size: 20px;">Arrays multidimensionales, vectorización y la base numérica de todo el stack de Data Science.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">08 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 9: Qué es NumPy -->
-    <div class="slide-container" id="slide9">
-        <h2 class="slide-title">¿Qué es NumPy?</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge">Cálculo Numérico</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Librería optimizada en C que permite manejar arreglos multidimensionales de forma rápida y eficiente.
-                    </p>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-microchip"></i> <strong>Optimizada en C:</strong> Soluciona la lentitud de Python puro para cálculos numéricos.</li>
-                            <li><i class="fa-solid fa-cubes"></i> <strong>ndarray:</strong> Estructura N-dimensional homogénea, más rápida y liviana que las listas.</li>
-                            <li><i class="fa-solid fa-bolt"></i> <strong>Vectorización:</strong> Ejecuta operaciones sobre arrays completos sin loops explícitos.</li>
-                            <li><i class="fa-solid fa-layer-group"></i> <strong>Base del ecosistema:</strong> Pandas, SciPy y Scikit-learn se construyen sobre NumPy.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="image-wrapper">
-                        <img alt="System flow representation" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1280&auto=format&fit=crop">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">09 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 10: Atributos de los ndarrays -->
-    <div class="slide-container" id="slide10">
-        <h2 class="slide-title">Atributos de los ndarrays</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge live"><i class="fa-solid fa-magnifying-glass"></i> Inspección</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Los arrays exponen atributos que permiten conocer y optimizar su estructura en memoria.
-                    </p>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-cube"></i> <strong>ndim:</strong> Número de dimensiones del array.</li>
-                            <li><i class="fa-solid fa-ruler-combined"></i> <strong>shape:</strong> Tamaño en cada dimensión.</li>
-                            <li><i class="fa-solid fa-hashtag"></i> <strong>size y dtype:</strong> Cantidad total de elementos y su tipo de dato.</li>
-                            <li><i class="fa-solid fa-weight-hanging"></i> <strong>itemsize y nbytes:</strong> Tamaño en bytes de cada elemento y del array total.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
-import numpy as np
-
-<span style="color: #6a737d;"># Crear un ndarray de ceros con 10 elementos</span>
-arr = np.zeros(10)
-
-print(arr.ndim)     <span style="color: #6a737d;"># 1</span>
-print(arr.shape)    <span style="color: #6a737d;"># (10,)</span>
-print(arr.size)     <span style="color: #6a737d;"># 10</span>
-print(arr.dtype)    <span style="color: #6a737d;"># float64</span>
-print(arr.itemsize) <span style="color: #6a737d;"># 8</span>
-print(arr.nbytes)   <span style="color: #6a737d;"># 80</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">10 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 11: Operaciones y Vectorización -->
-    <div class="slide-container" id="slide11">
-        <h2 class="slide-title">Operaciones Vectorizadas y Broadcasting</h2>
-        <div class="content-area">
-            <div class="tiled-content">
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-table-cells-large"></i></div>
-                    <h3>Reshape</h3>
-                    <p>Cambia la forma de un array sin alterar sus datos, reorganizando elementos en nuevas estructuras multidimensionales.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-scissors"></i></div>
-                    <h3>Concatenation & Splitting</h3>
-                    <p>Unen varios arrays en uno solo o dividen un array grande en subarrays más pequeños para su procesamiento.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
-                    <h3>Vectorización & Broadcasting</h3>
-                    <p>Aplican operaciones a arrays completos sin loops explícitos, siguiendo reglas automáticas entre arrays de distinto tamaño.</p>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">11 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 12: División Módulo 3 -->
-    <div class="slide-container" id="slide12">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 03</span>
-            <h2>Control de Flujo, Funciones y Testing</h2>
-            <p style="font-size: 20px;">Generadores, closures, argumentos variables y pruebas ligeras con assert.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">12 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 13: Control de flujo avanzado -->
-    <div class="slide-container" id="slide13">
-        <h2 class="slide-title">Control de Flujo Avanzado y Generadores</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-code-branch"></i> Flujo Avanzado</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Más allá de if/else: condicionales complejas y generadores para procesar datos sin saturar la memoria.
-                    </p>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-code-compare"></i> <strong>Condicionales anidadas:</strong> if/else combinados y expresiones ternarias.</li>
-                            <li><i class="fa-solid fa-list-ol"></i> <strong>enumerate():</strong> Itera obteniendo índice y valor al mismo tiempo.</li>
-                            <li><i class="fa-solid fa-water"></i> <strong>Generadores (yield):</strong> Producen valores bajo demanda sin cargar todo en memoria RAM.</li>
-                            <li><i class="fa-solid fa-infinity"></i> <strong>itertools:</strong> count(), cycle(), chain() e islice() para iterables eficientes.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
-<span style="color: #6a737d;"># Generador simple</span>
-def cuenta_regresiva(n):
-    while n > 0:
-        yield n
-        n -= 1
-
-<span style="color: #6a737d;"># Ciclo infinito con itertools</span>
-import itertools
-colores = [<span style="color: #032f62;">'rojo'</span>, <span style="color: #032f62;">'verde'</span>, <span style="color: #032f62;">'azul'</span>]
-for color in itertools.cycle(colores):
-    print(color)
-    break
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">13 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 14: Funciones, argumentos variables y closures -->
-    <div class="slide-container" id="slide14">
-        <h2 class="slide-title">Funciones de Primera Clase y Closures</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-cube"></i> Funciones como Objetos</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        En Python, las funciones pueden asignarse, almacenarse y devolverse como cualquier otro valor.
-                    </p>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-box"></i> <strong>*args:</strong> Captura argumentos posicionales adicionales de forma flexible.</li>
-                            <li><i class="fa-solid fa-key"></i> <strong>**kwargs:</strong> Captura argumentos con nombre, dando una interfaz común a distintas operaciones.</li>
-                            <li><i class="fa-solid fa-lock"></i> <strong>Closures:</strong> Funciones que recuerdan y modifican (nonlocal) variables del entorno donde fueron creadas.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
-def multiplicador(factor):
-    def multiplicar(n):
-        return n * factor
-    return multiplicar
-
-doblar = multiplicador(2)
-print(doblar(5))
-<span style="color: #6a737d;"># Resultado: 10</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">14 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 15: Testing ligero con assert -->
-    <div class="slide-container" id="slide15">
-        <h2 class="slide-title">Testing Ligero: Debugging y assert</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Programación Defensiva</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Escribir la función es el 50% del trabajo: el otro 50% es asegurar que se comporte de forma predecible.
-                    </p>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Errores de Sintaxis, Runtime y Lógica:</strong> Estos últimos son los más peligrosos: el código corre pero el resultado es incorrecto.</li>
-                            <li><i class="fa-solid fa-print"></i> <strong>Print debugging:</strong> Insertar print() en puntos clave para inspeccionar el estado de las variables.</li>
-                            <li><i class="fa-solid fa-vial-circle-check"></i> <strong>assert:</strong> Detiene la ejecución con un AssertionError apenas la condición esperada es falsa.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
-def mcd(a, b):
-    while b != 0:
-        a, b = b, a % b
-    return a
-
-assert mcd(12, 8) == 4
-assert mcd(100, 25) == 25
-assert mcd(7, 3) == 1
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">15 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 16: Buenas prácticas: modularidad -->
-    <div class="slide-container" id="slide16">
-        <h2 class="slide-title">Buenas Prácticas: Modularidad</h2>
-        <div class="content-area">
-            <div class="tiled-content">
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-circle-check"></i></div>
-                    <h3>Funciones Puras</h3>
-                    <p>Sin efectos secundarios: las mismas entradas siempre producen las mismas salidas, facilitando pruebas y depuración.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-vial"></i></div>
-                    <h3>assert como Documentación Viva</h3>
-                    <p>Cada assert le indica a otros desarrolladores qué resultado exacto espera la función, detectando errores tempranamente.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-shapes"></i></div>
-                    <h3>Casos Borde</h3>
-                    <p>Validar listas vacías, números negativos o tipos incorrectos evita que un error se propague en cascada por el sistema.</p>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">16 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 17: Break de Coder ("Recreo") -->
-    <div class="slide-container break-slide" id="slide17">
-        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
-            <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
-            <h2>Break del Coder</h2>
-            <p>Andá por un cafecito o mate, ¡y en 10 minutos volvemos!</p>
-        </div>
-        <div class="slide-footer" style="border-top: 1px solid rgba(248, 242, 232, 0.2);">
-            <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span style="color: var(--naranja-horizonte);">HOUSE</span></div>
-            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">17 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 18: División Módulo 4 -->
-    <div class="slide-container" id="slide18">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 04</span>
-            <h2>Visualización de Datos</h2>
-            <p style="font-size: 20px;">Buenas prácticas, Seaborn, Matplotlib y Plotly: de lo estático a lo interactivo.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">18 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 19: Elementos de un buen gráfico -->
-    <div class="slide-container" id="slide19">
-        <h2 class="slide-title">Elementos de un Buen Gráfico</h2>
-        <div class="content-area">
-            <span class="moment-badge tip"><i class="fa-solid fa-hand"></i> "Con un gran poder viene una gran responsabilidad"</span>
-            <p style="margin-bottom: 20px; font-weight: 600; font-size: 17px; color: var(--naranja-oscuro);">
-                La visualización de datos no es elegir un gráfico al azar: requiere preparación para comunicar información clara, precisa y fiel a la realidad.
-            </p>
-            <div class="tiled-content">
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-heading"></i></div>
-                    <h3>Título</h3>
-                    <p>Debe ser conciso y representativo, indicando claramente qué información se pretende mostrar.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-tag"></i></div>
-                    <h3>Etiquetas y Unidades</h3>
-                    <p>Cada variable debe estar claramente etiquetada, incluyendo su nombre y unidad de medición correspondiente.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-list"></i></div>
-                    <h3>Leyendas y Categorías</h3>
-                    <p>Diferenciar claramente colores, formas y categorías con una leyenda explicativa evita malinterpretaciones.</p>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">19 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 20: Seaborn vs Matplotlib (Table) -->
-    <div class="slide-container" id="slide20">
-        <h2 class="slide-title">Seaborn vs Matplotlib</h2>
-        <div class="content-area">
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Característica</th>
-                            <th>Matplotlib</th>
-                            <th>Seaborn</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Funcionalidad</strong></td>
-                            <td>Ofrece gráficos básicos</td>
-                            <td>Especializado en gráficos estadísticos complejos</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Sintaxis</strong></td>
-                            <td>Más larga y compleja</td>
-                            <td>Más simple y legible</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Flexibilidad</strong></td>
-                            <td>Altamente customizable y robusto</td>
-                            <td>Menos flexible, pero evita superposiciones innecesarias</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Casos de Uso</strong></td>
-                            <td>Ideal para gráficos derivados de NumPy y Pandas</td>
-                            <td>Extensión de Matplotlib con capacidades estadísticas avanzadas</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">20 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 21: Tipos de Gráficos I -->
-    <div class="slide-container" id="slide21">
-        <h2 class="slide-title">Tipos de Gráficos I: Barras y Dispersión</h2>
-        <div class="content-area">
-            <div class="two-column tiled">
-                <div>
-                    <h3>Gráficos de Barras</h3>
-                    <p>Ideales para comparar cantidades entre categorías. Las barras verticales u horizontales facilitan la lectura, pero no son adecuadas para representar series de tiempo.</p>
-                </div>
-                <div>
-                    <h3>Diagramas de Dispersión</h3>
-                    <p>Cada punto representa una observación con dos valores. Permiten identificar patrones, tendencias y posibles correlaciones entre dos variables.</p>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">21 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 22: Tipos de Gráficos II -->
-    <div class="slide-container" id="slide22">
-        <h2 class="slide-title">Tipos de Gráficos II: Torta y Series Temporales</h2>
-        <div class="content-area">
-            <div class="two-column tiled">
-                <div>
-                    <h3>Gráficos de Torta</h3>
-                    <p>Muestran la proporción de categorías dentro de un todo. Funcionan mejor con pocas categorías; con muchas, los sectores se vuelven difíciles de interpretar.</p>
-                </div>
-                <div>
-                    <h3>Series Temporales</h3>
-                    <p>Utilizan líneas para conectar puntos en el tiempo, ideales para identificar tendencias, patrones estacionales y ciclos en los datos.</p>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">22 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 23: Matplotlib: Figure, Axes y Axis -->
-    <div class="slide-container" id="slide23">
-        <h2 class="slide-title">Matplotlib: Figure, Axes y Axis</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge">Jerarquía de Matplotlib</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Matplotlib se organiza en tres niveles que permiten un control profesional y detallado.
-                    </p>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-image"></i> <strong>Figure:</strong> El lienzo completo donde se dibuja uno o varios gráficos.</li>
-                            <li><i class="fa-solid fa-chart-area"></i> <strong>Axes:</strong> Representa cada gráfico individual dentro de la figura.</li>
-                            <li><i class="fa-solid fa-ruler-combined"></i> <strong>Axis:</strong> Corresponde a los ejes X e Y de cada gráfico.</li>
-                            <li><i class="fa-solid fa-diagram-project"></i> <strong>fig, ax = plt.subplots():</strong> El estándar profesional para crear subplots y evitar errores visuales.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
-import matplotlib.pyplot as plt
-
-fig, ax = plt.subplots()
-ax.plot([1, 2, 3], [4, 5, 6])
-ax.set_title(<span style="color: #032f62;">"Mi gráfico"</span>)
-plt.show()
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">23 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 24: Plotly interactivo -->
-    <div class="slide-container" id="slide24">
-        <h2 class="slide-title">Plotly: Visualización Interactiva</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge live"><i class="fa-solid fa-arrows-to-dot"></i> Interactividad</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Plotly crea gráficos interactivos en HTML, compatibles con Jupyter, Colab y aplicaciones web (Dash).
-                    </p>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-wand-magic-sparkles"></i> <strong>plotly.express (px):</strong> La forma más simple de crear gráficos complejos con pocas líneas.</li>
-                            <li><i class="fa-solid fa-sliders"></i> <strong>plotly.graph_objects (go):</strong> API avanzada con control total sobre cada elemento del gráfico.</li>
-                            <li><i class="fa-solid fa-file-export"></i> <strong>Exportación:</strong> Los gráficos se guardan como archivos HTML para compartir fácilmente.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
-import plotly.express as px
-
-df = px.data.iris()
-fig = px.scatter(
-    df, x=<span style="color: #032f62;">"sepal_width"</span>,
-    y=<span style="color: #032f62;">"sepal_length"</span>,
-    color=<span style="color: #032f62;">"species"</span>
-)
-fig.show()
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">24 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 25: División Módulo 5 -->
-    <div class="slide-container" id="slide25">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 05</span>
-            <h2>Estadística Descriptiva y EDA</h2>
-            <p style="font-size: 20px;">Medidas de tendencia central, dispersión y distribuciones para entender los datos antes de modelar.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">25 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 26: Medidas de tendencia central y dispersión -->
-    <div class="slide-container" id="slide26">
-        <h2 class="slide-title">Medidas de Tendencia Central y Dispersión</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge">Tendencia Central</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-scale-unbalanced"></i> <strong>Media:</strong> Promedio aritmético, sensible a valores extremos (outliers).</li>
-                            <li><i class="fa-solid fa-arrows-left-right"></i> <strong>Mediana:</strong> Valor central, robusta frente a outliers.</li>
-                            <li><i class="fa-solid fa-chart-simple"></i> <strong>Moda:</strong> Valor más frecuente; clave en variables categóricas.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <span class="moment-badge tip">Dispersión</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-arrows-up-down"></i> <strong>Varianza:</strong> Promedio de las diferencias cuadradas respecto a la media.</li>
-                            <li><i class="fa-solid fa-ruler-vertical"></i> <strong>Desviación estándar:</strong> Raíz cuadrada de la varianza, en las mismas unidades que los datos.</li>
-                            <li><i class="fa-solid fa-border-all"></i> <strong>IQR (Q3 − Q1):</strong> Rango intercuartílico, muy útil para detectar outliers.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">26 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 27: Distribuciones -->
-    <div class="slide-container" id="slide27">
-        <h2 class="slide-title">Distribuciones: Normal vs. Uniforme</h2>
-        <div class="content-area">
-            <div class="two-column tiled">
-                <div>
-                    <h3>Distribución Uniforme</h3>
-                    <p>Todos los valores dentro de un rango tienen la misma probabilidad de ocurrir. Ejemplo clásico: el lanzamiento de un dado justo, donde cada número tiene 1/6 de probabilidad.</p>
-                </div>
-                <div>
-                    <h3>Distribución Normal</h3>
-                    <p>Simétrica respecto a su media, con forma de campana de Gauss. La media, mediana y moda coinciden en el centro. Ejemplo: la estatura de una población adulta.</p>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">27 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 28: División Módulo 6 -->
-    <div class="slide-container" id="slide28">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 06</span>
-            <h2>Proyecto Integrador</h2>
-            <p style="font-size: 20px;">Pipeline reproducible: de los datos crudos al reporte final, con control de versiones.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">28 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 29: Mini-proyecto: Pipeline reproducible -->
-    <div class="slide-container" id="slide29">
-        <h2 class="slide-title">Mini-Proyecto: Pipeline Reproducible</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge">Análisis de Ventas E-Commerce</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Un pipeline reproducible que procesa datos, transforma información y genera visualizaciones.
-                    </p>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-code"></i> <strong>Python idiomático:</strong> Comprehensions, unpacking y context managers sin mutar las entradas.</li>
-                            <li><i class="fa-solid fa-database"></i> <strong>NumPy & Pandas:</strong> Operaciones vectorizadas, carga, transformación y groupby.</li>
-                            <li><i class="fa-solid fa-chart-column"></i> <strong>Visualización:</strong> Gráficos estáticos (Matplotlib) e interactivos (Plotly).</li>
-                            <li><i class="fa-solid fa-code-branch"></i> <strong>Control de versiones:</strong> Inicializar un repositorio y practicar commits en la rama de entrega.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="image-wrapper">
-                        <img alt="Project team meeting" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1280&auto=format&fit=crop">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">29 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 30: Consolidación de Conceptos (Table) -->
-    <div class="slide-container" id="slide30">
-        <h2 class="slide-title">Consolidación de Conceptos</h2>
-        <div class="content-area">
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Módulo</th>
-                            <th>Tema Principal</th>
-                            <th>Herramienta o Técnica Clave</th>
-                            <th>Meta Pedagógica</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Módulo 1</strong></td>
-                            <td>Estilo Pythonic y Estructuras de Datos</td>
-                            <td>PEP 8, comprehensions, Pandas básico</td>
-                            <td>Escribir código limpio, idiomático y consciente de la mutabilidad.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Módulo 2</strong></td>
-                            <td>NumPy</td>
-                            <td>ndarray, broadcasting, vectorización</td>
-                            <td>Comprender el cálculo numérico eficiente detrás del stack de Data Science.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Módulo 3</strong></td>
-                            <td>Control de Flujo, Funciones y Testing</td>
-                            <td>Generadores, closures, itertools, assert</td>
-                            <td>Diseñar funciones reutilizables, robustas y fáciles de depurar.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Módulo 4</strong></td>
-                            <td>Visualización de Datos</td>
-                            <td>Seaborn, Matplotlib, Plotly</td>
-                            <td>Comunicar hallazgos de forma clara, ética e interactiva.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Módulo 5</strong></td>
-                            <td>Estadística Descriptiva y EDA</td>
-                            <td>Media, mediana, varianza, IQR, distribuciones</td>
-                            <td>Resumir y explorar los datos antes de modelar.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Módulo 6</strong></td>
-                            <td>Proyecto Integrador</td>
-                            <td>Pipeline reproducible & Git</td>
-                            <td>Integrar todos los conceptos en un flujo de trabajo real y versionado.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">30 / 32</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 31: ¿Dudas? ¿Consultas? -->
+    <!-- SLIDE 31: shape, info, describe -->
     <div class="slide-container" id="slide31">
+        <h2 class="slide-title">La Radiografía: shape, info() y describe()</h2>
+        <div class="content-area">
+            <span class="moment-badge">df.describe() — la foto estadística</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Métrica</th>
+                            <th>Edad</th>
+                            <th>Monto_Compra_USD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>count</td><td>5000.00</td><td>4850.00</td></tr>
+                        <tr><td>mean</td><td>34.20</td><td>120.50</td></tr>
+                        <tr><td>std</td><td>10.50</td><td>340.20</td></tr>
+                        <tr><td>min</td><td>-5.00</td><td>10.00</td></tr>
+                        <tr><td>max</td><td>118.00</td><td>15000.00</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">df.shape (tupla filas/columnas) y df.info() (tipos y nulos) completan el chequeo médico. Aquí: min de Edad en -5 y max en 118 son errores de carga a corregir.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">31 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 32: isnull, % nulos y tabla diagnóstico -->
+    <div class="slide-container" id="slide32">
+        <h2 class="slide-title">Datos Faltantes: isnull().sum() y % de Nulos</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> El detector de agujeros</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> <strong>df.isnull().sum():</strong> cuenta los NaN por columna, el paso obligatorio antes de limpiar.</li>
+                            <li><i class="fa-solid fa-percent"></i> <strong>El truco pro:</strong> df.isnull().mean() * 100 da directamente el porcentaje de nulos.</li>
+                            <li><i class="fa-solid fa-arrow-down-wide-short"></i> <strong>Tabla de diagnóstico:</strong> ordena las columnas de mayor a menor % de nulos para priorizar la limpieza.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+reporte = df.isnull().mean() * 100
+reporte = reporte.sort_values(
+    ascending=False)
+
+df_nulos = pd.DataFrame(
+    reporte, columns=[<span style="color: #032f62;">'% de Nulos'</span>])
+display(df_nulos)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">32 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 33: División Módulo 7 -->
+    <div class="slide-container" id="slide33">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 07</span>
+            <h2>Segunda Pre-Entrega</h2>
+            <p style="font-size: 20px;">Ingesta, radiografía y funciones de transformación: tu primer diagnóstico técnico real.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">33 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 34: Segunda Pre-Entrega detalle -->
+    <div class="slide-container" id="slide34">
+        <h2 class="slide-title">Segunda Pre-Entrega: ¿Qué Debes Entregar?</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bloque</th>
+                            <th>Contenido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. Ingesta y Primer Vistazo</strong></td>
+                            <td>Importar Pandas, cargar el dataset en df y mostrar las primeras 5 filas estilizadas.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. Radiografía Técnica</strong></td>
+                            <td>shape, info() y describe(); comentar en Markdown al menos 2 hallazgos o anomalías.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. Datos Faltantes</strong></td>
+                            <td>Ranking de columnas según su porcentaje de nulos, de mayor a menor.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. Lógica y Funciones</strong></td>
+                            <td>Una función def con if/elif/else + una función lambda, aplicadas al dataset.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">34 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 35: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide35">
         <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
             <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
                 <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
@@ -1378,12 +1466,12 @@ fig.show()
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">31 / 32</div>
+            <div class="slide-index">35 / 36</div>
         </div>
     </div>
 
-    <!-- SLIDE 32: Q&A / Legal Disclaimer -->
-    <div class="slide-container" id="slide32" style="background-color: var(--blanco-lienzo);">
+    <!-- SLIDE 36: Q&A / Legal Disclaimer -->
+    <div class="slide-container" id="slide36" style="background-color: var(--blanco-lienzo);">
         <div class="content-area" style="justify-content: center;">
             <h1 style="color: var(--naranja-oscuro); font-size: 60px; font-weight: 800; letter-spacing: -2px;">¡Muchas gracias!</h1>
             <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 5px;">Curso de Ciencia de Datos y Analítica</p>
@@ -1394,7 +1482,7 @@ fig.show()
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">32 / 32</div>
+            <div class="slide-index">36 / 36</div>
         </div>
     </div>
 
