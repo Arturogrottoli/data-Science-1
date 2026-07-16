@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curso de Ciencia de Datos - Coderhouse</title>
+    <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==========================================================================
+           CODER 4.0 DESIGN SYSTEM & VARS
+           ========================================================================== */
+        :root {
+            --blanco-lienzo: #F8F2E8;
+            --negro-coder: #171717;
+            --naranja-oscuro: #260700;
+            --naranja-horizonte: #FF632B;
+            --amarillo-solar: #FE872D;
+            --rosa-energia: #FE64A3;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #dcd6cd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: var(--font-main);
+            overflow: hidden;
+        }
+
+        /* Slide Viewer (Absolute 1280x720 No-Scale-Shift) */
+        .presentation-viewport {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: var(--blanco-lienzo);
+        }
+
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            color: var(--negro-coder);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 70px 40px 70px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out, visibility var(--transition-speed) ease-in-out;
+            z-index: 1;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Abstract Brand Accents: Subtly warm gradients connecting to Coder 4.0 */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -150px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(255,99,43,0.06) 0%, rgba(248,242,232,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .slide-container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography & Hierarchy */
+        h1 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+        }
+
+        .slide-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slide-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 2px;
+            background-color: rgba(38, 7, 0, 0.1);
+            margin-left: 15px;
+        }
+
+        p, li {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #3d3430;
+            font-weight: 400;
+        }
+
+        /* Content Area Layout Wrapper */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Grid & Column Definitions */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 45px;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Coder 4.0 Split Card layouts */
+        .two-column.tiled > div {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            padding: 35px;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .two-column.tiled h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--naranja-horizonte);
+            margin-bottom: 12px;
+        }
+
+        /* Warm Retro Photography Frame */
+        .image-wrapper {
+            border-radius: 16px;
+            height: 340px;
+            overflow: hidden;
+            width: 100%;
+            border: 4px solid #ffffff;
+            box-shadow: 0 10px 25px rgba(38, 7, 0, 0.08);
+        }
+
+        .image-wrapper img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* Custom 2D Filled Icons & Tiles */
+        .tiled-content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .tile {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .tile .icon-box {
+            background-color: rgba(255, 99, 43, 0.1);
+            color: var(--naranja-horizonte);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .tile h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--naranja-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .tile p {
+            font-size: 14px;
+        }
+
+        /* Bullet List styling */
+        .bullet-list ul {
+            list-style: none;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .bullet-list li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--naranja-horizonte);
+            font-size: 16px;
+        }
+
+        /* Footer & Brand Branding Mark */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(38, 7, 0, 0.06);
+            padding-top: 15px;
+            width: 100%;
+        }
+
+        .slide-footer .brand-logo {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--naranja-oscuro);
+            letter-spacing: -0.5px;
+        }
+
+        .slide-footer .brand-logo span {
+            color: var(--naranja-horizonte);
+        }
+
+        .slide-footer .slide-index {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(38, 7, 0, 0.4);
+        }
+
+        /* Slide Type Banners ("Momentos de la Clase") */
+        .moment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+
+        .moment-badge.live {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .moment-badge.bug {
+            background-color: var(--rosa-energia);
+        }
+
+        .moment-badge.tip {
+            background-color: var(--amarillo-solar);
+            color: var(--naranja-oscuro);
+        }
+
+        /* Slido Interactive layout */
+        .slido-box {
+            background-color: #ffffff;
+            border: 2px dashed var(--naranja-horizonte);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 99, 43, 0.05);
+        }
+
+        .slido-box h3 {
+            font-size: 26px;
+            color: var(--naranja-oscuro);
+            margin-bottom: 10px;
+        }
+
+        .slido-code {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--naranja-horizonte);
+            margin: 15px 0;
+            letter-spacing: -1px;
+        }
+
+        /* Transition slide */
+        .transition-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .transition-layout h2 {
+            font-size: 60px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.1;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+        }
+
+        .transition-layout hr {
+            width: 80px;
+            height: 5px;
+            background-color: var(--naranja-horizonte);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        /* Clean retro table */
+        .table-layout {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+            width: 100%;
+        }
+
+        .table-layout table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-layout th, .table-layout td {
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(38, 7, 0, 0.06);
+            font-size: 14px;
+        }
+
+        .table-layout th {
+            background-color: rgba(38, 7, 0, 0.03);
+            color: var(--naranja-oscuro);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .table-layout tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Break Slide Design */
+        .break-slide {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+        }
+
+        .break-slide::before {
+            display: none;
+        }
+
+        .break-slide h2 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--blanco-lienzo);
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        .break-slide p {
+            color: rgba(248, 242, 232, 0.75);
+            font-size: 22px;
+        }
+
+        .break-logo {
+            font-size: 80px;
+            color: var(--naranja-horizonte);
+            margin-bottom: 30px;
+        }
+
+        /* Q&A / Legal section */
+        .legal-notice {
+            font-size: 10px;
+            line-height: 1.4;
+            color: rgba(38, 7, 0, 0.4);
+            text-align: justify;
+            margin-top: 20px;
+        }
+
+        /* Presentation controls toolbar */
+        .controls-toolbar {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(38, 7, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dot.active {
+            background-color: var(--naranja-horizonte);
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        /* Code Block Container */
+        .code-block {
+            background-color: #ffffff;
+            border-left: 4px solid var(--naranja-horizonte);
+            padding: 15px 20px;
+            font-family: monospace;
+            font-size: 13px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-viewport">
+
+    <!-- SLIDE 1: Portada General -->
+    <div class="slide-container active" id="slide1">
+        <div></div> 
+        <div class="transition-layout" style="margin-bottom: 30px;">
+            <span class="moment-badge">CODER 4.0 • BIENVENIDA</span>
+            <h1 style="font-size: 60px;">Introducción a la Ciencia de Datos</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Semana 1: Nivelación Técnica & Lógica | Semana 2: Transformación Digital
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">01 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: Presentación de Equipo -->
+    <div class="slide-container" id="slide2">
+        <h2 class="slide-title">Presentación de Equipo</h2>
+        <div class="content-area">
+            <span class="moment-badge">Profesores</span>
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-user-tie"></i></div>
+                    <h3>Luciano Martingaste</h3>
+                    <p>Profesor</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-user-tie"></i></div>
+                    <h3>Arturo Grottoli</h3>
+                    <p>Profesor</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">02 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Interacción Slido Inicial -->
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title">Interacción Inicial</h2>
+        <div class="content-area">
+            <div class="slido-box">
+                <span class="moment-badge live"><i class="fa-solid fa-bolt"></i> Actividad en vivo</span>
+                <h3>¡Vamos a Interactuar en Clase!</h3>
+                <p>Ingresa desde tu teléfono celular o laptop para responder las preguntas de diagnóstico en tiempo real.</p>
+                <div class="slido-code">
+                    <i class="fa-solid fa-mobile-screen-button"></i> sli.do &nbsp;#DATA-CLASS
+                </div>
+                <p style="font-weight: 600; color: var(--naranja-oscuro);">¿Qué expectativa tienes o qué experiencia previa traes en código?</p>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">03 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: División Semana 1 -->
+    <div class="slide-container" id="slide4">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 01</span>
+            <h2>Semana 1: Nivelación Técnica</h2>
+            <p style="font-size: 20px;">Estableciendo las bases sólidas de programación lógica y el ecosistema de Python.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">04 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Qué es Data Science -->
+    <div class="slide-container" id="slide5">
+        <h2 class="slide-title">¿Qué es Data Science?</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Fundamentos</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        La intersección perfecta entre la informática, la matemática estadística y el dominio de negocio.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-graduation-cap"></i> <strong>Ciencia interdisciplinar:</strong> No es solo programar; es resolver desafíos estratégicos formulando hipótesis medibles.</li>
+                            <li><i class="fa-solid fa-gears"></i> <strong>Optimización empírica:</strong> Permite automatizar la búsqueda de relaciones causa-efecto en grandes volúmenes de registros.</li>
+                            <li><i class="fa-solid fa-bullseye"></i> <strong>Enfoque pragmático:</strong> El objetivo final siempre es generar valor accionario u operativo medible.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="Data Science workflow visualization" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1280&auto=format&fit=crop">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">05 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Cómo trabajan los equipos de datos -->
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title">Cómo Trabajan los Equipos de Datos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-server"></i></div>
+                    <h3>Data Engineer</h3>
+                    <p>Diseña, implementa y mantiene las tuberías de datos (pipelines). Asegura que la información esté disponible, limpia y estructurada en el Data Lake corporativo.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-microscope"></i></div>
+                    <h3>Data Scientist</h3>
+                    <p>Toma los datos estructurados, formula hipótesis estadísticas y aplica algoritmos de Machine Learning e Inteligencia Artificial para predecir escenarios futuros.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>Data Analyst</h3>
+                    <p>Traduce la información compleja en tableros interactivos (dashboards) e informes de negocio para dar soporte directo a la toma de decisiones inmediatas.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">06 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Conda, Jupyter y Colab -->
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title">Ecosistema de Análisis Reproducible</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-box-archive"></i></div>
+                    <h3>Anaconda / Conda</h3>
+                    <p>Gestor de ambientes virtuales. Permite instalar diferentes librerías en espacios aislados de tu máquina para evitar conflictos entre versiones de dependencias de código.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-book-open"></i></div>
+                    <h3>Jupyter Notebook</h3>
+                    <p>Entorno interactivo local. Permite combinar en una sola interfaz narrativa bloques de explicación de texto (Markdown) con celdas de código de ejecución secuencial.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-cloud-sun"></i></div>
+                    <h3>Google Colab</h3>
+                    <p>La alternativa ideal en la nube. Ofrece la potencia interactiva de Jupyter sin necesidad de instalación local, facilitando la colaboración rápida y la portabilidad del análisis.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">07 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Lógica de programación y descomposición -->
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title">Pensamiento Computacional</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-brain"></i> Descomposición</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Dividir un problema complejo en sub-tareas manejables es la habilidad más importante en analítica.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-compass"></i> <strong>Reconocimiento de patrones:</strong> Buscar similitudes o tendencias recurrentes dentro del problema.</li>
+                            <li><i class="fa-solid fa-shapes"></i> <strong>Abstracción:</strong> Separar la información verdaderamente relevante del "ruido" de fondo.</li>
+                            <li><i class="fa-solid fa-arrow-down-short-wide"></i> <strong>Algoritmia:</strong> Diseñar un paso a paso secuencial, lógico y repetible para resolver el desafío.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="System flow representation" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1280&auto=format&fit=crop">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">08 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Introducción a Python para Data Science -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">Introducción a Python</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-code"></i> Sintaxis Limpia</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Python es el lenguaje preferido en Data Science gracias a su legibilidad de código.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-bolt"></i> <strong>Tipado Dinámico:</strong> No necesitas declarar el tipo de variable (entero, texto) antes de crearla.</li>
+                            <li><i class="fa-solid fa-cube"></i> <strong>Ecosistema Gigante:</strong> Soporta miles de librerías avanzadas como NumPy, Pandas y Scikit-Learn.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+<span style="color: #6a737d;"># Declaración simple de variables</span>
+temperatura_actual = 24.5
+nombre_sensor = <span style="color: #032f62;">"Sensor Termocupla A"</span>
+
+<span style="color: #6a737d;"># Operación condicional lógica</span>
+if temperatura_actual > 25.0:
+    print(<span style="color: #032f62;">"Alerta: Exceso de temperatura."</span>)
+else:
+    print(<span style="color: #032f62;">"Estado óptimo de operación."</span>)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">09 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Listas para organizar datos -->
+    <div class="slide-container" id="slide10">
+        <h2 class="slide-title">Colecciones de Datos I: Listas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Sintaxis Core</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Las listas permiten almacenar colecciones de elementos indexados de forma secuencial ordenada.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrow-down-1-9"></i> <strong>Indexación desde cero:</strong> El primer elemento siempre está en la posición `[0]`.</li>
+                            <li><i class="fa-solid fa-circle-plus"></i> <strong>Estructura mutable:</strong> Puedes añadir, eliminar o modificar elementos dinámicamente usando métodos como `append()`.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+<span style="color: #6a737d;"># Declaración de una lista de registros</span>
+lecturas = [22.4, 25.1, 23.8, 26.0]
+
+<span style="color: #6a737d;"># Añadiendo una nueva medición al final</span>
+lecturas.append(24.7)
+
+print(lecturas) 
+<span style="color: #6a737d;"># Imprime: [22.4, 25.1, 23.8, 26.0, 24.7]</span>
+
+print(lecturas[0]) 
+<span style="color: #6a737d;"># Imprime el primer valor: 22.4</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Diccionarios para organizar datos (#FindTheBug) -->
+    <div class="slide-container" id="slide11">
+        <h2 class="slide-title">Colecciones II: Diccionarios</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> #FindTheBug</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Estructuras basadas en pares Clave: Valor, fundamentales para mapear fichas y registros complejos.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-key"></i> <strong>Acceso veloz:</strong> No se busca por índice secuencial, sino apuntando directamente a la etiqueta (clave).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <!-- Code box style with orange retro contrast border -->
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;"># Encuentra el problema que causa el defecto:</span>
+nombre_sensores = [<span style="color: #032f62;">"S1"</span>, <span style="color: #032f62;">"S2"</span>]
+
+registro_anomalia = {
+    <span style="color: #032f62;">"id_control"</span>: <span style="color: #005cc5;">501</span>
+    <span style="color: #032f62;">"lista_dispositivos"</span>: nombre_sensores,
+    <span style="color: #032f62;">"operativo"</span>: True
+    <span style="color: #6f42c1;"># ¿Qué falta aquí para que no rompa la sintaxis?</span>
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">11 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Nivelación Recapitulativa Final (Semana 1) -->
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title">Semana 1: Recapitulativa Final</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-check-double"></i></div>
+                    <h3>Conceptos Clave</h3>
+                    <p>Diferencia entre perfiles de datos. Lógica de descomposición como prioridad previa al desarrollo de código.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-laptop-code"></i></div>
+                    <h3>Herramientas</h3>
+                    <p>Uso práctico de Conda para aislar paquetes locales y Google Colab para compartir cuadernos reproducibles de forma ágil.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-list-check"></i></div>
+                    <h3>Colecciones</h3>
+                    <p>Capacidad para estructurar variables secuenciales mediante listas y mapear registros estructurados con diccionarios.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">12 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: División Semana 2 -->
+    <div class="slide-container" id="slide13">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 02</span>
+            <h2>Semana 2: Transformación Digital</h2>
+            <p style="font-size: 20px;">Industria 4.0, ciclo de vida de la información corporativa y decisiones basadas en datasets limpios.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">13 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Industria 4.0 y transformación digital -->
+    <div class="slide-container" id="slide14">
+        <h2 class="slide-title">La Empresa en la Industria 4.0</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Evolución</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        La cuarta revolución industrial une infraestructura física con sensores de telemetría y algoritmos en tiempo real.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-network-wired"></i> <strong>Sistemas Ciberfísicos:</strong> Máquinas que se comunican entre sí y reportan datos constantemente (Internet de las Cosas - IoT).</li>
+                            <li><i class="fa-solid fa-chart-line"></i> <strong>De reactivo a predictivo:</strong> Dejar de arreglar la máquina rota y pasar a predecir matemáticamente cuándo va a fallar.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="Cozy setup studying data science" src="https://images.stockcake.com/public/8/2/e/82e31818-6008-46a2-bcea-048b51254a98_large/cozy-study-evening-stockcake.jpg">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: La Transformación Digital -->
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title">¿Qué es la Transformación Digital?</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Digitalización vs. Transformación</h3>
+                    <p>Digitalizar es pasar un papel analógico a formato PDF (pasar de papel a digital). La Transformación Digital consiste en rediseñar la estrategia entera del negocio usando capacidades digitales nativas.</p>
+                </div>
+                <div>
+                    <h3>El Núcleo Operativo</h3>
+                    <p>Consiste en colocar al dato crudo en el centro de la toma de decisiones corporativas. Esto desmantela los silos de información aislados y conecta a todas las áreas de la compañía en tiempo real.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: El ciclo de vida del dato -->
+    <div class="slide-container" id="slide16">
+        <h2 class="slide-title">El Ciclo de Vida del Dato</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-download"></i></div>
+                    <h3>1. Captura</h3>
+                    <p>Ingesta de datos proveniente de sensores, compras web, aplicaciones de clientes o APIs externas.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-broom"></i></div>
+                    <h3>2. Procesamiento</h3>
+                    <p>Limpieza de duplicados, corrección de registros inválidos y estandarización del formato del dataset.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-brain"></i></div>
+                    <h3>3. Modelado</h3>
+                    <p>Búsqueda de correlaciones, estimaciones estadísticas y entrenamiento de modelos predictivos avanzados.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-paper-plane"></i></div>
+                    <h3>4. Acción</h3>
+                    <p>Toma de decisiones automatizadas, optimización de recursos y visualización corporativa de métricas.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">16 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: Ética, privacidad y uso responsable -->
+    <div class="slide-container" id="slide17">
+        <h2 class="slide-title">Ética y Privacidad del Dato</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-shield-halved"></i> Seguridad</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Un algoritmo extraordinario es peligroso si se alimenta de datos capturados sin consentimiento legal y ético.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-scale-balanced"></i> <strong>Sesgo Algorítmico:</strong> Los modelos aprenden prejuicios humanos presentes en la historia de los datos. Evitar el sesgo es un reto fundamental.</li>
+                            <li><i class="fa-solid fa-lock"></i> <strong>Regulaciones Globales:</strong> El cumplimiento de normativas estrictas como GDPR o LGPD resguarda la privacidad de las personas y evita multas severas.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="Ethics security conceptual" src="https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1280&auto=format&fit=crop">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">17 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: El valor de los datos para la toma de decisiones -->
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title">Toma de Decisiones Guiada por Datos</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-heart"></i> El peligro del "Gut Feeling"</span>
+                    <h3>Decisiones por Intuición</h3>
+                    <p>Históricamente, los líderes empresariales tomaban decisiones basándose en su "instinto" o experiencia previa no estructurada. Este enfoque está sujeto a sesgos cognitivos personales y falta de precisión empírica en entornos de alto riesgo.</p>
+                </div>
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-rocket"></i> Enfoque Data-Driven</span>
+                    <h3>Decisiones Data-Driven</h3>
+                    <p>Las decisiones se desprenden directamente de lo que revelan los datos estructurados, mitigando el error subjetivo. Al basarse en hechos empíricos y métricas medibles, se optimiza el uso de recursos y se maximiza el retorno corporativo.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">18 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Ciclo de vida de un proyecto Data Science -->
+    <div class="slide-container" id="slide19">
+        <h2 class="slide-title">Ciclo de un Proyecto Data Science</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Estrategia Ágil</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        La construcción de soluciones inteligentes requiere una metodología estructurada de valor iterativo continuo.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-business-time"></i> <strong>1. Entender el negocio:</strong> Definir qué problema real queremos resolver y mapear las métricas de éxito del proyecto.</li>
+                            <li><i class="fa-solid fa-wrench"></i> <strong>2. Preparar la información:</strong> El 80% de un proyecto analítico consiste en limpiar y transformar los datos en bruto.</li>
+                            <li><i class="fa-solid fa-chart-line"></i> <strong>3. Iterar y Validar:</strong> Ajustar los modelos numéricos hasta garantizar precisión empírica antes del despliegue productivo.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="Project team meeting" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1280&auto=format&fit=crop">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: El ADN de la Ciencia de Datos: Todo sobre Datasets -->
+    <div class="slide-container" id="slide20">
+        <h2 class="slide-title">El ADN: Los Datasets</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-database"></i> Concepto Clave</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Un modelo predictivo es tan bueno como la calidad del dataset con el que fue entrenado.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-table"></i> <strong>Formato Tidy:</strong> Cada variable representa una columna, cada observación es una fila y cada tipo de unidad observacional constituye una tabla distinta.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Consistencia:</strong> Es vital resolver campos vacíos, registros fuera de rango y errores de formato para no alterar los cálculos de los modelos estadísticos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="Data visual representation" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1280&auto=format&fit=crop">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">20 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: Break de Coder ("Recreo") -->
+    <div class="slide-container break-slide" id="slide21">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
+            <h2>Break del Coder</h2>
+            <p>Andá por un cafecito o mate, ¡y en 10 minutos volvemos!</p>
+        </div>
+        <div class="slide-footer" style="border-top: 1px solid rgba(248, 242, 232, 0.2);">
+            <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span style="color: var(--naranja-horizonte);">HOUSE</span></div>
+            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">21 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Transformación Digital: Evaluación de Conceptos -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">Evaluación de Conceptos</h2>
+        <div class="content-area">
+            <div class="slido-box" style="border-color: var(--rosa-energia);">
+                <span class="moment-badge bug"><i class="fa-solid fa-gamepad"></i> Preparando el Kahoot!</span>
+                <h3>Reflexión y Desafío Rápido</h3>
+                <p style="margin-top: 10px;">Analiza los siguientes enunciados estratégicos:</p>
+                <div style="display: flex; gap: 20px; justify-content: center; margin: 25px 0;">
+                    <div style="background: rgba(254, 100, 163, 0.05); padding: 15px; border-radius: 12px; border: 1px solid var(--rosa-energia); width: 45%; text-align: left;">
+                        <strong>Enunciado A:</strong> "Si automatizamos un proceso de reporte ineficiente, hemos logrado una verdadera Transformación Digital."
+                    </div>
+                    <div style="background: rgba(254, 100, 163, 0.05); padding: 15px; border-radius: 12px; border: 1px solid var(--rosa-energia); width: 45%; text-align: left;">
+                        <strong>Enunciado B:</strong> "El 80% del tiempo de un científico de datos se dedica a refinar parámetros del modelo de Machine Learning."
+                    </div>
+                </div>
+                <p style="font-weight: 700; color: var(--naranja-oscuro);">¿Cuáles de estos dos enunciados analizados son verdaderos o falsos?</p>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: Consolidación de Conceptos (Table) -->
+    <div class="slide-container" id="slide23">
+        <h2 class="slide-title">Consolidación de Conceptos</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Módulo</th>
+                            <th>Tema Principal</th>
+                            <th>Herramienta o Técnica Clave</th>
+                            <th>Meta Pedagógica</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Módulo 1</strong></td>
+                            <td>Nivelación técnica de código</td>
+                            <td>Conda, Jupyter Notebook &amp; Python Base</td>
+                            <td>Descomponer problemas y estructurar flujos secuenciales básicos mediante listas y diccionarios.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Módulo 2</strong></td>
+                            <td>Transformación Digital</td>
+                            <td>Ciclo de vida del dato &amp; Datasets</td>
+                            <td>Conceptualizar la gobernanza, ética y diseño técnico de datasets limpios para resolver problemas.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Evaluación</strong></td>
+                            <td>Prueba integradora final</td>
+                            <td>Caso práctico y Kahoot gamificado</td>
+                            <td>Aplicación holística de soluciones analíticas en el contexto de la Industria 4.0 moderna.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide24">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 90px; color: var(--naranja-horizonte);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 60px; color: var(--rosa-energia);"></i>
+            </div>
+            <h1 style="font-size: 64px;">¿Dudas? ¿Consultas?</h1>
+            <p style="font-size: 22px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Este es el momento de preguntar todo lo que necesites
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">24 / 25</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: Q&A / Legal Disclaimer -->
+    <div class="slide-container" id="slide25" style="background-color: var(--blanco-lienzo);">
+        <div class="content-area" style="justify-content: center;">
+            <h1 style="color: var(--naranja-oscuro); font-size: 60px; font-weight: 800; letter-spacing: -2px;">¡Muchas gracias!</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 5px;">Curso de Ciencia de Datos y Analítica</p>
+            
+            <p class="legal-notice">
+                La información contenida en este documento es altamente sensible y de carácter educativo para los participantes inscriptos en Coderhouse. Queda estrictamente prohibida la reproducción, duplicación o revelación total o parcial del contenido pedagógico sin previa autorización escrita de Coderhouse. Copyright © 2026 Coderhouse. Todos los derechos reservados.
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">25 / 25</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Presentation navigation controls toolbar -->
+<div class="controls-toolbar">
+    <button class="control-btn" id="prev-slide"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+    <div class="slide-dots" id="slide-dots"></div>
+    <button class="control-btn" id="next-slide">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<script>
+    // Slider Presentation Logic
+    const slides = document.querySelectorAll('.slide-container');
+    const prevBtn = document.getElementById('prev-slide');
+    const nextBtn = document.getElementById('next-slide');
+    const dotsContainer = document.getElementById('slide-dots');
+    
+    let currentSlideIndex = 0;
+
+    // Create Navigation Indicators Dynamically
+    slides.forEach((slide, idx) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (idx === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToSlide(idx);
+        });
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateControls() {
+        dots.forEach((dot, idx) => {
+            if (idx === currentSlideIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+        
+        slides[currentSlideIndex].classList.remove('active');
+        currentSlideIndex = index;
+        slides[currentSlideIndex].classList.add('active');
+        
+        updateControls();
+    }
+
+    // Keyboard Navigation Handlers
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+            goToSlide(currentSlideIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+            goToSlide(currentSlideIndex - 1);
+        }
+    });
+
+    // Button Click Event Listeners
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex + 1);
+    });
+</script>
+
+</body>
+</html>
