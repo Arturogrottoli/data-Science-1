@@ -1,1027 +1,603 @@
-## 📚 Repaso Clase Anterior (Clase 6): Estadística y Preprocesamiento
+# Clase 07: Pipelines Reproducibles y Casos de Uso de ML en la Industria — Guía Completa para el Docente
 
-En la **Clase 6** construimos las bases estadísticas y de preprocesamiento que hoy usamos sin pensarlo dentro del pipeline de Machine Learning. Antes de avanzar con pipelines reproducibles, clustering y validación, repasamos en detalle los 4 pilares — todos aplicados en la Clase 7 sobre el dataset real de natalidad del DEIS (`tasa-natalidad-deis-2000-2024.csv`), el mismo Bloque 0 del notebook `Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb` lo reproduce en código.
+Esta guía es el **libreto de apoyo para dictar la Clase 07**. Reúne, en un solo lugar y con más profundidad de la que entra en una diapositiva, toda la teoría de:
 
-#### 1️⃣ Limpieza e Integración
+- **`Clase 07.pdf`** — el material teórico oficial de la unidad.
+- **`Semana 7.html`** — las diapositivas que se proyectan en clase (44 filminas, mismo orden que este documento).
+- **`Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb`** — el notebook con el ejercicio práctico en vivo: un pipeline reproducible + segmentación con K-Means sobre el dataset real de natalidad del DEIS.
 
-**Limpieza** es la decisión, no la eliminación automática. Un dataset real trae nulos, duplicados y valores inconsistentes, pero borrar filas a ciegas puede tirar información valiosa. En la Clase 6, al auditar +1 millón de vuelos, encontramos +220.000 nulos en las columnas de provincia — el reflejo, no de haber cometido un error de carga, sino de que esos registros correspondían a vuelos internacionales sin provincia argentina de origen/destino. La estrategia correcta fue:
-- Imputar numéricas con la **mediana** (robusta a outliers) o la **media**.
-- Imputar categóricas con la **moda** o con una etiqueta de negocio explícita (`"No Aplica / Internacional"`), cuando el nulo tiene una causa lógica.
-- Eliminar duplicados exactos con `.drop_duplicates()`.
-
-**Integración** es crear valor combinando o derivando columnas nuevas a partir de las existentes (ej. `vuelo_escala` categorizando la cantidad de pasajeros), para que un número crudo se convierta en un segmento interpretable para el negocio.
-
-#### 2️⃣ Medidas de Tendencia Central y Dispersión
-
-La **tendencia central** ubica el "centro" de los datos:
-- **Media**: promedio aritmético, sensible a valores extremos.
-- **Mediana**: valor que divide los datos al 50%, robusta frente a outliers.
-- **Moda**: el valor más frecuente.
-
-Cuando media y mediana difieren mucho, hay asimetría (sesgo) u outliers — por ejemplo, con pasajeros por vuelo, la media superaba a la mediana porque unas pocas rutas troncales "tiran" el promedio hacia arriba.
-
-La **dispersión** mide qué tan esparcidos están los datos respecto al centro:
-- **Desviación estándar**: variación promedio respecto a la media.
-- **IQR (Rango Intercuartílico)** = Q3 − Q1: el ancho del 50% central de los datos, más robusto que el desvío estándar porque ignora los extremos.
-
-#### 3️⃣ Distribuciones y Correlación
-
-La **distribución** es la "silueta" que toman los datos al graficarlos en un histograma: puede ser simétrica (campana/Normal) o sesgada a la izquierda o a la derecha. Nos dice si la mayoría de las observaciones se concentra en valores bajos, altos, o está balanceada.
-
-La **correlación** (coeficiente de Pearson, entre -1 y 1) mide el grado de asociación **lineal** entre dos variables numéricas:
-- Cerca de **1**: cuando una sube, la otra también.
-- Cerca de **-1**: cuando una sube, la otra baja.
-- Cerca de **0**: no hay relación lineal.
-
-> ⚠️ **Correlación no implica causalidad.** Que dos variables se muevan juntas no significa que una cause a la otra — puede haber una tercera variable (o una tendencia general) explicando ambas.
-
-#### 4️⃣ Transformación y Reducción de Dimensionalidad
-
-Para que un algoritmo matemático (regresión, clustering, PCA) pueda procesar los datos, hace falta **transformarlos**:
-- **Codificación**: convertir texto a números (`LabelEncoder`, one-hot encoding / `pd.get_dummies`).
-- **Escalado** (`StandardScaler`): llevar las variables numéricas a una escala comparable (media 0, desvío 1). Es obligatorio antes de algoritmos basados en distancias (K-Means, PCA), porque sin escalar, una columna con números más grandes "pesaría" más solo por su magnitud, no por su relevancia real.
-
-Cuando hay muchas columnas, **PCA (Análisis de Componentes Principales)** comprime esa información en unas pocas dimensiones (componentes principales) que conservan la mayor parte de la varianza original — permitiendo, por ejemplo, visualizar en 2D un dataset con decenas de variables sin perder la estructura esencial de los datos.
+A diferencia del PDF/HTML (que explican los 4 casos de éxito con nombre propio — San Cristóbal, Medplaya, Amazon, Mazda), el notebook **no los replica en código**: es un quinto ejercicio, autocontenido y con datos reales, que aplica exactamente la misma lógica de fondo (pipeline → modelo no supervisado → validación → traducción a una recomendación de negocio) que el caso **Mazda**. Este documento explica ambas cosas por separado y después las conecta.
 
 ---
 
-### 💡 Ejemplo 1: Análisis Estadístico Descriptivo
+## Índice
 
-```python
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
+0. [Mapa rápido de la clase](#0-mapa-rápido-de-la-clase)
+0.1. [Introducción General de la Clase](#introducción-general-de-la-clase)
+1. [Módulo 1 — Principios de Diseño de Pipelines Reproducibles](#módulo-1--principios-de-diseño-de-pipelines-reproducibles)
+2. [Módulo 2 — Casos de Estudio: Segmentación y Recomendaciones](#módulo-2--casos-de-estudio-segmentación-y-recomendaciones)
+3. [Módulo 3 — Casos de Éxito: ML en Acción](#módulo-3--casos-de-éxito-ml-en-acción)
+4. [Módulo 4 — Supervisado vs. No Supervisado](#módulo-4--supervisado-vs-no-supervisado)
+5. [Break del Coder](#break-del-coder)
+6. [Módulo 5 — Métricas y Estrategias de Validación](#módulo-5--métricas-y-estrategias-de-validación)
+7. [El ejercicio práctico del notebook, explicado en profundidad](#7-el-ejercicio-práctico-del-notebook-explicado-en-profundidad)
+8. [Preguntas frecuentes y errores típicos a anticipar](#preguntas-frecuentes-y-errores-típicos-a-anticipar)
+9. [Material de la clase](#material-de-la-clase)
 
-# Datos de ventas mensuales de una empresa
-np.random.seed(42)
-ventas = np.random.normal(50000, 12000, 24)  # 2 años de datos
-ventas = np.append(ventas, [150000, -5000])  # outliers
+---
 
-df_ventas = pd.DataFrame({"Ventas_Mensuales": ventas})
+## 0. Mapa rápido de la clase
 
-# Medidas descriptivas
-print("=== ESTADÍSTICAS DESCRIPTIVAS ===")
-print(f"Media: {df_ventas['Ventas_Mensuales'].mean():.2f}")
-print(f"Mediana: {df_ventas['Ventas_Mensuales'].median():.2f}")
-print(f"Desviación estándar: {df_ventas['Ventas_Mensuales'].std():.2f}")
+| # | Módulo | Slides | Idea central |
+|---|--------|--------|---------------|
+| 1 | Principios de Diseño de Pipelines Reproducibles | 03–08 | Un pipeline que cualquiera pueda replicar y auditar |
+| 2 | Casos de Estudio: Segmentación y Recomendaciones | 09–13 | Dos aplicaciones clave de ML en la industria (teoría general) |
+| 3 | Casos de Éxito: ML en Acción | 14–29 | 4 casos reales con nombre propio: San Cristóbal, Medplaya, Amazon, Mazda |
+| 4 | Supervisado vs. No Supervisado | 30–34 | Cuándo usar cada enfoque |
+| — | **Break del Coder** | 35 | Corte de ~10 minutos |
+| 5 | Métricas y Estrategias de Validación | 36–42 | Cómo saber si un modelo es realmente bueno |
+| — | **Ejercicio práctico (notebook)** | — | Pipeline + K-Means sobre natalidad real — aplica los módulos 1, 4 y 5 |
 
-# Visualización
-plt.figure(figsize=(12,4))
-plt.subplot(1,2,1)
-sns.histplot(df_ventas["Ventas_Mensuales"], kde=True, bins=15)
-plt.title("Distribución de Ventas Mensuales")
+> **Nota sobre el notebook**: arranca con un **Bloque 0 (Repaso de Clase 6)** que no pertenece a esta unidad — es intencional y está bien dejarlo, sirve de entrada en calor. El resto (Bloques 1 a 4) corre en paralelo a los Módulos 1, 4 y 5 de esta guía, pero **no cubre el Módulo 2 ni el Módulo 3** (segmentación/recomendación teórica ni los 4 casos de éxito con nombre propio) — el notebook ya tiene, en su Bloque 1 y Bloque 2, celdas de teoría agregadas que tienden puentes explícitos hacia esos casos para que la clase quede conectada aunque no se repliquen en código.
 
-plt.subplot(1,2,2)
-sns.boxplot(x=df_ventas["Ventas_Mensuales"])
-plt.title("Boxplot - Detección de Outliers")
-plt.show()
+---
+
+## Introducción General de la Clase
+
+### El disparador teórico del PDF
+
+El material oficial abre la unidad con esta pregunta: *¿Qué hace que un pipeline de ciencia de datos sea realmente reproducible?* Y la plantea con un escenario muy concreto: desarrollaste un modelo predictivo que mejora significativamente la toma de decisiones en tu empresa, pero cuando un colega intenta replicar tu trabajo, los resultados no coinciden. Ese desajuste es, en la práctica, el problema número uno que esta clase busca resolver: **la reproducibilidad es lo que determina si un proyecto de ciencia de datos es confiable y escalable en la industria, o si se queda como un experimento aislado que nadie más puede usar.**
+
+Conviene abrir la clase con esa pregunta tal cual, en voz alta, antes de mostrar ninguna diapositiva — es la misma pregunta que dispara el Módulo 1, y funciona bien como gancho porque casi todos los alumnos ya vivieron una versión de ese problema ("en mi máquina andaba").
+
+### El diagrama que abre el PDF
+
+La primera página del material resume el recorrido completo de la clase con un diagrama de 7 etapas encadenadas — vale la pena dibujarlo en el pizarrón o proyectarlo al empezar:
+
+```
+Ingesta de datos → Procesamiento / EDA → Feature Engineering → Modelado → Evaluación → Artefactos Reproducibles → Entrega Mínima
 ```
 
-**🎯 Objetivo**: Identificar patrones en los datos de ventas y detectar valores atípicos que podrían afectar modelos predictivos.
+Este diagrama es el "mapa madre" de toda la unidad: el **Módulo 1** lo explica en detalle (qué hace reproducible a cada etapa), los **Módulos 2 y 3** muestran ese mismo pipeline aplicado en 4 empresas reales, el **Módulo 4** profundiza en la etapa de "Modelado" (qué tipo de algoritmo elegir según el problema) y el **Módulo 5** profundiza en la etapa de "Evaluación" (cómo saber si el modelo realmente funciona). Todo lo que viene en la clase es, en el fondo, un zoom progresivo sobre distintas partes de este mismo diagrama — es útil volver a él verbalmente entre módulo y módulo ("ahora estamos en la etapa de Evaluación de este mismo pipeline").
+
+### Qué se lleva el alumno al final de la clase
+
+Según el propio material, al cerrar esta unidad el alumno debería poder:
+
+1. Diseñar y explicar la estructura de un pipeline end-to-end reproducible.
+2. Comparar segmentación de clientes vs. sistemas de recomendación y elegir cuál aplica a un problema de negocio dado.
+3. Identificar, frente a un caso real, si conviene un enfoque supervisado o no supervisado.
+4. Elegir la métrica y la estrategia de validación correctas según el tipo de problema (clasificación, regresión o clustering) y las restricciones del negocio.
+
+### La conexión con el repaso del notebook
+
+El notebook no abre directamente con este diagrama: primero hace un repaso de 10 minutos de la Clase 6 (detallado en la [sección 7, Bloque 0](#bloque-0--repaso-de-la-semana-6-estadística-y-preprocesamiento-10-min)), porque los cuatro pilares de esa clase anterior (limpieza, estadística descriptiva, distribuciones/correlación, transformación/reducción) son insumo directo de las etapas 2 y 3 del pipeline de hoy (Procesamiento/EDA y Feature Engineering). Es una forma de que el repaso no quede "suelto": se siente como el cimiento sobre el que se construye el pipeline reproducible del Bloque 1.
 
 ---
 
-### 💡 Ejemplo 2: Preprocesamiento con PCA
+## Módulo 1 — Principios de Diseño de Pipelines Reproducibles
+
+**Pregunta disparadora para abrir la clase**: imaginá que desarrollaste un modelo predictivo que mejora significativamente la toma de decisiones en tu empresa. Un colega intenta replicar tu trabajo... y los resultados no coinciden. ¿Qué salió mal? La reproducibilidad es lo que separa un experimento de laboratorio de un proyecto de ciencia de datos confiable y escalable en la industria.
+
+**Analogía útil para el pizarrón**: un pipeline reproducible es como una **receta de cocina bien escrita**, no como "cocinar de memoria". Si la receta especifica ingredientes exactos (los datos versionados), pasos numerados (el código modular) y el punto de cocción (las métricas de evaluación), cualquier persona puede reproducir el mismo plato. Si en cambio el chef improvisa "un poco de esto, un poco de aquello" (celdas de Jupyter sueltas, ejecutadas en cualquier orden, con decisiones que solo están en la cabeza de quien las tomó), el resultado depende de quién cocine — y eso es exactamente lo que un pipeline reproducible busca eliminar.
+
+### 1.1 ¿Qué es un pipeline end-to-end en ciencia de datos?
+
+Un **pipeline end-to-end** es un flujo completo que transforma datos crudos en un modelo funcional y evaluado, listo para su uso o despliegue. Incluye seis etapas:
+
+1. **Ingestión de datos**: recolección y carga desde diversas fuentes.
+2. **Análisis exploratorio de datos (EDA)**: comprensión inicial, detección de patrones y limpieza.
+3. **Feature engineering**: creación y selección de variables relevantes.
+4. **Modelado**: entrenamiento de algoritmos para aprender patrones.
+5. **Evaluación**: medición del desempeño con métricas adecuadas.
+6. **Entrega mínima**: preparación para compartir o desplegar el modelo (notebooks reproducibles, servicios simples).
+
+**Para remarcar en clase**: este pipeline debe estar diseñado para que **cualquier persona** pueda seguirlo y obtener resultados consistentes — esa es, literalmente, la definición de reproducibilidad.
+
+### 1.2 Componentes clave para la reproducibilidad
+
+| Componente | Qué implica |
+|---|---|
+| **Gestión de artefactos** | Guardar versiones de datasets, modelos entrenados y resultados intermedios. |
+| **Control de versiones** | Usar Git para rastrear cambios en código y documentación. |
+| **Entornos reproducibles** | Definir dependencias y versiones de librerías para evitar discrepancias entre máquinas. |
+| **Documentación clara** | Explicar cada paso y decisión tomada. |
+
+### 1.3 Prácticas para despliegue mínimo y compartición
+
+El **despliegue mínimo** busca entregar una versión funcional del pipeline que permita a otros reproducir y validar resultados sin complejidades innecesarias:
+
+- Notebooks bien estructurados (Jupyter, Google Colab) que integren código, visualizaciones y explicaciones.
+- Repositorios organizados con código, datos y documentación.
+- Artefactos guardados con nombres y formatos estándar.
+- Demos simples con herramientas como **Streamlit** o **Flask** para mostrar resultados interactivos.
+
+### 1.4 Por qué importa en la industria
+
+En un proyecto de **detección de fraude**, un pipeline reproducible permite que el equipo de ingeniería valide el modelo antes de integrarlo en producción, asegurando que los resultados sean consistentes y confiables. La gestión de artefactos y el control de versiones evitan pérdidas de trabajo y facilitan la colaboración entre equipos multidisciplinarios; el despliegue mínimo permite entregar prototipos funcionales que stakeholders pueden evaluar sin infraestructuras complejas.
+
+**Gancho hacia el ejercicio práctico**: la función `pipeline_preprocesamiento()` del notebook (Bloque 1) implementa exactamente las etapas 1-3 de este módulo (ingesta, limpieza, transformación) sobre datos reales — es el módulo teórico convertido en código ejecutable.
+
+---
+
+## Módulo 2 — Casos de Estudio: Segmentación y Recomendaciones
+
+**Pregunta disparadora**: trabajás en una empresa de comercio electrónico que quiere aumentar sus ventas personalizando la experiencia de sus clientes. ¿Cómo identificar grupos de clientes con comportamientos similares? ¿Cómo recomendar productos que realmente interesen a cada usuario? Estas preguntas son el corazón de dos aplicaciones clave de ML en la industria.
+
+### 2.1 Segmentación de Clientes
+
+Dividir una población de clientes en grupos homogéneos según características o comportamientos similares, para personalizar estrategias de marketing, mejorar la retención y optimizar recursos.
+
+- **Métodos**: clustering no supervisado (K-means, DBSCAN, clustering jerárquico) o segmentación basada en reglas definidas por expertos.
+- **Requisitos de datos**: variables relevantes y limpias (demográficas, transaccionales, comportamiento web), con volumen suficiente para detectar patrones significativos.
+- **Métricas de éxito**: Silhouette Score (cohesión y separación de clusters) e impacto en KPIs comerciales (ventas, retención, conversión).
+
+### 2.2 Sistemas de Recomendación
+
+Sugerir productos o contenidos personalizados para cada usuario, aumentando satisfacción y ventas.
+
+- **Tipos**: filtrado colaborativo (similitud entre usuarios o ítems), filtrado basado en contenido (características del producto + preferencias del usuario), modelos híbridos (combinan ambos).
+- **Requisitos de datos**: historial de interacciones usuario-producto, información contextual (tiempo, ubicación).
+- **Métricas de éxito**: precisión y recall, tasa de clics (CTR) y conversión, diversidad y novedad (para evitar recomendaciones repetitivas).
+
+### 2.3 Comparación y Trade-offs
+
+| Aspecto | Segmentación | Recomendaciones |
+|---|---|---|
+| Tipo de ML | No supervisado | Supervisado / híbrido |
+| Objetivo | Agrupar clientes | Personalizar experiencia |
+| Datos requeridos | Variables descriptivas | Interacciones usuario-producto |
+| Métricas clave | Cohesión de grupos, impacto negocio | Precisión, CTR, diversidad |
+| Complejidad | Moderada | Alta (requiere modelado avanzado) |
+
+### 2.4 Aplicación práctica combinada
+
+En la práctica, una empresa puede usar **segmentación** para identificar grupos de clientes con alta propensión a comprar un nuevo producto, y luego aplicar **sistemas de recomendación** para personalizar ofertas dentro de cada segmento. Ejemplo: un retailer online segmenta a sus clientes por frecuencia de compra y categorías preferidas, y luego usa un recomendador híbrido para sugerir productos nuevos o complementarios — maximizando el impacto comercial y el uso de datos y recursos.
+
+**Concepto clave que atraviesa toda la unidad — "Analytics to Action"**: ni la segmentación ni la recomendación generan valor por sí solas. Un cluster de clientes o un score de similitud entre productos es solo el punto medio del pipeline (etapa "Evaluación" del diagrama de la Introducción); el valor de negocio aparece recién cuando ese resultado técnico se traduce en una **decisión o acción concreta**: una campaña dirigida, una oferta personalizada, una alerta. Este es el hilo que conecta este módulo con los 4 casos del Módulo 3 y con el cierre del ejercicio práctico del notebook (Bloque 4).
+
+---
+
+## Módulo 3 — Casos de Éxito: ML en Acción
+
+Cuatro casos reales que muestran cómo se ve todo lo anterior aplicado en la industria. Conviene presentarlos como historias, no como listas de bullets — cada uno tiene un problema de negocio, una técnica y un cierre con impacto medible.
+
+### 3.1 San Cristóbal — Detección de Fraudes
+
+**El problema**: ¿cómo protegerse eficazmente contra fraudes que amenazan la operación y la confianza con los clientes? La detección de fraude es un problema clásico de **clasificación supervisada**: identificar transacciones o eventos fraudulentos entre un gran volumen de datos legítimos.
+
+**El pipeline en 3 etapas**:
+1. **Detección inicial**: modelos supervisados entrenados con datos históricos clasifican eventos como fraudulentos o no.
+2. **Investigación**: análisis detallado, incluyendo revisión manual y análisis de imágenes de siniestros mediante Deep Learning.
+3. **Resolución**: toma de decisiones basada en resultados y métricas para mitigar el fraude.
+
+**El desafío del desbalance**: los fraudes son eventos raros, por lo que los datos están altamente desbalanceados. Se abordan con:
+- **Oversampling**: aumentar artificialmente los ejemplos minoritarios (fraudes) — la técnica más usada es **SMOTE**.
+- **Undersampling**: reducir los ejemplos de la clase mayoritaria.
+
+**Métricas críticas**: **Precisión** (proporción de predicciones positivas correctas) y **Recall** (proporción de fraudes reales detectados) — en este dominio, **un alto recall es vital** para no dejar pasar fraudes, aunque se sacrifiquen algunos falsos positivos. El **AUC** (área bajo la curva ROC) mide la capacidad de distinguir clases en distintos umbrales, y se usa **cross-validation** para asegurar la robustez del modelo.
+
+**El plus de Deep Learning**: San Cristóbal complementa la detección tabular con **redes neuronales convolucionales (CNN)** que analizan imágenes de siniestros, extrayendo características automáticas y detectando patrones visuales indicativos de fraude. **Matplotlib** se usa para visualizar resultados y comunicar hallazgos a stakeholders.
+
+**Código de referencia de la práctica** (dataset: `csv/creditcardfraud`):
 
 ```python
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-
-# Dataset con múltiples variables correlacionadas
-np.random.seed(42)
-X1 = np.random.normal(100, 20, 100)
-X2 = X1 * 0.8 + np.random.normal(0, 5, 100)  # correlacionada con X1
-X3 = np.random.normal(50, 10, 100)           # independiente
-
-df_features = pd.DataFrame({
-    "Ingresos": X1,
-    "Gastos": X2, 
-    "Ahorros": X3
-})
-
-print("=== CORRELACIONES ORIGINALES ===")
-print(df_features.corr())
-
-# Estandarización (importante para PCA)
-scaler = StandardScaler()
-df_scaled = scaler.fit_transform(df_features)
-
-# Aplicar PCA
-pca = PCA(n_components=2)
-pca_result = pca.fit_transform(df_scaled)
-
-print(f"\n=== VARIANZA EXPLICADA ===")
-print(f"PC1: {pca.explained_variance_ratio_[0]:.2%}")
-print(f"PC2: {pca.explained_variance_ratio_[1]:.2%}")
-
-# Visualización
-df_pca = pd.DataFrame(pca_result, columns=["PC1", "PC2"])
-plt.figure(figsize=(6,6))
-sns.scatterplot(x="PC1", y="PC2", data=df_pca, s=60)
-plt.title("Datos transformados con PCA")
-plt.show()
-```
-
-**🎯 Objetivo**: Reducir la dimensionalidad eliminando redundancia entre variables correlacionadas, preparando datos más limpios para algoritmos de ML.
-
----
-
-### 🔗 **Conexión con Machine Learning**
-
-Los conceptos de la **Clase 6** son **fundamentales** para el éxito en ML:
-
-- **EDA** → Nos ayuda a entender qué variables son relevantes para predecir
-- **Estadística descriptiva** → Identifica distribuciones y relaciones que los algoritmos pueden aprovechar
-- **Preprocesamiento** → Asegura que los datos estén limpios y listos para entrenar modelos
-- **PCA** → Reduce complejidad y mejora el rendimiento de los algoritmos
-
----
-
-### **¿Qué es Machine Learning?**  
-**Machine Learning (ML)** o *Aprendizaje Automático* es una rama de la **Inteligencia Artificial (IA)** que se centra en desarrollar algoritmos y modelos capaces de aprender patrones a partir de datos, **sin ser programados explícitamente**. En lugar de seguir reglas predefinidas, los sistemas de ML **mejoran su desempeño con la experiencia** (datos).  
-
-Su objetivo principal es **generalizar** a partir de ejemplos para realizar predicciones o tomar decisiones en situaciones nuevas.
-
----
-
-### **Particularidades y Características Principales**  
-
-1. **Aprendizaje basado en datos**  
-   - ML requiere **datos históricos o de entrenamiento** para identificar patrones y relaciones.  
-   - A diferencia de la programación tradicional (donde las reglas son fijas), en ML **el modelo "aprende" de los datos**.  
-
-2. **Capacidad predictiva y adaptativa**  
-   - Los modelos de ML pueden **predecir resultados futuros** (ej.: ventas, fallos en equipos) o **clasificar información** (ej.: spam/no spam).  
-   - Algunos sistemas se adaptan a cambios en los datos (ej.: recomendaciones en tiempo real en Netflix o Amazon).  
-
-3. **Tipos principales de aprendizaje**  
-   - **Supervisado**: Usa datos etiquetados (ej.: predecir precios de casas basado en ejemplos pasados).  
-   - **No supervisado**: Encuentra patrones en datos sin etiquetas (ej.: agrupación de clientes por comportamiento).  
-   - **Por refuerzo**: Aprende mediante prueba/error y recompensas (ej.: robots que aprenden a caminar).  
-
-4. **Automatización y escalabilidad**  
-   - ML permite automatizar tareas complejas (ej.: diagnóstico médico, detección de fraudes).  
-   - Escala bien con grandes volúmenes de datos (*Big Data*).  
-
-5. **Énfasis en la evaluación**  
-   - Los modelos se validan con métricas como **precisión, recall o error cuadrático medio** para garantizar su fiabilidad.  
-
-6. **Dependencia de la calidad de los datos**  
-   - El rendimiento del ML está ligado a la **calidad, cantidad y representatividad** de los datos.  
-   - Problemas como *sesgos* o *datos incompletos* afectan los resultados.  
-
-7. **Uso de algoritmos diversos**  
-   - Desde métodos clásicos (*regresión lineal, árboles de decisión*) hasta técnicas avanzadas (*redes neuronales, deep learning*).  
-
----
-
-### **Diferencia clave con Data Science**  
-Mientras **Data Science** abarca todo el ciclo de análisis de datos (limpieza, visualización, estadística, etc.), **ML es una herramienta dentro de DS** enfocada específicamente en **automatizar el aprendizaje** para predicción o toma de decisiones.  
-
-**Ejemplo práctico**:  
-- Un modelo de ML podría predecir el *churn* (abandono) de clientes en una empresa, mientras que un data scientist también analizaría *por qué* ocurre y cómo comunicarlo.  
-
-En resumen, **Machine Learning es la tecnología que permite a las máquinas "aprender" de los datos para resolver problemas complejos de manera autónoma o semiautónoma**. 
-
----
-
-
-### _Si quisiéramos resolver un problema donde tenemos información georeferenciada de clientes ¿cómo podríamos utilizar el ML para incrementar las ventas de un producto?_
-
-Para incrementar las ventas de un producto utilizando **Machine Learning (ML)** con datos georreferenciados de clientes, puedes aplicar diversas estrategias basadas en análisis espacial y modelos predictivos. Aquí te detallo un enfoque estructurado:
-
----
-
-### **1. Análisis Exploratorio de Datos (EDA) Geoespacial**  
-- **Visualización de datos**:  
-  - Usar mapas de calor (*heatmaps*) para identificar zonas con alta concentración de clientes o ventas.  
-  - Segmentar por zonas geográficas (barrios, ciudades, códigos postales).  
-- **Detección de patrones**:  
-  - Correlacionar ubicación con variables como ingresos, edad, clima o proximidad a puntos de interés (ej.: centros comerciales).  
-
-**Herramientas**: Python (`geopandas`, `folium`), Power BI (integrado con Mapas).  
-
----
-
-### **2. Segmentación de Clientes por Ubicación**  
-- **Clustering no supervisado** (ej.: *K-means* o *DBSCAN*) para agrupar clientes con características similares:  
-  - Crear clusters basados en:  
-    - Ubicación (coordenadas).  
-    - Comportamiento de compra + datos demográficos locales.  
-  - Ejemplo: Identificar "zonas de alto potencial" con clientes similares a los que ya compran el producto.  
-
----
-
-### **3. Modelos Predictivos para Ventas**  
-- **Aprendizaje supervisado** (ej.: *Random Forest, XGBoost*) para predecir:  
-  - **Propensión de compra**: Qué clientes (o zonas) tienen mayor probabilidad de comprar el producto.  
-  - **Demanda geográfica**: Dónde habrá mayor demanda en función de variables temporales (ej.: festividades locales).  
-- **Variables de entrada**:  
-  - Datos geográficos (latitud, longitud, distancia a tiendas).  
-  - Datos socioeconómicos de la zona (nivel de ingresos, densidad poblacional).  
-  - Historial de ventas en la región.  
-
----
-
-### **4. Recomendaciones Geo-Personalizadas**  
-- **Sistemas de recomendación** con filtrado colaborativo o basado en contenido:  
-  - Sugerir productos populares en la zona (ej.: "En tu barrio, otros clientes compran X").  
-  - Adaptar promociones según el perfil geográfico (ej.: descuentos en zonas con menor penetración).  
-
----
-
-### **5. Optimización Logística y Ubicación de Puntos de Venta**  
-- **Modelos de ubicación óptima**:  
-  - Usar *algoritmos de optimización* (ej.: *p-median*) para decidir dónde abrir nuevas tiendas o colocar anuncios.  
-  - Ejemplo: "Las zonas con radio de 5 km sin cobertura tienen un 20% de clientes potenciales sin atender".  
-
----
-
-### **6. Campañas de Marketing Dirigido**  
-- **Geo-targeting publicitario**:  
-  - Entrenar modelos para identificar zonas donde campañas específicas (ej.: SMS, redes sociales) tendrán mayor ROI.  
-  - Ejemplo: Anuncios en Facebook Ads para un radio de 10 km alrededor de tiendas con stock alto.  
-
----
-
-### **7. Ejemplo Práctico**  
-**Problema**: Una cadena de cafeterías quiere aumentar ventas en Ciudad de México.  
-**Solución con ML**:  
-1. Agrupa clientes por colonia usando *DBSCAN*.  
-2. Entrena un modelo para predecir ventas según:  
-   - Proximidad a estaciones de metro.  
-   - Nivel socioeconómico (datos del INEGI).  
-3. Descubre que las colonias *Roma* y *Condesa* tienen alta demanda los fines de semana.  
-4. Lanza promociones "2x1" los sábados en esas zonas via WhatsApp.  
-
----
-
-### **Beneficios**  
-- **Reducción de costos**: Enfoque en zonas de alto impacto.  
-- **Personalización**: Ofertas relevantes por ubicación.  
-- **Escalabilidad**: Aplicable a múltiples regiones o productos.  
-
-# ML
-
-*  ## [Aprendizaje Supervizado](clase_7/aprendizaje-supervisado.md)
-* ## [Aprendizaje no Supervisado](clase_7/aprendizaje-no-supervisado.md)
-
-* ## [Paso a paso para un ML funcional](clase_7/paso-a-pas.md)
-
-
----
-
-## 🚀 Implementación Práctica de Machine Learning
-
-### 📋 **7.6 Implementación Práctica**
-
-La implementación práctica de Machine Learning es el proceso que transforma la teoría en soluciones reales. Esta fase es crucial porque determina el éxito o fracaso de un proyecto de ML en el mundo real.
-
----
-
-### 🧹 **1. Preparación de Datos**
-
-La preparación de datos es el **paso más crítico** en cualquier proyecto de ML. Se estima que el 80% del tiempo en un proyecto de ML se dedica a la preparación y limpieza de datos.
-
-#### **🎯 Filosofía de la Preparación de Datos**
-- **Principio**: "Garbage in, garbage out" - Si los datos de entrada son de mala calidad, el modelo será inútil
-- **Objetivo**: Transformar datos brutos en un formato limpio y estructurado
-- **Enfoque**: Iterativo y sistemático
-
-#### **📊 Ejemplo Práctico: Dataset de Ventas de Tienda**
-
-```python
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.impute import SimpleImputer
-
-# Cargar datos (simulando un dataset real con problemas típicos)
-np.random.seed(42)
-n_samples = 1000
-
-# Crear datos con problemas reales
-data = {
-    'edad': np.random.normal(35, 10, n_samples),
-    'ingresos': np.random.lognormal(10, 0.5, n_samples),
-    'genero': np.random.choice(['M', 'F', 'masculino', 'femenino', None], n_samples, p=[0.4, 0.3, 0.1, 0.1, 0.1]),
-    'ciudad': np.random.choice(['Buenos Aires', 'Córdoba', 'Mendoza', 'BA', 'Cordoba', None], n_samples),
-    'ventas_mes': np.random.gamma(2, 1000, n_samples),
-    'satisfaccion': np.random.choice([1, 2, 3, 4, 5, None], n_samples, p=[0.1, 0.15, 0.2, 0.3, 0.2, 0.05])
-}
-
-df = pd.DataFrame(data)
-
-# Agregar algunos outliers
-df.loc[df.index[:50], 'ventas_mes'] *= 10
-df.loc[df.index[50:60], 'edad'] = 200  # Valores imposibles
-
-print("=== ESTADO INICIAL DE LOS DATOS ===")
-print(f"Forma del dataset: {df.shape}")
-print(f"\nValores faltantes por columna:")
-print(df.isnull().sum())
-print(f"\nTipos de datos:")
-print(df.dtypes)
-```
-
-#### **🔧 1.1 Limpieza de Datos**
-
-```python
-# 1. Manejo de Valores Faltantes
-print("\n=== LIMPIEZA DE DATOS ===")
-
-# Estrategia para valores faltantes
-def limpiar_valores_faltantes(df):
-    df_limpio = df.copy()
-    
-    # Para variables numéricas: usar la mediana
-    numeric_columns = ['edad', 'ingresos', 'ventas_mes']
-    for col in numeric_columns:
-        if df_limpio[col].isnull().sum() > 0:
-            median_value = df_limpio[col].median()
-            df_limpio[col].fillna(median_value, inplace=True)
-            print(f"Imputado {col} con mediana: {median_value:.2f}")
-    
-    # Para variables categóricas: usar la moda
-    categorical_columns = ['genero', 'ciudad', 'satisfaccion']
-    for col in categorical_columns:
-        if df_limpio[col].isnull().sum() > 0:
-            mode_value = df_limpio[col].mode()[0]
-            df_limpio[col].fillna(mode_value, inplace=True)
-            print(f"Imputado {col} con moda: {mode_value}")
-    
-    return df_limpio
-
-df_limpio = limpiar_valores_faltantes(df)
-
-# 2. Corrección de Inconsistencias
-def estandarizar_categorias(df):
-    df_estandarizado = df.copy()
-    
-    # Estandarizar género
-    df_estandarizado['genero'] = df_estandarizado['genero'].map({
-        'M': 'Masculino', 'masculino': 'Masculino',
-        'F': 'Femenino', 'femenino': 'Femenino'
-    })
-    
-    # Estandarizar ciudades
-    df_estandarizado['ciudad'] = df_estandarizado['ciudad'].map({
-        'BA': 'Buenos Aires', 'Cordoba': 'Córdoba'
-    })
-    
-    return df_estandarizado
-
-df_estandarizado = estandarizar_categorias(df_limpio)
-
-# 3. Manejo de Outliers
-def detectar_y_tratar_outliers(df, column):
-    Q1 = df[column].quantile(0.25)
-    Q3 = df[column].quantile(0.75)
-    IQR = Q3 - Q1
-    lower_bound = Q1 - 1.5 * IQR
-    upper_bound = Q3 + 1.5 * IQR
-    
-    outliers = df[(df[column] < lower_bound) | (df[column] > upper_bound)]
-    print(f"Outliers detectados en {column}: {len(outliers)} ({len(outliers)/len(df)*100:.1f}%)")
-    
-    # Estrategia: Capar los valores extremos
-    df[column] = df[column].clip(lower=lower_bound, upper=upper_bound)
-    return df
-
-# Tratar outliers en ventas_mes y edad
-df_final = detectar_y_tratar_outliers(df_estandarizado, 'ventas_mes')
-df_final = detectar_y_tratar_outliers(df_final, 'edad')
-
-print(f"\nDataset final: {df_final.shape}")
-print(f"Valores faltantes restantes: {df_final.isnull().sum().sum()}")
-```
-
-#### **🔄 1.2 Transformación de Datos**
-
-```python
-# Transformación de variables
-def transformar_datos(df):
-    df_transformado = df.copy()
-    
-    # 1. Normalización/Estandarización
-    scaler = StandardScaler()
-    numeric_columns = ['edad', 'ingresos', 'ventas_mes']
-    df_transformado[numeric_columns] = scaler.fit_transform(df_transformado[numeric_columns])
-    
-    # 2. Codificación de variables categóricas
-    # One-hot encoding para ciudad
-    ciudad_encoded = pd.get_dummies(df_transformado['ciudad'], prefix='ciudad')
-    df_transformado = pd.concat([df_transformado, ciudad_encoded], axis=1)
-    
-    # Label encoding para género y satisfacción
-    le_genero = LabelEncoder()
-    df_transformado['genero_encoded'] = le_genero.fit_transform(df_transformado['genero'])
-    
-    # 3. Transformación logarítmica (si es necesario)
-    # Para variables con sesgo positivo
-    if df['ingresos'].skew() > 1:
-        df_transformado['ingresos_log'] = np.log1p(df['ingresos'])
-    
-    return df_transformado
-
-df_transformado = transformar_datos(df_final)
-
-print("\n=== DATOS TRANSFORMADOS ===")
-print(f"Forma final: {df_transformado.shape}")
-print(f"Columnas: {list(df_transformado.columns)}")
-```
-
----
-
-### ✅ **2. Validación del Modelo**
-
-La validación es esencial para asegurar que nuestro modelo funcionará en datos reales.
-
-#### **📊 2.1 División del Conjunto de Datos**
-
-```python
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, r2_score
-
-# Preparar datos para modelado
-# Asumimos que queremos predecir 'ventas_mes' basado en otras variables
-X = df_transformado.drop(['ventas_mes', 'genero', 'ciudad'], axis=1)
-y = df['ventas_mes']  # Usar valores originales, no normalizados
-
-# División 70-20-10: Train-Validation-Test
-X_temp, X_test, y_temp, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
-X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=0.22, random_state=42)
-
-print(f"Conjunto de entrenamiento: {X_train.shape[0]} muestras")
-print(f"Conjunto de validación: {X_val.shape[0]} muestras")
-print(f"Conjunto de prueba: {X_test.shape[0]} muestras")
-```
-
-#### **🔄 2.2 Validación Cruzada**
-
-```python
-from sklearn.model_selection import cross_val_score, KFold
-
-def evaluar_modelo_con_cv(modelo, X, y, cv=5):
-    """Función para evaluar modelo con validación cruzada"""
-    
-    # Configurar validación cruzada
-    kf = KFold(n_splits=cv, shuffle=True, random_state=42)
-    
-    # Métricas a evaluar
-    mse_scores = cross_val_score(modelo, X, y, cv=kf, scoring='neg_mean_squared_error')
-    r2_scores = cross_val_score(modelo, X, y, cv=kf, scoring='r2')
-    
-    return {
-        'MSE_mean': -mse_scores.mean(),
-        'MSE_std': mse_scores.std(),
-        'R2_mean': r2_scores.mean(),
-        'R2_std': r2_scores.std()
-    }
-
-# Entrenar modelo
-modelo = RandomForestRegressor(n_estimators=100, random_state=42)
-modelo.fit(X_train, y_train)
-
-# Evaluación con validación cruzada
-cv_results = evaluar_modelo_con_cv(modelo, X_train, y_train)
-
-print("\n=== RESULTADOS DE VALIDACIÓN CRUZADA ===")
-print(f"MSE promedio: {cv_results['MSE_mean']:.2f} ± {cv_results['MSE_std']:.2f}")
-print(f"R² promedio: {cv_results['R2_mean']:.3f} ± {cv_results['R2_std']:.3f}")
-```
-
-#### **📈 2.3 Métricas de Evaluación**
-
-```python
-def evaluar_modelo_completo(modelo, X_test, y_test):
-    """Evaluación completa del modelo"""
-    
-    # Predicciones
-    y_pred = modelo.predict(X_test)
-    
-    # Métricas de regresión
-    mse = mean_squared_error(y_test, y_pred)
-    rmse = np.sqrt(mse)
-    r2 = r2_score(y_test, y_pred)
-    
-    # Error absoluto medio
-    mae = np.mean(np.abs(y_test - y_pred))
-    
-    # Error porcentual absoluto medio
-    mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100
-    
-    resultados = {
-        'MSE': mse,
-        'RMSE': rmse,
-        'MAE': mae,
-        'R²': r2,
-        'MAPE': mape
-    }
-    
-    return resultados, y_pred
-
-# Evaluar en conjunto de prueba
-resultados, predicciones = evaluar_modelo_completo(modelo, X_test, y_test)
-
-print("\n=== MÉTRICAS EN CONJUNTO DE PRUEBA ===")
-for metrica, valor in resultados.items():
-    print(f"{metrica}: {valor:.3f}")
-
-# Visualización de resultados
-plt.figure(figsize=(15, 5))
-
-# 1. Predicciones vs Valores Reales
-plt.subplot(1, 3, 1)
-plt.scatter(y_test, predicciones, alpha=0.6)
-plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2)
-plt.xlabel('Valores Reales')
-plt.ylabel('Predicciones')
-plt.title(f'Predicciones vs Reales\nR² = {resultados["R²"]:.3f}')
-
-# 2. Residuos
-plt.subplot(1, 3, 2)
-residuos = y_test - predicciones
-plt.scatter(predicciones, residuos, alpha=0.6)
-plt.axhline(y=0, color='r', linestyle='--')
-plt.xlabel('Predicciones')
-plt.ylabel('Residuos')
-plt.title('Análisis de Residuos')
-
-# 3. Distribución de errores
-plt.subplot(1, 3, 3)
-plt.hist(residuos, bins=30, alpha=0.7, edgecolor='black')
-plt.xlabel('Residuos')
-plt.ylabel('Frecuencia')
-plt.title('Distribución de Errores')
-
-plt.tight_layout()
-plt.show()
-```
-
-#### **⚙️ 2.4 Ajuste de Hiperparámetros**
-
-```python
-from sklearn.model_selection import GridSearchCV
-
-def ajustar_hiperparametros(modelo, X_train, y_train, param_grid, cv=3):
-    """Ajuste de hiperparámetros con GridSearch"""
-    
-    grid_search = GridSearchCV(
-        modelo, 
-        param_grid, 
-        cv=cv, 
-        scoring='neg_mean_squared_error',
-        n_jobs=-1,
-        verbose=1
-    )
-    
-    grid_search.fit(X_train, y_train)
-    
-    return grid_search
-
-# Definir grid de parámetros para Random Forest
-param_grid = {
-    'n_estimators': [50, 100, 200],
-    'max_depth': [10, 20, None],
-    'min_samples_split': [2, 5, 10],
-    'min_samples_leaf': [1, 2, 4]
-}
-
-print("\n=== AJUSTE DE HIPERPARÁMETROS ===")
-print("Buscando mejores parámetros...")
-
-# Ajustar hiperparámetros
-grid_search = ajustar_hiperparametros(
-    RandomForestRegressor(random_state=42), 
-    X_train, y_train, 
-    param_grid
-)
-
-print(f"\nMejores parámetros: {grid_search.best_params_}")
-print(f"Mejor score (negativo MSE): {grid_search.best_score_:.2f}")
-
-# Evaluar modelo optimizado
-modelo_optimizado = grid_search.best_estimator_
-resultados_optimizado, predicciones_optimizado = evaluar_modelo_completo(modelo_optimizado, X_test, y_test)
-
-print("\n=== COMPARACIÓN DE MODELOS ===")
-print("Modelo Original vs Optimizado:")
-print(f"R² Original: {resultados['R²']:.3f}")
-print(f"R² Optimizado: {resultados_optimizado['R²']:.3f}")
-print(f"Mejora: {(resultados_optimizado['R²'] - resultados['R²'])*100:.1f}%")
-```
-
----
-
-### 🚀 **3. Despliegue del Modelo**
-
-El despliegue es donde el modelo pasa del laboratorio al mundo real.
-
-#### **📦 3.1 Preparación para Producción**
-
-```python
-import joblib
-import json
-
-def guardar_modelo_completo(modelo, scaler, columnas, metadatos, ruta_base='modelo_ml'):
-    """Guardar modelo y metadatos para producción"""
-    
-    # 1. Guardar modelo
-    joblib.dump(modelo, f'{ruta_base}_modelo.pkl')
-    
-    # 2. Guardar scaler
-    joblib.dump(scaler, f'{ruta_base}_scaler.pkl')
-    
-    # 3. Guardar información de columnas
-    with open(f'{ruta_base}_columnas.json', 'w') as f:
-        json.dump(columnas, f)
-    
-    # 4. Guardar metadatos
-    with open(f'{ruta_base}_metadatos.json', 'w') as f:
-        json.dump(metadatos, f)
-    
-    print(f"Modelo guardado en: {ruta_base}_*")
-
-# Preparar metadatos
-metadatos = {
-    'version': '1.0',
-    'fecha_entrenamiento': '2024-01-15',
-    'algoritmo': 'RandomForestRegressor',
-    'metricas_entrenamiento': resultados_optimizado,
-    'caracteristicas': list(X.columns),
-    'descripcion': 'Modelo para predecir ventas mensuales basado en perfil del cliente'
-}
-
-# Guardar modelo
-guardar_modelo_completo(
-    modelo_optimizado, 
-    scaler, 
-    list(X.columns), 
-    metadatos
-)
-```
-
-#### **🔧 3.2 Función de Predicción**
-
-```python
-class PredictorVentas:
-    """Clase para hacer predicciones en producción"""
-    
-    def __init__(self, ruta_modelo='modelo_ml'):
-        self.modelo = joblib.load(f'{ruta_modelo}_modelo.pkl')
-        self.scaler = joblib.load(f'{ruta_modelo}_scaler.pkl')
-        
-        with open(f'{ruta_modelo}_columnas.json', 'r') as f:
-            self.columnas_esperadas = json.load(f)
-        
-        with open(f'{ruta_modelo}_metadatos.json', 'r') as f:
-            self.metadatos = json.load(f)
-    
-    def preprocesar_datos(self, datos_cliente):
-        """Preprocesar datos de un cliente individual"""
-        
-        # Convertir a DataFrame
-        df_cliente = pd.DataFrame([datos_cliente])
-        
-        # Aplicar mismas transformaciones que en entrenamiento
-        df_cliente['genero'] = df_cliente['genero'].map({
-            'M': 'Masculino', 'masculino': 'Masculino',
-            'F': 'Femenino', 'femenino': 'Femenino'
-        })
-        
-        df_cliente['ciudad'] = df_cliente['ciudad'].map({
-            'BA': 'Buenos Aires', 'Cordoba': 'Córdoba'
-        })
-        
-        # One-hot encoding para ciudad
-        ciudad_encoded = pd.get_dummies(df_cliente['ciudad'], prefix='ciudad')
-        df_cliente = pd.concat([df_cliente, ciudad_encoded], axis=1)
-        
-        # Label encoding para género
-        le_genero = LabelEncoder()
-        df_cliente['genero_encoded'] = le_genero.fit_transform(df_cliente['genero'])
-        
-        # Normalizar variables numéricas
-        numeric_columns = ['edad', 'ingresos']
-        df_cliente[numeric_columns] = self.scaler.transform(df_cliente[numeric_columns])
-        
-        # Asegurar que todas las columnas esperadas estén presentes
-        for col in self.columnas_esperadas:
-            if col not in df_cliente.columns:
-                df_cliente[col] = 0
-        
-        # Reordenar columnas
-        df_cliente = df_cliente[self.columnas_esperadas]
-        
-        return df_cliente
-    
-    def predecir(self, datos_cliente):
-        """Hacer predicción para un cliente"""
-        
-        # Preprocesar datos
-        X_cliente = self.preprocesar_datos(datos_cliente)
-        
-        # Hacer predicción
-        prediccion = self.modelo.predict(X_cliente)[0]
-        
-        # Calcular intervalo de confianza (aproximado)
-        # Nota: Para un intervalo real necesitarías más información del modelo
-        std_error = 0.1 * prediccion  # Aproximación simple
-        intervalo = (prediccion - 1.96*std_error, prediccion + 1.96*std_error)
-        
-        return {
-            'prediccion': prediccion,
-            'intervalo_confianza_95': intervalo,
-            'modelo_version': self.metadatos['version']
-        }
-
-# Ejemplo de uso en producción
-print("\n=== EJEMPLO DE PREDICCIÓN EN PRODUCCIÓN ===")
-
-# Simular datos de un nuevo cliente
-nuevo_cliente = {
-    'edad': 28,
-    'ingresos': 45000,
-    'genero': 'F',
-    'ciudad': 'Buenos Aires',
-    'satisfaccion': 4
-}
-
-# Crear predictor
-predictor = PredictorVentas()
-
-# Hacer predicción
-resultado = predictor.predecir(nuevo_cliente)
-
-print(f"Cliente: {nuevo_cliente}")
-print(f"Predicción de ventas: ${resultado['prediccion']:.2f}")
-print(f"Intervalo 95%: ${resultado['intervalo_confianza_95'][0]:.2f} - ${resultado['intervalo_confianza_95'][1]:.2f}")
-```
-
-#### **📊 3.3 Monitoreo del Modelo**
-
-```python
-def monitorear_rendimiento_modelo(y_real, y_pred, umbral_drift=0.1):
-    """Función para monitorear el rendimiento del modelo en producción"""
-    
-    # Calcular métricas actuales
-    r2_actual = r2_score(y_real, y_pred)
-    rmse_actual = np.sqrt(mean_squared_error(y_real, y_pred))
-    
-    # Detectar drift (cambio en la distribución)
-    # Comparar con métricas de referencia (del entrenamiento)
-    r2_referencia = 0.85  # Valor de referencia del entrenamiento
-    drift_detectado = abs(r2_actual - r2_referencia) > umbral_drift
-    
-    # Generar alerta si hay drift
-    if drift_detectado:
-        print(f"⚠️ ALERTA: Drift detectado en el modelo!")
-        print(f"R² actual: {r2_actual:.3f}")
-        print(f"R² referencia: {r2_referencia:.3f}")
-        print(f"Diferencia: {abs(r2_actual - r2_referencia):.3f}")
-    
-    return {
-        'r2_actual': r2_actual,
-        'rmse_actual': rmse_actual,
-        'drift_detectado': drift_detectado,
-        'necesita_retrenamiento': drift_detectado
-    }
-
-# Ejemplo de monitoreo
-print("\n=== MONITOREO DEL MODELO ===")
-estado_modelo = monitorear_rendimiento_modelo(y_test, predicciones_optimizado)
-
-print(f"Estado del modelo:")
-for key, value in estado_modelo.items():
-    print(f"  {key}: {value}")
-```
-
----
-
-### 🎯 **Resumen de la Implementación Práctica**
-
-#### **✅ Checklist de Implementación Exitosa**
-
-1. **Preparación de Datos** ✅
-   - [ ] Limpieza de valores faltantes
-   - [ ] Estandarización de categorías
-   - [ ] Manejo de outliers
-   - [ ] Normalización/estandarización
-   - [ ] Codificación de variables categóricas
-
-2. **Validación del Modelo** ✅
-   - [ ] División adecuada de datos
-   - [ ] Validación cruzada
-   - [ ] Métricas de evaluación apropiadas
-   - [ ] Ajuste de hiperparámetros
-   - [ ] Análisis de residuos
-
-3. **Despliegue** ✅
-   - [ ] Serialización del modelo
-   - [ ] Función de predicción robusta
-   - [ ] Sistema de monitoreo
-   - [ ] Documentación de metadatos
-
-#### **🚨 Errores Comunes a Evitar**
-
-1. **Data Leakage**: No usar información del futuro para predecir el pasado
-2. **Overfitting**: Validar siempre en datos no vistos
-3. **Falta de monitoreo**: Los modelos se degradan con el tiempo
-4. **Ignorar el contexto de negocio**: Las métricas técnicas no siempre reflejan el valor real
-
-#### **📈 Próximos Pasos**
-
-1. **A/B Testing**: Comparar el modelo contra métodos actuales
-2. **Feedback Loop**: Incorporar feedback de usuarios
-3. **Retrenamiento Automático**: Sistema para actualizar el modelo periódicamente
-4. **Escalabilidad**: Preparar para mayor volumen de datos
-
----
-
-### Apartado especial para lo que es Feature Selection
-
-### 🧹 1. Métodos de Filtro (*Filter Methods*)
-
-Piensa en estos como un primer filtro rápido.
-
-* **Cómo funcionan:** Evalúan cada característica de forma individual usando pruebas estadísticas que miden su relación con la variable objetivo (la etiqueta).
-* **Velocidad:** Muy rápidos, ya que no requieren entrenar modelos.
-* **Ejemplos:**
-
-  * **Prueba de Chi-cuadrado** (para variables categóricas)
-  * **Prueba ANOVA**
-  * **Información mutua**
-  * **Coeficiente de correlación**
-
-📌 **Ventajas:** Rápidos y no dependen del modelo
-📌 **Desventajas:** No consideran las interacciones entre características
-
----
-
-### 🧪 2. Métodos Envolventes (*Wrapper Methods*)
-
-Estos son como probar diferentes combinaciones de ropa para ver cuál te queda mejor.
-
-* **Cómo funcionan:** Prueban múltiples subconjuntos de características entrenando modelos, y eligen el subconjunto que da el mejor rendimiento.
-* **Velocidad:** Lentos, porque entrenan muchos modelos.
-* **Ejemplos:**
-
-  * **Eliminación recursiva de características (RFE)**
-  * **Selección hacia adelante**
-  * **Eliminación hacia atrás**
-
-📌 **Ventajas:** Tienen en cuenta interacciones entre características
-📌 **Desventajas:** Muy costosos en tiempo y recursos computacionales
-
----
-
-### ⚙️ 3. Métodos Embebidos (*Embedded Methods*)
-
-Estos seleccionan características **mientras entrenan** el modelo.
-
-* **Cómo funcionan:** La selección ocurre como parte del proceso de entrenamiento.
-* **Ejemplos:**
-
-  * **Lasso (regularización L1)** – reduce coeficientes a cero
-  * **Árboles de decisión / Bosques aleatorios** – calculan importancia de cada variable
-  * **Elastic Net** – combina L1 y L2
-
-📌 **Ventajas:** Más eficientes y consideran interacciones
-📌 **Desventajas:** Dependientes del modelo utilizado
-
----
-
-### Tabla Resumen:
-
-| Tipo de método | ¿Usa modelo? | ¿Considera interacciones? | Velocidad | Ejemplos                      |
-| -------------- | ------------ | ------------------------- | --------- | ----------------------------- |
-| Filtro         | ❌ No         | ❌ No                      | 🚀 Rápido | Chi-cuadrado, correlación     |
-| Envolvente     | ✅ Sí         | ✅ Sí                      | 🐢 Lento  | RFE, selección hacia adelante |
-| Embebido       | ✅ Sí         | ✅ Sí                      | ⚡ Medio   | Lasso, árboles de decisión    |
-
-
-## Recomendaciones para aprender:
-¡Claro! Vamos a ver cada uno de estos métodos de selección de características supervisadas con **ejemplos, ventajas y desventajas**, relacionándolos con los tipos que ya vimos: filtro, envolvente o embebido.
-
----
-
-### 📉 1. **Variance Threshold**
-
-🔹 **Tipo:** Filtro
-🔹 **Qué hace:** Elimina características con **baja varianza**, es decir, que no cambian mucho entre ejemplos (por ejemplo, una columna donde casi todos los valores son iguales).
-
-#### ✅ Ventajas:
-
-* Muy simple y rápido de aplicar
-* No necesita etiquetas (también se puede usar en problemas no supervisados)
-
-#### ❌ Desventajas:
-
-* No considera la relación con la variable objetivo
-* Puede eliminar características útiles si tienen poca varianza pero alta relevancia
-
-#### 🧪 Ejemplo en Python:
-
-```python
-from sklearn.feature_selection import VarianceThreshold
-selector = VarianceThreshold(threshold=0.01)
-X_reduced = selector.fit_transform(X)
-```
-
----
-
-### ⭐ 2. **SelectKBest**
-
-🔹 **Tipo:** Filtro
-🔹 **Qué hace:** Selecciona las **k mejores características** según una métrica estadística que mide la relación con la variable objetivo (como ANOVA, chi-cuadrado, etc.).
-
-#### ✅ Ventajas:
-
-* Fácil de interpretar y aplicar
-* Rápido y eficiente
-* Permite usar distintas métricas
-
-#### ❌ Desventajas:
-
-* No considera interacciones entre variables
-* Necesita que tú elijas el valor de *k* (el número de características a conservar)
-
-#### 🧪 Ejemplo en Python:
-
-```python
-from sklearn.feature_selection import SelectKBest, f_classif
-selector = SelectKBest(score_func=f_classif, k=10)
-X_kbest = selector.fit_transform(X, y)
-```
-
----
-
-### 🔄 3. **RFE (Recursive Feature Elimination)**
-
-🔹 **Tipo:** Envolvente
-🔹 **Qué hace:** Usa un modelo (como una regresión o un SVM) para eliminar **recursivamente** las características menos importantes hasta quedarse con las más relevantes.
-
-#### ✅ Ventajas:
-
-* Considera interacciones entre variables
-* Da muy buenos resultados si se elige bien el modelo base
-
-#### ❌ Desventajas:
-
-* Lento, especialmente con muchos datos o características
-* Depende fuertemente del modelo usado
-
-#### 🧪 Ejemplo en Python:
-
-```python
-from sklearn.feature_selection import RFE
-from sklearn.linear_model import LogisticRegression
-model = LogisticRegression()
-rfe = RFE(estimator=model, n_features_to_select=5)
-X_rfe = rfe.fit_transform(X, y)
-```
-
----
-
-### 🌳 4. **Boruta**
-
-🔹 **Tipo:** Envolvente (basado en árboles, como Random Forest)
-🔹 **Qué hace:** Crea versiones "aleatorias" de las características y las compara con las reales. Solo conserva las que son mejores que las versiones aleatorias (shadow features).
-
-#### ✅ Ventajas:
-
-* Muy robusto y preciso
-* Tiene en cuenta interacciones y relaciones no lineales
-* Funciona bien con datos complejos
-
-#### ❌ Desventajas:
-
-* Bastante lento (usa muchos modelos de Random Forest)
-* No está en `scikit-learn` directamente (hay que usar una librería aparte como `boruta_py`)
-
-#### 🧪 Ejemplo con `boruta_py`:
-
-```python
-from boruta import BorutaPy
+from imblearn.over_sampling import SMOTE
+from imblearn.pipeline import Pipeline as ImbPipeline
 from sklearn.ensemble import RandomForestClassifier
-model = RandomForestClassifier(n_jobs=-1, class_weight='balanced', max_depth=5)
-boruta_selector = BorutaPy(estimator=model, n_estimators='auto', random_state=42)
-boruta_selector.fit(X.values, y.values)
+
+smote = SMOTE(random_state=RANDOM_STATE)
+rf = RandomForestClassifier(n_estimators=100, random_state=RANDOM_STATE, n_jobs=-1)
+
+pipeline_smote_rf = ImbPipeline(steps=[
+    ('smote', smote),
+    ('rf', rf)
+])
+pipeline_smote_rf.fit(X_train, y_train)
 ```
+
+La práctica completa pide: carga y EDA del desbalance → oversampling/undersampling → entrenar Random Forest o Logistic Regression → calcular precisión/recall/F1/AUC, matriz de confusión y curva ROC → interpretar y justificar la elección de métricas y técnicas.
+
+### 3.2 Medplaya — Analítica Predictiva en Hotelería
+
+**El problema**: las cancelaciones de reservas afectan la ocupación y los ingresos de una cadena hotelera. ¿Cómo anticiparlas para optimizar la gestión de habitaciones y maximizar el revenue?
+
+**Modelos de clasificación supervisada** para predecir si una reserva será cancelada:
+- **Árboles de decisión**: interpretables, segmentan el espacio de características.
+- **Random Forest**: ensamble de árboles, mejora precisión y reduce sobreajuste.
+- **Regresión logística**: modelo probabilístico para clasificación binaria.
+- **Boosting (XGBoost)**: potencia modelos débiles para mejorar rendimiento.
+
+**Selección de features**:
+- **Comportamiento histórico**: frecuencia de cancelaciones previas, tiempo entre reserva y llegada.
+- **Señales contextuales**: temporada, eventos locales, tipo de habitación, canal de reserva.
+- **Feature engineering**: transformaciones numéricas, one-hot encoding, variables derivadas (ej. tasa de cancelación por cliente).
+
+**Desequilibrio**: las cancelaciones son menos frecuentes que las confirmaciones — se aborda con re-muestreo o algoritmos que ponderan clases.
+
+**Métricas de evaluación**:
+
+| Métrica | Descripción | Importancia en cancelaciones |
+|---|---|---|
+| Precisión | Proporción de predicciones correctas | Evita falsas alarmas de cancelación |
+| Recall | Proporción de cancelaciones detectadas | Crucial para anticipar cancelaciones reales |
+| F1-Score | Balance entre precisión y recall | Útil en desequilibrio de clases |
+| AUC-ROC | Capacidad de distinguir entre clases | Evalúa rendimiento global del modelo |
+
+**Pregunta para lanzar a la clase (viene textual del PDF)**: *¿por qué podría ser más importante maximizar el recall que la precisión en este caso?* (Respuesta esperada: una cancelación no detectada cuesta más que una falsa alarma — se pierde la oportunidad de re-vender esa habitación.)
+
+**El cierre de negocio — Overbooking Controlado**: con predicciones confiables, se acepta más reservas que la capacidad real para compensar cancelaciones esperadas, optimizando ocupación y revenue. Requiere un balance cuidadoso para evitar sobreventa y mala experiencia al cliente. Medplaya aplicó este pipeline completo (limpieza → features → Random Forest + regresión logística → evaluación con F1/AUC-ROC → política de overbooking) y logró aumentar la ocupación promedio y mejorar el revenue.
+
+### 3.3 Amazon — Sistemas de Recomendación
+
+**El problema**: ¿cómo logra Amazon ofrecer recomendaciones precisas entre millones de productos y usuarios?
+
+**Tres enfoques**: filtrado colaborativo, basado en contenido, y sistemas híbridos (la combinación de ambos suele ofrecer mejores resultados, equilibrando precisión y diversidad).
+
+**Matrix Factorization y Embeddings**: la técnica central del filtrado colaborativo. Representa las interacciones usuario-ítem en espacios latentes:
+- **SVD** (Singular Value Decomposition): descompone la matriz de interacciones en factores latentes que capturan características implícitas.
+- **ALS** (Alternating Least Squares): optimiza iterativamente la factorización, eficiente para grandes conjuntos de datos.
+
+Estas técnicas generan **embeddings** que permiten predecir la afinidad entre usuarios e ítems no observados. *Ejemplo del PDF*: en Amazon, la matriz usuario-producto es enorme y dispersa; ALS permite factorizarla para descubrir patrones latentes y recomendar productos relevantes.
+
+**Impacto en el negocio**: se mide con **experimentación A/B** (comparar grupos con y sin recomendaciones) y métricas de negocio (ROI, tasa de conversión, valor promedio de pedido).
+
+**Consideraciones de despliegue en tiempo real**: minimizar latencia, actualizar modelos periódicamente, integrar pipelines de scoring batch y streaming.
+
+**Práctica: recomendador de películas con NLP + similitud de coseno** (el código que trae el PDF, pensado para correr en Colab):
+
+```python
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# TF-IDF sobre el texto combinado de géneros + keywords de cada película
+tfidf = TfidfVectorizer(stop_words='english')
+tfidf_matrix = tfidf.fit_transform(movies['combined_features'])
+
+# Similitud de coseno entre todas las películas
+cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+
+def get_recommendations(title, cosine_sim=cosine_sim):
+    if title not in indices:
+        return ["La película no existe en la base de datos."]
+    idx = indices[title]
+    sim_scores = list(enumerate(cosine_sim[idx]))
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    sim_scores = sim_scores[1:11]  # top 10, excluyendo la misma película
+    movie_indices = [i[0] for i in sim_scores]
+    return movies['title'].iloc[movie_indices].tolist()
+```
+
+**Para explicar el mecanismo en el pizarrón**: TF-IDF convierte el texto de cada película (géneros + keywords) en un vector numérico que pesa cada palabra según su importancia; la similitud de coseno mide el ángulo entre dos vectores — cuanto más chico el ángulo, más parecidas son las películas en contenido. No usa historial de usuarios (no es filtrado colaborativo), es **basado en contenido**.
+
+### 3.4 Mazda — Segmentación de Clientes con Clustering
+
+**El problema**: ¿cómo puede una empresa como Mazda entender mejor a sus clientes para ofrecer productos y servicios personalizados? A partir de un conjunto de **más de 30 variables**, se prepara los datos, se seleccionan características relevantes y se aplican algoritmos de clustering para identificar segmentos significativos.
+
+**Conceptos clave**:
+- **Clustering**: agrupamiento de datos sin etiquetas previas, buscando patrones latentes.
+- **K-Means**: particiona los datos en *k* clusters minimizando la varianza intra-cluster.
+- **Gaussian Mixture Models (GMM)**: modelo probabilístico que asume una mezcla de distribuciones gaussianas, permitiendo clusters con formas elípticas (no solo esféricas como K-Means).
+
+*Cita del PDF*: según Aggarwal (2015), el clustering es efectivo para segmentación cuando existen patrones latentes en atributos de clientes, facilitando la personalización y optimización de campañas.
+
+**Feature engineering y preparación**: limpieza (valores faltantes, errores), selección de variables relevantes, y **escalado** (fundamental — herramientas como `pandas` y `numpy` facilitan estas tareas).
+
+**Pipeline de datos para clustering (6 pasos)**:
+1. Ingestión y limpieza de datos
+2. Selección y transformación de features
+3. Escalado y normalización
+4. Aplicación del algoritmo de clustering
+5. Evaluación y validación de clusters
+6. Interpretación y aplicación de resultados
+
+**Evaluación de clusters**: **Inercia** (suma de distancias cuadradas dentro de clusters) y **Silhouette Score** (medida de separación y cohesión) — ayudan a decidir el número óptimo de segmentos y la robustez del modelo.
+
+**Traducir lo técnico a negocio**:
+
+| Métrica Técnica | Indicador de Negocio |
+|---|---|
+| Segmentos definidos y estables | Estrategias de marketing dirigidas y efectivas |
+| Características distintivas | Personalización de ofertas y comunicación |
+
+> **Este es el caso que el notebook de hoy reproduce en vivo**, con datos de natalidad en vez de clientes de Mazda — mismo pipeline de 6 pasos, mismo algoritmo (K-Means), mismas métricas de validación (Inercia + Silhouette). Ver la [sección 7](#7-el-ejercicio-práctico-del-notebook-explicado-en-profundidad) para el desarrollo completo.
 
 ---
 
-### 🔍 Resumen Comparativo
+## Módulo 4 — Supervisado vs. No Supervisado
 
-| Método             | Tipo       | Interacción | Velocidad    | Modelo requerido | Ventaja principal                    |
-| ------------------ | ---------- | ----------- | ------------ | ---------------- | ------------------------------------ |
-| Variance Threshold | Filtro     | ❌ No        | 🚀 Rápido    | ❌ No             | Muy simple y rápido                  |
-| SelectKBest        | Filtro     | ❌ No        | 🚀 Rápido    | ❌ No             | Métricas estadísticas supervisadas   |
-| RFE                | Envolvente | ✅ Sí        | 🐢 Lento     | ✅ Sí             | Preciso si el modelo es adecuado     |
-| Boruta             | Envolvente | ✅ Sí        | 🐌 Muy lento | ✅ Sí             | Robusto frente a ruido y redundancia |
+**Pregunta disparadora**: tenés un enorme conjunto de datos de clientes, pero no sabés qué patrones o grupos existen dentro de ellos. ¿Cómo segmentarlos para campañas personalizadas? ¿O cómo predecir si un cliente comprará, en base a su comportamiento previo? Estas preguntas ilustran los dos grandes enfoques de la ciencia de datos.
 
+### 4.1 Aprendizaje Supervisado
+
+Los modelos aprenden a partir de **datos etiquetados** (pares entrada-salida conocidos), buscando generalizar para predecir la salida correcta en nuevas entradas.
+
+- **Clasificación**: predice una categoría (ej. ¿es spam?).
+- **Regresión**: predice un valor numérico continuo (ej. precio de una vivienda).
+
+| Algoritmo | Descripción breve | Ejemplo de uso en industria |
+|---|---|---|
+| Regresión lineal | Modela la relación lineal entre variables | Predicción de ventas según inversión publicitaria |
+| Random Forest | Conjunto de árboles de decisión | Detección de fraude en transacciones bancarias (San Cristóbal) |
+
+**Supuestos y consideraciones**: requiere datos etiquetados (costoso/difícil de conseguir); el modelo aprende patrones explícitos entre entrada y salida; es fundamental elegir métricas adecuadas (precisión, recall, RMSE, etc.).
+
+**Concepto para reforzar (no viene textual en el PDF, pero es la base de todo lo anterior)**: el objetivo de un modelo supervisado no es memorizar los datos de entrenamiento, sino **generalizar** — funcionar bien con datos nuevos que nunca vio. Cuando un modelo aprende "de memoria" el ruido específico de sus datos de entrenamiento y pierde capacidad de generalizar, se llama **overfitting** (sobreajuste); es la razón por la que en el Módulo 5 se insiste tanto en evaluar siempre con datos separados del entrenamiento (hold-out, K-Fold), y no con las mismas filas que el modelo ya vio.
+
+### 4.2 Aprendizaje No Supervisado
+
+Trabaja con **datos sin etiquetas**, buscando estructuras o patrones ocultos.
+
+- **Clustering**: agrupa datos similares en segmentos (ej. segmentación de clientes — casos Mazda y el ejercicio de hoy).
+- **Reducción de dimensionalidad**: simplifica datos complejos conservando la mayor información posible (ej. PCA).
+
+| Algoritmo | Descripción breve | Ejemplo de uso en industria |
+|---|---|---|
+| K-Means | Agrupa datos en *k* clusters basados en distancia | Segmentación de usuarios en plataformas digitales |
+| PCA | Transforma variables correlacionadas en componentes independientes | Visualización y reducción de variables en análisis financiero |
+
+**Supuestos y consideraciones**: no requiere etiquetas, ideal para exploración; los resultados pueden ser menos interpretables que en supervisado; hay que validar la calidad de los clusters o componentes obtenidos.
+
+### 4.3 Comparación práctica
+
+| Aspecto | Aprendizaje Supervisado | Aprendizaje No Supervisado |
+|---|---|---|
+| Datos | Etiquetados (entrada-salida) | Sin etiquetas |
+| Objetivo | Predecir o clasificar | Encontrar estructura o patrones |
+| Ejemplos de aplicación | Detección de fraude, clasificación de imágenes | Segmentación de clientes, reducción de variables |
+
+> La elección entre supervisado y no supervisado depende del problema, la disponibilidad de datos y el objetivo final.
+
+### 4.4 Aplicaciones combinadas en la industria
+
+En la práctica, los científicos de datos suelen combinar ambos enfoques:
+
+- **Segmentación de clientes**: clustering para identificar grupos, luego modelos supervisados para predecir la respuesta a campañas.
+- **Detección de fraude**: Random Forest para clasificar transacciones, apoyado por análisis no supervisado para descubrir patrones nuevos.
+- **Optimización logística**: reducción de dimensionalidad para simplificar variables y mejorar la eficiencia de modelos predictivos.
+
+---
+
+## Break del Coder
+
+Corte de ~10 minutos, después del Módulo 4 y antes de arrancar el Módulo 5 (Métricas y Validación) — cierra la parte de "qué algoritmo elegir" y abre la parte de "cómo saber si funcionó".
+
+---
+
+## Módulo 5 — Métricas y Estrategias de Validación
+
+**Pregunta disparadora**: trabajás en una empresa de logística que quiere optimizar rutas de entrega usando modelos predictivos. ¿Cómo estar seguro de que el modelo realmente mejora la eficiencia y no solo funciona bien con los datos que ya tenés? La respuesta está en evaluar correctamente el modelo.
+
+### 5.1 Métricas de Clasificación
+
+- **Accuracy**: proporción de predicciones correctas sobre el total. Útil cuando las clases están balanceadas.
+- **Precision**: proporción de verdaderos positivos sobre todos los positivos predichos. Importante cuando el costo de falsos positivos es alto.
+- **Recall (Sensibilidad)**: proporción de verdaderos positivos sobre todos los positivos reales. Clave cuando es crítico detectar todos los casos positivos.
+- **F1-Score**: media armónica entre precision y recall.
+- **AUC-ROC**: área bajo la curva ROC, mide la capacidad de distinguir clases en diferentes umbrales.
+
+*Ejemplo del PDF*: en detección de fraude, un alto recall es vital para no dejar pasar fraudes, aunque se sacrifiquen algunos falsos positivos (conecta directo con San Cristóbal, Módulo 3).
+
+**La base de todas estas métricas (útil tenerla a mano, aunque el PDF no la despliega explícitamente)**: todas salen de comparar la predicción del modelo contra la realidad en una **matriz de confusión** de 2x2:
+
+| | Predicho Positivo | Predicho Negativo |
+|---|---|---|
+| **Real Positivo** | Verdadero Positivo (VP) | Falso Negativo (FN) |
+| **Real Negativo** | Falso Positivo (FP) | Verdadero Negativo (VN) |
+
+De ahí salen las fórmulas: `Precision = VP / (VP + FP)` (de todo lo que dije que era positivo, ¿cuánto acerté?) y `Recall = VP / (VP + FN)` (de todo lo que era positivo en la realidad, ¿cuánto detecté?). Tenerlas escritas así ayuda mucho cuando un alumno pregunta "¿pero por qué no es lo mismo precision que recall?" — la diferencia está en el denominador: uno mira desde las predicciones, el otro desde la realidad.
+
+### 5.2 Métricas de Regresión
+
+- **RMSE** (Root Mean Squared Error): raíz del promedio de los errores al cuadrado, penaliza errores grandes.
+- **MAE** (Mean Absolute Error): promedio de errores absolutos, más robusto a outliers.
+- **R²** (Coeficiente de determinación): proporción de varianza explicada por el modelo.
+
+*Ejemplo del PDF*: para predecir demanda de productos, RMSE ayuda a entender el error típico en unidades vendidas.
+
+### 5.3 Métricas de Clustering
+
+- **Silhouette Score**: mide qué tan bien separado está cada cluster.
+- **Davies-Bouldin Index**: evalúa la separación y compacidad de clusters.
+- **Inercia**: suma de distancias cuadradas dentro de clusters, usada en k-means.
+
+*Ejemplo del PDF*: en segmentación de clientes, un buen silhouette indica grupos bien definidos para campañas personalizadas (conecta con Mazda y con el ejercicio del notebook).
+
+### 5.4 Estrategias de validación
+
+- **Hold-out**: dividir el dataset en entrenamiento y prueba. Rápido pero puede ser inestable si los datos son pocos.
+- **K-Fold**: dividir el dataset en *k* partes; entrenar *k* veces, cada vez con un fold distinto como prueba y el resto para entrenamiento; promediar las métricas. Ventaja: reduce la varianza en la estimación del desempeño.
+- **Time-Split**: para datos secuenciales o series temporales — se respeta el orden temporal, entrenando con datos anteriores y probando con datos posteriores. *Ejemplo del PDF*: en predicción de demanda diaria, no se debe usar datos futuros para entrenar.
+
+### 5.5 Trade-offs en la selección de métricas y validación
+
+- **Complejidad vs. interpretabilidad**: métricas simples como accuracy son fáciles de entender, pero pueden ser engañosas en datasets desbalanceados.
+- **Tiempo de cómputo**: k-fold es más preciso pero consume más recursos.
+- **Naturaleza del problema**: en problemas críticos (fraude, salud), priorizar recall o precisión según el impacto.
+- **Datos disponibles**: en series temporales, usar time-split para evitar fugas de información.
+
+> **Reflexión del PDF**: no existe una métrica o estrategia universal; la elección debe alinearse con el contexto y los objetivos del negocio.
+
+### 5.6 Código de práctica (el que trae el PDF completo)
+
+El PDF incluye un script de práctica de 5 partes que vale la pena mostrar o correr en vivo si hay tiempo:
+
+1. **Clasificación**: `make_classification` + `LogisticRegression` + accuracy/precision/recall/F1/AUC-ROC.
+2. **Regresión**: `make_regression` + `LinearRegression` + MAE/RMSE/R².
+3. **Clustering**: `make_blobs` + `KMeans` + Silhouette/Davies-Bouldin/Inercia + scatter plot.
+4. **K-Fold**: `KFold(n_splits=5, shuffle=True)` sobre el dataset de clasificación, promediando accuracy por fold.
+5. **Time-Split**: `TimeSeriesSplit(n_splits=5)` sobre una serie temporal simulada (`np.sin(...)` + ruido), midiendo MSE por fold.
+
+```python
+# Fragmento representativo (K-Fold)
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+scores = []
+for train_i, test_i in kf.split(Xc):
+    model = LogisticRegression()
+    model.fit(Xc[train_i], yc[train_i])
+    pred = model.predict(Xc[test_i])
+    scores.append(accuracy_score(yc[test_i], pred))
+print("Promedio K-fold:", np.mean(scores))
+```
+
+**Para remarcar en clase**: aunque el ejercicio del día (natalidad + K-Means) solo necesita las métricas de clustering (5.3), es importante que los alumnos vean el panorama completo de las 5 partes — es exactamente el código que van a necesitar apenas trabajen con un problema supervisado.
+
+---
+
+## 7. El ejercicio práctico del notebook, explicado en profundidad
+
+El notebook `Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb` construye, sobre el dataset real **`tasa-natalidad-deis-2000-2024.csv`** (Ministerio de Salud, vía datos.salud.gob.ar), un ejercicio completo de segmentación de provincias argentinas según su evolución de natalidad 2000–2024. Es, en esencia, **el caso Mazda hecho en vivo con datos públicos** en lugar de datos de clientes.
+
+### Bloque 0 — Repaso de la Semana 6: Estadística y Preprocesamiento (10 min)
+
+No es contenido nuevo de Clase 07 — es un repaso deliberado de los 4 pilares de la Clase 6, aplicados sobre el **mismo dataset de natalidad** que se usa en el resto de la clase, para que el repaso quede conectado con la práctica del día y no sea "teoría suelta". Vale la pena dar los 4 con su código en el pizarrón, porque son el cimiento directo del pipeline del Bloque 1.
+
+**1) Limpieza e Integración**
+
+```python
+df_raw = pd.read_csv('tasa-natalidad-deis-2000-2024.csv')
+nulos = df_raw.isnull().sum().sum()
+duplicados = df_raw.duplicated().sum()
+```
+
+A diferencia del dataset de vuelos de la Clase 6 (+220.000 nulos), este dataset del DEIS **llega limpio** (0 nulos, 0 duplicados) — un buen punto para remarcar que "limpiar" no es un paso automático que se corre siempre igual, sino una **decisión**: acá no hace falta imputar nada, pero si hiciera falta, la regla sigue siendo la misma de la Clase 6 (mediana/media para numéricas, moda o etiqueta de negocio explícita para categóricas; `drop_duplicates()` para duplicados exactos).
+
+La parte de **integración** se muestra creando una variable derivada de negocio, `categoria_natalidad`, que agrupa el último año disponible en "Baja", "Media" o "Alta" con `pd.cut()` — el mismo tipo de transformación que en la Clase 6 se hizo con `vuelo_escala`: convertir un número crudo en un segmento interpretable para el negocio.
+
+**2) Medidas de Tendencia Central y Dispersión**
+
+```python
+serie_nacional = df_raw['natalidad_argentina']
+media, mediana, std = serie_nacional.mean(), serie_nacional.median(), serie_nacional.std()
+iqr = serie_nacional.quantile(0.75) - serie_nacional.quantile(0.25)
+```
+
+**El hallazgo para discutir en clase**: la mediana (17.9) resulta *más alta* que la media (16.35) — a primera vista uno esperaría lo contrario si hubiera outliers altos, pero acá la causa es otra: la natalidad viene en **caída sostenida** durante los 25 años de la serie, así que hay más años "altos" (al principio de la serie) que años "bajos" (al final), y eso corre el centro (mediana) por encima del promedio simple. Es un buen ejemplo para instalar la idea de que "media distinta de mediana" no siempre delata outliers — a veces delata una **tendencia**. El IQR de ~3.1 puntos confirma que, aun con esa caída, la dispersión año a año es moderada.
+
+**3) Distribuciones y Correlación**
+
+```python
+sns.histplot(serie_nacional, kde=True, bins=10)  # forma de la serie nacional
+provincias_comparar = df_raw[['natalidad_buenos_aires', 'natalidad_cordoba', 'natalidad_santa_fe']]
+sns.heatmap(provincias_comparar.corr(), annot=True, cmap='coolwarm', vmin=-1, vmax=1)
+```
+
+La correlación entre Buenos Aires y Córdoba da **por encima de 0.95** — altísima. La lectura correcta (y la mejor oportunidad de la clase para remarcar "correlación no implica causalidad"): no es que una provincia le "contagie" la baja natalidad a la otra, sino que **ambas comparten la misma tendencia demográfica nacional**. La causa común (el fenómeno país) es lo que genera la correlación entre las partes — Córdoba no baja su natalidad *porque* baja Buenos Aires.
+
+**4) Transformación y Reducción de Dimensionalidad**
+
+```python
+scaler_demo = StandardScaler()
+columnas_escaladas = scaler_demo.fit_transform(df_raw[['natalidad_buenos_aires', 'natalidad_cordoba']])
+
+pca_demo = PCA(n_components=2)
+pca_demo.fit_transform(StandardScaler().fit_transform(df_raw.drop(columns='indice_tiempo').T))
+```
+
+Acá se demuestra en código lo que va a ser la justificación teórica del Bloque 1: escalar dos columnas cualquiera deja su media en ≈0 y su desvío en ≈1 (comparables entre sí), y aplicar PCA sobre las 25 provincias (25 años = 25 features cada una) comprime esa información en 2 componentes principales conservando **la mayor parte de la varianza original** (el notebook imprime el porcentaje exacto al correrlo — suele rondar el 90%+). La conclusión que cierra el bloque, y que es la bisagra directa hacia el Bloque 1: **escalar es obligatorio antes de PCA o K-Means**, porque ambos algoritmos miden distancias, y sin escalar, una columna con números más grandes "pesaría" más en el resultado solo por su magnitud, no porque sea más relevante para el problema.
+
+### Bloque 1 — Pipeline de Ingesta y Transformación (20 min)
+
+**El problema real**: el DEIS publica un nuevo renglón de datos cada año. Procesar "a mano" con celdas sueltas rompe con cada actualización. La solución es envolver la lógica en una función reutilizable:
+
+```python
+def pipeline_preprocesamiento(path_archivo):
+    """Pipeline reproducible para limpiar y transformar el dataset de natalidad."""
+    df = pd.read_csv(path_archivo)
+    df['indice_tiempo'] = pd.to_datetime(df['indice_tiempo']).dt.year
+    df.set_index('indice_tiempo', inplace=True)
+
+    # Transposición crucial: filas = provincias (instancias), columnas = años (features)
+    df_provincias = df.T
+
+    # Imputación de nulos por media de la provincia
+    df_provincias = df_provincias.fillna(df_provincias.mean())
+
+    # Escalado para algoritmos basados en distancia
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(df_provincias)
+
+    return df_provincias, X_scaled
+```
+
+**El detalle no obvio para explicar bien en el pizarrón**: el CSV original tiene los **años en las filas** y las **provincias en las columnas** — el formato natural para leer una serie de tiempo. Pero para que scikit-learn segmente **provincias** (no años), necesitamos que cada fila sea una provincia y cada columna sea una característica (un año) — de ahí la **transposición (`.T`)**. Es un paso conceptual, no solo técnico: cambia qué es "una instancia" para el algoritmo.
+
+Esto implementa en código las etapas 1-3 del Módulo 1 (ingestión, limpieza, feature engineering vía transposición + escalado). Conceptualmente, el pipeline reproducible completo también incluiría gestión de artefactos, control de versiones, entornos fijados y despliegue mínimo — el notebook lo menciona explícitamente en su celda de teoría, aunque no lo implemente hoy.
+
+### Bloque 2 — Supervisado vs. No Supervisado + K-Means (20 min)
+
+**El razonamiento de negocio**: el Ministerio de Salud no tiene etiquetas de "provincia con natalidad decreciente" — nadie las definió de antemano. Por eso es un problema **no supervisado**: se busca que el algoritmo encuentre esos perfiles por sí solo.
+
+```python
+kmeans_prueba = KMeans(n_clusters=3, random_state=42, n_init=10)
+clusters_prueba = kmeans_prueba.fit_predict(X)
+```
+
+**K-Means en una frase para el pizarrón**: el algoritmo ubica *k* centros geométricos (centroides) y asigna cada provincia al centroide más cercano por distancia euclidiana, iterando hasta que las asignaciones se estabilizan. `random_state=42` fija la semilla aleatoria para que el resultado sea reproducible entre corridas — otro gancho directo al Módulo 1.
+
+Este bloque es, en la práctica, una implementación completa del **caso Mazda** (Módulo 3.4): mismo algoritmo, mismo tipo de problema (segmentación sin etiquetas), aplicado a un dominio distinto.
+
+### Bloque 3 — Métricas y Estrategias de Validación (20 min)
+
+**El dilema a plantear en clase**: elegimos K=3 "porque sí" en el bloque anterior. ¿Cómo justificarlo matemáticamente? Acá no sirven accuracy/precision (no hay etiquetas verdaderas) — se necesitan métricas específicas de clustering:
+
+```python
+inercias, siluetas = [], []
+for k in range(2, 7):
+    km = KMeans(n_clusters=k, random_state=42, n_init=10)
+    labels = km.fit_predict(X)
+    inercias.append(km.inertia_)
+    siluetas.append(silhouette_score(X, labels))
+```
+
+- **Método del codo (inercia)**: a más clusters, la inercia siempre baja — se busca el punto donde agregar un cluster más deja de aportar una mejora significativa (el "codo" del gráfico).
+- **Silhouette Score**: para cada K probado, mide qué tan bien separados y cohesionados quedan los grupos (rango -1 a 1, más alto es mejor).
+
+Corresponde directamente al Módulo 5.3 (métricas de clustering) de esta guía. La celda de teoría agregada en el notebook también tiende el puente hacia las métricas de clasificación/regresión y las estrategias hold-out/K-Fold/Time-Split (Módulo 5 completo), aclarando que hoy no hacen falta porque el problema es no supervisado, pero van a ser necesarias en cuanto el proyecto pase a predecir un valor.
+
+### Bloque 4 — Casos de Estudio y "Recomendaciones" (15 min)
+
+**El cierre "Analytics to Action"**: un cluster por sí solo no genera valor de negocio — hay que interpretarlo y traducirlo en una acción.
+
+```python
+def sistema_recomendacion_politica(cluster_id):
+    if cluster_id == 0:
+        return "Alerta Demográfica: Reorientar presupuesto a salud de adultos mayores."
+    elif cluster_id == 1:
+        return "Prioridad Alta: Planificar construcción de nuevos jardines y escuelas primarias."
+    else:
+        return "Estable: Mantener subsidios existentes y monitorear tasas de control prenatal."
+
+df_provincias['Accion_Recomendada'] = df_provincias['cluster_final'].apply(sistema_recomendacion_politica)
+```
+
+**El paralelo a remarcar con los 4 casos del Módulo 3**: esta función es el mismo patrón de cierre que Mazda (cluster → estrategia de marketing), Medplaya (predicción → overbooking), San Cristóbal (predicción → investigación) y Amazon (similitud → recomendación al usuario). En los cuatro casos —y en este ejercicio— **el modelo nunca es el final del pipeline**: el valor aparece cuando el resultado técnico se traduce en una decisión accionable.
+
+**Para leer el resultado con la clase**: la tabla `perfil_clusters` (promedio de natalidad en 2000, 2012 y 2024 por cluster) permite nombrar cada grupo con criterio propio antes de mostrar las recomendaciones — es un buen momento para pedirle a los alumnos que interpreten los tres clusters *antes* de revelar las etiquetas que puso la función.
+
+---
+
+## Preguntas frecuentes y errores típicos a anticipar
+
+- **"¿Por qué transponemos el DataFrame en el pipeline?"** → porque necesitamos que las provincias sean las filas (instancias) y los años las columnas (features) para que K-Means las segmente correctamente. Ver Bloque 1.
+- **"¿Por qué hay que escalar antes de K-Means?"** → porque el algoritmo mide distancias euclidianas; sin escalar, una columna con valores más grandes domina el resultado solo por su magnitud, no por su relevancia real (Módulo 3.4 / Bloque 0-1).
+- **"¿Por qué no usamos accuracy para evaluar los clusters?"** → porque no hay etiquetas verdaderas contra las cuales comparar; accuracy es una métrica de clasificación supervisada. Se usan Inercia y Silhouette Score en su lugar (Módulo 5.3 / Bloque 3).
+- **"¿Cuándo usar oversampling y cuándo undersampling?"** → depende de cuántos datos hay disponibles: con pocos datos de la clase minoritaria conviene oversampling (SMOTE); con abundancia de datos de la clase mayoritaria, undersampling puede ser más eficiente sin perder información relevante (Módulo 3.1, San Cristóbal).
+- **"¿Por qué el recall importa más que la precisión en fraude/cancelaciones?"** → porque el costo de no detectar un caso positivo real (un fraude que pasa, una cancelación no anticipada) suele ser mayor que el costo de una falsa alarma (Módulo 3.1 y 3.2).
+- **"¿Por qué no se puede usar K-Fold normal en series temporales?"** → porque mezclaría datos del futuro en el entrenamiento (data leakage); hace falta Time-Split, que respeta el orden cronológico (Módulo 5.4).
+
+---
+
+## Material de la clase
+
+| Archivo | Qué es |
+|---|---|
+| `Clase 07.pdf` | Material teórico oficial de la unidad (fuente original de esta guía). |
+| `Semana 7.html` | Diapositivas para proyectar en clase (44 filminas). Navegación con flechas del teclado o los botones inferiores. |
+| `Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb` | Notebook con el ejercicio práctico completo (repaso + pipeline + K-Means + validación + recomendaciones) sobre datos reales de natalidad. |
+| `tasa-natalidad-deis-2000-2024.csv` | Dataset real usado en el notebook (Ministerio de Salud, DEIS). |
+| `material/` | Carpeta con recursos adicionales: teoría de aprendizaje supervisado/no supervisado, paso a paso, PPTs, notebooks de referencia adicionales. |
+
+**Cómo usar esta guía durante la clase**: los Módulos 1 a 5 siguen el mismo orden que las diapositivas; la sección 7 sigue el orden del notebook. Podés alternar entre proyectar la filmina/notebook correspondiente y volver acá si necesitás un dato de contexto, una analogía o una pregunta frecuente para anticipar.
