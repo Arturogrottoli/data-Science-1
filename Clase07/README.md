@@ -30,13 +30,14 @@ A diferencia del PDF/HTML (que explican los 4 casos de éxito con nombre propio 
 
 | # | Módulo | Slides | Idea central |
 |---|--------|--------|---------------|
+| 0 | **Repaso Clase 6** (Bloque 0 del notebook) | — (no está en el PDF/HTML) | Los 4 pilares de estadística/preprocesamiento, repasados sobre el dataset de hoy antes de empezar |
 | 1 | Principios de Diseño de Pipelines Reproducibles | 03–08 | Un pipeline que cualquiera pueda replicar y auditar |
 | 2 | Casos de Estudio: Segmentación y Recomendaciones | 09–13 | Dos aplicaciones clave de ML en la industria (teoría general) |
 | 3 | Casos de Éxito: ML en Acción | 14–29 | 4 casos reales con nombre propio: San Cristóbal, Medplaya, Amazon, Mazda |
 | 4 | Supervisado vs. No Supervisado | 30–34 | Cuándo usar cada enfoque |
 | — | **Break del Coder** | 35 | Corte de ~10 minutos |
 | 5 | Métricas y Estrategias de Validación | 36–42 | Cómo saber si un modelo es realmente bueno |
-| — | **Ejercicio práctico (notebook)** | — | Pipeline + K-Means sobre natalidad real — aplica los módulos 1, 4 y 5 |
+| — | **Ejercicio práctico (notebook)** | — | Bloque 0 + Pipeline + K-Means sobre natalidad real — aplica los módulos 1, 4 y 5 |
 
 > **Nota sobre el notebook**: arranca con un **Bloque 0 (Repaso de Clase 6)** que no pertenece a esta unidad — es intencional y está bien dejarlo, sirve de entrada en calor. El resto (Bloques 1 a 4) corre en paralelo a los Módulos 1, 4 y 5 de esta guía, pero **no cubre el Módulo 2 ni el Módulo 3** (segmentación/recomendación teórica ni los 4 casos de éxito con nombre propio) — el notebook ya tiene, en su Bloque 1 y Bloque 2, celdas de teoría agregadas que tienden puentes explícitos hacia esos casos para que la clase quede conectada aunque no se repliquen en código.
 
