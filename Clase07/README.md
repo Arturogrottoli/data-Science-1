@@ -72,7 +72,7 @@ Según el propio material, al cerrar esta unidad el alumno debería poder:
 
 ### La conexión con el repaso del notebook
 
-El notebook no abre directamente con este diagrama: primero hace un repaso de 10 minutos de la Clase 6 (detallado en la [sección 7, Bloque 0](#bloque-0--repaso-de-la-semana-6-estadística-y-preprocesamiento-10-min)), porque los cuatro pilares de esa clase anterior (limpieza, estadística descriptiva, distribuciones/correlación, transformación/reducción) son insumo directo de las etapas 2 y 3 del pipeline de hoy (Procesamiento/EDA y Feature Engineering). Es una forma de que el repaso no quede "suelto": se siente como el cimiento sobre el que se construye el pipeline reproducible del Bloque 1.
+El notebook no abre directamente con este diagrama: primero hace un ejemplito de 10 minutos que repasa 4 conceptos de la clase pasada (detallado en la [sección 7, Bloque 0](#bloque-0--un-ejemplito-para-repasar-4-conceptos-de-la-semana-6)), porque esos cuatro pilares (limpieza, estadística descriptiva, distribuciones/correlación, transformación/reducción) son insumo directo de las etapas 2 y 3 del pipeline de hoy (Procesamiento/EDA y Feature Engineering). Es una forma de que el repaso no quede "suelto": se siente como el cimiento sobre el que se construye el pipeline reproducible del Bloque 1.
 
 ---
 
@@ -451,11 +451,11 @@ print("Promedio K-fold:", np.mean(scores))
 
 El notebook `Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb` construye, sobre el dataset real **`tasa-natalidad-deis-2000-2024.csv`** (Ministerio de Salud, vía datos.salud.gob.ar), un ejercicio completo de segmentación de provincias argentinas según su evolución de natalidad 2000–2024. Es, en esencia, **el caso Mazda hecho en vivo con datos públicos** en lugar de datos de clientes.
 
-### Bloque 0 — Repaso de la Semana 6: Estadística y Preprocesamiento (10 min)
+### Bloque 0 — Un Ejemplito para Repasar 4 Conceptos de la Semana 6
 
-No es contenido nuevo de Clase 07 — es un repaso deliberado de los 4 pilares de la Clase 6, aplicados sobre el **mismo dataset de natalidad** que se usa en el resto de la clase, para que el repaso quede conectado con la práctica del día y no sea "teoría suelta". Vale la pena dar los 4 con su código en el pizarrón, porque son el cimiento directo del pipeline del Bloque 1.
+No es contenido nuevo de Clase 07: es un **ejemplito rápido** —aplicado sobre el mismo dataset de natalidad que se usa en el resto de la clase— para repasar de forma ágil 4 conceptos de estadística y preprocesamiento vistos la clase pasada. La idea no es volver a dar la teoría completa (eso ya se vio), sino refrescarla en 10 minutos con código concreto, porque el pipeline del Bloque 1 usa los cuatro conceptos sin excepción. A continuación, cada uno bien desarrollado.
 
-**1) Limpieza e Integración**
+#### 1) Limpieza e Integración
 
 ```python
 df_raw = pd.read_csv('tasa-natalidad-deis-2000-2024.csv')
@@ -463,11 +463,26 @@ nulos = df_raw.isnull().sum().sum()
 duplicados = df_raw.duplicated().sum()
 ```
 
-A diferencia del dataset de vuelos de la Clase 6 (+220.000 nulos), este dataset del DEIS **llega limpio** (0 nulos, 0 duplicados) — un buen punto para remarcar que "limpiar" no es un paso automático que se corre siempre igual, sino una **decisión**: acá no hace falta imputar nada, pero si hiciera falta, la regla sigue siendo la misma de la Clase 6 (mediana/media para numéricas, moda o etiqueta de negocio explícita para categóricas; `drop_duplicates()` para duplicados exactos).
+**Qué es "limpiar" un dataset, en profundidad**: ningún dataset real llega listo para analizar. Limpiar es la etapa donde se toman **decisiones** sobre dos problemas típicos:
 
-La parte de **integración** se muestra creando una variable derivada de negocio, `categoria_natalidad`, que agrupa el último año disponible en "Baja", "Media" o "Alta" con `pd.cut()` — el mismo tipo de transformación que en la Clase 6 se hizo con `vuelo_escala`: convertir un número crudo en un segmento interpretable para el negocio.
+- **Valores nulos (`NaN`)**: pueden aparecer por errores de carga, por integraciones entre fuentes distintas, o porque el campo simplemente no aplica a ese registro (lo cual no es un error, es información). Las estrategias más comunes son: **eliminar** la fila/columna (solo si son pocos casos y no introducen sesgo), **imputar** con la media o la mediana si la variable es numérica (la mediana es preferible si hay outliers, porque no se deja arrastrar por ellos), o con la **moda** o una **etiqueta de negocio explícita** (ej. `"No aplica"`) si la variable es categórica.
+- **Filas duplicadas**: registros exactamente repetidos, que se eliminan con `.drop_duplicates()` porque inflarían artificialmente cualquier estadística o conteo.
 
-**2) Medidas de Tendencia Central y Dispersión**
+En este dataset del DEIS puntual, la salida del código da **0 nulos y 0 duplicados** — llega limpio. Es un buen punto para remarcar en clase que "limpiar" **no es un paso que se corre siempre igual**: acá el resultado es "no hace falta hacer nada", y eso también es una conclusión válida del diagnóstico, no una excepción a la regla.
+
+**Qué es "integrar", en profundidad**: integrar es combinar información de distintas fuentes o **derivar columnas nuevas** a partir de las existentes, para que un dato crudo se convierta en información accionable para quien toma decisiones. En el notebook, esto se ve creando la variable `categoria_natalidad`:
+
+```python
+natalidad_2024['categoria_natalidad'] = pd.cut(
+    natalidad_2024['natalidad_2024'],
+    bins=[0, 8.4, 9.7, np.inf],
+    labels=['Baja', 'Media', 'Alta']
+)
+```
+
+`pd.cut()` toma una variable numérica continua (la tasa de natalidad 2024 de cada provincia) y la convierte en una variable **categórica ordinal** según los cortes (`bins`) definidos: entre 0 y 8.4 es "Baja", entre 8.4 y 9.7 es "Media", y por encima de 9.7 es "Alta". El resultado es mucho más fácil de comunicar a alguien que no analiza datos todos los días que la cifra decimal cruda — esa es, en esencia, la utilidad de integrar/derivar variables.
+
+#### 2) Medidas de Tendencia Central y Dispersión
 
 ```python
 serie_nacional = df_raw['natalidad_argentina']
@@ -475,9 +490,22 @@ media, mediana, std = serie_nacional.mean(), serie_nacional.median(), serie_naci
 iqr = serie_nacional.quantile(0.75) - serie_nacional.quantile(0.25)
 ```
 
-**El hallazgo para discutir en clase**: la mediana (17.9) resulta *más alta* que la media (16.35) — a primera vista uno esperaría lo contrario si hubiera outliers altos, pero acá la causa es otra: la natalidad viene en **caída sostenida** durante los 25 años de la serie, así que hay más años "altos" (al principio de la serie) que años "bajos" (al final), y eso corre el centro (mediana) por encima del promedio simple. Es un buen ejemplo para instalar la idea de que "media distinta de mediana" no siempre delata outliers — a veces delata una **tendencia**. El IQR de ~3.1 puntos confirma que, aun con esa caída, la dispersión año a año es moderada.
+**Tendencia central, en profundidad** — responde "¿dónde está el centro de los datos?":
 
-**3) Distribuciones y Correlación**
+- **Media**: la suma de todos los valores dividida la cantidad de valores. Es sensible a valores extremos: un solo dato muy alto o muy bajo puede "arrastrarla" en esa dirección.
+- **Mediana**: el valor que queda justo en el medio cuando se ordenan todos los datos (deja 50% a cada lado). No le importa cuán extremos sean los valores de los bordes, solo su posición — por eso es **robusta** frente a outliers.
+- **Moda**: el valor que más se repite. Es la única de las tres que también sirve para variables categóricas.
+
+**Regla práctica para dar en clase**: si media y mediana son parecidas, la distribución es razonablemente simétrica. Si difieren mucho, hay dos explicaciones posibles: **outliers** (unos pocos valores extremos que "tiran" de la media) o **asimetría/tendencia** en los datos (más valores concentrados de un lado que del otro).
+
+**Dispersión, en profundidad** — responde "¿qué tan esparcidos están los datos respecto al centro?":
+
+- **Desvío estándar**: en promedio, cuánto se aleja cada dato de la media. Un desvío bajo indica datos concentrados; uno alto, datos muy variados.
+- **IQR (rango intercuartílico)** = Q3 − Q1: el ancho del 50% central de los datos (entre el percentil 25 y el percentil 75). Es más robusto que el desvío estándar porque ignora directamente los valores extremos de los bordes.
+
+**El caso concreto para trabajar en el pizarrón**: acá la mediana (17.9) resulta *más alta* que la media (16.35). A primera vista uno esperaría lo contrario si hubiera outliers altos empujando la media hacia arriba, pero la causa real es otra: la natalidad viene en **caída sostenida** durante los 25 años de la serie, así que hay más años "altos" (al principio de la serie) que años "bajos" (al final), y eso corre el centro (mediana) por encima del promedio simple. Es el ejemplo perfecto para instalar la idea de que "media distinta de mediana" no siempre delata outliers: a veces delata una **tendencia** en el tiempo. El IQR de ~3.1 puntos confirma que, aun con esa caída, la dispersión año a año es moderada (no hay saltos bruscos).
+
+#### 3) Distribuciones y Correlación
 
 ```python
 sns.histplot(serie_nacional, kde=True, bins=10)  # forma de la serie nacional
@@ -485,9 +513,23 @@ provincias_comparar = df_raw[['natalidad_buenos_aires', 'natalidad_cordoba', 'na
 sns.heatmap(provincias_comparar.corr(), annot=True, cmap='coolwarm', vmin=-1, vmax=1)
 ```
 
-La correlación entre Buenos Aires y Córdoba da **por encima de 0.95** — altísima. La lectura correcta (y la mejor oportunidad de la clase para remarcar "correlación no implica causalidad"): no es que una provincia le "contagie" la baja natalidad a la otra, sino que **ambas comparten la misma tendencia demográfica nacional**. La causa común (el fenómeno país) es lo que genera la correlación entre las partes — Córdoba no baja su natalidad *porque* baja Buenos Aires.
+**Distribución, en profundidad**: es la "silueta" que toman los datos cuando se grafican en un histograma — cuántas observaciones caen en cada rango de valores. Puede ser:
 
-**4) Transformación y Reducción de Dimensionalidad**
+- **Simétrica** (tipo campana o Normal): los valores se reparten parejo a ambos lados del centro.
+- **Sesgada a la derecha**: una "cola" larga de valores altos poco frecuentes (típico en ingresos, precios).
+- **Sesgada a la izquierda**: una "cola" larga de valores bajos poco frecuentes.
+
+El coeficiente de **asimetría (skew)** cuantifica esto: cerca de 0 es simétrica, positivo es sesgo a la derecha, negativo es sesgo a la izquierda.
+
+**Correlación, en profundidad**: el coeficiente de correlación de Pearson mide qué tan asociadas están **linealmente** dos variables numéricas, en una escala de -1 a 1:
+
+- **Cerca de 1**: cuando una sube, la otra también sube (relación positiva fuerte).
+- **Cerca de -1**: cuando una sube, la otra baja (relación negativa fuerte).
+- **Cerca de 0**: no hay relación lineal detectable entre ambas.
+
+**El caso concreto para trabajar en el pizarrón**: la correlación entre Buenos Aires y Córdoba da **por encima de 0.95** — altísima. Acá está la mejor oportunidad de la clase para instalar con fuerza el principio de que **correlación no implica causalidad**: no es que una provincia le "contagie" la baja natalidad a la otra. Lo que ocurre es que **ambas comparten la misma tendencia demográfica nacional** — hay una tercera variable de fondo (el fenómeno país, que afecta a todas las provincias por igual) explicando el movimiento conjunto de las dos. Córdoba no baja su natalidad *porque* baja Buenos Aires; ambas bajan por la misma causa compartida. Es el mismo tipo de trampa que el clásico ejemplo de "las ventas de helado y los ahogamientos están correlacionados" (ambas suben en verano por el calor, no porque una cause la otra).
+
+#### 4) Transformación y Reducción de Dimensionalidad
 
 ```python
 scaler_demo = StandardScaler()
@@ -497,7 +539,14 @@ pca_demo = PCA(n_components=2)
 pca_demo.fit_transform(StandardScaler().fit_transform(df_raw.drop(columns='indice_tiempo').T))
 ```
 
-Acá se demuestra en código lo que va a ser la justificación teórica del Bloque 1: escalar dos columnas cualquiera deja su media en ≈0 y su desvío en ≈1 (comparables entre sí), y aplicar PCA sobre las 25 provincias (25 años = 25 features cada una) comprime esa información en 2 componentes principales conservando **la mayor parte de la varianza original** (el notebook imprime el porcentaje exacto al correrlo — suele rondar el 90%+). La conclusión que cierra el bloque, y que es la bisagra directa hacia el Bloque 1: **escalar es obligatorio antes de PCA o K-Means**, porque ambos algoritmos miden distancias, y sin escalar, una columna con números más grandes "pesaría" más en el resultado solo por su magnitud, no porque sea más relevante para el problema.
+**Transformación, en profundidad**: para que un algoritmo matemático pueda procesar los datos, muchas veces hace falta prepararlos primero:
+
+- **Codificación de texto a número**: `LabelEncoder` (asigna un número entero a cada categoría, útil cuando hay un orden implícito) o **one-hot encoding** (crea una columna binaria por categoría, preferible cuando no hay orden, para no inventarle una jerarquía artificial a los datos).
+- **Escalado con `StandardScaler`**: transforma cada columna para que tenga media ≈0 y desvío ≈1 (lo que se conoce como *z-score*). Es indispensable para algoritmos que miden **distancias** entre puntos (como K-Means, que se usa más adelante en la clase): si una columna tiene valores entre 0 y 100.000 y otra entre 0 y 1, la primera va a dominar completamente el cálculo de distancia solo por su magnitud numérica, sin que eso refleje ninguna importancia real de esa variable.
+
+**Reducción de dimensionalidad con PCA, en profundidad**: cuando hay muchas columnas (en este caso, 25 años = 25 features por provincia), **PCA** (Análisis de Componentes Principales) las combina matemáticamente en un número mucho menor de "componentes principales" que conservan la mayor parte posible de la variabilidad (información) original. En el ejemplo del notebook, comprimir 25 años en solo 2 componentes principales conserva **la mayor parte de la varianza original** (el notebook imprime el porcentaje exacto al correrlo — suele rondar el 90% o más), lo que permite, por ejemplo, graficar en un plano 2D algo que originalmente tenía 25 dimensiones, sin perder la estructura esencial de los datos.
+
+**La conclusión que cierra el bloque, y que es la bisagra directa hacia el Bloque 1**: **escalar es obligatorio antes de PCA o K-Means**, porque ambos algoritmos miden distancias, y sin escalar, una columna con números más grandes "pesaría" más en el resultado solo por su magnitud, no porque sea más relevante para el problema.
 
 ### Bloque 1 — Pipeline de Ingesta y Transformación (20 min)
 
