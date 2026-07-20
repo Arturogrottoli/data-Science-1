@@ -8,6 +8,9 @@ Esta guía es el **libreto de apoyo para dictar la Clase 07**. Reúne, en un sol
 
 A diferencia del PDF/HTML (que explican los 4 casos de éxito con nombre propio — San Cristóbal, Medplaya, Amazon, Mazda), el notebook **no los replica en código**: es un quinto ejercicio, autocontenido y con datos reales, que aplica exactamente la misma lógica de fondo (pipeline → modelo no supervisado → validación → traducción a una recomendación de negocio) que el caso **Mazda**. Este documento explica ambas cosas por separado y después las conecta.
 
+> 📊 **Fuente del dataset**: todo el ejercicio práctico de hoy (repaso, pipeline, K-Means, validación y recomendaciones) se hace sobre un único dataset real, `tasa-natalidad-deis-2000-2024.csv`, publicado por el DEIS (Dirección de Estadísticas e Información de Salud) del Ministerio de Salud de la Nación:
+> `https://datos.salud.gob.ar/dataset/tasa-de-natalidad/archivo/0f68d5c6-e667-40ca-90fd-4784336e092e`
+
 ---
 
 ## Bloque 0 — Un Ejemplito para Repasar 4 Conceptos de la Semana 6
@@ -111,6 +114,8 @@ skew = serie_nacional.skew()
 corr_ba_cba = matriz_corr.loc['natalidad_buenos_aires', 'natalidad_cordoba']
 ```
 
+**¿Qué es Seaborn?** Es una librería de visualización de Python (se importa como `sns`, por *Samuel Norman Seaborn*, un personaje de la serie *The West Wing*) construida **encima** de Matplotlib (el `plt` que aparece en el resto del código). La diferencia práctica: con Matplotlib "puro" armar un histograma con curva de densidad o un mapa de calor de correlaciones lleva bastantes líneas de código; con Seaborn, `sns.histplot(...)` o `sns.heatmap(...)` lo hacen en una sola línea, con muy buena estética por defecto y pensado específicamente para trabajar directo con DataFrames de pandas. Por eso en este bloque se ven las dos librerías combinadas: Seaborn dibuja los gráficos estadísticos (`histplot`, `heatmap`) y Matplotlib (`plt`) se usa para lo genérico alrededor —el tamaño del lienzo, los títulos, las líneas verticales, mostrar la figura final—.
+
 **Paso a paso**:
 
 1. `plt.figure(figsize=(12, 4))` crea un lienzo ancho (12 pulgadas de ancho por 4 de alto) para poner dos gráficos lado a lado en vez de uno debajo del otro.
@@ -133,6 +138,9 @@ corr_ba_cba = matriz_corr.loc['natalidad_buenos_aires', 'natalidad_cordoba']
 **En una línea**: hay que escalar las variables numéricas y, si son muchas, comprimirlas con PCA, porque los algoritmos basados en distancia (como K-Means) son sensibles a la magnitud de cada columna.
 
 ```python
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
 columnas_ejemplo = df_raw[['natalidad_buenos_aires', 'natalidad_cordoba']]
 scaler_demo = StandardScaler()
 columnas_escaladas = scaler_demo.fit_transform(columnas_ejemplo)
@@ -143,6 +151,13 @@ pca_demo = PCA(n_components=2)
 pca_demo.fit_transform(X_scaled_demo)
 varianza_total = pca_demo.explained_variance_ratio_.sum() * 100
 ```
+
+**¿Qué son esas dos líneas de `import`?** `scikit-learn` (el paquete que en código se importa como `sklearn`) es la librería estándar de Python para Machine Learning "clásico" — la que se va a usar en todo el resto de la clase (K-Means, métricas de validación, etc.). Está organizada en submódulos temáticos, y estas dos líneas traen herramientas de dos de ellos:
+
+- `from sklearn.preprocessing import StandardScaler`: el submódulo `preprocessing` agrupa herramientas para **preparar** los datos antes de modelarlos (escalado, codificación de categorías, etc.). `StandardScaler` es específicamente la clase que aplica el z-score que se explica más abajo.
+- `from sklearn.decomposition import PCA`: el submódulo `decomposition` agrupa técnicas que **descomponen** una matriz de datos en partes más simples. `PCA` es la clase que implementa el Análisis de Componentes Principales.
+
+El patrón `from paquete.submódulo import Clase` es el mismo que se va a repetir todo el día con scikit-learn (por ejemplo, más adelante aparece `from sklearn.cluster import KMeans`) — conviene que quede instalada esa lectura desde acá: primero el paquete grande (`sklearn`), después el área específica dentro de él (`preprocessing`, `decomposition`, `cluster`...), y por último la herramienta puntual que se necesita.
 
 **Paso a paso**:
 
@@ -156,7 +171,20 @@ varianza_total = pca_demo.explained_variance_ratio_.sum() * 100
 
 **Para profundizar**: cuando hay que convertir texto a número existen dos caminos: `LabelEncoder` (asigna un número entero a cada categoría, útil cuando hay un orden implícito, como "Bajo/Medio/Alto") o **one-hot encoding** (crea una columna binaria por categoría, preferible cuando no hay orden, para no inventarle una jerarquía artificial a los datos — por ejemplo, entre provincias no tendría sentido que "Chaco" valga menos que "Córdoba" solo por el orden alfabético). El **escalado** es indispensable para algoritmos que miden distancias (K-Means, PCA, KNN): si una columna tiene valores entre 0 y 100.000 y otra entre 0 y 1, la primera va a dominar completamente el cálculo de distancia solo por su magnitud numérica, sin que eso refleje ninguna importancia real de esa variable. Vale aclarar, para no generalizar de más: no **todos** los algoritmos necesitan escalado — los basados en árboles (como Random Forest) son indiferentes a la escala, porque solo comparan si un valor es mayor o menor que un umbral, no la distancia entre puntos. **PCA**, conceptualmente, combina matemáticamente muchas columnas correlacionadas en un número mucho menor de "componentes principales" (nuevas variables, sin significado directo pero que resumen a las originales) que conservan la mayor parte posible de la variabilidad original.
 
-**La conclusión que cierra el bloque, y que es la bisagra directa hacia el Bloque 1**: **escalar es obligatorio antes de PCA o K-Means**, porque ambos algoritmos miden distancias, y sin escalar, una columna con números más grandes "pesaría" más en el resultado solo por su magnitud, no porque sea más relevante para el problema.
+**La conclusión que cierra el punto 4**: **escalar es obligatorio antes de PCA o K-Means**, porque ambos algoritmos miden distancias, y sin escalar, una columna con números más grandes "pesaría" más en el resultado solo por su magnitud, no porque sea más relevante para el problema.
+
+### Conclusión del repaso: los 4 puntos como un solo checklist
+
+Antes de pasar a pipelines, vale la pena bajar los 4 conceptos a una sola idea, porque en la práctica no se usan por separado: son las **4 preguntas que cualquier dataset real necesita responder antes de tocar un algoritmo**.
+
+| # | Concepto | La pregunta que responde | Qué pasa si te lo saltás |
+|---|---|---|---|
+| 1 | Limpieza e Integración | ¿Los datos están completos y son confiables? | El modelo aprende de basura sin que nadie se dé cuenta ("garbage in, garbage out"). |
+| 2 | Tendencia Central y Dispersión | ¿Dónde está el centro y qué tan esparcidos están los datos? | Se pasan por alto outliers o tendencias que después explican (o rompen) el resultado del modelo. |
+| 3 | Distribuciones y Correlación | ¿Cómo se relacionan las variables entre sí? | Se arrastran variables redundantes, o se confunde correlación con causalidad al interpretar resultados. |
+| 4 | Transformación y Reducción | ¿Los datos están en un formato que el algoritmo pueda procesar bien? | Algoritmos basados en distancia (K-Means, PCA) dan resultados sesgados por la escala, no por el contenido real de los datos. |
+
+Estos cuatro pasos son, ni más ni menos, las etapas de **ingesta, EDA y feature engineering** de cualquier pipeline — la diferencia es que hoy se hicieron "a mano", en celdas sueltas, sobre un ejemplo chico y ya limpio. Lo que viene ahora en el **Bloque 1** es exactamente ese mismo trabajo, pero empaquetado en una función reutilizable (`pipeline_preprocesamiento()`) para que se pueda correr una y otra vez, con cualquier archivo nuevo, sin repetir el proceso a mano cada vez. Con el repaso fresco, ahora sí: manos a la obra con pipelines.
 
 ---
 
@@ -229,9 +257,45 @@ El notebook no abre directamente con este diagrama: primero hace un ejemplito de
 
 ## Módulo 1 — Principios de Diseño de Pipelines Reproducibles
 
-**Pregunta disparadora para abrir la clase**: imaginá que desarrollaste un modelo predictivo que mejora significativamente la toma de decisiones en tu empresa. Un colega intenta replicar tu trabajo... y los resultados no coinciden. ¿Qué salió mal? La reproducibilidad es lo que separa un experimento de laboratorio de un proyecto de ciencia de datos confiable y escalable en la industria.
+### 🗺️ Mapa de filminas de este módulo
 
-### 1.0 ¿Qué es un "pipeline"? El concepto, antes de la definición técnica
+Cada fila es una diapositiva (el número es el que ves en el pie de página, ej. `03 / 43`), en el mismo orden en que van pasando. Hacé clic para saltar directo a su explicación extendida.
+
+| Filmina | Título en la diapositiva | Explicación extendida acá |
+|---|---|---|
+| Slide 02/43 | *(Divisor)* Principios de Diseño de Pipelines Reproducibles | [Intro del módulo](#filmina-02) |
+| Slide 03/43 | ¿Qué Hace Reproducible un Pipeline? | [→ Ir a la explicación](#filmina-03) |
+| Slide 04/43 | Pipeline End-to-End: Las Etapas | [→ Ir a la explicación](#filmina-04) |
+| Slide 05/43 | Componentes Clave para la Reproducibilidad | [→ Ir a la explicación](#filmina-05) |
+| Slide 06/43 | Prácticas para Despliegue Mínimo y Compartición | [→ Ir a la explicación](#filmina-06) |
+| Slide 07/43 | Reproducibilidad en la Industria | [→ Ir a la explicación](#filmina-07) |
+
+> Una sección de acá abajo (**1.0**) es **contenido extra que no está en ninguna filmina** — profundiza qué significa la palabra "pipeline" antes de entrar en la teoría técnica. Queda marcada como tal para que no la confundas con una diapositiva que no encontrás. El código real del pipeline (Bloque 1 del notebook) se explica más abajo, en la [sección 7](#7-el-ejercicio-práctico-del-notebook-explicado-en-profundidad), **después** de repasar toda la teoría de los 5 módulos — primero las filminas, después el ejemplo.
+
+<a id="filmina-02"></a>
+
+#### Pregunta disparadora para abrir la clase (Módulo 1)
+
+Imaginá que desarrollaste un modelo predictivo que mejora significativamente la toma de decisiones en tu empresa. Un colega intenta replicar tu trabajo... y los resultados no coinciden. ¿Qué salió mal? La reproducibilidad es lo que separa un experimento de laboratorio de un proyecto de ciencia de datos confiable y escalable en la industria.
+
+<a id="filmina-03"></a>
+
+### 0.1 Por qué "reproducibilidad" merece un módulo entero (Slide 03/43 — "¿Qué Hace Reproducible un Pipeline?")
+
+La diapositiva lo resume en dos líneas —el problema real y la meta— pero vale la pena desarrollar cada una antes de proyectarla, porque es la idea que sostiene el resto de la clase.
+
+**El problema real, en detalle**: en ciencia de datos, "funcionar una vez, en tu máquina" es la parte fácil. Lo difícil —y lo que realmente se paga en la industria— es que ese mismo resultado se pueda **repetir**: por otra persona, en otra computadora, con el dataset actualizado, seis meses después. Cuando eso no pasa, aparecen síntomas muy concretos y muy comunes:
+
+- *"En mi notebook daba un resultado distinto"* — porque se corrieron las celdas en un orden distinto al que el autor tenía en la cabeza (una celda modificó una variable global que otra celda de más abajo necesitaba con su valor original).
+- *"No sé qué versión de la librería usé"* — el mismo código con una versión distinta de `scikit-learn` o `pandas` puede dar un resultado ligeramente distinto, y sin registro de versiones es imposible saber cuál causó el cambio.
+- *"Perdimos el dataset que usamos para entrenar ese modelo"* — sin versionado de datos, el archivo original se sobreescribió o se perdió, y el modelo en producción quedó sin forma de auditarse ni re-entrenarse desde cero.
+- *"Nadie se anima a tocar ese notebook"* — sin documentación, el código se vuelve una caja negra: nadie sabe qué decisiones de negocio están hardcodeadas ahí adentro (¿por qué el umbral es 8.4 y no 8.5? ¿por qué se excluyó tal provincia?).
+
+**La meta, en detalle**: diseñar el pipeline pensando desde el principio en que **alguien más (o vos mismo, en el futuro) lo va a tener que correr de nuevo**. Eso cambia decisiones concretas de diseño: en vez de escribir código que solo corre "de arriba hacia abajo en este notebook puntual", se escribe como funciones con parámetros explícitos (como `pipeline_preprocesamiento(path_archivo)`, que se ve más abajo); en vez de fijar un dataset "a mano", se versiona; en vez de dejar los comentarios para después, se documenta a medida que se escribe.
+
+**Por qué a la industria le importa tanto**: no es una cuestión de prolijidad — tiene consecuencias de negocio directas. En los 4 casos de éxito del Módulo 3 esto se ve todo el tiempo: un banco necesita poder **auditar** por qué un modelo de fraude (San Cristóbal) marcó una transacción como sospechosa, meses después del hecho; un hotel necesita poder **re-entrenar** su modelo de cancelaciones (Medplaya) cuando cambian las temporadas sin reconstruir todo desde cero; un equipo de científicos de datos necesita poder **traspasar** un proyecto a un colega nuevo sin que el proyecto se vuelva inservible. La reproducibilidad no es un "nice to have" académico, es lo que permite que un modelo sobreviva más tiempo que la persona que lo construyó.
+
+### 1.0 ¿Qué es un "pipeline"? El concepto, antes de la definición técnica (🎁 contenido extra — no está en ninguna filmina)
 
 Antes de entrar en las etapas y las buenas prácticas, vale la pena pararse un minuto en la palabra misma — porque entender de dónde viene ayuda a que el concepto quede grabado mucho mejor que memorizar una lista de pasos.
 
@@ -253,29 +317,40 @@ Antes de entrar en las etapas y las buenas prácticas, vale la pena pararse un m
 
 **Analogía útil para el pizarrón**: un pipeline reproducible es también como una **receta de cocina bien escrita**, no como "cocinar de memoria". Si la receta especifica ingredientes exactos (los datos versionados), pasos numerados (el código modular) y el punto de cocción (las métricas de evaluación), cualquier persona puede reproducir el mismo plato. Si en cambio el chef improvisa "un poco de esto, un poco de aquello" (celdas de Jupyter sueltas, ejecutadas en cualquier orden, con decisiones que solo están en la cabeza de quien las tomó), el resultado depende de quién cocine — y eso es exactamente lo que un pipeline reproducible busca eliminar.
 
-### 1.1 ¿Qué es un pipeline end-to-end en ciencia de datos?
+<a id="filmina-04"></a>
 
-Un **pipeline end-to-end** es un flujo completo que transforma datos crudos en un modelo funcional y evaluado, listo para su uso o despliegue. Incluye seis etapas:
+### 1.1 ¿Qué es un pipeline end-to-end en ciencia de datos? (Slide 04/43 — "Pipeline End-to-End: Las Etapas")
 
-1. **Ingestión de datos**: recolección y carga desde diversas fuentes.
-2. **Análisis exploratorio de datos (EDA)**: comprensión inicial, detección de patrones y limpieza.
-3. **Feature engineering**: creación y selección de variables relevantes.
-4. **Modelado**: entrenamiento de algoritmos para aprender patrones.
-5. **Evaluación**: medición del desempeño con métricas adecuadas.
-6. **Entrega mínima**: preparación para compartir o desplegar el modelo (notebooks reproducibles, servicios simples).
+Un **pipeline end-to-end** es un flujo completo que transforma datos crudos en un modelo funcional y evaluado, listo para su uso o despliegue. La filmina lista seis etapas en una línea cada una; acá va cada una desarrollada, con qué implica en la práctica y dónde se retoma más adelante en la clase.
 
-**Para remarcar en clase**: este pipeline debe estar diseñado para que **cualquier persona** pueda seguirlo y obtener resultados consistentes — esa es, literalmente, la definición de reproducibilidad.
+1. **Ingestión de datos**: recolección y carga desde diversas fuentes — un CSV local, una API, una base de datos, un archivo publicado por un organismo público (como el DEIS en el ejercicio de hoy). En esta etapa la pregunta clave es *"¿de dónde viene el dato y puedo volver a traerlo de la misma fuente más adelante?"* — si la fuente cambia o desaparece, el pipeline entero deja de ser reproducible por más prolijo que sea el código.
+2. **Análisis exploratorio de datos (EDA)**: comprensión inicial, detección de patrones y limpieza — es exactamente lo que se practicó en el Bloque 0 del repaso (nulos, duplicados, tendencia central, distribución, correlación). Acá se decide qué está "sano" en el dataset y qué necesita corrección antes de seguir.
+3. **Feature engineering**: creación y selección de variables relevantes — transformar lo que ya se tiene en algo que el algoritmo pueda aprovechar mejor (categorizar un número continuo, transponer una matriz, derivar una variable nueva). Los 4 casos de éxito del Módulo 3 dedican una sección entera a esta etapa cada uno, porque suele ser la que más impacto tiene en la calidad final del modelo.
+4. **Modelado**: entrenamiento de algoritmos para aprender patrones — acá es donde se elige entre un enfoque supervisado o no supervisado (el Módulo 4 está dedicado enteramente a esa decisión) y se entrena el algoritmo concreto (K-Means en el ejercicio de hoy).
+5. **Evaluación**: medición del desempeño con métricas adecuadas — no alcanza con entrenar, hay que poder decir *qué tan bueno* es el resultado con números concretos (el Módulo 5 desarrolla en profundidad qué métrica usar según el tipo de problema).
+6. **Entrega mínima**: preparación para compartir o desplegar el modelo — notebooks reproducibles, un archivo de resultados, una demo simple. Es la etapa que más se salta en proyectos de facultad/portfolio, pero es la que determina si el trabajo le sirve a alguien más que a quien lo hizo.
 
-### 1.2 Componentes clave para la reproducibilidad
+**Para remarcar en clase**: este pipeline debe estar diseñado para que **cualquier persona** pueda seguirlo y obtener resultados consistentes — esa es, literalmente, la definición de reproducibilidad. Y las primeras tres etapas (ingesta, EDA, feature engineering) son, ni más ni menos, lo que hoy se construye en código real en el Bloque 1 del notebook.
 
-| Componente | Qué implica |
-|---|---|
-| **Gestión de artefactos** | Guardar versiones de datasets, modelos entrenados y resultados intermedios. |
-| **Control de versiones** | Usar Git para rastrear cambios en código y documentación. |
-| **Entornos reproducibles** | Definir dependencias y versiones de librerías para evitar discrepancias entre máquinas. |
-| **Documentación clara** | Explicar cada paso y decisión tomada. |
+> 👉 El código completo (`pipeline_preprocesamiento()`) y su explicación línea por línea están en la **[sección 7 — Bloque 1](#bloque-1-pipeline)**, junto con el resto del ejercicio práctico. La idea es repasar primero **toda** la teoría de las 5 filminas de este módulo (las que siguen acá abajo) y recién después pasar al ejemplo — así no se mezcla la teoría con el código.
 
-### 1.3 Prácticas para despliegue mínimo y compartición
+<a id="filmina-05"></a>
+
+### 1.2 Componentes clave para la reproducibilidad (Slide 05/43 — "Componentes Clave para la Reproducibilidad")
+
+La filmina muestra 4 tarjetas con una línea cada una; acá va cada componente desarrollado, con ejemplos de herramientas concretas y qué pasa cuando falta.
+
+**Gestión de Artefactos** — *"Guardar versiones de datasets, modelos entrenados y resultados intermedios."* En la práctica significa no solo generar el modelo, sino **guardarlo de forma que se pueda recuperar exactamente igual** más adelante: con `joblib.dump()` o `pickle` para el modelo entrenado, con un nombre de archivo que incluya fecha o versión, y con el dataset que se usó para entrenarlo guardado aparte (no sobreescrito por la próxima actualización). Herramientas más avanzadas de la industria, como MLflow o DVC, automatizan este registro. **Qué pasa si falta**: cada vez que hace falta reusar un modelo hay que re-entrenarlo desde cero (con el costo de tiempo y cómputo que eso implica), y si el dataset original cambió o se perdió, ni siquiera se puede reproducir el mismo modelo.
+
+**Control de Versiones** — *"Uso de sistemas como Git para rastrear cambios en código y documentación."* Cada cambio en el pipeline queda registrado con quién lo hizo, cuándo y por qué (a través del mensaje de commit), y se puede volver atrás si algo se rompe. En un equipo, permite que varias personas trabajen sobre el mismo pipeline sin pisarse el código entre sí. **Qué pasa si falta**: cambios en el código se pierden o se sobreescriben sin registro, y frases como *"esto andaba la semana pasada, no sé qué le cambiaron"* se vuelven moneda corriente.
+
+**Entornos Reproducibles** — *"Definir dependencias y versiones de librerías para evitar discrepancias."* Concretamente: un archivo `requirements.txt` (o un entorno de `conda`, o una imagen de Docker) que fija exactamente qué versión de `pandas`, `scikit-learn`, etc. se usó. Como se vio en el punto 1.0, hasta una diferencia de versión menor puede cambiar ligeramente un resultado numérico. **Qué pasa si falta**: el clásico "en mi máquina funciona" — el mismo código da error o un resultado distinto en la máquina de otra persona, simplemente porque tiene otra versión de una librería instalada.
+
+**Documentación Clara** — *"Explicar cada paso y decisión tomada en el pipeline."* No es solo comentarios sueltos: es el docstring de cada función (como el que tiene `pipeline_preprocesamiento()` más arriba), explicar *por qué* se tomó una decisión de negocio puntual (por qué esos bins de `pd.cut()`, por qué se imputa con la media y no con la mediana), y dejar registro de qué preguntas de negocio responde el pipeline. **Qué pasa si falta**: el pipeline se vuelve una caja negra — funciona, pero nadie (ni siquiera quien lo escribió, meses después) puede explicar con confianza qué hace cada parte ni por qué.
+
+<a id="filmina-06"></a>
+
+### 1.3 Prácticas para despliegue mínimo y compartición (Slide 06/43 — "Prácticas para Despliegue Mínimo y Compartición")
 
 El **despliegue mínimo** busca entregar una versión funcional del pipeline que permita a otros reproducir y validar resultados sin complejidades innecesarias:
 
@@ -284,11 +359,13 @@ El **despliegue mínimo** busca entregar una versión funcional del pipeline que
 - Artefactos guardados con nombres y formatos estándar.
 - Demos simples con herramientas como **Streamlit** o **Flask** para mostrar resultados interactivos.
 
-### 1.4 Por qué importa en la industria
+<a id="filmina-07"></a>
+
+### 1.4 Por qué importa en la industria (Slide 07/43 — "Reproducibilidad en la Industria")
 
 En un proyecto de **detección de fraude**, un pipeline reproducible permite que el equipo de ingeniería valide el modelo antes de integrarlo en producción, asegurando que los resultados sean consistentes y confiables. La gestión de artefactos y el control de versiones evitan pérdidas de trabajo y facilitan la colaboración entre equipos multidisciplinarios; el despliegue mínimo permite entregar prototipos funcionales que stakeholders pueden evaluar sin infraestructuras complejas.
 
-**Gancho hacia el ejercicio práctico**: la función `pipeline_preprocesamiento()` del notebook (Bloque 1) implementa exactamente las etapas 1-3 de este módulo (ingesta, limpieza, transformación) sobre datos reales — es el módulo teórico convertido en código ejecutable.
+**Gancho hacia el ejercicio práctico**: todo lo de este módulo deja de ser teoría en cuanto arranca el notebook — la función `pipeline_preprocesamiento()`, desarrollada línea por línea en la [sección 7 (Bloque 1)](#bloque-1-pipeline), implementa exactamente las etapas 1-3 (ingesta, limpieza, transformación) sobre datos reales. Primero terminá de repasar las 6 filminas de este módulo; el ejemplo espera al final.
 
 ---
 
@@ -626,29 +703,53 @@ El notebook `Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb` construye, sobre 
 
 Ya desarrollado en detalle, con teoría profunda y el paso a paso de cada línea de código, al [principio de este documento](#bloque-0--un-ejemplito-para-repasar-4-conceptos-de-la-semana-6) — se puso ahí porque es literalmente lo primero que corre el notebook, antes de tocar pipelines o Machine Learning.
 
+<a id="bloque-1-pipeline"></a>
+
 ### Bloque 1 — Pipeline de Ingesta y Transformación (20 min)
 
-**El problema real**: el DEIS publica un nuevo renglón de datos cada año. Procesar "a mano" con celdas sueltas rompe con cada actualización. La solución es envolver la lógica en una función reutilizable:
+**El problema real**: el DEIS publica un nuevo renglón de datos cada año. Procesar "a mano" con celdas sueltas rompe con cada actualización. La solución es envolver la lógica en una función reutilizable — esta es la implementación en código de las 6 etapas y los 4 componentes de reproducibilidad que se vieron en el Módulo 1 (ver el [mapa de filminas](#filmina-04) si querés repasarlos antes de seguir).
 
 ```python
 def pipeline_preprocesamiento(path_archivo):
     """Pipeline reproducible para limpiar y transformar el dataset de natalidad."""
+    # 1. Carga de datos crudos
     df = pd.read_csv(path_archivo)
+
+    # 2. Convertir el índice de tiempo a año y setearlo
     df['indice_tiempo'] = pd.to_datetime(df['indice_tiempo']).dt.year
     df.set_index('indice_tiempo', inplace=True)
 
-    # Transposición crucial: filas = provincias (instancias), columnas = años (features)
+    # 3. Transposición Crucial: Filas = Provincias (Instancias), Columnas = Años (Features)
     df_provincias = df.T
 
-    # Imputación de nulos por media de la provincia
+    # 4. Tratamiento de nulos por imputación matemática (Media por provincia)
     df_provincias = df_provincias.fillna(df_provincias.mean())
 
-    # Escalado para algoritmos basados en distancia
+    # 5. Escalado de datos para algoritmos de distancia
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(df_provincias)
 
     return df_provincias, X_scaled
+
+# Ejecución en vivo:
+df_provincias, X = pipeline_preprocesamiento('tasa-natalidad-deis-2000-2024.csv')
+print(f"Instancias a segmentar: {df_provincias.shape[0]} provincias.")
+print(f"Cantidad de features por provincia: {df_provincias.shape[1]} años analizados.")
 ```
+
+**Línea por línea** (con más detalle del que trae el propio notebook, que solo tiene comentarios cortos):
+
+- **`def pipeline_preprocesamiento(path_archivo):`** — se define como **función con un parámetro** (`path_archivo`) en lugar de código suelto con el nombre del archivo escrito a mano en el medio. Esto es la reproducibilidad hecha código: la misma función sirve para el dataset de este año o para el del año que viene, sin tocar una sola línea de adentro — solo cambia qué ruta se le pasa al llamarla.
+- **`"""Pipeline reproducible para limpiar y transformar..."""`** — el docstring (la cadena de texto justo debajo del `def`) es la documentación mínima de la función: cualquiera que la encuentre en el código (incluso sin leer el resto) sabe qué hace con solo pedir `help(pipeline_preprocesamiento)`. Es la aplicación concreta del componente "Documentación Clara" de la filmina 05.
+- **`df = pd.read_csv(path_archivo)`** — la etapa de **ingestión**: carga el archivo crudo tal cual llega, sin modificarlo todavía.
+- **`df['indice_tiempo'] = pd.to_datetime(df['indice_tiempo']).dt.year`** — la columna `indice_tiempo` llega como texto con formato de fecha (ej. `"01-01-2024"`). `pd.to_datetime(...)` la convierte a un objeto de fecha real que pandas entiende, y `.dt.year` extrae **solo el número de año** de esa fecha (`2024`), descartando el mes y el día, que acá no aportan nada porque el dataset es anual.
+- **`df.set_index('indice_tiempo', inplace=True)`** — convierte esa columna de año en el **índice** del DataFrame (la "etiqueta" de cada fila) en lugar de dejarla como una columna más. `inplace=True` significa que modifica `df` directamente, sin necesidad de reasignarlo (`df = df.set_index(...)` haría lo mismo, pero de forma explícita en vez de "en el lugar").
+- **`df_provincias = df.T`** — la **transposición**, ya explicada en el Bloque 0: da vuelta filas y columnas para que cada **provincia** pase a ser una fila (una instancia a segmentar) y cada **año** pase a ser una columna (una feature).
+- **`df_provincias = df_provincias.fillna(df_provincias.mean())`** — la etapa de **limpieza** de nulos dentro del pipeline: donde haya un `NaN`, lo reemplaza por el promedio. Matiz técnico para tener claro: `.mean()` sin especificar eje calcula el promedio **por columna** (es decir, acá, el promedio de *ese año* entre todas las provincias), no el promedio histórico propio de cada provincia — el comentario del código dice "media por provincia" pero, estrictamente, es una media por año/columna. En este dataset puntual no cambia nada porque no hay ningún nulo (confirmado en el Bloque 0), pero es un detalle importante si mañana se reutiliza este mismo pipeline con un dataset que sí tenga huecos.
+- **`scaler = StandardScaler()` / `X_scaled = scaler.fit_transform(df_provincias)`** — la etapa de **transformación**: crea el escalador y lo aplica de una, calculando media/desvío de cada columna (año) y convirtiendo todo a z-score, tal como se explicó en el punto 4 del Bloque 0.
+- **`return df_provincias, X_scaled`** — la función devuelve **dos objetos, no uno**: `df_provincias` es la versión "humana" de los datos (un DataFrame de pandas, con los nombres de provincia como índice, fácil de inspeccionar o graficar) y `X_scaled` es la versión "para la máquina" (un array de NumPy ya escalado, sin nombres, listo para entrar directo a `KMeans`). Devolver ambos evita tener que recalcular uno a partir del otro más adelante en el notebook.
+- **`df_provincias, X = pipeline_preprocesamiento('tasa-natalidad-deis-2000-2024.csv')`** — acá se ve el beneficio de haber armado una función: todo el trabajo de las líneas anteriores se dispara con **un solo llamado**, pasándole la ruta del archivo como único dato variable.
+- Las dos líneas de `print` finales muestran `df_provincias.shape` (25 provincias, 25 años) para confirmar en pantalla que el pipeline transformó los datos como se esperaba, antes de seguir adelante.
 
 **El detalle no obvio para explicar bien en el pizarrón**: el CSV original tiene los **años en las filas** y las **provincias en las columnas** — el formato natural para leer una serie de tiempo. Pero para que scikit-learn segmente **provincias** (no años), necesitamos que cada fila sea una provincia y cada columna sea una característica (un año) — de ahí la **transposición (`.T`)**. Es un paso conceptual, no solo técnico: cambia qué es "una instancia" para el algoritmo.
 
