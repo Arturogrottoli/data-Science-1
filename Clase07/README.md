@@ -296,7 +296,7 @@ Cada fila es una diapositiva (el número es el que ves en el pie de página, ej.
 | Slide 06/43 | Prácticas para Despliegue Mínimo y Compartición | [→ Ir a la explicación](#filmina-06) |
 | Slide 07/43 | Reproducibilidad en la Industria | [→ Ir a la explicación](#filmina-07) |
 
-> Una sección de acá abajo (**1.0**) es **contenido extra que no está en ninguna filmina** — profundiza qué significa la palabra "pipeline" antes de entrar en la teoría técnica. Queda marcada como tal para que no la confundas con una diapositiva que no encontrás. El código real del pipeline (Bloque 1 del notebook) se explica más abajo, en la [sección 7](#7-el-ejercicio-práctico-del-notebook-explicado-en-profundidad), **después** de repasar toda la teoría de los 5 módulos — primero las filminas, después el ejemplo.
+> Una sección de acá abajo (**1.0**) es **contenido extra que no está en ninguna filmina** — profundiza qué significa la palabra "pipeline" antes de entrar en la teoría técnica. Queda marcada como tal para que no la confundas con una diapositiva que no encontrás. El código real del pipeline (Bloque 1 del notebook) se explica al final de este mismo módulo, en [Bloque 1](#bloque-1-pipeline), justo antes de pasar al Módulo 2 — primero las filminas de este módulo, después el ejemplo.
 
 <a id="filmina-02"></a>
 
@@ -358,7 +358,7 @@ Un **pipeline end-to-end** es un flujo completo que transforma datos crudos en u
 
 **Para remarcar en clase**: este pipeline debe estar diseñado para que **cualquier persona** pueda seguirlo y obtener resultados consistentes — esa es, literalmente, la definición de reproducibilidad. Y las primeras tres etapas (ingesta, EDA, feature engineering) son, ni más ni menos, lo que hoy se construye en código real en el Bloque 1 del notebook.
 
-> 👉 El código completo (`pipeline_preprocesamiento()`) y su explicación línea por línea están en la **[sección 7 — Bloque 1](#bloque-1-pipeline)**, junto con el resto del ejercicio práctico. La idea es repasar primero **toda** la teoría de las 5 filminas de este módulo (las que siguen acá abajo) y recién después pasar al ejemplo — así no se mezcla la teoría con el código.
+> 👉 El código completo (`pipeline_preprocesamiento()`) y su explicación línea por línea están al **[final de este módulo, en Bloque 1](#bloque-1-pipeline)**, justo antes de pasar al Módulo 2. La idea es repasar primero **toda** la teoría de las filminas de este módulo (las que siguen acá abajo) y recién después pasar al ejemplo — así no se mezcla la teoría con el código.
 
 <a id="filmina-05"></a>
 
@@ -391,7 +391,85 @@ El **despliegue mínimo** busca entregar una versión funcional del pipeline que
 
 En un proyecto de **detección de fraude**, un pipeline reproducible permite que el equipo de ingeniería valide el modelo antes de integrarlo en producción, asegurando que los resultados sean consistentes y confiables. La gestión de artefactos y el control de versiones evitan pérdidas de trabajo y facilitan la colaboración entre equipos multidisciplinarios; el despliegue mínimo permite entregar prototipos funcionales que stakeholders pueden evaluar sin infraestructuras complejas.
 
-**Gancho hacia el ejercicio práctico**: todo lo de este módulo deja de ser teoría en cuanto arranca el notebook — la función `pipeline_preprocesamiento()`, desarrollada línea por línea en la [sección 7 (Bloque 1)](#bloque-1-pipeline), implementa exactamente las etapas 1-3 (ingesta, limpieza, transformación) sobre datos reales. Primero terminá de repasar las 6 filminas de este módulo; el ejemplo espera al final.
+**Gancho hacia el ejercicio práctico**: todo lo de este módulo deja de ser teoría en la sección que sigue — la función `pipeline_preprocesamiento()`, desarrollada línea por línea en [Bloque 1](#bloque-1-pipeline) a continuación, implementa exactamente las etapas 1-3 (ingesta, limpieza, transformación) sobre datos reales.
+
+<a id="bloque-1-pipeline"></a>
+
+### Bloque 1 — Pipeline de Ingesta y Transformación (20 min)
+
+**El problema real**: en producción, los datos cambian constantemente (ej. todos los años el DEIS publica un nuevo renglón de natalidad). Si se procesan los datos con celdas de Jupyter sueltas o de forma manual, el código se rompe con cada actualización, toma tiempo rehacerlo y es propenso a errores humanos.
+
+**La solución**: un **pipeline reproducible**. Es un conjunto de funciones modulares que automatizan la ingesta, limpieza y transformación. Entra un archivo crudo (raw data) y sale un objeto listo para el modelo de Machine Learning, sin intervención manual — esta es la implementación en código de las 6 etapas y los 4 componentes de reproducibilidad que se acaban de ver en este módulo (ver el [mapa de filminas](#filmina-04) si querés repasarlos antes de seguir).
+
+**Particularidad de este dataset**: el archivo tiene los **años en las filas** y las **provincias en las columnas**. Para aplicar algoritmos de Machine Learning en scikit-learn, las filas deben ser las instancias (las provincias a segmentar) y las columnas deben ser las características (features, es decir, los años). Por lo tanto, el pipeline debe **transponer (`.T`)** la matriz y **escalar** los datos, ya que los modelos basados en distancias son sensibles a las magnitudes.
+
+```python
+#https://datos.salud.gob.ar/dataset/tasa-de-natalidad/archivo/0f68d5c6-e667-40ca-90fd-4784336e092e
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+# =====================================================================
+# SECCIÓN 1: El Pipeline de Ingesta y Transformación
+# =====================================================================
+
+def pipeline_preprocesamiento(path_archivo):
+    """Pipeline reproducible para limpiar y transformar el dataset de natalidad."""
+    # 1. Carga de datos crudos
+    df = pd.read_csv(path_archivo)
+
+    # 2. Convertir el índice de tiempo a año y setearlo
+    df['indice_tiempo'] = pd.to_datetime(df['indice_tiempo']).dt.year
+    df.set_index('indice_tiempo', inplace=True)
+
+    # 3. Transposición Crucial: Filas = Provincias (Instancias), Columnas = Años (Features)
+    df_provincias = df.T
+
+    # 4. Tratamiento de nulos por imputación matemática (Media por provincia)
+    df_provincias = df_provincias.fillna(df_provincias.mean())
+
+    # 5. Escalado de datos para algoritmos de distancia
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(df_provincias)
+
+    return df_provincias, X_scaled
+
+# Ejecución en vivo:
+df_provincias, X = pipeline_preprocesamiento('tasa-natalidad-deis-2000-2024.csv')
+print(f"Instancias a segmentar: {df_provincias.shape[0]} provincias.")
+print(f"Cantidad de features por provincia: {df_provincias.shape[1]} años analizados.")
+```
+
+**Línea por línea** (con más detalle del que trae el propio notebook, que solo tiene comentarios cortos):
+
+- **`def pipeline_preprocesamiento(path_archivo):`** — se define como **función con un parámetro** (`path_archivo`) en lugar de código suelto con el nombre del archivo escrito a mano en el medio. Esto es la reproducibilidad hecha código: la misma función sirve para el dataset de este año o para el del año que viene, sin tocar una sola línea de adentro — solo cambia qué ruta se le pasa al llamarla.
+- **`"""Pipeline reproducible para limpiar y transformar..."""`** — el docstring (la cadena de texto justo debajo del `def`) es la documentación mínima de la función: cualquiera que la encuentre en el código (incluso sin leer el resto) sabe qué hace con solo pedir `help(pipeline_preprocesamiento)`. Es la aplicación concreta del componente "Documentación Clara" de la filmina 05.
+- **`df = pd.read_csv(path_archivo)`** — la etapa de **ingestión**: carga el archivo crudo tal cual llega, sin modificarlo todavía.
+- **`df['indice_tiempo'] = pd.to_datetime(df['indice_tiempo']).dt.year`** — la columna `indice_tiempo` llega como texto con formato de fecha (ej. `"01-01-2024"`). `pd.to_datetime(...)` la convierte a un objeto de fecha real que pandas entiende, y `.dt.year` extrae **solo el número de año** de esa fecha (`2024`), descartando el mes y el día, que acá no aportan nada porque el dataset es anual.
+- **`df.set_index('indice_tiempo', inplace=True)`** — convierte esa columna de año en el **índice** del DataFrame (la "etiqueta" de cada fila) en lugar de dejarla como una columna más. `inplace=True` significa que modifica `df` directamente, sin necesidad de reasignarlo (`df = df.set_index(...)` haría lo mismo, pero de forma explícita en vez de "en el lugar").
+- **`df_provincias = df.T`** — la **transposición**, ya explicada en el Bloque 0: da vuelta filas y columnas para que cada **provincia** pase a ser una fila (una instancia a segmentar) y cada **año** pase a ser una columna (una feature).
+- **`df_provincias = df_provincias.fillna(df_provincias.mean())`** — la etapa de **limpieza** de nulos dentro del pipeline: donde haya un `NaN`, lo reemplaza por el promedio. Matiz técnico para tener claro: `.mean()` sin especificar eje calcula el promedio **por columna** (es decir, acá, el promedio de *ese año* entre todas las provincias), no el promedio histórico propio de cada provincia — el comentario del código dice "media por provincia" pero, estrictamente, es una media por año/columna. En este dataset puntual no cambia nada porque no hay ningún nulo (confirmado en el Bloque 0), pero es un detalle importante si mañana se reutiliza este mismo pipeline con un dataset que sí tenga huecos.
+- **`scaler = StandardScaler()` / `X_scaled = scaler.fit_transform(df_provincias)`** — la etapa de **transformación**: crea el escalador y lo aplica de una, calculando media/desvío de cada columna (año) y convirtiendo todo a z-score, tal como se explicó en el punto 4 del Bloque 0.
+- **`return df_provincias, X_scaled`** — la función devuelve **dos objetos, no uno**: `df_provincias` es la versión "humana" de los datos (un DataFrame de pandas, con los nombres de provincia como índice, fácil de inspeccionar o graficar) y `X_scaled` es la versión "para la máquina" (un array de NumPy ya escalado, sin nombres, listo para entrar directo a `KMeans`). Devolver ambos evita tener que recalcular uno a partir del otro más adelante en el notebook.
+- **`df_provincias, X = pipeline_preprocesamiento('tasa-natalidad-deis-2000-2024.csv')`** — acá se ve el beneficio de haber armado una función: todo el trabajo de las líneas anteriores se dispara con **un solo llamado**, pasándole la ruta del archivo como único dato variable.
+- Las dos líneas de `print` finales muestran `df_provincias.shape` (25 provincias, 25 años) para confirmar en pantalla que el pipeline transformó los datos como se esperaba, antes de seguir adelante.
+
+**El detalle no obvio para explicar bien en el pizarrón**: el CSV original tiene los **años en las filas** y las **provincias en las columnas** — el formato natural para leer una serie de tiempo. Pero para que scikit-learn segmente **provincias** (no años), necesitamos que cada fila sea una provincia y cada columna sea una característica (un año) — de ahí la **transposición (`.T`)**. Es un paso conceptual, no solo técnico: cambia qué es "una instancia" para el algoritmo.
+
+Esto implementa en código las etapas 1-3 del Módulo 1 (ingestión, limpieza, feature engineering vía transposición + escalado).
+
+**Las otras piezas de la reproducibilidad (más allá del código)**: la función `pipeline_preprocesamiento()` resuelve la parte de ingesta, limpieza y transformación del pipeline end-to-end. Pero un pipeline reproducible "de verdad" en la industria también incluye piezas que no se ven en el código de una celda, y vale la pena nombrarlas aunque hoy no se implementen:
+
+- **Gestión de artefactos**: guardar versiones del dataset, del modelo de K-Means entrenado y de los resultados intermedios (ej. con `joblib.dump()` o `pickle`), para no tener que re-entrenar desde cero cada vez.
+- **Control de versiones**: usar Git para rastrear cambios en el código del pipeline y en la documentación — así cualquier persona del equipo puede ver qué cambió y por qué.
+- **Entornos reproducibles**: fijar las versiones de pandas, scikit-learn, etc. (por ejemplo con un `requirements.txt`) para que el pipeline dé el mismo resultado en cualquier máquina.
+- **Documentación clara**: el docstring de la función y los comentarios de esta celda cumplen ese rol a pequeña escala.
+- **Despliegue mínimo**: la forma más simple de compartir este análisis es el propio notebook reproducible; en un caso más avanzado, se podría envolver en una demo interactiva con Streamlit para que el Ministerio explore los clusters sin tocar código.
+
+En síntesis: hoy se construye la parte de ingesta + transformación del pipeline (la que se ejecuta), pero la reproducibilidad completa de un proyecto real se apoya en estas cinco patas trabajando juntas.
 
 ---
 
@@ -729,57 +807,9 @@ El notebook `Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb` construye, sobre 
 
 Ya desarrollado en detalle, con teoría profunda y el paso a paso de cada línea de código, al [principio de este documento](#bloque-0--un-ejemplito-para-repasar-4-conceptos-de-la-semana-6) — se puso ahí porque es literalmente lo primero que corre el notebook, antes de tocar pipelines o Machine Learning.
 
-<a id="bloque-1-pipeline"></a>
-
 ### Bloque 1 — Pipeline de Ingesta y Transformación (20 min)
 
-**El problema real**: el DEIS publica un nuevo renglón de datos cada año. Procesar "a mano" con celdas sueltas rompe con cada actualización. La solución es envolver la lógica en una función reutilizable — esta es la implementación en código de las 6 etapas y los 4 componentes de reproducibilidad que se vieron en el Módulo 1 (ver el [mapa de filminas](#filmina-04) si querés repasarlos antes de seguir).
-
-```python
-def pipeline_preprocesamiento(path_archivo):
-    """Pipeline reproducible para limpiar y transformar el dataset de natalidad."""
-    # 1. Carga de datos crudos
-    df = pd.read_csv(path_archivo)
-
-    # 2. Convertir el índice de tiempo a año y setearlo
-    df['indice_tiempo'] = pd.to_datetime(df['indice_tiempo']).dt.year
-    df.set_index('indice_tiempo', inplace=True)
-
-    # 3. Transposición Crucial: Filas = Provincias (Instancias), Columnas = Años (Features)
-    df_provincias = df.T
-
-    # 4. Tratamiento de nulos por imputación matemática (Media por provincia)
-    df_provincias = df_provincias.fillna(df_provincias.mean())
-
-    # 5. Escalado de datos para algoritmos de distancia
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(df_provincias)
-
-    return df_provincias, X_scaled
-
-# Ejecución en vivo:
-df_provincias, X = pipeline_preprocesamiento('tasa-natalidad-deis-2000-2024.csv')
-print(f"Instancias a segmentar: {df_provincias.shape[0]} provincias.")
-print(f"Cantidad de features por provincia: {df_provincias.shape[1]} años analizados.")
-```
-
-**Línea por línea** (con más detalle del que trae el propio notebook, que solo tiene comentarios cortos):
-
-- **`def pipeline_preprocesamiento(path_archivo):`** — se define como **función con un parámetro** (`path_archivo`) en lugar de código suelto con el nombre del archivo escrito a mano en el medio. Esto es la reproducibilidad hecha código: la misma función sirve para el dataset de este año o para el del año que viene, sin tocar una sola línea de adentro — solo cambia qué ruta se le pasa al llamarla.
-- **`"""Pipeline reproducible para limpiar y transformar..."""`** — el docstring (la cadena de texto justo debajo del `def`) es la documentación mínima de la función: cualquiera que la encuentre en el código (incluso sin leer el resto) sabe qué hace con solo pedir `help(pipeline_preprocesamiento)`. Es la aplicación concreta del componente "Documentación Clara" de la filmina 05.
-- **`df = pd.read_csv(path_archivo)`** — la etapa de **ingestión**: carga el archivo crudo tal cual llega, sin modificarlo todavía.
-- **`df['indice_tiempo'] = pd.to_datetime(df['indice_tiempo']).dt.year`** — la columna `indice_tiempo` llega como texto con formato de fecha (ej. `"01-01-2024"`). `pd.to_datetime(...)` la convierte a un objeto de fecha real que pandas entiende, y `.dt.year` extrae **solo el número de año** de esa fecha (`2024`), descartando el mes y el día, que acá no aportan nada porque el dataset es anual.
-- **`df.set_index('indice_tiempo', inplace=True)`** — convierte esa columna de año en el **índice** del DataFrame (la "etiqueta" de cada fila) en lugar de dejarla como una columna más. `inplace=True` significa que modifica `df` directamente, sin necesidad de reasignarlo (`df = df.set_index(...)` haría lo mismo, pero de forma explícita en vez de "en el lugar").
-- **`df_provincias = df.T`** — la **transposición**, ya explicada en el Bloque 0: da vuelta filas y columnas para que cada **provincia** pase a ser una fila (una instancia a segmentar) y cada **año** pase a ser una columna (una feature).
-- **`df_provincias = df_provincias.fillna(df_provincias.mean())`** — la etapa de **limpieza** de nulos dentro del pipeline: donde haya un `NaN`, lo reemplaza por el promedio. Matiz técnico para tener claro: `.mean()` sin especificar eje calcula el promedio **por columna** (es decir, acá, el promedio de *ese año* entre todas las provincias), no el promedio histórico propio de cada provincia — el comentario del código dice "media por provincia" pero, estrictamente, es una media por año/columna. En este dataset puntual no cambia nada porque no hay ningún nulo (confirmado en el Bloque 0), pero es un detalle importante si mañana se reutiliza este mismo pipeline con un dataset que sí tenga huecos.
-- **`scaler = StandardScaler()` / `X_scaled = scaler.fit_transform(df_provincias)`** — la etapa de **transformación**: crea el escalador y lo aplica de una, calculando media/desvío de cada columna (año) y convirtiendo todo a z-score, tal como se explicó en el punto 4 del Bloque 0.
-- **`return df_provincias, X_scaled`** — la función devuelve **dos objetos, no uno**: `df_provincias` es la versión "humana" de los datos (un DataFrame de pandas, con los nombres de provincia como índice, fácil de inspeccionar o graficar) y `X_scaled` es la versión "para la máquina" (un array de NumPy ya escalado, sin nombres, listo para entrar directo a `KMeans`). Devolver ambos evita tener que recalcular uno a partir del otro más adelante en el notebook.
-- **`df_provincias, X = pipeline_preprocesamiento('tasa-natalidad-deis-2000-2024.csv')`** — acá se ve el beneficio de haber armado una función: todo el trabajo de las líneas anteriores se dispara con **un solo llamado**, pasándole la ruta del archivo como único dato variable.
-- Las dos líneas de `print` finales muestran `df_provincias.shape` (25 provincias, 25 años) para confirmar en pantalla que el pipeline transformó los datos como se esperaba, antes de seguir adelante.
-
-**El detalle no obvio para explicar bien en el pizarrón**: el CSV original tiene los **años en las filas** y las **provincias en las columnas** — el formato natural para leer una serie de tiempo. Pero para que scikit-learn segmente **provincias** (no años), necesitamos que cada fila sea una provincia y cada columna sea una característica (un año) — de ahí la **transposición (`.T`)**. Es un paso conceptual, no solo técnico: cambia qué es "una instancia" para el algoritmo.
-
-Esto implementa en código las etapas 1-3 del Módulo 1 (ingestión, limpieza, feature engineering vía transposición + escalado). Conceptualmente, el pipeline reproducible completo también incluiría gestión de artefactos, control de versiones, entornos fijados y despliegue mínimo — el notebook lo menciona explícitamente en su celda de teoría, aunque no lo implemente hoy.
+Ya desarrollado en detalle, con teoría, código completo y explicación línea por línea, al [final del Módulo 1](#bloque-1-pipeline) — se puso ahí porque es el pipeline que cierra ese módulo de teoría, justo antes de pasar a los casos de estudio de Segmentación y Recomendaciones (Módulo 2).
 
 ### Bloque 2 — Supervisado vs. No Supervisado + K-Means (20 min)
 
