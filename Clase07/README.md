@@ -126,6 +126,13 @@ corr_ba_cba = matriz_corr.loc['natalidad_buenos_aires', 'natalidad_cordoba']
 9. `.skew()` calcula la asimetría (skewness) de la serie nacional con una fórmula estadística estándar — no hace falta memorizarla, alcanza con saber leer el signo del resultado.
 10. `matriz_corr.loc[...]` usa el nombre de fila y columna (no la posición numérica) para extraer puntualmente el valor de correlación entre Buenos Aires y Córdoba de la matriz ya calculada en el paso 6.
 
+**Para qué sirve cada uno de los dos gráficos, y qué deducción sacás de cada uno**:
+
+- **Gráfico 1 (izquierda) — Histograma + KDE (KDE = Kernel Density Estimate (estimación de densidad por kernel). Es la curva suavizada que se superpone al histograma: en vez de mostrar los datos agrupados en barras escalonada) de la natalidad nacional**: muestra la **forma** que toman los 25 valores de natalidad nacional (uno por año) y le superpone dónde cae la **media** (línea roja) y la **mediana** (línea verde). *Deducción*: es la versión visual del hallazgo del punto 2 (mediana > media) — si las líneas estuvieran pegadas, la distribución sería simétrica; acá, al estar separadas (mediana a la derecha de la media), el gráfico deja ver a simple vista que hay más "años altos" que "años bajos" concentrados, confirmando visualmente la tendencia decreciente sin necesidad de leer solo los números.
+- **Gráfico 2 (derecha) — Heatmap de correlación entre 3 provincias**: muestra en una tabla de colores qué tan correlacionadas están entre sí Buenos Aires, Córdoba y Santa Fe. *Deducción*: la celda Buenos Aires↔Córdoba sale **>0.95** (color muy intenso), lo que dispara la conclusión de "correlación no implica causalidad" (ver más abajo) — el heatmap deja "ver" de un vistazo cuáles pares de provincias se mueven juntas (colores intensos) y cuáles no, sin leer una tabla de números fila por fila.
+
+En síntesis: el gráfico 1 responde *"¿cómo se distribuyen los datos de un año a otro?"* (tendencia/forma), y el gráfico 2 responde *"¿se mueven las provincias juntas o de forma independiente?"* (relación entre variables) — las dos mitades del punto 3 (Distribuciones **y** Correlación).
+
 **Para profundizar**: una distribución puede ser **simétrica** (tipo campana/Normal, los valores se reparten parejo a ambos lados) o **sesgada** a la derecha (cola larga de valores altos poco frecuentes, típico en ingresos o precios) o a la izquierda. El **skew** cuantifica esto: cerca de 0 es simétrica, positivo es sesgo a la derecha, negativo a la izquierda. La **correlación de Pearson** va de -1 a 1: cerca de 1 es relación positiva fuerte (suben juntas), cerca de -1 es negativa fuerte (una sube, la otra baja), cerca de 0 no hay relación lineal. Un detalle importante para aclarar en clase: Pearson solo detecta relaciones **lineales** — dos variables pueden estar fuertemente relacionadas de una forma curva (por ejemplo, en forma de U) y aun así dar una correlación de Pearson cercana a 0, porque esa técnica no "ve" relaciones que no sean rectas.
 
 **El caso concreto para trabajar en el pizarrón**: la correlación entre Buenos Aires y Córdoba da **por encima de 0.95** — altísima. Acá está la mejor oportunidad de la clase para instalar con fuerza el principio de que **correlación no implica causalidad**: no es que una provincia le "contagie" la baja natalidad a la otra. Lo que ocurre es que **ambas comparten la misma tendencia demográfica nacional** — hay una tercera variable de fondo (el fenómeno país, que afecta a todas las provincias por igual) explicando el movimiento conjunto de las dos. Es el mismo tipo de trampa que el clásico ejemplo de "las ventas de helado y los ahogamientos están correlacionados" (ambas suben en verano por el calor, no porque una cause la otra).
@@ -138,7 +145,7 @@ Para qué sirve: para que no salgan del análisis pensando que correlación = ca
 
 ### 4) Transformación y Reducción de Dimensionalidad
 
-**En una línea**: hay que escalar las variables numéricas y, si son muchas, comprimirlas con PCA, porque los algoritmos basados en distancia (como K-Means) son sensibles a la magnitud de cada columna.
+**En una línea**: hay que escalar las variables numéricas y, si son muchas, comprimirlas con PCA (), porque los algoritmos basados en distancia (como K-Means) son sensibles a la magnitud de cada columna.
 
 **¿Qué es K-Means?** Es un algoritmo de clustering (agrupamiento no supervisado): agarra un conjunto de puntos y los agrupa en *k* grupos, donde cada punto queda asignado al grupo cuyo "centro" (centroide) tiene más cerca. "Más cerca" se mide con distancia euclídea (la distancia geométrica normal, tipo teorema de Pitágoras) entre puntos.
 
@@ -275,9 +282,7 @@ Según el propio material, al cerrar esta unidad el alumno debería poder:
 3. Identificar, frente a un caso real, si conviene un enfoque supervisado o no supervisado.
 4. Elegir la métrica y la estrategia de validación correctas según el tipo de problema (clasificación, regresión o clustering) y las restricciones del negocio.
 
-### La conexión con el repaso del notebook
 
-El notebook no abre directamente con este diagrama: primero hace un ejemplito de 10 minutos que repasa 4 conceptos de la clase pasada (detallado en la [sección 7, Bloque 0](#bloque-0--un-ejemplito-para-repasar-4-conceptos-de-la-semana-6)), porque esos cuatro pilares (limpieza, estadística descriptiva, distribuciones/correlación, transformación/reducción) son insumo directo de las etapas 2 y 3 del pipeline de hoy (Procesamiento/EDA y Feature Engineering). Es una forma de que el repaso no quede "suelto": se siente como el cimiento sobre el que se construye el pipeline reproducible del Bloque 1.
 
 ---
 
@@ -352,7 +357,7 @@ Un **pipeline end-to-end** es un flujo completo que transforma datos crudos en u
 1. **Ingestión de datos**: recolección y carga desde diversas fuentes — un CSV local, una API, una base de datos, un archivo publicado por un organismo público (como el DEIS en el ejercicio de hoy). En esta etapa la pregunta clave es *"¿de dónde viene el dato y puedo volver a traerlo de la misma fuente más adelante?"* — si la fuente cambia o desaparece, el pipeline entero deja de ser reproducible por más prolijo que sea el código.
 2. **Análisis exploratorio de datos (EDA)**: comprensión inicial, detección de patrones y limpieza — es exactamente lo que se practicó en el Bloque 0 del repaso (nulos, duplicados, tendencia central, distribución, correlación). Acá se decide qué está "sano" en el dataset y qué necesita corrección antes de seguir.
 3. **Feature engineering**: creación y selección de variables relevantes — transformar lo que ya se tiene en algo que el algoritmo pueda aprovechar mejor (categorizar un número continuo, transponer una matriz, derivar una variable nueva). Los 4 casos de éxito del Módulo 3 dedican una sección entera a esta etapa cada uno, porque suele ser la que más impacto tiene en la calidad final del modelo.
-4. **Modelado**: entrenamiento de algoritmos para aprender patrones — acá es donde se elige entre un enfoque supervisado o no supervisado (el Módulo 4 está dedicado enteramente a esa decisión) y se entrena el algoritmo concreto (K-Means en el ejercicio de hoy).
+4. **Modelado**: entrenamiento de algoritmos para aprender patrones — acá es donde se elige entre un enfoque supervisado o no supervisado (el Módulo 4 está dedicado enteramente a esa decisión) y se entrena el algoritmo concreto (K-Means (clusters promedios) en el ejercicio de hoy).
 5. **Evaluación**: medición del desempeño con métricas adecuadas — no alcanza con entrenar, hay que poder decir *qué tan bueno* es el resultado con números concretos (el Módulo 5 desarrolla en profundidad qué métrica usar según el tipo de problema).
 6. **Entrega mínima**: preparación para compartir o desplegar el modelo — notebooks reproducibles, un archivo de resultados, una demo simple. Es la etapa que más se salta en proyectos de facultad/portfolio, pero es la que determina si el trabajo le sirve a alguien más que a quien lo hizo.
 
@@ -475,9 +480,25 @@ En síntesis: hoy se construye la parte de ingesta + transformación del pipelin
 
 ## Módulo 2 — Casos de Estudio: Segmentación y Recomendaciones
 
+### 🗺️ Mapa de filminas de este módulo
+
+Cada fila es una diapositiva real de `Semana 7.html` (el número es el que ves en el pie de página, ej. `09 / 43`), en el mismo orden en que van pasando. Hacé clic para saltar directo a su explicación extendida.
+
+| Filmina | Título en la diapositiva | Explicación extendida acá |
+|---|---|---|
+| Slide 08/43 | *(Divisor)* Casos de Estudio: Segmentación y Recomendaciones | [Intro del módulo](#filmina-08) |
+| Slide 09/43 | Segmentación de Clientes | [→ Ir a la explicación](#filmina-09) |
+| Slide 10/43 | Sistemas de Recomendación | [→ Ir a la explicación](#filmina-10) |
+| Slide 11/43 | Comparación y Trade-offs | [→ Ir a la explicación](#filmina-11) |
+| Slide 12/43 | Aplicación Práctica en la Industria | [→ Ir a la explicación](#filmina-12) |
+
+<a id="filmina-08"></a>
+
 **Pregunta disparadora**: trabajás en una empresa de comercio electrónico que quiere aumentar sus ventas personalizando la experiencia de sus clientes. ¿Cómo identificar grupos de clientes con comportamientos similares? ¿Cómo recomendar productos que realmente interesen a cada usuario? Estas preguntas son el corazón de dos aplicaciones clave de ML en la industria.
 
-### 2.1 Segmentación de Clientes
+<a id="filmina-09"></a>
+
+### 2.1 Segmentación de Clientes (Slide 09/43 — "Segmentación de Clientes")
 
 Dividir una población de clientes en grupos homogéneos según características o comportamientos similares, para personalizar estrategias de marketing, mejorar la retención y optimizar recursos.
 
@@ -485,7 +506,9 @@ Dividir una población de clientes en grupos homogéneos según características
 - **Requisitos de datos**: variables relevantes y limpias (demográficas, transaccionales, comportamiento web), con volumen suficiente para detectar patrones significativos.
 - **Métricas de éxito**: Silhouette Score (cohesión y separación de clusters) e impacto en KPIs comerciales (ventas, retención, conversión).
 
-### 2.2 Sistemas de Recomendación
+<a id="filmina-10"></a>
+
+### 2.2 Sistemas de Recomendación (Slide 10/43 — "Sistemas de Recomendación")
 
 Sugerir productos o contenidos personalizados para cada usuario, aumentando satisfacción y ventas.
 
@@ -493,7 +516,9 @@ Sugerir productos o contenidos personalizados para cada usuario, aumentando sati
 - **Requisitos de datos**: historial de interacciones usuario-producto, información contextual (tiempo, ubicación).
 - **Métricas de éxito**: precisión y recall, tasa de clics (CTR) y conversión, diversidad y novedad (para evitar recomendaciones repetitivas).
 
-### 2.3 Comparación y Trade-offs
+<a id="filmina-11"></a>
+
+### 2.3 Comparación y Trade-offs (Slide 11/43 — "Comparación y Trade-offs")
 
 | Aspecto | Segmentación | Recomendaciones |
 |---|---|---|
@@ -503,7 +528,9 @@ Sugerir productos o contenidos personalizados para cada usuario, aumentando sati
 | Métricas clave | Cohesión de grupos, impacto negocio | Precisión, CTR, diversidad |
 | Complejidad | Moderada | Alta (requiere modelado avanzado) |
 
-### 2.4 Aplicación práctica combinada
+<a id="filmina-12"></a>
+
+### 2.4 Aplicación práctica combinada (Slide 12/43 — "Aplicación Práctica en la Industria")
 
 En la práctica, una empresa puede usar **segmentación** para identificar grupos de clientes con alta propensión a comprar un nuevo producto, y luego aplicar **sistemas de recomendación** para personalizar ofertas dentro de cada segmento. Ejemplo: un retailer online segmenta a sus clientes por frecuencia de compra y categorías preferidas, y luego usa un recomendador híbrido para sugerir productos nuevos o complementarios — maximizando el impacto comercial y el uso de datos y recursos.
 
@@ -513,9 +540,25 @@ En la práctica, una empresa puede usar **segmentación** para identificar grupo
 
 ## Módulo 3 — Casos de Éxito: ML en Acción
 
+### 🗺️ Mapa de filminas de este módulo
+
+Cada caso ocupa 4 diapositivas reales de `Semana 7.html`. A diferencia de Módulo 1/2/4/5, acá el mapeo es por **rango** (no 1 a 1), porque cada sub-sección de abajo ya resume las 4 slides de su caso en un solo bloque de texto.
+
+| Filminas | Título en la diapositiva | Explicación extendida acá |
+|---|---|---|
+| Slide 13/43 | *(Divisor)* Casos de Éxito: ML en Acción | [Intro del módulo](#filmina-13) |
+| Slides 14-17/43 | San Cristóbal — Pipeline / Balanceo de Clases / Deep Learning / Código Inicial | [→ Ir a la explicación](#filmina-14) |
+| Slides 18-21/43 | Medplaya — Modelos / Features y Desequilibrio / Métricas / Overbooking | [→ Ir a la explicación](#filmina-18) |
+| Slides 22-25/43 | Amazon — Fundamentos / Matrix Factorization / Impacto en Negocio / Práctica | [→ Ir a la explicación](#filmina-22) |
+| Slides 26-28/43 | Mazda — Clustering / Feature Engineering / Evaluación de Clusters | [→ Ir a la explicación](#filmina-26) |
+
+<a id="filmina-13"></a>
+
 Cuatro casos reales que muestran cómo se ve todo lo anterior aplicado en la industria. Conviene presentarlos como historias, no como listas de bullets — cada uno tiene un problema de negocio, una técnica y un cierre con impacto medible.
 
-### 3.1 San Cristóbal — Detección de Fraudes
+<a id="filmina-14"></a>
+
+### 3.1 San Cristóbal — Detección de Fraudes (Slides 14-17/43)
 
 **El problema**: ¿cómo protegerse eficazmente contra fraudes que amenazan la operación y la confianza con los clientes? La detección de fraude es un problema clásico de **clasificación supervisada**: identificar transacciones o eventos fraudulentos entre un gran volumen de datos legítimos.
 
@@ -561,7 +604,9 @@ pipeline_smote_rf.fit(X_train, y_train)
 
 La práctica completa pide: carga y EDA del desbalance → oversampling/undersampling → entrenar Random Forest o Logistic Regression → calcular precisión/recall/F1/AUC, matriz de confusión y curva ROC → interpretar y justificar la elección de métricas y técnicas.
 
-### 3.2 Medplaya — Analítica Predictiva en Hotelería
+<a id="filmina-18"></a>
+
+### 3.2 Medplaya — Analítica Predictiva en Hotelería (Slides 18-21/43)
 
 **El problema**: las cancelaciones de reservas afectan la ocupación y los ingresos de una cadena hotelera. ¿Cómo anticiparlas para optimizar la gestión de habitaciones y maximizar el revenue?
 
@@ -591,7 +636,9 @@ La práctica completa pide: carga y EDA del desbalance → oversampling/undersam
 
 **El cierre de negocio — Overbooking Controlado**: con predicciones confiables, se acepta más reservas que la capacidad real para compensar cancelaciones esperadas, optimizando ocupación y revenue. Requiere un balance cuidadoso para evitar sobreventa y mala experiencia al cliente. Medplaya aplicó este pipeline completo (limpieza → features → Random Forest + regresión logística → evaluación con F1/AUC-ROC → política de overbooking) y logró aumentar la ocupación promedio y mejorar el revenue.
 
-### 3.3 Amazon — Sistemas de Recomendación
+<a id="filmina-22"></a>
+
+### 3.3 Amazon — Sistemas de Recomendación (Slides 22-25/43)
 
 **El problema**: ¿cómo logra Amazon ofrecer recomendaciones precisas entre millones de productos y usuarios?
 
@@ -650,7 +697,9 @@ def get_recommendations(title, cosine_sim=cosine_sim):
 
 **Para explicar el mecanismo en el pizarrón**: TF-IDF convierte el texto de cada película (géneros + keywords) en un vector numérico que pesa cada palabra según su importancia; la similitud de coseno mide el ángulo entre dos vectores — cuanto más chico el ángulo, más parecidas son las películas en contenido. No usa historial de usuarios (no es filtrado colaborativo), es **basado en contenido**.
 
-### 3.4 Mazda — Segmentación de Clientes con Clustering
+<a id="filmina-26"></a>
+
+### 3.4 Mazda — Segmentación de Clientes con Clustering (Slides 26-28/43)
 
 **El problema**: ¿cómo puede una empresa como Mazda entender mejor a sus clientes para ofrecer productos y servicios personalizados? A partir de un conjunto de **más de 30 variables**, se prepara los datos, se seleccionan características relevantes y se aplican algoritmos de clustering para identificar segmentos significativos.
 
