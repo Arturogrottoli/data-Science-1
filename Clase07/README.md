@@ -807,9 +807,27 @@ Corte de ~10 minutos, después del Módulo 4 y antes de arrancar el Módulo 5 (M
 
 ## Módulo 5 — Métricas y Estrategias de Validación
 
+### 🗺️ Mapa de filminas de este módulo
+
+Cada fila es una diapositiva real de `Semana 7.html` (el número es el que ves en el pie de página, ej. `36 / 43`), en el mismo orden en que van pasando. Hacé clic para saltar directo a su explicación extendida.
+
+| Filmina | Título en la diapositiva | Explicación extendida acá |
+|---|---|---|
+| Slide 35/43 | *(Divisor)* Métricas y Estrategias de Validación | [Intro del módulo](#filmina-35) |
+| Slide 36/43 | Métricas de Clasificación | [→ Ir a la explicación](#filmina-36) |
+| Slide 37/43 | Métricas de Regresión y Clustering | [→ Ir a la explicación](#filmina-37) (cubre 5.2 y 5.3) |
+| Slide 38/43 | Estrategias de Validación | [→ Ir a la explicación](#filmina-38) |
+| Slide 39/43 | Trade-offs en la Selección de Métricas | [→ Ir a la explicación](#filmina-39) |
+| Slide 40/43 | Aplicación Práctica: Métricas en la Industria | *(sin sub-sección dedicada — ver nota en 5.5)* |
+| Slide 41/43 | Para Practicar: Métricas y Validación | [→ Ir a la explicación](#filmina-41) |
+
+<a id="filmina-35"></a>
+
 **Pregunta disparadora**: trabajás en una empresa de logística que quiere optimizar rutas de entrega usando modelos predictivos. ¿Cómo estar seguro de que el modelo realmente mejora la eficiencia y no solo funciona bien con los datos que ya tenés? La respuesta está en evaluar correctamente el modelo.
 
-### 5.1 Métricas de Clasificación
+<a id="filmina-36"></a>
+
+### 5.1 Métricas de Clasificación (Slide 36/43 — "Métricas de Clasificación")
 
 - **Accuracy**: proporción de predicciones correctas sobre el total. Útil cuando las clases están balanceadas.
 - **Precision**: proporción de verdaderos positivos sobre todos los positivos predichos. Importante cuando el costo de falsos positivos es alto.
@@ -828,7 +846,9 @@ Corte de ~10 minutos, después del Módulo 4 y antes de arrancar el Módulo 5 (M
 
 De ahí salen las fórmulas: `Precision = VP / (VP + FP)` (de todo lo que dije que era positivo, ¿cuánto acerté?) y `Recall = VP / (VP + FN)` (de todo lo que era positivo en la realidad, ¿cuánto detecté?). Tenerlas escritas así ayuda mucho cuando un alumno pregunta "¿pero por qué no es lo mismo precision que recall?" — la diferencia está en el denominador: uno mira desde las predicciones, el otro desde la realidad.
 
-### 5.2 Métricas de Regresión
+<a id="filmina-37"></a>
+
+### 5.2 Métricas de Regresión (Slide 37/43 — "Métricas de Regresión y Clustering")
 
 - **RMSE** (Root Mean Squared Error): raíz del promedio de los errores al cuadrado, penaliza errores grandes.
 - **MAE** (Mean Absolute Error): promedio de errores absolutos, más robusto a outliers.
@@ -836,7 +856,7 @@ De ahí salen las fórmulas: `Precision = VP / (VP + FP)` (de todo lo que dije q
 
 *Ejemplo del PDF*: para predecir demanda de productos, RMSE ayuda a entender el error típico en unidades vendidas.
 
-### 5.3 Métricas de Clustering
+### 5.3 Métricas de Clustering (misma Slide 37/43 — "Métricas de Regresión y Clustering")
 
 - **Silhouette Score**: mide qué tan bien separado está cada cluster.
 - **Davies-Bouldin Index**: evalúa la separación y compacidad de clusters.
@@ -844,13 +864,17 @@ De ahí salen las fórmulas: `Precision = VP / (VP + FP)` (de todo lo que dije q
 
 *Ejemplo del PDF*: en segmentación de clientes, un buen silhouette indica grupos bien definidos para campañas personalizadas (conecta con Mazda y con el ejercicio del notebook).
 
-### 5.4 Estrategias de validación
+<a id="filmina-38"></a>
+
+### 5.4 Estrategias de validación (Slide 38/43 — "Estrategias de Validación")
 
 - **Hold-out**: dividir el dataset en entrenamiento y prueba. Rápido pero puede ser inestable si los datos son pocos.
 - **K-Fold**: dividir el dataset en *k* partes; entrenar *k* veces, cada vez con un fold distinto como prueba y el resto para entrenamiento; promediar las métricas. Ventaja: reduce la varianza en la estimación del desempeño.
 - **Time-Split**: para datos secuenciales o series temporales — se respeta el orden temporal, entrenando con datos anteriores y probando con datos posteriores. *Ejemplo del PDF*: en predicción de demanda diaria, no se debe usar datos futuros para entrenar.
 
-### 5.5 Trade-offs en la selección de métricas y validación
+<a id="filmina-39"></a>
+
+### 5.5 Trade-offs en la selección de métricas y validación (Slide 39/43 — "Trade-offs en la Selección de Métricas")
 
 - **Complejidad vs. interpretabilidad**: métricas simples como accuracy son fáciles de entender, pero pueden ser engañosas en datasets desbalanceados.
 - **Tiempo de cómputo**: k-fold es más preciso pero consume más recursos.
@@ -859,7 +883,11 @@ De ahí salen las fórmulas: `Precision = VP / (VP + FP)` (de todo lo que dije q
 
 > **Reflexión del PDF**: no existe una métrica o estrategia universal; la elección debe alinearse con el contexto y los objetivos del negocio.
 
-### 5.6 Código de práctica (el que trae el PDF completo)
+**Nota sobre la Slide 40/43 ("Aplicación Práctica: Métricas en la Industria")**: esta filmina no tiene una sub-sección propia acá porque su contenido ya está repartido entre las anteriores — son 3 mini-casos que resumen lo ya visto: **Detección de Fraude** (priorizar recall + validación temporal, ver 5.1), **Segmentación de Clientes** (métricas de clustering, ver 5.3) y **Optimización Logística** (métricas de regresión + K-Fold, ver 5.2 y 5.4). Sirve como cierre/repaso más que como concepto nuevo.
+
+<a id="filmina-41"></a>
+
+### 5.6 Código de práctica (el que trae el PDF completo) (Slide 41/43 — "Para Practicar: Métricas y Validación")
 
 El PDF incluye un script de práctica de 5 partes que vale la pena mostrar o correr en vivo si hay tiempo:
 
@@ -884,6 +912,35 @@ print("Promedio K-fold:", np.mean(scores))
 
 **Para remarcar en clase**: aunque el ejercicio del día (natalidad + K-Means) solo necesita las métricas de clustering (5.3), es importante que los alumnos vean el panorama completo de las 5 partes — es exactamente el código que van a necesitar apenas trabajen con un problema supervisado.
 
+<a id="bloque-3-metricas"></a>
+
+### Bloque 3 — Métricas y Estrategias de Validación (20 min)
+
+**El dilema a plantear en clase**: elegimos K=3 "porque sí" en el Bloque 2. ¿Cómo justificarlo matemáticamente? Acá no sirven accuracy/precision (no hay etiquetas verdaderas) — se necesitan métricas específicas de clustering:
+
+```python
+inercias, siluetas = [], []
+for k in range(2, 7):
+    km = KMeans(n_clusters=k, random_state=42, n_init=10)
+    labels = km.fit_predict(X)
+    inercias.append(km.inertia_)
+    siluetas.append(silhouette_score(X, labels))
+```
+
+**Línea por línea**:
+
+- **`inercias, siluetas = [], []`** — crea dos listas vacías donde se va a ir guardando, para cada valor de K probado, su inercia y su Silhouette Score respectivamente. Son los dos insumos que después se grafican para "ver" el codo y elegir el mejor K.
+- **`for k in range(2, 7):`** — prueba K desde 2 hasta 6 (`range(2, 7)` excluye el 7). **¿Por qué arranca en 2 y no en 1?** Porque con K=1 (todo en un solo cluster) el Silhouette Score no se puede calcular — la métrica necesita al menos 2 grupos para medir separación entre ellos. **¿Por qué llega hasta 6 y no más?** Es un techo razonable para un dataset de 24 provincias: pedirle, por ejemplo, K=20 dejaría casi un cluster por provincia, sin ningún poder de generalización — el rango 2-6 cubre las opciones sensatas para segmentar en "perfiles" con sentido de negocio.
+- **`km = KMeans(n_clusters=k, random_state=42, n_init=10)`** — en cada vuelta del loop crea un modelo K-Means nuevo, con el K de esa iteración. `random_state=42` y `n_init=10` cumplen la misma función que en el Bloque 2 (semilla fija para reproducibilidad, y 10 corridas con inicializaciones distintas para evitar un mal mínimo local) — se repiten acá porque cada valor de K necesita su propio modelo entrenado desde cero.
+- **`labels = km.fit_predict(X)`** — entrena el modelo con los datos escalados (`X`, el mismo array que devolvió el pipeline del Bloque 1) y devuelve, para cada provincia, el número de cluster al que quedó asignada.
+- **`inercias.append(km.inertia_)`** — `km.inertia_` es un atributo que scikit-learn calcula automáticamente después de entrenar: la suma de las distancias al cuadrado de cada punto a su centroide. Se guarda en la lista para poder graficarla después contra cada K (el "método del codo").
+- **`siluetas.append(silhouette_score(X, labels))`** — calcula el Silhouette Score de esa partición en particular (comparando los mismos datos `X` contra las etiquetas de cluster que acaba de asignar `labels`) y lo guarda en la otra lista.
+
+- **Método del codo (inercia)**: a más clusters, la inercia siempre baja — se busca el punto donde agregar un cluster más deja de aportar una mejora significativa (el "codo" del gráfico).
+- **Silhouette Score**: para cada K probado, mide qué tan bien separados y cohesionados quedan los grupos (rango -1 a 1, más alto es mejor).
+
+Corresponde directamente al Módulo 5.3 (métricas de clustering), que se acaba de repasar arriba. La celda de teoría agregada en el notebook también tiende el puente hacia las métricas de clasificación/regresión y las estrategias hold-out/K-Fold/Time-Split (Módulo 5 completo), aclarando que hoy no hacen falta porque el problema es no supervisado, pero van a ser necesarias en cuanto el proyecto pase a predecir un valor.
+
 ---
 
 ## 7. El ejercicio práctico del notebook, explicado en profundidad
@@ -904,27 +961,37 @@ Ya desarrollado en detalle, con teoría, tabla comparativa y código completo, a
 
 ### Bloque 3 — Métricas y Estrategias de Validación (20 min)
 
-**El dilema a plantear en clase**: elegimos K=3 "porque sí" en el bloque anterior. ¿Cómo justificarlo matemáticamente? Acá no sirven accuracy/precision (no hay etiquetas verdaderas) — se necesitan métricas específicas de clustering:
-
-```python
-inercias, siluetas = [], []
-for k in range(2, 7):
-    km = KMeans(n_clusters=k, random_state=42, n_init=10)
-    labels = km.fit_predict(X)
-    inercias.append(km.inertia_)
-    siluetas.append(silhouette_score(X, labels))
-```
-
-- **Método del codo (inercia)**: a más clusters, la inercia siempre baja — se busca el punto donde agregar un cluster más deja de aportar una mejora significativa (el "codo" del gráfico).
-- **Silhouette Score**: para cada K probado, mide qué tan bien separados y cohesionados quedan los grupos (rango -1 a 1, más alto es mejor).
-
-Corresponde directamente al Módulo 5.3 (métricas de clustering) de esta guía. La celda de teoría agregada en el notebook también tiende el puente hacia las métricas de clasificación/regresión y las estrategias hold-out/K-Fold/Time-Split (Módulo 5 completo), aclarando que hoy no hacen falta porque el problema es no supervisado, pero van a ser necesarias en cuanto el proyecto pase a predecir un valor.
+Ya desarrollado en detalle, con teoría y código completo, al [final del Módulo 5](#bloque-3-metricas) — se puso ahí porque es la aplicación en código de las métricas y estrategias de validación que cierra ese módulo, justo antes de esta sección práctica.
 
 ### Bloque 4 — Casos de Estudio y "Recomendaciones" (15 min)
 
-**El cierre "Analytics to Action"**: un cluster por sí solo no genera valor de negocio — hay que interpretarlo y traducirlo en una acción.
+**Teoría y escenario real — de los datos a la acción (*Analytics to Action*)**: un cluster por sí solo no genera valor. El data scientist debe interpretar qué significa cada grupo. Al entender el perfil demográfico de cada cluster (ej. provincias con natalidad en caída libre vs. estables), el pipeline puede disparar de forma automática recomendaciones de políticas públicas o asignación presupuestaria para cada provincia.
+
+**Cómo se relaciona esto con los 4 casos de éxito de la industria**: la función que se arma en esta celda —que traduce cada `cluster_id` en una recomendación de negocio— es exactamente el mismo patrón de cierre que comparten los 4 casos del Módulo 3:
+
+- **Mazda** traduce cada cluster de clientes en una estrategia de marketing distinta (ver la tabla "Métrica Técnica → Indicador de Negocio" de esa teoría) — acá se traduce, del mismo modo, un cluster de provincias en una política pública.
+- **Medplaya** traduce una predicción (¿va a cancelar?) en una acción concreta: overbooking controlado.
+- **San Cristóbal** traduce una predicción (¿es fraude?) en una acción: investigar el caso con revisión manual y análisis de imágenes.
+- **Amazon** traduce una similitud entre productos en una acción: mostrarle al usuario una recomendación puntual.
+
+El principio común a los cuatro —y al ejercicio de hoy— es que **el modelo nunca es el final del pipeline**: el valor de negocio aparece recién cuando el resultado técnico (un cluster, una probabilidad, un score de similitud) se traduce en una decisión o acción concreta y automatizable.
 
 ```python
+# =====================================================================
+# SECCIÓN 4: Modelo Definitivo e Inferencia de Políticas
+# =====================================================================
+
+# Asumiendo que el análisis arrojó un K óptimo (ej. K=3)
+k_final = 3
+modelo_final = KMeans(n_clusters=k_final, random_state=42, n_init=10)
+df_provincias['cluster_final'] = modelo_final.fit_predict(X)
+
+# Analizamos el promedio de los años extremos para interpretar el comportamiento
+perfil_clusters = df_provincias.groupby('cluster_final')[[2000, 2012, 2024]].mean()
+print("\nComportamiento histórico promedio por grupo:")
+print(perfil_clusters)
+
+# Creamos una lógica automatizada de Recomendación
 def sistema_recomendacion_politica(cluster_id):
     if cluster_id == 0:
         return "Alerta Demográfica: Reorientar presupuesto a salud de adultos mayores."
@@ -933,10 +1000,24 @@ def sistema_recomendacion_politica(cluster_id):
     else:
         return "Estable: Mantener subsidios existentes y monitorear tasas de control prenatal."
 
+# Aplicamos la recomendación al dataset original
 df_provincias['Accion_Recomendada'] = df_provincias['cluster_final'].apply(sistema_recomendacion_politica)
+
+print("\nVista final del entregable para el Ministerio (Muestra):")
+print(df_provincias[['cluster_final', 'Accion_Recomendada']].head(10))
 ```
 
-**El paralelo a remarcar con los 4 casos del Módulo 3**: esta función es el mismo patrón de cierre que Mazda (cluster → estrategia de marketing), Medplaya (predicción → overbooking), San Cristóbal (predicción → investigación) y Amazon (similitud → recomendación al usuario). En los cuatro casos —y en este ejercicio— **el modelo nunca es el final del pipeline**: el valor aparece cuando el resultado técnico se traduce en una decisión accionable.
+**Línea por línea**:
+
+- **`k_final = 3`** — fija el valor de K que salió "ganador" del análisis del Bloque 3 (método del codo + Silhouette Score). A diferencia del `KMeans(n_clusters=3, ...)` de prueba en Bloque 2, acá el 3 ya está **justificado**, no elegido "porque sí".
+- **`modelo_final = KMeans(n_clusters=k_final, random_state=42, n_init=10)`** — crea el modelo K-Means definitivo, con los mismos parámetros de reproducibilidad ya vistos en Bloque 2 (`random_state`, `n_init`), pero usando la variable `k_final` en vez de un número hardcodeado — si mañana cambiara el K óptimo, alcanza con cambiar esa única variable.
+- **`df_provincias['cluster_final'] = modelo_final.fit_predict(X)`** — entrena el modelo con los datos escalados (`X`) y agrega el resultado directamente como una **columna nueva** en `df_provincias` (el DataFrame "humano", con nombres de provincia, no el array escalado) — así cada provincia queda con su número de cluster asociado, fácil de leer.
+- **`perfil_clusters = df_provincias.groupby('cluster_final')[[2000, 2012, 2024]].mean()`** — agrupa las provincias por su cluster asignado y calcula el promedio de natalidad en 3 años puntuales (2000, 2012, 2024): el inicio, la mitad y el final de la serie. Es una forma rápida de "leer" qué caracteriza a cada grupo sin mirar los 25 años completos.
+- **`print("\nComportamiento histórico promedio por grupo:")` / `print(perfil_clusters)`** — muestran esa tabla resumen en pantalla: es el momento en que un humano (el docente, el alumno, el Ministerio) le pone un significado a cada número de cluster (0, 1, 2) antes de seguir.
+- **`def sistema_recomendacion_politica(cluster_id):`** — función que traduce un número de cluster en una recomendación de política pública en texto plano: el paso de "resultado técnico" a "acción de negocio" del que habla la teoría.
+- **`if cluster_id == 0: ...` / `elif cluster_id == 1: ...` / `else: ...`** — tres ramas simples, una por cluster. Qué mensaje le corresponde a cada número **no sale solo del código**: se decide mirando la tabla `perfil_clusters` de arriba (por ejemplo, el cluster con natalidad más baja y con mayor caída se asocia a "Alerta Demográfica"). Es una decisión de negocio, no un cálculo automático.
+- **`df_provincias['Accion_Recomendada'] = df_provincias['cluster_final'].apply(sistema_recomendacion_politica)`** — `.apply(...)` ejecuta la función anterior **una vez por cada fila** de la columna `cluster_final`, y guarda el resultado (el texto de la recomendación) en una columna nueva.
+- **`print(df_provincias[['cluster_final', 'Accion_Recomendada']].head(10))`** — muestra las primeras 10 provincias con su cluster y su recomendación: el "entregable final" que un Ministerio podría leer directamente, sin necesitar entender nada de K-Means por debajo.
 
 **Para leer el resultado con la clase**: la tabla `perfil_clusters` (promedio de natalidad en 2000, 2012 y 2024 por cluster) permite nombrar cada grupo con criterio propio antes de mostrar las recomendaciones — es un buen momento para pedirle a los alumnos que interpreten los tres clusters *antes* de revelar las etiquetas que puso la función.
 
@@ -964,3 +1045,19 @@ df_provincias['Accion_Recomendada'] = df_provincias['cluster_final'].apply(siste
 | `material/` | Carpeta con recursos adicionales: teoría de aprendizaje supervisado/no supervisado, paso a paso, PPTs, notebooks de referencia adicionales. |
 
 **Cómo usar esta guía durante la clase**: los Módulos 1 a 5 siguen el mismo orden que las diapositivas; la sección 7 sigue el orden del notebook. Podés alternar entre proyectar la filmina/notebook correspondiente y volver acá si necesitás un dato de contexto, una analogía o una pregunta frecuente para anticipar.
+
+---
+
+## Conclusión final de la clase
+
+**El recorrido completo, en una sola línea**: partimos de un problema de negocio real (el Ministerio de Salud no sabe cómo agrupar provincias por su evolución de natalidad), lo resolvimos con un pipeline reproducible de punta a punta, y cerramos traduciendo el resultado técnico en una recomendación de política pública — exactamente el mismo patrón que Mazda, Medplaya, San Cristóbal y Amazon aplican en la industria, cada uno en su dominio.
+
+**Los tres hilos que atravesaron toda la clase** (vale la pena nombrarlos explícitamente al cerrar, porque son los que quedan cuando se olviden los detalles de sintaxis):
+
+1. **Reproducibilidad** (Módulo 1 → Bloque 1): un pipeline solo tiene valor real si otra persona (o vos mismo, meses después) puede correrlo de nuevo y obtener el mismo resultado. Cada `random_state=42` de la clase es una instancia concreta de esta idea.
+2. **Supervisado vs. No Supervisado** (Módulo 4 → Bloque 2): la pregunta que separa ambos mundos es siempre la misma — *¿el dataset ya trae la respuesta correcta, o el algoritmo tiene que descubrirla solo?* Hoy trabajamos del lado no supervisado porque nadie le puso una etiqueta de "provincia con natalidad decreciente" a los datos.
+3. **Analytics to Action** (Módulo 2/3 → Bloque 4): ni un cluster, ni una predicción, ni un score de similitud generan valor por sí solos. El pipeline termina cuando ese resultado técnico se convierte en una decisión o acción concreta — una recomendación de política, un overbooking, una alerta de fraude, una sugerencia al usuario.
+
+**Lo que un alumno debería poder responder al salir de esta clase** (retomando los 4 objetivos de la Introducción): diseñar un pipeline end-to-end reproducible, elegir entre segmentación y recomendación según el problema de negocio, decidir si un caso es supervisado o no supervisado, y elegir la métrica/estrategia de validación correcta según el tipo de problema. El ejercicio de natalidad tocó los cuatro puntos en una sola corrida de principio a fin.
+
+**Cierre sugerido para el pizarrón**: *"Hoy no aprendimos un algoritmo — K-Means es solo una herramienta más. Aprendimos un método: cómo llevar un dataset crudo, real y públicamente disponible hasta una recomendación accionable, de forma que cualquier colega pueda reproducir cada paso del camino."*
