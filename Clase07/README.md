@@ -1,12 +1,5 @@
 # Clase 07: Pipelines Reproducibles y Casos de Uso de ML en la Industria — Guía Completa para el Docente
 
-Esta guía es el **libreto de apoyo para dictar la Clase 07**. Reúne, en un solo lugar y con más profundidad de la que entra en una diapositiva, toda la teoría de:
-
-- **`Clase 07.pdf`** — el material teórico oficial de la unidad.
-- **`Semana 7.html`** — las diapositivas que se proyectan en clase (44 filminas, mismo orden que este documento).
-- **`Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb`** — el notebook con el ejercicio práctico en vivo: un pipeline reproducible + segmentación con K-Means sobre el dataset real de natalidad del DEIS.
-
-A diferencia del PDF/HTML (que explican los 4 casos de éxito con nombre propio — San Cristóbal, Medplaya, Amazon, Mazda), el notebook **no los replica en código**: es un quinto ejercicio, autocontenido y con datos reales, que aplica exactamente la misma lógica de fondo (pipeline → modelo no supervisado → validación → traducción a una recomendación de negocio) que el caso **Mazda**. Este documento explica ambas cosas por separado y después las conecta.
 
 > 📊 **Fuente del dataset**: todo el ejercicio práctico de hoy (repaso, pipeline, K-Means, validación y recomendaciones) se hace sobre un único dataset real, `tasa-natalidad-deis-2000-2024.csv`, publicado por el DEIS (Dirección de Estadísticas e Información de Salud) del Ministerio de Salud de la Nación:
 > `https://datos.salud.gob.ar/dataset/tasa-de-natalidad/archivo/0f68d5c6-e667-40ca-90fd-4784336e092e`
@@ -56,7 +49,7 @@ print(natalidad_2024['categoria_natalidad'].value_counts())
 4. Se imprimen ambos números — acá dan 0 y 0: el dataset llega limpio, así que no hace falta imputar ni eliminar nada (pero el patrón de código —diagnosticar antes de actuar— sería exactamente el mismo si hiciera falta limpiar algo).
 5. Para la parte de **integración**: primero se filtra `df_raw` para quedarse solo con la fila del año 2024 (`df_raw['indice_tiempo'] == '01-01-2024'` genera una máscara booleana, y `df_raw[esa_máscara]` devuelve solo las filas donde la máscara es `True`).
 6. Se descarta la columna `indice_tiempo` con `.drop(columns=...)`, porque ya cumplió su función de filtrar y no aporta nada como variable numérica en el paso siguiente.
-7. `.T` **transpone** el resultado: la única fila que quedaba (el año 2024, con una columna por provincia) pasa a ser una columna, y cada provincia pasa a ser una fila — así queda un DataFrame de "una fila por provincia", que es la forma que se necesita para trabajar provincia por provincia.
+7. `.T` **transpone** ( intercambia filas por columnas) el resultado: la única fila que quedaba (el año 2024, con una columna por provincia) pasa a ser una columna, y cada provincia pasa a ser una fila — así queda un DataFrame de "una fila por provincia", que es la forma que se necesita para trabajar provincia por provincia.En resumen: transponer no cambia los datos, solo cambia si las provincias son columnas o filas — y acá conviene que sean filas porque el análisis se hace "por provincia".
 8. Se renombra esa única columna a `'natalidad_2024'` con `.columns = [...]` para que tenga un nombre claro y no quede con el nombre genérico que dejó la transposición.
 9. `pd.cut()` toma esa columna numérica y la corta en 3 rangos (`bins=[0, 8.4, 9.7, np.inf]`) etiquetados como `'Baja'`, `'Media'`, `'Alta'` — cualquier valor entre 0 y 8.4 se convierte en `"Baja"`, entre 8.4 y 9.7 en `"Media"`, y por encima de 9.7 (hasta infinito, de ahí `np.inf`) en `"Alta"`. Los puntos de corte (8.4 y 9.7) no son arbitrarios: normalmente salen de los propios percentiles de los datos o de un criterio de negocio/salud pública ya definido.
 10. `.value_counts()` cuenta cuántas provincias cayeron en cada categoría, y se imprime ese resumen — el "producto final" de la integración: pasamos de 25 números decimales a 3 grupos fáciles de comunicar.
@@ -89,6 +82,10 @@ iqr = q3 - q1
 **Para profundizar**: la **media** es sensible a valores extremos (un solo dato muy alto o muy bajo puede "arrastrarla"); la **mediana** no, porque solo le importa la posición central, no cuán extremos son los bordes — por eso es más **robusta**. La **moda** es el valor más frecuente, y la única de las tres que también sirve para variables categóricas (no tiene sentido "promediar" categorías de texto, pero sí contar cuál se repite más). Regla práctica: si media y mediana son parecidas, la distribución es razonablemente simétrica; si difieren mucho, hay dos explicaciones posibles: **outliers** o **asimetría/tendencia** en los datos (y hay que mirar el gráfico del punto 3 para saber cuál de las dos es). El **IQR** es el equivalente robusto del desvío estándar: ignora los valores extremos de los bordes, por eso se usa mucho junto con la mediana cuando se sospecha de outliers, de la misma forma que media y desvío estándar suelen ir juntos.
 
 **El caso concreto para trabajar en el pizarrón**: acá la mediana (17.9) resulta *más alta* que la media (16.35). A primera vista uno esperaría lo contrario si hubiera outliers altos empujando la media hacia arriba, pero la causa real es otra: la natalidad viene en **caída sostenida** durante los 25 años de la serie, así que hay más años "altos" (al principio de la serie) que años "bajos" (al final), y eso corre el centro (mediana) por encima del promedio simple. Es el ejemplo perfecto para instalar la idea de que "media distinta de mediana" no siempre delata outliers: a veces delata una **tendencia** en el tiempo. El IQR de ~3.1 puntos confirma que, aun con esa caída, la dispersión año a año es moderada (no hay saltos bruscos).
+
+La conclusión es: cuando la media y la mediana difieren, no siempre es por outliers — acá es porque los datos tienen una tendencia (la natalidad cae con el tiempo). Como hay más años "altos" al principio que años "bajos" al final, la mediana queda por encima de la media, aunque no haya ningún valor raro o extremo en la serie.
+
+
 
 ### 3) Distribuciones y Correlación
 
@@ -133,9 +130,27 @@ corr_ba_cba = matriz_corr.loc['natalidad_buenos_aires', 'natalidad_cordoba']
 
 **El caso concreto para trabajar en el pizarrón**: la correlación entre Buenos Aires y Córdoba da **por encima de 0.95** — altísima. Acá está la mejor oportunidad de la clase para instalar con fuerza el principio de que **correlación no implica causalidad**: no es que una provincia le "contagie" la baja natalidad a la otra. Lo que ocurre es que **ambas comparten la misma tendencia demográfica nacional** — hay una tercera variable de fondo (el fenómeno país, que afecta a todas las provincias por igual) explicando el movimiento conjunto de las dos. Es el mismo tipo de trampa que el clásico ejemplo de "las ventas de helado y los ahogamientos están correlacionados" (ambas suben en verano por el calor, no porque una cause la otra).
 
+Conclusión: "Que dos provincias tengan correlación altísima no significa que se influyan entre sí — acá ambas simplemente están 'surfeando' la misma ola nacional de caída de natalidad."
+
+Para qué sirve: para que no salgan del análisis pensando que correlación = causalidad, y para que aprendan a sospechar de una tendencia compartida (año, tiempo) como explicación alternativa antes de inventar una relación causal entre las variables.
+
+
+
 ### 4) Transformación y Reducción de Dimensionalidad
 
 **En una línea**: hay que escalar las variables numéricas y, si son muchas, comprimirlas con PCA, porque los algoritmos basados en distancia (como K-Means) son sensibles a la magnitud de cada columna.
+
+**¿Qué es K-Means?** Es un algoritmo de clustering (agrupamiento no supervisado): agarra un conjunto de puntos y los agrupa en *k* grupos, donde cada punto queda asignado al grupo cuyo "centro" (centroide) tiene más cerca. "Más cerca" se mide con distancia euclídea (la distancia geométrica normal, tipo teorema de Pitágoras) entre puntos.
+
+**¿Qué es PCA?** Es una técnica de reducción de dimensionalidad: cuando tenés muchas columnas (variables), PCA las combina en un número menor de "componentes" nuevos que resumen la mayor parte de la variabilidad de los datos originales. Por ejemplo, si tenés 24 provincias como columnas, PCA te puede comprimir eso en 2 o 3 componentes que capturan "lo esencial" de esas 24, sin perder demasiada información.
+
+**¿Por qué K-Means es sensible a la magnitud de cada columna?** Porque calcula distancias, y una columna con números grandes (ej: población en millones) domina esa distancia frente a una columna con números chicos (ej: tasa de natalidad entre 0 y 30), aunque esta última sea igual de importante conceptualmente. Sin escalar, el algoritmo terminaría agrupando casi exclusivamente en base a la variable de mayor magnitud, ignorando a las demás.
+
+**¿Para qué escalamos entonces?** `StandardScaler` transforma cada columna para que tenga media 0 y desvío estándar 1 — así todas las variables "pesan" lo mismo en el cálculo de distancias, independientemente de su unidad original.
+
+**¿Para qué reducimos dimensionalidad con PCA?** Dos motivos prácticos acá: (1) si tenés muchas provincias como columnas, es difícil visualizar o interpretar clusters en un espacio de tantas dimensiones — PCA lo lleva a 2D para poder graficarlo; y (2) reduce ruido y redundancia (columnas muy correlacionadas entre sí, como vimos con Buenos Aires y Córdoba, aportan información repetida).
+
+**En resumen**: escalamos para que K-Means no se deje engañar por la magnitud de las columnas, y reducimos dimensionalidad con PCA para poder visualizar y simplificar los datos antes de agruparlos.
 
 ```python
 from sklearn.preprocessing import StandardScaler
@@ -153,6 +168,17 @@ varianza_total = pca_demo.explained_variance_ratio_.sum() * 100
 ```
 
 **¿Qué son esas dos líneas de `import`?** `scikit-learn` (el paquete que en código se importa como `sklearn`) es la librería estándar de Python para Machine Learning "clásico" — la que se va a usar en todo el resto de la clase (K-Means, métricas de validación, etc.). Está organizada en submódulos temáticos, y estas dos líneas traen herramientas de dos de ellos:
+
+scikit-learn es la librería de referencia en Python para Machine Learning "clásico" (no deep learning). En general sirve para:
+
+Preprocesamiento: escalar/normalizar datos, codificar variables categóricas, imputar valores faltantes (sklearn.preprocessing).
+Modelos supervisados: regresión (lineal, logística), árboles de decisión, random forests, SVM, etc. — para predecir una variable objetivo (sklearn.linear_model, sklearn.tree, sklearn.ensemble...).
+Modelos no supervisados: clustering (K-Means, jerárquico), reducción de dimensionalidad (PCA) — para encontrar estructura en datos sin etiquetar (sklearn.cluster, sklearn.decomposition).
+Validación y métricas: separar train/test, cross-validation, medir qué tan bueno es un modelo (accuracy, silhouette score, etc.) (sklearn.model_selection, sklearn.metrics).
+Pipelines: encadenar pasos (preprocesar → entrenar → evaluar) de forma prolija y reproducible.
+Es la caja de herramientas estándar para "aprender de los datos" (agrupar, predecir, clasificar) fuera del mundo de redes neuronales — que para eso ya se usan otras librerías como TensorFlow o PyTorch. En esta clase puntualmente la van a usar para K-Means (clustering) y sus métricas de validación.
+
+
 
 - `from sklearn.preprocessing import StandardScaler`: el submódulo `preprocessing` agrupa herramientas para **preparar** los datos antes de modelarlos (escalado, codificación de categorías, etc.). `StandardScaler` es específicamente la clase que aplica el z-score que se explica más abajo.
 - `from sklearn.decomposition import PCA`: el submódulo `decomposition` agrupa técnicas que **descomponen** una matriz de datos en partes más simples. `PCA` es la clase que implementa el Análisis de Componentes Principales.
