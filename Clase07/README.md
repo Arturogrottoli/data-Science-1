@@ -549,6 +549,16 @@ pipeline_smote_rf = ImbPipeline(steps=[
 pipeline_smote_rf.fit(X_train, y_train)
 ```
 
+**Línea por línea**:
+
+- **`from imblearn.over_sampling import SMOTE`**: `imblearn` (*imbalanced-learn*) es una librería que extiende a scikit-learn específicamente para problemas de **clases desbalanceadas** — como fraude, donde el 99%+ de las transacciones son legítimas y muy pocas son fraude. `SMOTE` (*Synthetic Minority Oversampling Technique*) implementa el sobremuestreo: en vez de duplicar los pocos casos de fraude que hay, **genera ejemplos sintéticos nuevos** interpolando entre casos de fraude reales parecidos entre sí, para que el modelo vea más variedad de "fraude" en vez de la misma fila copiada muchas veces.
+- **`from imblearn.pipeline import Pipeline as ImbPipeline`**: no se usa el `Pipeline` normal de `sklearn.pipeline`, sino uno especial de `imblearn`, porque el de scikit-learn no permite pasos que cambien la **cantidad de filas** (como hace SMOTE, que agrega filas sintéticas) — solo pasos que transforman columnas. El `ImbPipeline` sí lo permite. Se importa con alias (`as ImbPipeline`) para no confundirlo si en algún momento también se usa el `Pipeline` común.
+- **`from sklearn.ensemble import RandomForestClassifier`**: el submódulo `ensemble` agrupa algoritmos que combinan muchos modelos simples en uno más robusto. `RandomForestClassifier` entrena muchos árboles de decisión distintos (cada uno viendo una muestra distinta de los datos) y combina sus votos, reduciendo el sobreajuste que tendría un solo árbol.
+- **`smote = SMOTE(random_state=RANDOM_STATE)`**: crea el objeto SMOTE. `random_state` fija la semilla aleatoria (mismo concepto que en K-Means) para que la generación de ejemplos sintéticos sea reproducible entre corridas.
+- **`rf = RandomForestClassifier(n_estimators=100, random_state=RANDOM_STATE, n_jobs=-1)`**: crea el clasificador. `n_estimators=100` fija el "bosque" en 100 árboles. `n_jobs=-1` le dice que use **todos los núcleos del procesador disponibles** para entrenar los árboles en paralelo.
+- **`pipeline_smote_rf = ImbPipeline(steps=[('smote', smote), ('rf', rf)])`**: encadena los dos pasos en un solo objeto — primero SMOTE, después el Random Forest — con nombres de referencia (`'smote'`, `'rf'`) para cada paso. Mismo espíritu de "pipeline reproducible" del Módulo 1, aplicado acá a modelado en vez de a preprocesamiento.
+- **`pipeline_smote_rf.fit(X_train, y_train)`**: dispara todo con un solo llamado — `fit` primero aplica SMOTE **solo a los datos de entrenamiento** (`X_train`, `y_train`), generando los ejemplos sintéticos de fraude, y después entrena el Random Forest ya con los datos balanceados. Es clave que SMOTE se aplique solo al *train* y nunca al *test*: si se aplicara también al test, el modelo se evaluaría con datos sintéticos "inventados", dando una métrica de rendimiento falsamente optimista.
+
 La práctica completa pide: carga y EDA del desbalance → oversampling/undersampling → entrenar Random Forest o Logistic Regression → calcular precisión/recall/F1/AUC, matriz de confusión y curva ROC → interpretar y justificar la elección de métricas y técnicas.
 
 ### 3.2 Medplaya — Analítica Predictiva en Hotelería
@@ -622,6 +632,22 @@ def get_recommendations(title, cosine_sim=cosine_sim):
     return movies['title'].iloc[movie_indices].tolist()
 ```
 
+**Línea por línea**:
+
+- **`from sklearn.feature_extraction.text import TfidfVectorizer`**: el submódulo `feature_extraction.text` convierte **texto** en números. `TfidfVectorizer` implementa **TF-IDF** (*Term Frequency – Inverse Document Frequency*): convierte cada texto (acá, géneros + keywords de cada película) en un vector numérico, dándole más peso a las palabras frecuentes *en esa película puntual* pero raras *en el resto del catálogo* (palabras como "the" o "action" pesan poco por ser comunes; una keyword muy específica pesa mucho).
+- **`from sklearn.metrics.pairwise import cosine_similarity`**: el submódulo `metrics.pairwise` calcula distancias/similitudes **entre pares** de vectores. `cosine_similarity` mide el **coseno del ángulo** entre dos vectores — cuanto más chico el ángulo (vectores "apuntando" en la misma dirección), más cercano a 1 el resultado, y más parecidas son las películas en contenido.
+- **`tfidf = TfidfVectorizer(stop_words='english')`**: crea el vectorizador. `stop_words='english'` le dice que ignore palabras vacías del inglés (*the*, *and*, *of*...) que no aportan significado.
+- **`tfidf_matrix = tfidf.fit_transform(movies['combined_features'])`**: `fit_transform` hace dos cosas en un paso (mismo patrón que `StandardScaler` en el Módulo 1): **aprende** el vocabulario de todas las películas (`fit`) y **convierte** cada película en su vector TF-IDF (`transform`). El resultado es una matriz con una fila por película y una columna por cada palabra única del vocabulario.
+- **`cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)`**: calcula la similitud **de cada película contra todas las demás** (incluida ella misma) — el resultado es una matriz cuadrada N×N (N = cantidad de películas), donde la celda `[i, j]` dice qué tan parecida es la película `i` a la película `j`.
+- **`def get_recommendations(title, cosine_sim=cosine_sim):`**: función que recibe el título de una película y devuelve recomendaciones. Usar `cosine_sim=cosine_sim` como valor por defecto evita recalcular la matriz cada vez que se llama a la función.
+- **`if title not in indices: return [...]`**: chequeo de seguridad — si el título no existe en el dataset, devuelve un mensaje en vez de romper con un error.
+- **`idx = indices[title]`**: `indices` es un diccionario (definido en otra celda del notebook) que mapea título → posición numérica de esa película en la matriz.
+- **`sim_scores = list(enumerate(cosine_sim[idx]))`**: `cosine_sim[idx]` es la fila de la matriz correspondiente a esa película — un vector con su similitud contra todas las demás. `enumerate(...)` empareja cada valor con su posición, generando pares `(posición, similitud)`.
+- **`sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)`**: ordena esos pares de mayor a menor similitud (`x[1]` es la similitud; `reverse=True` para que el más parecido quede primero).
+- **`sim_scores = sim_scores[1:11]`**: descarta la posición `0` (la película contra sí misma, similitud 1.0 — no sirve como recomendación) y toma las siguientes 10 más parecidas.
+- **`movie_indices = [i[0] for i in sim_scores]`**: extrae solo las posiciones (`i[0]`) de esos 10 resultados, descartando ya el valor de similitud.
+- **`return movies['title'].iloc[movie_indices].tolist()`**: usa esas posiciones para buscar los títulos reales en el DataFrame original (`.iloc` porque son posiciones numéricas, no nombres de índice) y devuelve la lista final de 10 títulos recomendados.
+
 **Para explicar el mecanismo en el pizarrón**: TF-IDF convierte el texto de cada película (géneros + keywords) en un vector numérico que pesa cada palabra según su importancia; la similitud de coseno mide el ángulo entre dos vectores — cuanto más chico el ángulo, más parecidas son las películas en contenido. No usa historial de usuarios (no es filtrado colaborativo), es **basado en contenido**.
 
 ### 3.4 Mazda — Segmentación de Clientes con Clustering
@@ -660,9 +686,26 @@ def get_recommendations(title, cosine_sim=cosine_sim):
 
 ## Módulo 4 — Supervisado vs. No Supervisado
 
+### 🗺️ Mapa de filminas de este módulo
+
+Cada fila es una diapositiva real de `Semana 7.html` (el número es el que ves en el pie de página, ej. `30 / 43`), en el mismo orden en que van pasando. Hacé clic para saltar directo a su explicación extendida.
+
+| Filmina | Título en la diapositiva | Explicación extendida acá |
+|---|---|---|
+| Slide 29/43 | *(Divisor)* Supervisado vs. No Supervisado | [Intro del módulo](#filmina-29) |
+| Slide 30/43 | Aprendizaje Supervisado | [→ Ir a la explicación](#filmina-30) |
+| Slide 31/43 | Aprendizaje No Supervisado | [→ Ir a la explicación](#filmina-31) |
+| Slide 32/43 | Comparación Práctica | [→ Ir a la explicación](#filmina-32) |
+| Slide 33/43 | Aplicaciones Combinadas en la Industria | [→ Ir a la explicación](#filmina-33) |
+| Slide 34/43 | Break de Coder ("Recreo") | [→ Ver sección](#break-del-coder) |
+
+<a id="filmina-29"></a>
+
 **Pregunta disparadora**: tenés un enorme conjunto de datos de clientes, pero no sabés qué patrones o grupos existen dentro de ellos. ¿Cómo segmentarlos para campañas personalizadas? ¿O cómo predecir si un cliente comprará, en base a su comportamiento previo? Estas preguntas ilustran los dos grandes enfoques de la ciencia de datos.
 
-### 4.1 Aprendizaje Supervisado
+<a id="filmina-30"></a>
+
+### 4.1 Aprendizaje Supervisado (Slide 30/43 — "Aprendizaje Supervisado")
 
 Los modelos aprenden a partir de **datos etiquetados** (pares entrada-salida conocidos), buscando generalizar para predecir la salida correcta en nuevas entradas.
 
@@ -678,7 +721,9 @@ Los modelos aprenden a partir de **datos etiquetados** (pares entrada-salida con
 
 **Concepto para reforzar (no viene textual en el PDF, pero es la base de todo lo anterior)**: el objetivo de un modelo supervisado no es memorizar los datos de entrenamiento, sino **generalizar** — funcionar bien con datos nuevos que nunca vio. Cuando un modelo aprende "de memoria" el ruido específico de sus datos de entrenamiento y pierde capacidad de generalizar, se llama **overfitting** (sobreajuste); es la razón por la que en el Módulo 5 se insiste tanto en evaluar siempre con datos separados del entrenamiento (hold-out, K-Fold), y no con las mismas filas que el modelo ya vio.
 
-### 4.2 Aprendizaje No Supervisado
+<a id="filmina-31"></a>
+
+### 4.2 Aprendizaje No Supervisado (Slide 31/43 — "Aprendizaje No Supervisado")
 
 Trabaja con **datos sin etiquetas**, buscando estructuras o patrones ocultos.
 
@@ -692,7 +737,9 @@ Trabaja con **datos sin etiquetas**, buscando estructuras o patrones ocultos.
 
 **Supuestos y consideraciones**: no requiere etiquetas, ideal para exploración; los resultados pueden ser menos interpretables que en supervisado; hay que validar la calidad de los clusters o componentes obtenidos.
 
-### 4.3 Comparación práctica
+<a id="filmina-32"></a>
+
+### 4.3 Comparación práctica (Slide 32/43 — "Comparación Práctica")
 
 | Aspecto | Aprendizaje Supervisado | Aprendizaje No Supervisado |
 |---|---|---|
@@ -702,13 +749,53 @@ Trabaja con **datos sin etiquetas**, buscando estructuras o patrones ocultos.
 
 > La elección entre supervisado y no supervisado depende del problema, la disponibilidad de datos y el objetivo final.
 
-### 4.4 Aplicaciones combinadas en la industria
+<a id="filmina-33"></a>
+
+### 4.4 Aplicaciones combinadas en la industria (Slide 33/43 — "Aplicaciones Combinadas en la Industria")
 
 En la práctica, los científicos de datos suelen combinar ambos enfoques:
 
 - **Segmentación de clientes**: clustering para identificar grupos, luego modelos supervisados para predecir la respuesta a campañas.
 - **Detección de fraude**: Random Forest para clasificar transacciones, apoyado por análisis no supervisado para descubrir patrones nuevos.
 - **Optimización logística**: reducción de dimensionalidad para simplificar variables y mejorar la eficiencia de modelos predictivos.
+
+<a id="bloque-2-kmeans"></a>
+
+### Bloque 2 — Supervisado vs. No Supervisado + K-Means (20 min)
+
+**Teoría y escenario real**: si quisiéramos predecir el número exacto de nacimientos en Formosa para 2026, sería un problema **Supervisado (Regresión)**, porque tendríamos una etiqueta histórica (los nacimientos reales de años anteriores) para guiar al modelo.
+
+Pero en nuestro caso real, el Ministerio de Salud no sabe de antemano cuáles son los perfiles demográficos del país. No hay etiquetas de "Provincia con natalidad decreciente" o "Provincia con natalidad estable" — buscamos que el algoritmo encuentre esos patrones ocultos por sí solo. Esto es **Aprendizaje No Supervisado**.
+
+**Caso de estudio (Segmentación)**: usamos el algoritmo **K-Means**. Agrupa las provincias asignando centros geométricos (centroides) e iterando hasta que cada provincia queda asociada al centroide más cercano por distancia euclidiana.
+
+**Ubicando esto en el panorama completo** (retomando la tabla del Módulo 4):
+
+| | Supervisado | No Supervisado (lo que hacemos hoy) |
+|---|---|---|
+| **Datos** | Etiquetados (entrada → salida conocida) | Sin etiquetas |
+| **Objetivo** | Predecir o clasificar | Encontrar estructura o patrones |
+| **Algoritmos típicos** | Regresión lineal, Random Forest | K-Means (hoy), PCA |
+| **Ejemplo de industria** | Detección de fraude (San Cristóbal), predicción de cancelaciones (Medplaya) | Segmentación de clientes (Mazda) |
+
+Este ejercicio de segmentar provincias por su perfil de natalidad es, en esencia, el mismo tipo de problema que resuelve **Mazda** cuando segmenta clientes con K-Means y GMM a partir de más de 30 variables: agrupar observaciones sin etiquetas previas para después diseñar una estrategia distinta por grupo. La diferencia es el dominio (demografía pública vs. clientes de una automotriz), no la lógica del algoritmo.
+
+En cambio, si más adelante quisiéramos predecir el valor exacto de natalidad del año próximo para una provincia (un número continuo, con datos históricos como "etiqueta"), pasaríamos a un problema de **regresión supervisada** — el mismo enfoque que usan San Cristóbal (clasificación de fraude) o Medplaya (clasificación de cancelaciones), aunque con un algoritmo distinto según si predecimos una categoría o un número.
+
+```python
+kmeans_prueba = KMeans(n_clusters=3, random_state=42, n_init=10)
+clusters_prueba = kmeans_prueba.fit_predict(X)
+```
+
+**K-Means en una frase para el pizarrón**: el algoritmo ubica *k* centros geométricos (centroides) y asigna cada provincia al centroide más cercano por distancia euclidiana, iterando hasta que las asignaciones se estabilizan. `random_state=42` fija la semilla aleatoria para que el resultado sea reproducible entre corridas — otro gancho directo al Módulo 1. `X` es el array ya escalado que devolvió `pipeline_preprocesamiento()` en el Bloque 1.
+
+**¿Los 3 parámetros son arbitrarios o tienen una razón?**
+
+- **`n_clusters=3`** — es **arbitrario a propósito**, no tiene todavía una justificación técnica. Es el gancho pedagógico hacia el Bloque 3: primero se prueba con un número cualquiera, y recién ahí se usa el método del codo (inercia) y el Silhouette Score para *justificar* si 3 es realmente el mejor valor de K, o si convendría otro.
+- **`random_state=42`** — tampoco tiene significado matemático. Es solo una semilla fija para que la parte aleatoria del algoritmo (la posición inicial de los centroides) dé siempre el mismo resultado entre corridas — el "42" en particular es una convención cultural muy usada en ejemplos de ML (referencia a *La guía del autoestopista galáctico*). Podría ser cualquier otro entero; lo importante es que quede fijo, no cuál sea.
+- **`n_init=10`** — esta sí tiene una razón técnica real: K-Means arranca ubicando los centroides en posiciones aleatorias, y según dónde arranquen puede terminar en una solución subóptima (un "mínimo local"). `n_init=10` corre el proceso completo 10 veces, cada una con una inicialización distinta, y se queda con la mejor (menor inercia) — una salvaguarda estándar contra una mala inicialización, no un valor "que da lo mismo".
+
+Este bloque es, en la práctica, una implementación completa del **caso Mazda** (Módulo 3.4): mismo algoritmo, mismo tipo de problema (segmentación sin etiquetas), aplicado a un dominio distinto.
 
 ---
 
@@ -813,16 +900,7 @@ Ya desarrollado en detalle, con teoría, código completo y explicación línea 
 
 ### Bloque 2 — Supervisado vs. No Supervisado + K-Means (20 min)
 
-**El razonamiento de negocio**: el Ministerio de Salud no tiene etiquetas de "provincia con natalidad decreciente" — nadie las definió de antemano. Por eso es un problema **no supervisado**: se busca que el algoritmo encuentre esos perfiles por sí solo.
-
-```python
-kmeans_prueba = KMeans(n_clusters=3, random_state=42, n_init=10)
-clusters_prueba = kmeans_prueba.fit_predict(X)
-```
-
-**K-Means en una frase para el pizarrón**: el algoritmo ubica *k* centros geométricos (centroides) y asigna cada provincia al centroide más cercano por distancia euclidiana, iterando hasta que las asignaciones se estabilizan. `random_state=42` fija la semilla aleatoria para que el resultado sea reproducible entre corridas — otro gancho directo al Módulo 1.
-
-Este bloque es, en la práctica, una implementación completa del **caso Mazda** (Módulo 3.4): mismo algoritmo, mismo tipo de problema (segmentación sin etiquetas), aplicado a un dominio distinto.
+Ya desarrollado en detalle, con teoría, tabla comparativa y código completo, al [final del Módulo 4](#bloque-2-kmeans) — se puso ahí porque es la aplicación en código de la misma distinción teórica (Supervisado vs. No Supervisado) que cierra ese módulo, justo antes del Break del Coder.
 
 ### Bloque 3 — Métricas y Estrategias de Validación (20 min)
 
