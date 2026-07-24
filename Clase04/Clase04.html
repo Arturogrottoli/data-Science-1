@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 03 - NumPy y Pandas | Coderhouse</title>
+    <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==========================================================================
+           CODER 4.0 DESIGN SYSTEM & VARS
+           ========================================================================== */
+        :root {
+            --blanco-lienzo: #F8F2E8;
+            --negro-coder: #171717;
+            --naranja-oscuro: #260700;
+            --naranja-horizonte: #FF632B;
+            --amarillo-solar: #FE872D;
+            --rosa-energia: #FE64A3;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #dcd6cd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: var(--font-main);
+            overflow: hidden;
+        }
+
+        /* Slide Viewer (Absolute 1280x720 No-Scale-Shift) */
+        .presentation-viewport {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: var(--blanco-lienzo);
+        }
+
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            color: var(--negro-coder);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 70px 40px 70px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out, visibility var(--transition-speed) ease-in-out;
+            z-index: 1;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Abstract Brand Accents: Subtly warm gradients connecting to Coder 4.0 */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -150px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(255,99,43,0.06) 0%, rgba(248,242,232,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .slide-container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography & Hierarchy */
+        h1 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+        }
+
+        .slide-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slide-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 2px;
+            background-color: rgba(38, 7, 0, 0.1);
+            margin-left: 15px;
+        }
+
+        p, li {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #3d3430;
+            font-weight: 400;
+        }
+
+        /* Content Area Layout Wrapper */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Grid & Column Definitions */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 45px;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Coder 4.0 Split Card layouts */
+        .two-column.tiled > div {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            padding: 35px;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .two-column.tiled h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--naranja-horizonte);
+            margin-bottom: 12px;
+        }
+
+        /* Warm Retro Photography Frame */
+        .image-wrapper {
+            border-radius: 16px;
+            height: 340px;
+            overflow: hidden;
+            width: 100%;
+            border: 4px solid #ffffff;
+            box-shadow: 0 10px 25px rgba(38, 7, 0, 0.08);
+        }
+
+        .image-wrapper img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* Custom 2D Filled Icons & Tiles */
+        .tiled-content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .tile {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .tile .icon-box {
+            background-color: rgba(255, 99, 43, 0.1);
+            color: var(--naranja-horizonte);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .tile h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--naranja-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .tile p {
+            font-size: 14px;
+        }
+
+        /* Bullet List styling */
+        .bullet-list ul {
+            list-style: none;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .bullet-list li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--naranja-horizonte);
+            font-size: 16px;
+        }
+
+        /* Footer & Brand Branding Mark */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(38, 7, 0, 0.06);
+            padding-top: 15px;
+            width: 100%;
+        }
+
+        .slide-footer .brand-logo {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--naranja-oscuro);
+            letter-spacing: -0.5px;
+        }
+
+        .slide-footer .brand-logo span {
+            color: var(--naranja-horizonte);
+        }
+
+        .slide-footer .slide-index {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(38, 7, 0, 0.4);
+        }
+
+        /* Slide Type Banners ("Momentos de la Clase") */
+        .moment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+
+        .moment-badge.live {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .moment-badge.bug {
+            background-color: var(--rosa-energia);
+        }
+
+        .moment-badge.tip {
+            background-color: var(--amarillo-solar);
+            color: var(--naranja-oscuro);
+        }
+
+        /* Slido Interactive layout */
+        .slido-box {
+            background-color: #ffffff;
+            border: 2px dashed var(--naranja-horizonte);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 99, 43, 0.05);
+        }
+
+        .slido-box h3 {
+            font-size: 26px;
+            color: var(--naranja-oscuro);
+            margin-bottom: 10px;
+        }
+
+        .slido-code {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--naranja-horizonte);
+            margin: 15px 0;
+            letter-spacing: -1px;
+        }
+
+        /* Transition slide */
+        .transition-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .transition-layout h2 {
+            font-size: 60px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.1;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+        }
+
+        .transition-layout hr {
+            width: 80px;
+            height: 5px;
+            background-color: var(--naranja-horizonte);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        /* Clean retro table */
+        .table-layout {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+            width: 100%;
+        }
+
+        .table-layout table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-layout th, .table-layout td {
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(38, 7, 0, 0.06);
+            font-size: 14px;
+        }
+
+        .table-layout th {
+            background-color: rgba(38, 7, 0, 0.03);
+            color: var(--naranja-oscuro);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .table-layout tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Break Slide Design */
+        .break-slide {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+        }
+
+        .break-slide::before {
+            display: none;
+        }
+
+        .break-slide h2 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--blanco-lienzo);
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        .break-slide p {
+            color: rgba(248, 242, 232, 0.75);
+            font-size: 22px;
+        }
+
+        .break-logo {
+            font-size: 80px;
+            color: var(--naranja-horizonte);
+            margin-bottom: 30px;
+        }
+
+        /* Q&A / Legal section */
+        .legal-notice {
+            font-size: 10px;
+            line-height: 1.4;
+            color: rgba(38, 7, 0, 0.4);
+            text-align: justify;
+            margin-top: 20px;
+        }
+
+        /* Presentation controls toolbar */
+        .controls-toolbar {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(38, 7, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dot.active {
+            background-color: var(--naranja-horizonte);
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        /* Code Block Container */
+        .code-block {
+            background-color: #ffffff;
+            border-left: 4px solid var(--naranja-horizonte);
+            padding: 15px 20px;
+            font-family: monospace;
+            font-size: 13px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        /* Small note under tables */
+        .note-text {
+            margin-top: 18px;
+            font-size: 14px;
+            font-style: italic;
+            color: rgba(38, 7, 0, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-viewport">
+
+    <!-- SLIDE 1: Portada General -->
+    <div class="slide-container active" id="slide1">
+        <div></div>
+        <div class="transition-layout" style="margin-bottom: 30px;">
+            <span class="moment-badge">CODER 4.0 • CLASE 03</span>
+            <h1 style="font-size: 54px;">NumPy y Pandas: Arrays, Vectorización y el Motor de la Ciencia de Datos</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                De listas de Python a estructuras profesionales: velocidad, forma y organización
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">01 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: División Módulo 1 -->
+    <div class="slide-container" id="slide2">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 01</span>
+            <h2>NumPy y la Vectorización</h2>
+            <p style="font-size: 20px;">Por qué tratar miles de datos como uno solo es la base de toda la Ciencia de Datos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">02 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Por qué existe NumPy -->
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title">¿Por qué existe NumPy en el Flujo de Trabajo de Datos?</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">El cimiento de Data Science</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Las listas de Python son flexibles (mezclan tipos), pero esa flexibilidad cuesta lentitud y memoria.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-gauge-high"></i> <strong>Rendimiento:</strong> operaciones escritas en C, hasta 100 veces más rápidas que los bucles de Python.</li>
+                            <li><i class="fa-solid fa-square-root-variable"></i> <strong>Sintaxis matemática:</strong> escribimos fórmulas directamente sobre el conjunto, sin "abrirlo" elemento por elemento.</li>
+                            <li><i class="fa-solid fa-layer-group"></i> <strong>Debajo del capó:</strong> Pandas, Matplotlib y Scikit-Learn dependen de NumPy para funcionar.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+<span style="color: #6a737d;"># Bucle tradicional: 500 productos, +21% IVA</span>
+precios = [100, 250, 80, 500]
+con_iva = []
+for p in precios:
+    con_iva.append(p * 1.21)
+
+<span style="color: #6a737d;"># Con NumPy: una tienda con 10 millones</span>
+<span style="color: #6a737d;"># de productos ya no es un problema</span>
+import numpy as np
+precios_np = np.array(precios)
+con_iva_np = precios_np * 1.21
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">03 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: ndarray y homogeneidad -->
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title">¿Qué es un ndarray? El Corazón de NumPy</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Homogeneidad de Tipo</h3>
+                    <p>A diferencia de una lista de Python, donde puedes mezclar peras con manzanas, en un array de NumPy <strong>todos los elementos deben ser del mismo tipo</strong>.</p>
+                </div>
+                <div>
+                    <h3>¿Por qué importa?</h3>
+                    <p>Si NumPy sabe que "todo es un entero de 64 bits", reserva un bloque exacto de memoria y calcula en bloque. Como una estantería diseñada para cajas del mismo tamaño: se apilan y mueven mucho más rápido.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">04 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Dimensiones, ejes y forma -->
+    <div class="slide-container" id="slide5">
+        <h2 class="slide-title">Dimensiones, Ejes y Forma: ndim, shape, dtype</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-circle-dot"></i></div>
+                    <h3>0D — Escalar</h3>
+                    <p>Un solo número. Ej: 5. Cero ejes.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-grip-lines"></i></div>
+                    <h3>1D — Vector</h3>
+                    <p>Una fila de números, como una lista simple. shape = (5,)</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-table-cells"></i></div>
+                    <h3>2D — Matriz</h3>
+                    <p>Filas y columnas. shape = (3, 2): 3 filas, 2 columnas.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-cube"></i></div>
+                    <h3>3D — Tensor</h3>
+                    <p>Un "cubo" de datos: varias pestañas o una imagen (Alto, Ancho, Color).</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">05 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Creación de arrays -->
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title">Creación de Arrays: Tus Primeras Herramientas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-toolbox"></i> Dar vida a un array</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrow-right-arrow-left"></i> <strong>np.array():</strong> convierte una lista de Python existente en un array.</li>
+                            <li><i class="fa-solid fa-square"></i> <strong>np.zeros() / np.ones():</strong> arrays llenos de ceros o unos; útil para "preparar" el espacio de resultados.</li>
+                            <li><i class="fa-solid fa-ruler-horizontal"></i> <strong>np.arange(inicio, fin, paso):</strong> como el range() de Python, pero devuelve un array.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+import numpy as np
+
+mi_lista = [1, 2, 3]
+mi_array = np.array(mi_lista)
+
+np.zeros((2, 3))
+<span style="color: #6a737d;"># [[0. 0. 0.]
+#  [0. 0. 0.]]</span>
+
+np.ones((2, 3))
+<span style="color: #6a737d;"># [[1. 1. 1.]
+#  [1. 1. 1.]]</span>
+
+np.arange(0, 10, 2)
+<span style="color: #6a737d;"># [0 2 4 6 8]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">06 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Reshape y operaciones elemento a elemento -->
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title">Cambio de Forma y Operaciones Elemento a Elemento</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">reshape: reorganizar sin alterar</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-shuffle"></i> <strong>reshape:</strong> cambia la estructura de 1D a 2D sin tocar los datos.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Regla:</strong> el número total de elementos debe coincidir; 6 elementos no entran en una tabla 2x2.</li>
+                            <li><i class="fa-solid fa-equals"></i> <strong>Posición a posición:</strong> sumar dos arrays ocurre automáticamente elemento por elemento, sin bucles.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+arr = np.arange(1, 7)
+<span style="color: #6a737d;"># [1 2 3 4 5 6]  shape (6,)</span>
+
+matriz = arr.reshape(2, 3)
+<span style="color: #6a737d;"># [[1 2 3]
+#  [4 5 6]]  shape (2, 3)</span>
+
+array_A = np.array([1, 2])
+array_B = np.array([10, 20])
+array_A + array_B
+<span style="color: #6a737d;"># [11, 22]  ¡Sin bucles for!</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">07 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Vectorización vs bucles -->
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title">Vectorización frente a Bucles Python</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-bolt"></i> El concepto más importante</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-list-ol"></i> <strong>Enfoque bucle:</strong> crear lista vacía, iterar, multiplicar, agregar — 4 pasos.</li>
+                            <li><i class="fa-solid fa-bolt"></i> <strong>Enfoque NumPy:</strong> mi_array * 2 — un solo paso.</li>
+                            <li><i class="fa-solid fa-eye"></i> <strong>Claridad:</strong> el código se parece a una fórmula matemática real.</li>
+                            <li><i class="fa-solid fa-gauge-high"></i> <strong>Velocidad:</strong> el procesador multiplica todo el bloque de una vez, no tarea por tarea.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+<span style="color: #6a737d;"># Bucle: 4 pasos</span>
+duplicados = []
+for x in mi_lista:
+    duplicados.append(x * 2)
+
+<span style="color: #6a737d;"># Vectorización: 1 paso</span>
+duplicados_np = mi_array * 2
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">08 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Errores comunes NumPy -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">Errores Comunes y Mejores Prácticas de NumPy</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Trampas frecuentes</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Error</th>
+                            <th>Qué pasa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Mezclar tipos</strong></td><td>[1, 2, "3"] convierte TODO a texto para mantener la homogeneidad; ya no podés calcular.</td></tr>
+                        <tr><td><strong>shape vs. len()</strong></td><td>En una matriz de 4x5, len() solo devuelve 4 (filas). Para la estructura completa, usá .shape.</td></tr>
+                        <tr><td><strong>Bucles innecesarios</strong></td><td>Si sentís la tentación de escribir un for sobre un array, buscá primero la función vectorizada de NumPy.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Práctica recomendada: siempre verificá el dtype de tu array antes de operar matemáticamente sobre él.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">09 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: División Módulo 2 -->
+    <div class="slide-container" id="slide10">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 02</span>
+            <h2>Broadcasting y Operaciones Matriciales</h2>
+            <p style="font-size: 20px;">El verdadero superpoder de NumPy: operar arrays de distinto tamaño sin un solo bucle.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Matriz de Datos -->
+    <div class="slide-container" id="slide11">
+        <h2 class="slide-title">El Concepto de Matriz de Datos</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Filas, columnas e indexación</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-grip-lines"></i> <strong>Filas (eje 0):</strong> cada observación — un cliente, sensor, transacción o día.</li>
+                            <li><i class="fa-solid fa-table-columns"></i> <strong>Columnas (eje 1):</strong> las características de esa observación (edad, precio, temperatura).</li>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Indexación base 0:</strong> el elemento (2, 1) es la tercera fila, segunda columna.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+import numpy as np
+<span style="color: #6a737d;"># 3 observaciones (filas), 2 columnas</span>
+datos = np.array([
+    [25, 50000],  <span style="color: #6a737d;"># Cliente 1</span>
+    [30, 60000],  <span style="color: #6a737d;"># Cliente 2</span>
+    [45, 80000]   <span style="color: #6a737d;"># Cliente 3</span>
+])
+print(datos[2, 1])
+<span style="color: #6a737d;"># 80000 (tercera fila, segunda columna)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">11 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Broadcasting -->
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title">Broadcasting: el Superpoder de NumPy</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-expand"></i> Expansión virtual, sin copiar</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrows-left-right"></i> NumPy compara las formas <strong>de derecha a izquierda</strong>. Son compatibles si son iguales o si una de ellas es 1.</li>
+                            <li><i class="fa-solid fa-wand-magic-sparkles"></i> "Estira" virtualmente el array más chico, sin copiar datos en memoria.</li>
+                            <li><i class="fa-solid fa-chart-column"></i> Caso real: restar el promedio de cada grupo a 1,000 alturas sin crear 1,000 copias.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;"># Matriz 3x2 y vector de medias (2,)</span>
+matriz_datos = np.array([[20, 100],
+                          [30, 200],
+                          [40, 300]])
+medias = np.array([30, 200])
+
+datos_centrados = matriz_datos - medias
+<span style="color: #6a737d;"># [[-10, -100],
+#  [  0,    0],
+#  [ 10,  100]]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">12 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Multiplicación elemento a elemento vs Transposición -->
+    <div class="slide-container" id="slide13">
+        <h2 class="slide-title">Multiplicación Elemento a Elemento (*) y Transposición (.T)</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Multiplicación (*)</h3>
+                    <p>Multiplica posición a posición: (0,0) con (0,0), (0,1) con (0,1), etc. Las dimensiones deben cumplir las reglas de broadcasting. No es álgebra lineal.</p>
+                </div>
+                <div>
+                    <h3>Transposición (.T)</h3>
+                    <p>Gira la matriz: filas se convierten en columnas. Una 3x2 se vuelve 2x3. No copia datos, solo cambia cómo se leen — extremadamente eficiente. Clave para alinear dimensiones antes de calcular.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">13 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Multiplicación matricial y casos de uso -->
+    <div class="slide-container" id="slide14">
+        <h2 class="slide-title">Multiplicación Matricial (@) y Casos de Uso Reales</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Fila por columna</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-at"></i> <strong>A @ B:</strong> el número de columnas de A debe igualar las filas de B.</li>
+                            <li><i class="fa-solid fa-percent"></i> <strong>Escalado:</strong> ajustar precios por inflación con un escalar (precios * 1.05).</li>
+                            <li><i class="fa-solid fa-chart-line"></i> <strong>Normalización Z-score:</strong> (datos - medias) / desviaciones, en una sola línea gracias al broadcasting.</li>
+                            <li><i class="fa-solid fa-brain"></i> <strong>Redes neuronales:</strong> las predicciones se calculan con multiplicación matricial entre datos y pesos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+A = np.array([[1, 2], [3, 4], [5, 6]])  <span style="color: #6a737d;"># 3x2</span>
+B = np.array([[10, 20], [30, 40]])       <span style="color: #6a737d;"># 2x2</span>
+
+resultado = A @ B  <span style="color: #6a737d;"># 3x2 @ 2x2 = 3x2</span>
+print(resultado)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Errores comunes de la trinchera -->
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title">Errores Comunes de la Trinchera</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Los tres clásicos</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Error</th>
+                            <th>Causa y solución</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>could not be broadcast together</strong></td><td>Sumar o multiplicar con * arrays que no cumplen la regla de compatibilidad (ej. 3 vs. 4 elementos).</td></tr>
+                        <tr><td><strong>shapes not aligned</strong></td><td>Usar @ o np.dot cuando las dimensiones internas no coinciden. Solución habitual: A @ B.T.</td></tr>
+                        <tr><td><strong>Confundir * con @</strong></td><td>* es para ajustes elemento a elemento; @ combina características con pesos en álgebra lineal.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Mini-desafío: dar puntos extra distintos por examen (+2, +1, +3) a 4 alumnos en 3 exámenes, en una sola línea con broadcasting.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: División Módulo 3 -->
+    <div class="slide-container" id="slide16">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 03</span>
+            <h2>Álgebra Lineal con NumPy</h2>
+            <p style="font-size: 20px;">Producto punto, sistemas de ecuaciones y diagnóstico matricial: el motor de la regresión y las redes neuronales.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">16 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: Producto punto y multiplicación matricial -->
+    <div class="slide-container" id="slide17">
+        <h2 class="slide-title">Producto Punto (Dot Product) y Multiplicación Matricial</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-vector-square"></i> De vectores a un escalar</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-circle-dot"></i> <strong>Producto punto:</strong> multiplica elementos correspondientes y suma los resultados; devuelve un único escalar.</li>
+                            <li><i class="fa-solid fa-table-cells"></i> <strong>Multiplicación matricial:</strong> el elemento (i, j) del resultado es el producto punto de la fila i de A y la columna j de B.</li>
+                            <li><i class="fa-solid fa-code"></i> <strong>Estilo moderno:</strong> se prefiere el operador @ sobre np.dot() por legibilidad.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+v1 = np.array([1, 2, 3])
+v2 = np.array([4, 5, 6])
+<span style="color: #6a737d;"># (1*4)+(2*5)+(3*6) = 4+10+18 = 32</span>
+dot_product = np.dot(v1, v2)
+
+A = np.array([[1, 2], [3, 4]])
+B = np.array([[5, 6], [7, 8]])
+C = A @ B
+<span style="color: #6a737d;"># [[19, 22], [43, 50]]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">17 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: Transposición y sistemas de ecuaciones -->
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title">Sistemas de Ecuaciones Lineales: np.linalg.solve</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Ax = b, sin calcular la inversa</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-equals"></i> <strong>Ax = b:</strong> A es la matriz de coeficientes, b los términos independientes, x las incógnitas.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Calcular la inversa es ineficiente</strong> y propenso a errores de redondeo (inestabilidad numérica).</li>
+                            <li><i class="fa-solid fa-check"></i> <strong>np.linalg.solve:</strong> usa descomposición LU, mucho más rápida y estable.</li>
+                            <li><i class="fa-solid fa-shield-halved"></i> <strong>Restricción:</strong> A debe ser cuadrada y no singular (determinante ≠ 0).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;"># 3x + 1y = 9
+# 1x + 2y = 8</span>
+A = np.array([[3, 1], [1, 2]])
+b = np.array([9, 8])
+
+x = np.linalg.solve(A, b)
+<span style="color: #6a737d;"># [2., 3.]  ->  x = 2, y = 3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">18 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Diagnóstico matricial -->
+    <div class="slide-container" id="slide19">
+        <h2 class="slide-title">Diagnóstico y Propiedades Matriciales (np.linalg)</h2>
+        <div class="content-area">
+            <span class="moment-badge">Inspeccionar antes de modelar</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Función</th>
+                            <th>Propiedad</th>
+                            <th>Utilidad en Data Science</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>np.linalg.det(A)</td><td>Determinante: si es 0, la matriz es singular.</td><td>Diagnóstico de colinealidad en variables.</td></tr>
+                        <tr><td>np.linalg.norm(v)</td><td>Norma: magnitud geométrica de un vector.</td><td>Distancias, similitud coseno, KNN.</td></tr>
+                        <tr><td>np.linalg.eig(A)</td><td>Eigenvalues / Eigenvectors: direcciones que solo se escalan.</td><td>Reducción de dimensionalidad (PCA).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">La ecuación normal de la Regresión Lineal (β = (XᵀX)⁻¹Xᵀy) combina transpuestas, multiplicaciones y sistemas lineales que NumPy resuelve en milisegundos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: Break de Coder ("Recreo") -->
+    <div class="slide-container break-slide" id="slide20">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
+            <h2>Break del Coder</h2>
+            <p>Andá por un cafecito o mate, ¡y en 10 minutos volvemos!</p>
+        </div>
+        <div class="slide-footer" style="border-top: 1px solid rgba(248, 242, 232, 0.2);">
+            <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span style="color: var(--naranja-horizonte);">HOUSE</span></div>
+            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">20 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: División Módulo 4 -->
+    <div class="slide-container" id="slide21">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 04</span>
+            <h2>NumPy y Pandas: La Sinergia</h2>
+            <p style="font-size: 20px;">El motor y la carrocería: NumPy aporta el músculo matemático, Pandas la inteligencia organizativa.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">21 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: El motor y la carrocería -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">El Motor (NumPy) y la Carrocería (Pandas)</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>NumPy: rejilla matemática pura</h3>
+                    <p>Homogéneo, veloz, ideal para álgebra lineal y cálculos pesados. Pero no tiene etiquetas: si quieres la columna "Precios" debés recordar que es el índice 2.</p>
+                </div>
+                <div>
+                    <h3>Pandas: hoja de cálculo programable</h3>
+                    <p>Construido <strong>sobre</strong> NumPy. Cada columna de un DataFrame es, por dentro, un array de NumPy con una etiqueta encima. Añade nombres de columnas, tipos mixtos y manejo de nulos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: Comparativa cuándo usar cuál -->
+    <div class="slide-container" id="slide23">
+        <h2 class="slide-title">Comparativa: ¿Cuándo Usar Cuál?</h2>
+        <div class="content-area">
+            <span class="moment-badge">"NumPy trabaja con números; Pandas trabaja con datos"</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Característica</th>
+                            <th>NumPy</th>
+                            <th>Pandas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Estructura principal</td><td>ndarray (Matriz)</td><td>DataFrame (Tabla)</td></tr>
+                        <tr><td>Tipo de datos</td><td>Homogéneo (todo números)</td><td>Heterogéneo (mezcla tipos)</td></tr>
+                        <tr><td>Identificación</td><td>Solo por posición (0, 1, 2...)</td><td>Por posición y por nombre</td></tr>
+                        <tr><td>Uso ideal</td><td>Álgebra lineal, cálculos pesados</td><td>EDA, limpieza, leer CSV/Excel</td></tr>
+                        <tr><td>Celdas vacías</td><td>Difíciles de manejar</td><td>Diseñado para detectar y limpiar nulos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">En el 90% de los proyectos usarás ambos: Pandas para leer el CSV, NumPy para las transformaciones matemáticas.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: División Módulo 5 -->
+    <div class="slide-container" id="slide24">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 05</span>
+            <h2>Series y DataFrames</h2>
+            <p style="font-size: 20px;">Las dos estructuras que convierten datos sueltos en información con nombre y etiqueta.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">24 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: La Serie -->
+    <div class="slide-container" id="slide25">
+        <h2 class="slide-title">La Serie: el Bloque de Construcción Unidimensional</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-tags"></i> Una lista con esteroides</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-database"></i> <strong>Valores:</strong> los datos reales (números o textos).</li>
+                            <li><i class="fa-solid fa-tag"></i> <strong>Índice (Index):</strong> las etiquetas de cada valor; si no asignás uno, Pandas pone 0, 1, 2...</li>
+                            <li><i class="fa-solid fa-apple-whole"></i> Con etiquetas accedés al dato de forma inmediata, sin saber su posición.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+import pandas as pd
+
+stock_frutas = pd.Series(
+    [50, 120, 30],
+    index=[<span style="color: #032f62;">"Manzanas"</span>, <span style="color: #032f62;">"Bananas"</span>, <span style="color: #032f62;">"Cerezas"</span>]
+)
+print(stock_frutas[<span style="color: #032f62;">"Manzanas"</span>])
+<span style="color: #6a737d;"># 50</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">25 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 26: El DataFrame -->
+    <div class="slide-container" id="slide26">
+        <h2 class="slide-title">El DataFrame: la Tabla Bidimensional</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Un diccionario de Series</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-table"></i> <strong>Datos:</strong> la información organizada en celdas.</li>
+                            <li><i class="fa-solid fa-list-ol"></i> <strong>Índice de filas:</strong> las etiquetas de cada registro.</li>
+                            <li><i class="fa-solid fa-heading"></i> <strong>Columnas:</strong> los nombres de cada variable.</li>
+                            <li><i class="fa-solid fa-check"></i> Si pedís una columna (df['col']) obtenés una Serie; si pedís varias (df[['a','b']]), obtenés un DataFrame.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="table-layout">
+                        <table>
+                            <thead>
+                                <tr><th></th><th>Producto</th><th>Precio</th><th>Cantidad</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>0</td><td>Camiseta</td><td>15.0</td><td>100</td></tr>
+                                <tr><td>1</td><td>Pantalón</td><td>30.0</td><td>50</td></tr>
+                                <tr><td>2</td><td>Zapatos</td><td>60.0</td><td>25</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">26 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 27: Creación desde Listas y Diccionarios -->
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title">Creación de Series y DataFrames</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-code"></i> Desde objetos que ya conocés</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-list"></i> <strong>Desde listas:</strong> la forma más sencilla, ideal para una Serie.</li>
+                            <li><i class="fa-solid fa-key"></i> <strong>Desde diccionarios (el método más común):</strong> las llaves se convierten en nombres de columnas.</li>
+                            <li><i class="fa-solid fa-link"></i> Pandas alinea automáticamente los datos: sabe que 'Ana' tiene 9.5 porque están en la misma posición.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+precios = pd.Series([10.5, 22.0, 5.0],
+    name=<span style="color: #032f62;">"Precio_Productos"</span>)
+
+data_dict = {
+  <span style="color: #032f62;">'Estudiante'</span>: [<span style="color: #032f62;">'Ana'</span>, <span style="color: #032f62;">'Luis'</span>, <span style="color: #032f62;">'Marta'</span>],
+  <span style="color: #032f62;">'Nota'</span>: [9.5, 8.0, 10.0],
+  <span style="color: #032f62;">'Asistencia'</span>: [True, True, False]
+}
+df = pd.DataFrame(data_dict)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">27 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 28: Errores comunes Pandas -->
+    <div class="slide-container" id="slide28">
+        <h2 class="slide-title">Errores Comunes: Dimensión, Índice y Tipos</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Trampas conceptuales</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Confusión</th>
+                            <th>Aclaración</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Error de dimensión</strong></td><td>df['col'] devuelve una Serie; df[['col1','col2']] devuelve un DataFrame.</td></tr>
+                        <tr><td><strong>El índice no es solo un número</strong></td><td>Puede ser texto (Argentina, México...), lo que facilita buscar datos específicos.</td></tr>
+                        <tr><td><strong>Tipos heterogéneos</strong></td><td>Si una columna de precios llega como texto ("$10"), no podrás calcular hasta limpiarla.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Al crear un DataFrame desde un diccionario, todas las listas deben tener exactamente la misma cantidad de elementos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">28 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 29: División Módulo 6 -->
+    <div class="slide-container" id="slide29">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 06</span>
+            <h2>Preprocesamiento de Datos</h2>
+            <p style="font-size: 20px;">Estrategias de eliminación e imputación frente al fenómeno inevitable de los datos ausentes.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">29 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: Datos Ausentes: Eliminación vs Imputación -->
+    <div class="slide-container" id="slide30">
+        <h2 class="slide-title">Datos Ausentes: Eliminación vs. Imputación</h2>
+        <div class="content-area">
+            <span class="moment-badge">Cuadro comparativo de impacto estadístico</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Estrategia</th>
+                            <th>Ventaja</th>
+                            <th>Riesgo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Eliminación por Filas</strong></td><td>No inventa datos; mantiene la certeza de los registros restantes.</td><td>Reduce la muestra y puede sesgarla si los datos no faltan al azar.</td></tr>
+                        <tr><td><strong>Imputación por la Media</strong></td><td>Preserva el tamaño de la muestra; computacionalmente eficiente.</td><td>Subestima la varianza y altera correlaciones.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">NA / NaN surgen por fallas de sensores, pipelines interrumpidos o registros incompletos — y la mayoría de los modelos de ML no admiten nulos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">30 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 31: Algoritmo de decisión y regla de oro -->
+    <div class="slide-container" id="slide31">
+        <h2 class="slide-title">El Algoritmo de Decisión y la Regla de Oro</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-diagram-project"></i> Flujo basado en reglas</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-code-branch"></i> Si una fila tiene <strong>más de 1 NA</strong> → eliminar el registro completo.</li>
+                            <li><i class="fa-solid fa-code-branch"></i> Si tiene <strong>exactamente 1 NA</strong> → imputar con la media de la columna.</li>
+                            <li><i class="fa-solid fa-shield-halved"></i> <strong>Regla de oro:</strong> las medias deben calcularse ANTES de eliminar filas, usando solo los valores presentes.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;"># Data Leakage: por qué el orden importa</span>
+<span style="color: #6a737d;"># Si eliminás filas antes de calcular</span>
+<span style="color: #6a737d;"># la media, alterás la distribución</span>
+<span style="color: #6a737d;"># original e invalidás el valor imputado</span>
+
+Si (NA en fila i) &gt; 1:
+    eliminar registro
+Si (NA en fila i) == 1:
+    imputar con media de columna
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">31 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 32: División Módulo 7 -->
+    <div class="slide-container" id="slide32">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 07</span>
+            <h2>Integración y Agregación Avanzada</h2>
+            <p style="font-size: 20px;">Combinar tablas relacionales con merge y resumir métricas de negocio con groupby.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">32 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 33: Merge: claves y tipos de joins -->
+    <div class="slide-container" id="slide33">
+        <h2 class="slide-title">Combinación de Datos: Claves y Tipos de Joins</h2>
+        <div class="content-area">
+            <span class="moment-badge">Comportamiento setorial de cada unión</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo de Join</th>
+                            <th>Comportamiento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Inner</strong></td><td>Conserva solo las filas cuyas claves están en ambos DataFrames (intersección).</td></tr>
+                        <tr><td><strong>Left</strong></td><td>Preserva todo el DataFrame izquierdo; sin coincidencia, rellena con NaN.</td></tr>
+                        <tr><td><strong>Right</strong></td><td>Simétrico al Left; menos usado, se prefiere reordenar argumentos.</td></tr>
+                        <tr><td><strong>Outer</strong></td><td>Conserva todas las filas de ambos (unión); genera alta presencia de NaN.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Las claves de ambas tablas deben compartir exactamente el mismo tipo de dato (int64 con int64, no con "1" como texto).</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">33 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 34: Buenas prácticas en pd.merge -->
+    <div class="slide-container" id="slide34">
+        <h2 class="slide-title">Buenas Prácticas y Control de Calidad en pd.merge()</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> El peligro del producto cartesiano</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-clone"></i> Si una clave está duplicada, el merge multiplica filas inesperadamente.</li>
+                            <li><i class="fa-solid fa-shield-halved"></i> <strong>validate:</strong> lanza un error si la cardinalidad esperada no se cumple.</li>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> <strong>indicator=True:</strong> crea la columna _merge (left_only, right_only, both) para auditar pérdidas.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+df_resultado = pd.merge(
+    left=orders,
+    right=customers[[<span style="color: #032f62;">'customer_id'</span>,
+                      <span style="color: #032f62;">'customer_name'</span>]],
+    on=<span style="color: #032f62;">'customer_id'</span>,
+    how=<span style="color: #032f62;">'left'</span>,
+    validate=<span style="color: #032f62;">'many_to_one'</span>,
+    suffixes=(<span style="color: #032f62;">'_order'</span>, <span style="color: #032f62;">'_customer'</span>)
+)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">34 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 35: Split-Apply-Combine -->
+    <div class="slide-container" id="slide35">
+        <h2 class="slide-title">Split-Apply-Combine: agg() vs. transform()</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-layer-group"></i> Dividir, aplicar, combinar</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-scissors"></i> <strong>Split:</strong> se particiona en sub-tablas por valores únicos de una categoría.</li>
+                            <li><i class="fa-solid fa-compress"></i> <strong>.agg():</strong> reduce — 1,000 filas de un grupo devuelven una sola fila con el estadístico.</li>
+                            <li><i class="fa-solid fa-expand"></i> <strong>.transform():</strong> preserva la dimensionalidad — proyecta el resultado a cada fila original.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;"># agg(): reduce a una fila por grupo</span>
+df_resumen = df.groupby([<span style="color: #032f62;">'month'</span>,<span style="color: #032f62;">'category'</span>]).agg(
+    total_sales=(<span style="color: #032f62;">'sales'</span>, <span style="color: #032f62;">'sum'</span>),
+    avg_price=(<span style="color: #032f62;">'price'</span>, <span style="color: #032f62;">'mean'</span>)
+).reset_index()
+
+<span style="color: #6a737d;"># transform(): Z-score por categoría</span>
+df[<span style="color: #032f62;">'sales_z'</span>] = df.groupby(<span style="color: #032f62;">'category'</span>)[<span style="color: #032f62;">'sales'</span>]\
+    .transform(lambda x: (x-x.mean())/x.std())
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">35 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 36: Outliers y escalamiento -->
+    <div class="slide-container" id="slide36">
+        <h2 class="slide-title">Outliers y Escalamiento: Winsorización, Z-Score y Robust</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-scissors"></i></div>
+                    <h3>Winsorización</h3>
+                    <p>En vez de eliminar outliers, se les asigna un tope (percentil 1 y 99), estabilizando la varianza sin perder registros.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-bell"></i></div>
+                    <h3>Z-Score</h3>
+                    <p>Media 0, desviación estándar 1. Altamente sensible a outliers extremos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3>Robust Scaling</h3>
+                    <p>Usa mediana e IQR (P75 - P25); inmune a la distorsión de valores atípicos. Estándar cuando hay colas largas.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-fingerprint"></i></div>
+                    <h3>Reproducibilidad</h3>
+                    <p>Fijar random seed, versionar cada estado del dataset y loguear metadatos: así el pipeline es auditable.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">36 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 37: División Módulo 8 -->
+    <div class="slide-container" id="slide37">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 08</span>
+            <h2>Inspección Inicial y Pre-Entrega</h2>
+            <p style="font-size: 20px;">head(), info() y describe(): tus ojos para tomarle el pulso a cualquier dataset en segundos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">37 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 38: head, info, describe -->
+    <div class="slide-container" id="slide38">
+        <h2 class="slide-title">Inspección Inicial: head(), info() y describe()</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-magnifying-glass"></i> Tomarle el pulso a los datos</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-eye"></i> <strong>head():</strong> ¿se importó bien el archivo, con las columnas en orden?</li>
+                            <li><i class="fa-solid fa-list-check"></i> <strong>info():</strong> ¿qué tipos de datos tenemos y dónde hay nulos?</li>
+                            <li><i class="fa-solid fa-chart-simple"></i> <strong>describe():</strong> ¿en qué rangos se mueven mis variables numéricas?</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+import pandas as pd
+
+df = pd.read_csv(<span style="color: #032f62;">"dataset.csv"</span>)
+df.head()
+print(df.shape)
+df.info()
+df.describe()
+df.isnull().sum()
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">38 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 39: Pre-entrega -->
+    <div class="slide-container" id="slide39">
+        <h2 class="slide-title">Pre-Entrega: Checkpoint — Estructura Inicial del Dataset</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bloque</th>
+                            <th>Contenido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. Carga e Inspección</strong></td>
+                            <td>read_csv, .head() para inspección visual, .shape e .info() para volumen y tipos.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. Perfilado Inicial</strong></td>
+                            <td>Total de valores nulos por columna y estadísticas descriptivas con .describe().</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. Saneamiento y Selección</strong></td>
+                            <td>Al menos 3 filtros booleanos para recortar el dataset; eliminar columnas innecesarias.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. Reflexión</strong></td>
+                            <td>Celda Markdown: ¿qué problemas encontraste? ¿cuáles serán tus variables clave?</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Entregable: PDF del Jupyter Notebook con código, resultados y comentarios. Nombre sugerido: Apellido_Nombre_Checkpoint1.pdf</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">39 / 40</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 40: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide40">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 90px; color: var(--naranja-horizonte);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 60px; color: var(--rosa-energia);"></i>
+            </div>
+            <h1 style="font-size: 64px;">¿Dudas? ¿Consultas?</h1>
+            <p style="font-size: 22px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Este es el momento de preguntar todo lo que necesites
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">40 / 40</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Presentation navigation controls toolbar -->
+<div class="controls-toolbar">
+    <button class="control-btn" id="prev-slide"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+    <div class="slide-dots" id="slide-dots"></div>
+    <button class="control-btn" id="next-slide">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<script>
+    // Slider Presentation Logic
+    const slides = document.querySelectorAll('.slide-container');
+    const prevBtn = document.getElementById('prev-slide');
+    const nextBtn = document.getElementById('next-slide');
+    const dotsContainer = document.getElementById('slide-dots');
+
+    let currentSlideIndex = 0;
+
+    // Create Navigation Indicators Dynamically
+    slides.forEach((slide, idx) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (idx === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToSlide(idx);
+        });
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateControls() {
+        dots.forEach((dot, idx) => {
+            if (idx === currentSlideIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+
+        slides[currentSlideIndex].classList.remove('active');
+        currentSlideIndex = index;
+        slides[currentSlideIndex].classList.add('active');
+
+        updateControls();
+    }
+
+    // Keyboard Navigation Handlers
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+            goToSlide(currentSlideIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+            goToSlide(currentSlideIndex - 1);
+        }
+    });
+
+    // Button Click Event Listeners
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex + 1);
+    });
+</script>
+
+</body>
+</html>

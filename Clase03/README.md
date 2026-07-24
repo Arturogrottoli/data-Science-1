@@ -1,745 +1,639 @@
-# Clase 03: NumPy y Pandas
+# Clase 03: NumPy y Pandas — Guía Completa para el Docente
 
-[Presentacion](https://docs.google.com/presentation/d/135XQdDjAvsoXtqDWhASGQ8-YWBFS5bDgxyJjfycykYs/edit?slide=id.g2204e13b0d5_2_631#slide=id.g2204e13b0d5_2_631)
+Esta guía es el **libreto de apoyo para dictar la Clase 03**. Reúne, en un solo lugar y con más profundidad de la que entra en una diapositiva, toda la teoría y todos los ejemplos que aparecen en:
 
----
+- **`Clase 03.pdf`** — el material teórico oficial de la unidad (9 secciones: de Arrays y Vectorización hasta la Inspección Inicial de datos).
+- **`Clase03.html`** — las diapositivas que se proyectan en clase (40 filminas).
+- **`Clase 03.ipynb`** — el notebook con todos los ejemplos ejecutables y comentados, con teoría ampliada en celdas Markdown.
 
-### Contenidos
-1. [Repaso Python — Clase 2](#1-repaso-python--clase-2)
-2. [Pandas](#2-pandas)
-   - [2.1 Series](#21-series)
-   - [2.2 DataFrames](#22-dataframes)
-   - [2.3 Selección e Indexación](#23-selección-e-indexación)
-   - [2.4 Valores Ausentes (NaN)](#24-valores-ausentes-nan)
-   - [2.5 Agrupación y Agregación](#25-agrupación-y-agregación)
-   - [2.6 Transformación y Limpieza](#26-transformación-y-limpieza)
-3. [Lectura y Escritura de Archivos](#3-lectura-y-escritura-de-archivos)
-4. [Ejercicio: Análisis de Acciones](#4-ejercicio-análisis-de-acciones)
-5. [NumPy](#5-numpy)
-   - [5.1 Tipos y Atributos del ndarray](#51-tipos-y-atributos-del-ndarray)
-   - [5.2 Creación de Arrays](#52-creación-de-arrays)
-   - [5.3 Operaciones Vectorizadas](#53-operaciones-vectorizadas)
-   - [5.4 Estadísticas con NumPy](#54-estadísticas-con-numpy)
-   - [5.5 Álgebra Lineal](#55-álgebra-lineal)
-   - [5.6 Reshape, Concatenación y Splitting](#56-reshape-concatenación-y-splitting)
-6. [Cierre: NumPy + Pandas juntos](#6-cierre-numpy--pandas-juntos)
+La idea es la misma que en la guía de Clase 02: si en medio de la clase te falla la memoria sobre un detalle (¿por qué `reshape` tira error si no coinciden las dimensiones?, ¿cuál era la regla de broadcasting?, ¿`agg` o `transform`?), lo encuentres acá explicado con más contexto del que alcanza a mostrar una filmina.
+
+> **Nota de construcción**: esta guía se está armando de forma incremental, bloque por bloque, en el mismo orden en que se dicta la clase. Cada sección nueva se agrega acá y al notebook a la vez.
 
 ---
 
-## 1. Repaso Python — Clase 2
+## Índice
 
-Antes de arrancar con NumPy y Pandas, repasamos las estructuras de Python que vamos a usar constantemente:
-
-```python
-# Listas y diccionarios
-lista = [1, 2, 3, 4]
-diccionario = {"nombre": "Ana", "edad": 25}
-
-# For y while
-for item in lista:
-    print(item)
-
-# Funciones
-def calcular_promedio(numeros):
-    return sum(numeros) / len(numeros)
-```
-
-**¿Por qué importa el repaso?** NumPy y Pandas son extensiones naturales de estas estructuras: los arrays de NumPy mejoran las listas, y los DataFrames de Pandas mejoran los diccionarios de listas.
-
-```python
-# De lista a NumPy array
-import numpy as np
-temperaturas = [20, 22, 25, 23, 21]
-arr = np.array(temperaturas)
-print(arr * 9/5 + 32)   # vectorizado, sin bucle
-
-# De diccionario a DataFrame
-import pandas as pd
-datos = {"nombres": ["Ana", "Luis"], "edades": [25, 30]}
-df = pd.DataFrame(datos)
-print(df[df["edades"] > 27])   # filtro simple
-```
+0. [Bloque 0 — Repaso de la Clase Anterior](#bloque-0--repaso-de-la-clase-anterior-fundamentos-de-python)
+1. [Módulo 1 — Arrays Multidimensionales y Vectorización en NumPy](#módulo-1--arrays-multidimensionales-y-vectorización-en-numpy)
+2. [Módulo 2 — Broadcasting y Operaciones sobre Matrices](#módulo-2--broadcasting-y-operaciones-sobre-matrices)
+3. [Módulo 3 — Álgebra Lineal con NumPy](#módulo-3--álgebra-lineal-con-numpy)
+4. [Módulo 4 — NumPy y Pandas: la Relación entre el Cálculo y la Estructura de Datos](#módulo-4--numpy-y-pandas-la-relación-entre-el-cálculo-y-la-estructura-de-datos)
+5. [Módulo 5 — Introducción a Pandas: Series y DataFrames](#módulo-5--introducción-a-pandas-series-y-dataframes)
+6. [Módulo 6 — Preprocesamiento de Datos](#módulo-6--preprocesamiento-de-datos)
+7. [Módulo 7 — Integración, Agregación y Preprocesamiento Avanzado](#módulo-7--integración-agregación-y-preprocesamiento-avanzado)
+8. Módulo 8 — La Sinergia de Datos: NumPy y Pandas en Profundidad *(próximamente)*
+9. Módulo 9 — Inspección Inicial de Datos y Pre-Entrega *(próximamente)*
 
 ---
 
-## 2. Pandas
+## Bloque 0 — Repaso de la Clase Anterior (Fundamentos de Python)
 
-### ¿Qué es Pandas?
+**Contexto para abrir la clase**: antes de tocar NumPy, conviene una vuelta relámpago por los cuatro pilares de Python que ya vimos en la Clase 02 — **variables**, **condicionales**, **ciclo `for`** y **funciones** — reunidos en un solo ejemplo. No es contenido nuevo: es el punto de apoyo que vamos a necesitar en la próxima sección, cuando comparemos "resolver esto con un `for`" contra "resolverlo con NumPy en una línea".
 
-Pandas es una librería de Python para manipular y analizar datos tabulares. Construida sobre NumPy, extiende sus capacidades con estructuras de datos flexibles y funciones optimizadas para análisis de datos del mundo real.
+### Variables (repaso)
 
-**¿Por qué Pandas y no Python solo?**
-
-Con Python puro se puede hacer todo, pero rápidamente se vuelve engorroso: leer un CSV implica abrir el archivo, iterar línea por línea, separar por coma, convertir tipos... y eso antes de hacer cualquier análisis. Pandas resuelve eso con una sola línea (`pd.read_csv`). Además, opera sobre columnas enteras a la vez sin necesidad de bucles, lo que hace el código más corto, más legible y considerablemente más rápido cuando los datos crecen.
-
-**Historia:** lanzada en 2008 por Wes McKinney en AQR Capital Management para análisis financiero. Su nombre viene de "Panel Data". Hoy es la herramienta estándar del ecosistema de Data Science en Python.
-
-**Estructuras principales:**
-- **Series**: array unidimensional con índice etiquetado
-- **DataFrame**: tabla bidimensional — filas y columnas etiquetadas
-
-**Por qué conviene sobre diccionarios y listas:**
-
-| Tarea | Python puro | Pandas |
-|-------|------------|--------|
-| Cargar CSV | 10+ líneas | `pd.read_csv("archivo.csv")` |
-| Promedio de columna | bucle manual | `df["col"].mean()` |
-| Filtrar filas | list comprehension | `df[df["col"] > valor]` |
-| Agrupar y agregar | diccionarios anidados | `df.groupby("col").mean()` |
+Una variable es la etiqueta que le ponemos a un dato en memoria. Python decide el tipo automáticamente al momento de la asignación (**tipado dinámico**).
 
 ```python
-import pandas as pd
+producto = "Auriculares"
+precio = 45.90
+stock = 12
+en_oferta = True
+
+print(f"{producto} -> tipo: {type(producto)}")
+print(f"{precio} -> tipo: {type(precio)}")
 ```
+
+**Y las listas también son variables**: hasta acá `producto`, `precio`, `stock` y `en_oferta` son **escalares** — un solo valor cada una. Python también tiene **colecciones**, que agrupan muchos escalares en una sola variable; la más simple es la **lista**. Definimos acá `precios_lista`, que vamos a reutilizar tal cual en el `for` y en la función de más abajo — así queda claro desde el principio que no es un dato nuevo que aparece de la nada.
+
+```python
+precios_lista = [15, 45, 120, 300, 80, 500, 20]
+print(f"{precios_lista} -> tipo: {type(precios_lista)}")
+print(f"Primer precio: {precios_lista[0]}")
+print(f"Cantidad de precios: {len(precios_lista)}")
+```
+
+### Condicionales (repaso)
+
+`if` / `elif` / `else` bifurcan el camino de ejecución según una condición booleana. Para que se sienta "en vivo", pedimos el stock por teclado con `input()` — así cada vez que se corre la celda con un valor distinto, cambia el resultado. También combinamos condiciones con `and` / `or`, como una regla de negocio real: sin stock **siempre** es alerta; con poco stock, solo es alerta si el producto **además** está en oferta (mayor demanda esperada).
+
+```python
+stock = int(input("Ingresá el stock actual: "))
+
+if stock == 0 or (stock < 5 and en_oferta):
+    estado = "Atención: revisar reposición"
+else:
+    estado = "Stock ok"
+
+print(f"{producto}: {estado}")
+```
+
+### Ciclo for (repaso)
+
+`for` recorre una colección elemento por elemento — en este caso, la misma `precios_lista` que ya definimos arriba. **Este es el protagonista del contraste que viene**: todo lo que hoy resolvemos con un `for` sobre una lista, en NumPy lo vamos a resolver sin ningún bucle explícito, operando sobre el array completo de una sola vez.
+
+```python
+for p in precios_lista:
+    print(f"Precio: {p}")
+```
+
+### Función que reúne todo
+
+Una función combina variables, condicionales y bucles en un bloque reutilizable. El ejemplo de referencia — clasificar una lista de precios en categorías de negocio — es el mismo problema que vamos a retomar con NumPy en el próximo módulo, para poder comparar código y enfoque lado a lado.
+
+```python
+def clasificar_precios(precios):
+    """Recorre una lista de precios y cuenta cuántos caen en cada categoría de negocio."""
+    resumen = {"Económico": 0, "Medio": 0, "Premium": 0}
+
+    for precio in precios:
+        if precio < 50:
+            categoria = "Económico"
+        elif precio < 200:
+            categoria = "Medio"
+        else:
+            categoria = "Premium"
+        resumen[categoria] += 1
+
+    return resumen
+
+
+reporte = clasificar_precios(precios_lista)
+print(reporte)
+# {'Económico': 3, 'Medio': 2, 'Premium': 2}
+```
+
+**Por qué este bloque va primero**: cuando en la próxima sección resolvamos el mismo tipo de transformación con `precios_array * 1.21` (sin `for`, sin `if` explícito por elemento), el salto de un enfoque al otro se entiende mucho mejor si el enfoque "de toda la vida" está fresco y no es una abstracción lejana.
 
 ---
 
-### 2.1 Series
+## Módulo 1 — Arrays Multidimensionales y Vectorización en NumPy
 
-Una Serie es un array unidimensional donde cada elemento tiene un índice asociado (número, texto o fecha).
+### ¿Qué es NumPy, y por qué es tan buena para la parte matemática?
 
-```python
-import pandas as pd
+**NumPy (Numerical Python) es una librería de Python** — no es parte del lenguaje "de fábrica": hay que instalarla (`pip install numpy`) e importarla en cada notebook con `import numpy as np`. Por dentro, la mayor parte de NumPy **no está escrita en Python sino en C**: cuando llamás a una función de NumPy, Python le pasa el trabajo pesado a rutinas compiladas, muchísimo más rápidas que un bucle interpretado línea por línea.
 
-# Desde una lista
-s = pd.Series([10, 20, 30], index=['a', 'b', 'c'])
-print(s)
+**Lo que la hace tan buena para matemática, específicamente:**
 
-# Desde diccionario
-data_dict = {"día1": 420, "día2": 380, "día3": 390}
-serie_dict = pd.Series(data_dict)
-print(serie_dict)
+1. **Homogeneidad de tipo**: un array de NumPy exige que todos sus elementos sean del mismo tipo (todos `int64`, todos `float64`, etc.). Al saberlo de antemano, NumPy reserva un bloque de memoria **contiguo** y de tamaño exacto — nada de "adivinar" qué tipo es cada elemento en cada operación, como sí pasa con una lista de Python (que puede mezclar tipos).
+2. **Vectorización**: gracias a esa memoria contigua y homogénea, una operación como `array * 2` no itera elemento por elemento en Python — le pide al procesador que aplique la multiplicación a todo el bloque de una sola vez. Resultado: operaciones hasta **100 veces más rápidas** que el equivalente con `for`.
+3. **Sintaxis matemática nativa**: `matriz_a @ matriz_b`, `array ** 2`, `np.sqrt(array)` — se escribe álgebra casi como en el papel, sin tener que "abrir" la colección elemento por elemento.
 
-# Acceder a elementos
-print(s['a'])           # por etiqueta
-print(s.iloc[1])        # por posición
+**Por qué importa en Data Science**: NumPy es el cimiento silencioso de casi todo el ecosistema — **Pandas**, **Matplotlib** y **Scikit-Learn** están construidos sobre NumPy y lo usan para todos sus cálculos internos. Aprender NumPy no es un desvío, es la base.
 
-# Operaciones
-print(s.sum())
-print(s.mean())
-print(s.max())
-```
+### El ndarray: la regla de la homogeneidad
 
----
-
-### 2.2 DataFrames
-
-Un DataFrame es una tabla: filas y columnas, cada columna es una Serie.
-
-```python
-data = {
-    'nombre': ['Ana', 'Luis', 'Juan', 'María'],
-    'edad':   [23, 35, 29, 28],
-    'ciudad': ['Córdoba', 'Buenos Aires', 'Rosario', 'Madrid'],
-    'salario': [45000, 55000, 48000, 52000]
-}
-
-df = pd.DataFrame(data)
-print(df)
-
-# Información del DataFrame
-print(f"Forma: {df.shape}")          # (4, 4)
-print(df.dtypes)                      # tipos de cada columna
-print(df.info())                      # resumen completo
-print(df.describe())                  # estadísticas descriptivas
-print(df.head(2))                     # primeras 2 filas
-print(df.tail(2))                     # últimas 2 filas
-```
-
----
-
-### 2.3 Selección e Indexación
-
-```python
-# Seleccionar columna → Series
-print(df['edad'])
-
-# Seleccionar múltiples columnas
-print(df[['nombre', 'edad']])
-
-# Filtrar por condición
-print(df[df['edad'] > 30])
-
-# Filtros múltiples (& para AND, | para OR)
-resultado = df[(df['edad'] >= 25) & (df['salario'] > 50000)]
-print(resultado)
-
-# loc: por etiqueta
-print(df.loc[1])                         # fila con índice 1
-print(df.loc[df['nombre'] == 'Ana'])     # filas donde nombre es Ana
-
-# iloc: por posición numérica
-print(df.iloc[0])       # primera fila
-print(df.iloc[0:2])     # primeras 2 filas
-print(df.iloc[0, 1])    # fila 0, columna 1
-
-# Acceder a un valor específico
-edad_ana = df.loc[df['nombre'] == 'Ana', 'edad'].iloc[0]
-print(f"Edad de Ana: {edad_ana}")
-```
-
----
-
-### 2.4 Valores Ausentes (NaN)
-
-En análisis de datos reales, siempre hay valores faltantes. Pandas los representa como `NaN` (Not a Number) y provee herramientas para manejarlos.
-
-**¿Por qué aparecen?** Errores de carga, datos no disponibles, problemas de transmisión o simplemente que el dato no existía.
-
-```python
-import pandas as pd
-import numpy as np
-
-data_with_nan = {
-    'nombre':      ['Ana', 'Luis', 'Juan', 'María', 'Pedro'],
-    'edad':        [23, 35, np.nan, 28, 42],
-    'ciudad':      ['Córdoba', np.nan, 'Rosario', 'Madrid', 'Barcelona'],
-    'salario':     [45000, 55000, 48000, np.nan, 60000],
-    'departamento': ['IT', 'Ventas', np.nan, 'Marketing', 'IT']
-}
-df_nan = pd.DataFrame(data_with_nan)
-
-# Detectar valores ausentes
-print(df_nan.isnull().sum())              # conteo por columna
-print(df_nan.isnull().any().any())        # ¿hay algún NaN?
-
-# Porcentaje de ausentes
-pct = (df_nan.isnull().sum() / len(df_nan)) * 100
-print(pct)
-
-# Eliminar filas con NaN
-df_clean = df_nan.dropna()               # filas con cualquier NaN
-df_clean2 = df_nan.dropna(how='all')     # solo filas completamente vacías
-df_clean3 = df_nan.dropna(axis=1)        # eliminar columnas con NaN
-
-# Rellenar valores ausentes
-df_nan['edad'] = df_nan['edad'].fillna(df_nan['edad'].mean())
-df_nan['ciudad'] = df_nan['ciudad'].fillna('Desconocida')
-df_nan['salario'] = df_nan['salario'].fillna(df_nan['salario'].median())
-
-# Forward fill / backward fill (útil para series temporales)
-df_ffill = df_nan.fillna(method='ffill')  # propagar valor anterior
-df_bfill = df_nan.fillna(method='bfill')  # propagar valor siguiente
-
-# Interpolación lineal
-df_interp = df_nan.interpolate()
-```
-
-**Estrategia recomendada:**
-- Variables numéricas continuas → rellenar con media o mediana
-- Variables categóricas → rellenar con moda o "Desconocido"
-- Si hay >40% de NaN en una columna → considerar eliminarla
-- Si hay >40% de NaN en una fila → considerar eliminarla
-
----
-
-### 2.5 Agrupación y Agregación
-
-`groupby` divide el DataFrame por grupos, aplica una función y combina los resultados. Flujo: **Split → Apply → Combine**.
-
-```python
-ventas_data = {
-    'vendedor': ['Ana', 'Luis', 'Juan', 'María', 'Ana', 'Luis', 'Juan', 'María'],
-    'producto': ['A', 'B', 'A', 'B', 'A', 'B', 'A', 'B'],
-    'ventas':   [100, 150, 200, 120, 180, 90, 220, 160],
-    'region':   ['Norte', 'Sur', 'Norte', 'Sur', 'Norte', 'Sur', 'Norte', 'Sur'],
-    'mes':      ['Enero', 'Enero', 'Enero', 'Enero', 'Febrero', 'Febrero', 'Febrero', 'Febrero']
-}
-df_ventas = pd.DataFrame(ventas_data)
-
-# Agrupación simple
-ventas_por_vendedor = df_ventas.groupby('vendedor')['ventas'].agg(['sum', 'mean', 'count'])
-print(ventas_por_vendedor)
-
-# Agrupación múltiple
-multi = df_ventas.groupby(['vendedor', 'producto'])['ventas'].sum()
-print(multi)
-
-# Función de agregación personalizada
-def rango(x):
-    return x.max() - x.min()
-
-stats = df_ventas.groupby('vendedor')['ventas'].agg(['sum', 'mean', 'std', rango])
-print(stats)
-
-# Pivot table
-pivot = df_ventas.pivot_table(
-    values='ventas',
-    index='vendedor',
-    columns='producto',
-    aggfunc='sum',
-    fill_value=0
-)
-print(pivot)
-
-# Tabla de contingencia
-crosstab = pd.crosstab(df_ventas['region'], df_ventas['producto'])
-print(crosstab)
-
-# Análisis temporal: agrupar por mes
-ventas_mensuales = df_ventas.groupby('mes')['ventas'].sum()
-crecimiento = ventas_mensuales.pct_change() * 100
-print(crecimiento)
-```
-
----
-
-### 2.6 Transformación y Limpieza
-
-```python
-datos_sucios = {
-    'nombre':         ['  Ana  ', 'Luis', '  Juan  ', 'María', 'Pedro'],
-    'edad':           ['25', '30', '35', '28', '42'],
-    'fecha_registro': ['2023-01-15', '2023-02-20', '2023-03-10', '2023-01-25', '2023-04-05'],
-    'puntuacion':     ['8.5', '7.2', '9.1', '6.8', '8.9'],
-    'activo':         ['Sí', 'No', 'Sí', 'Sí', 'No']
-}
-df_sucio = pd.DataFrame(datos_sucios)
-
-# Limpiar espacios en blanco
-df_sucio['nombre'] = df_sucio['nombre'].str.strip()
-
-# Convertir tipos
-df_sucio['edad']           = pd.to_numeric(df_sucio['edad'])
-df_sucio['puntuacion']     = pd.to_numeric(df_sucio['puntuacion'])
-df_sucio['fecha_registro'] = pd.to_datetime(df_sucio['fecha_registro'])
-df_sucio['activo']         = df_sucio['activo'].map({'Sí': True, 'No': False})
-
-# Extraer información
-df_sucio['año_registro']   = df_sucio['fecha_registro'].dt.year
-df_sucio['dominio_email']  = df_sucio.get('email', pd.Series(dtype=str))
-
-# Crear categorías con apply
-def categorizar_edad(edad):
-    if edad < 30:   return 'Joven'
-    elif edad < 40: return 'Adulto'
-    else:           return 'Senior'
-
-df_sucio['categoria_edad'] = df_sucio['edad'].apply(categorizar_edad)
-
-# Crear categorías con pd.cut
-df_sucio['nivel_puntuacion'] = pd.cut(
-    df_sucio['puntuacion'],
-    bins=[0, 7, 8, 10],
-    labels=['Bajo', 'Medio', 'Alto']
-)
-
-print(df_sucio.dtypes)
-print(df_sucio.describe())
-```
-
----
-
-## 3. Lectura y Escritura de Archivos
-
-Pandas puede leer y escribir en la mayoría de los formatos de datos usados en la industria: CSV, Excel, JSON, SQL, HTML.
-
-### Leer CSV
-
-```python
-import pandas as pd
-
-# Lectura básica
-df = pd.read_csv('archivo.csv')
-
-# Desde URL (GitHub, datasets públicos)
-url = 'https://raw.githubusercontent.com/JJTorresDS/stocks-ds-edu/main/stocks.csv'
-df_stocks = pd.read_csv(url)
-print(df_stocks.head())
-```
-
-**Opciones más usadas:**
-
-```python
-pd.read_csv('archivo.csv',
-    sep=';',                        # delimitador (por defecto coma)
-    header=0,                       # fila que contiene los nombres de columna
-    usecols=['col1', 'col3'],        # leer solo esas columnas
-    index_col='id',                  # usar columna como índice
-    parse_dates=['fecha'],           # parsear fechas automáticamente
-    na_values=['N/A', '--', ''],     # qué valores tratar como NaN
-    skiprows=2                       # saltear primeras 2 filas
-)
-```
-
-### Leer Excel
-
-```python
-# Hoja específica
-df = pd.read_excel('archivo.xlsx', sheet_name='Hoja1')
-
-# Múltiples hojas
-hojas = pd.read_excel('archivo.xlsx', sheet_name=['Hoja1', 'Hoja2'])
-for nombre, df in hojas.items():
-    print(nombre, df.shape)
-
-# Todas las hojas
-todas = pd.read_excel('archivo.xlsx', sheet_name=None)
-print(list(todas.keys()))
-```
-
-### Leer desde otros formatos
-
-```python
-# JSON
-df_json = pd.read_json('archivo.json')
-
-# HTML (extrae tablas de páginas web)
-tablas = pd.read_html('pagina.html')
-df = tablas[0]
-
-# SQL (requiere sqlalchemy)
-# from sqlalchemy import create_engine
-# engine = create_engine('sqlite:///mi_base.db')
-# df = pd.read_sql('SELECT * FROM tabla', con=engine)
-```
-
-### Escritura
-
-```python
-df.to_csv('salida.csv', index=False)
-df.to_excel('salida.xlsx', sheet_name='Datos', index=False)
-df.to_json('salida.json', orient='records')
-```
-
-### Tabla resumen
-
-| Formato | Función lectura | Función escritura |
-|---------|----------------|-------------------|
-| CSV | `pd.read_csv()` | `df.to_csv()` |
-| Excel | `pd.read_excel()` | `df.to_excel()` |
-| JSON | `pd.read_json()` | `df.to_json()` |
-| HTML | `pd.read_html()` | `df.to_html()` |
-| SQL | `pd.read_sql()` | `df.to_sql()` |
-
-### Buenas prácticas al leer archivos
-
-```python
-import os
-
-# Verificar que existe antes de leer
-file_path = 'archivo.csv'
-if os.path.exists(file_path):
-    df = pd.read_csv(file_path)
-
-# Manejo de errores
-try:
-    df = pd.read_csv('archivo.csv')
-except FileNotFoundError:
-    print("El archivo no existe")
-except pd.errors.EmptyDataError:
-    print("El archivo está vacío")
-
-# Archivos muy grandes: leer por chunks
-for chunk in pd.read_csv('archivo_grande.csv', chunksize=10000):
-    procesar(chunk)
-```
-
----
-
-## 4. Ejercicio: Análisis de Acciones
-
-```python
-import pandas as pd
-import numpy as np
-
-# Cargar datos de stocks desde GitHub
-url = 'https://raw.githubusercontent.com/JJTorresDS/stocks-ds-edu/main/stocks.csv'
-stocks_df = pd.read_csv(url)
-stocks_df['formatted_date'] = pd.to_datetime(stocks_df['formatted_date'])
-stocks_df = stocks_df.set_index('formatted_date')
-
-print(stocks_df.head())
-print(f"Forma: {stocks_df.shape}")
-print(f"Rango: {stocks_df.index.min()} → {stocks_df.index.max()}")
-print(stocks_df.describe())
-```
-
-Actividades:
-1. Calcular el rendimiento promedio mensual de cada acción
-2. Identificar la acción con mayor volatilidad (desvío estándar de retornos)
-3. Filtrar los días en que AAPL subió más de 2%
-4. Crear una tabla pivot con precio promedio por mes y por acción
-
----
-
-## 5. NumPy
-
-### ¿Qué es NumPy?
-
-NumPy (Numerical Python) es la librería base para computación numérica en Python. Creada en 2005, es la fundación sobre la que se construyen Pandas, scikit-learn, TensorFlow y SciPy.
-
-Su estructura central es el **ndarray**: una grilla N-dimensional de elementos del mismo tipo, mucho más eficiente en memoria y velocidad que una lista de Python.
-
-**¿Por qué es más rápido?**
-
-| Aspecto | Lista Python | NumPy array |
-|---------|-------------|-------------|
-| Velocidad | Lenta (bucle en Python) | Rápida (C internamente) |
-| Memoria | Mayor (objetos Python) | Menor (tipos nativos) |
-| Operaciones matemáticas | Bucles explícitos | Vectorizadas (una línea) |
-| Matrices y álgebra lineal | No soporta nativamente | Soporte completo |
-
-```python
-import numpy as np
-```
-
----
-
-### 5.1 Tipos y Atributos del ndarray
+El objeto central de NumPy es el `ndarray` (n-dimensional array). Se parece a una lista de Python, pero con una regla de oro que una lista no tiene: **todos los elementos deben ser del mismo tipo**.
 
 ```python
 import numpy as np
 
-arr = np.zeros(10)
+lista_python = [1, "dos", 3.0, True]      # una lista mezcla tipos sin problema
+array_numpy = np.array([1, 2, 3.0, 4])    # NumPy homogeneiza: todo termina en float64
 
-print(arr.ndim)       # 1 (dimensiones)
-print(arr.shape)      # (10,)
-print(arr.size)       # 10 (total de elementos)
-print(arr.dtype)      # float64
-print(arr.itemsize)   # 8 bytes por elemento
-print(arr.nbytes)     # 80 bytes en total
-
-# Tipos de datos disponibles
-arr_int   = np.array([1, 2, 3, 4], dtype=np.int32)
-arr_float = np.array([1.1, 2.2, 3.3], dtype=np.float64)
-arr_bool  = np.array([True, False, True], dtype=np.bool_)
-
-print(f"int:   {arr_int},   dtype: {arr_int.dtype}")
-print(f"float: {arr_float}, dtype: {arr_float.dtype}")
-print(f"bool:  {arr_bool},  dtype: {arr_bool.dtype}")
-
-# Comparar memoria
-arr_32 = np.array([1, 2, 3, 4], dtype=np.int32)
-arr_64 = np.array([1, 2, 3, 4], dtype=np.int64)
-print(f"int32: {arr_32.nbytes} bytes")
-print(f"int64: {arr_64.nbytes} bytes")
+print(array_numpy.dtype)   # float64 -> NumPy convirtió los enteros a flotante
 ```
 
----
+### Dimensiones, forma y tipo: `ndim`, `shape`, `dtype`
 
-### 5.2 Creación de Arrays
+| Concepto | Qué responde | Ejemplo |
+|---|---|---|
+| `ndim` | ¿Cuántos "ejes" tiene el array? | Un vector tiene `ndim = 1`, una matriz `ndim = 2` |
+| `shape` | ¿Cuántos elementos hay en cada eje? | `(71, 14)` → 71 filas, 14 columnas |
+| `dtype` | ¿De qué tipo son los elementos? | `float64`, `int32`, `bool` |
+
+- **0D (Escalar)**: un solo número, ej. `5`.
+- **1D (Vector)**: una fila de números, como una lista simple.
+- **2D (Matriz)**: filas y columnas — la forma típica de una tabla de datos.
+- **3D (Tensor)**: un "cubo" de datos — varias matrices apiladas (ej. una imagen a color: alto × ancho × canales de color).
+
+### Creación de arrays
 
 ```python
 import numpy as np
 
-# Desde una lista
-arr = np.array([1, 2, 3, 4, 5])
+# Desde una lista de Python
+mi_array = np.array([1, 2, 3, 4])
 
-# Arrays predefinidos
-np.zeros(5)           # [0. 0. 0. 0. 0.]
+# Arrays "preparados" para guardar resultados
+np.zeros((3, 4))     # matriz 3x4 llena de ceros
 np.ones(5)            # [1. 1. 1. 1. 1.]
-np.zeros((3, 4))      # matriz 3x4 de ceros
-np.eye(3)             # matriz identidad 3x3
 
-# Secuencias
-np.arange(0, 10, 2)    # [0 2 4 6 8]
-np.linspace(0, 1, 5)   # [0. 0.25 0.5 0.75 1.]
-
-# Aleatorios
-np.random.rand(5)         # valores uniformes [0, 1)
-np.random.randn(5)        # distribución normal estándar
-np.random.randint(0, 10, 5)  # enteros entre 0 y 9
-
-# Matriz 2D
-matriz = np.array([[1, 2, 3],
-                   [4, 5, 6]])
-print(f"Shape: {matriz.shape}")   # (2, 3)
-print(f"ndim: {matriz.ndim}")     # 2
+# Secuencias numéricas rápidas (como range(), pero devuelve un array)
+np.arange(0, 10, 2)   # [0 2 4 6 8]
 ```
 
----
+### Ejemplo real: cargando `stocks.csv` como matriz de NumPy
 
-### 5.3 Operaciones Vectorizadas
+`stocks.csv` (en esta misma carpeta) tiene precios mensuales de 14 acciones (McDonald's, Starbucks, Google, Amazon, Microsoft, bancos, hoteles, tarjetas...) entre 2016 y 2021. Es un archivo de texto plano con una primera columna de **fechas** (texto) y 14 columnas de **precios** (números).
 
 ```python
 import numpy as np
 
-a = np.array([10, 20, 30])
-b = np.array([1, 2, 3])
+# Cargamos SOLO las columnas numéricas (excluimos la columna de fecha, que es texto)
+# skip_header=1 salta la fila de encabezados; usecols=range(1, 15) toma las 14 columnas de precios
+precios_matriz = np.genfromtxt("stocks.csv", delimiter=",", skip_header=1, usecols=range(1, 15))
 
-# Aritméticas (elemento a elemento)
-print(a + b)          # [11 22 33]
-print(a * 2)          # [20 40 60]
-print(b ** 2)         # [1  4  9]
-
-# Funciones matemáticas
-print(np.sqrt(b))     # [1. 1.41 1.73]
-print(np.exp(b))      # [e, e², e³]
-print(np.log(b))      # logaritmo natural
-print(np.abs([-1, -2, 3]))  # [1 2 3]
-
-# Indexing y slicing
-arr = np.array([10, 20, 30, 40, 50])
-print(arr[0])         # 10
-print(arr[-1])        # 50
-print(arr[1:4])       # [20 30 40]
-print(arr[::2])       # [10 30 50]
-
-# Filtro con condición booleana
-grandes = arr[arr > 25]
-print(grandes)        # [30 40 50]
+print(f"Shape: {precios_matriz.shape}")   # (71, 14) -> 71 meses, 14 acciones
+print(f"ndim:  {precios_matriz.ndim}")    # 2
+print(f"dtype: {precios_matriz.dtype}")   # float64
 ```
 
-Comparativa de rendimiento:
+**Un detalle importante para remarcar acá**: tuvimos que **excluir la columna de fechas** con `usecols`. Si intentáramos meterla en el array, NumPy — fiel a la regla de homogeneidad — convertiría **todos** los precios a texto para poder incluir las fechas, y perderíamos la capacidad de hacer cuentas. Esta limitación es exactamente el motivo por el que en el Módulo 5 vamos a introducir **Pandas**: necesitamos una herramienta que sí pueda mezclar fechas, texto y números en la misma tabla sin perder la parte matemática de NumPy por debajo.
+
+### Reshape y operaciones elemento a elemento
+
+`reshape` reorganiza un array sin tocar sus datos — el único requisito es que la cantidad total de elementos coincida.
+
+```python
+# Tomamos solo la columna de MSFT (columna índice 4) como vector 1D
+msft = precios_matriz[:, 4]
+print(msft.shape)          # (71,)
+
+# La transformamos en una matriz de 71 filas x 1 columna
+msft_columna = msft.reshape(71, 1)
+print(msft_columna.shape)  # (71, 1)
+
+# Operaciones elemento a elemento: ocurren "posición a posición", sin bucles
+precio_en_pesos = msft * 1000          # simulando un tipo de cambio fijo
+diferencia_mensual = msft[1:] - msft[:-1]   # variación mes a mes
+```
+
+### Vectorización frente a bucles: retomando el Bloque 0
+
+En el Bloque 0 resolvimos "clasificar una lista de precios" con un `for` y un `if`. Ahora resolvamos un problema del mismo estilo — **aplicar un 21% de aumento a todos los precios de MSFT** — de las dos formas, para comparar:
 
 ```python
 import time
 
-size = 1_000_000
-python_list = list(range(size))
-numpy_array = np.array(range(size))
+msft_lista = list(msft)   # lo mismo, pero como lista de Python
 
-start = time.time()
-result = [x * 2 for x in python_list]
-print(f"Lista Python: {time.time() - start:.4f}s")
+# --- Enfoque tradicional: bucle for ---
+inicio = time.time()
+msft_aumentado_lista = []
+for precio in msft_lista:
+    msft_aumentado_lista.append(precio * 1.21)
+tiempo_for = time.time() - inicio
 
-start = time.time()
-result = numpy_array * 2
-print(f"NumPy:        {time.time() - start:.4f}s")
+# --- Enfoque NumPy: vectorizado ---
+inicio = time.time()
+msft_aumentado_array = msft * 1.21
+tiempo_numpy = time.time() - inicio
+
+print(f"Bucle for : {tiempo_for:.6f}s")
+print(f"NumPy     : {tiempo_numpy:.6f}s")
 ```
+
+Con 71 elementos la diferencia de tiempo es imperceptible — pero la diferencia de **código** ya es contundente: 4 líneas contra 1. Si `msft_lista` tuviera 10 millones de elementos (como el ejemplo de la tienda global del PDF), la diferencia de tiempo también se volvería contundente.
+
+### Errores comunes y buenas prácticas
+
+| Error | Qué pasa | Cómo evitarlo |
+|---|---|---|
+| Mezclar tipos | `np.array([1, 2, "3"])` convierte **todo** a texto | Verificá siempre `.dtype` antes de operar |
+| Confundir `shape` con `len()` | En una matriz `(71, 14)`, `len()` solo devuelve `71` (filas) | Para la estructura completa, usá siempre `.shape` |
+| `reshape` incompatible | `precios_matriz.reshape(5, 5)` falla si no hay exactamente 25 elementos | El producto de las nuevas dimensiones debe igualar el total de elementos originales |
+| Bucles innecesarios | Escribir un `for` sobre un array para algo que ya tiene función vectorizada | Antes de iterar, preguntate: "¿esto ya existe en NumPy?" |
 
 ---
 
-### 5.4 Estadísticas con NumPy
+## Módulo 2 — Broadcasting y Operaciones sobre Matrices
+
+### La Matriz de Datos: filas, columnas e indexación
+
+En Data Science, la información casi siempre se organiza de forma tabular — una **Matriz de Datos**:
+
+- **Filas (eje 0)**: cada observación. En `precios_matriz` (Módulo 1), cada fila es **un mes**.
+- **Columnas (eje 1)**: cada variable. Cada columna es **una acción** (MCD, SBUX, GOOG...).
+- **Indexación base 0**: `precios_matriz[2, 1]` es la **tercera fila, segunda columna** → el precio de SBUX en el tercer mes registrado.
+
+```python
+print(precios_matriz[2, 1])   # precio de SBUX (columna 1) en el mes con índice 2
+```
+
+### Broadcasting: el superpoder de NumPy
+
+El **Broadcasting** es el conjunto de reglas que le permite a NumPy operar entre arrays de **distinta forma**, sin escribir un bucle y sin copiar datos de más en memoria. NumPy compara las formas **de derecha a izquierda**: dos dimensiones son compatibles si son iguales o si una de ellas es `1`.
+
+**Caso real: centrar los precios restando la media de cada acción.** `precios_matriz` tiene shape `(71, 14)`; el vector de medias por columna tiene shape `(14,)`. NumPy "estira" el vector de 14 medias para cubrir las 71 filas, sin crear 71 copias del vector.
+
+```python
+medias_por_accion = precios_matriz.mean(axis=0)     # shape (14,) -> una media por columna
+print(f"Shape de las medias: {medias_por_accion.shape}")
+
+precios_centrados = precios_matriz - medias_por_accion   # broadcasting: (71,14) - (14,) -> (71,14)
+print(precios_centrados[0])   # cuánto se desvía cada acción de su propia media, en el primer mes
+```
+
+### Multiplicación elemento a elemento (`*`) vs. Transposición (`.T`)
+
+- **`*` (elemento a elemento)**: multiplica posición a posición — (0,0) con (0,0), (0,1) con (0,1)... Debe cumplir las reglas de broadcasting, **no** es álgebra lineal.
+- **`.T` (transposición)**: gira la matriz — filas pasan a ser columnas. `precios_matriz` es `(71, 14)`; `precios_matriz.T` es `(14, 71)`. No copia datos, solo cambia cómo se *leen* — es prácticamente gratis en rendimiento, y es la herramienta clave para alinear dimensiones antes de una multiplicación matricial.
+
+```python
+volatilidad = precios_matriz.std(axis=0)           # desvío estándar por acción, shape (14,)
+precios_normalizados = precios_centrados / volatilidad   # * y / también son elemento a elemento
+
+print(precios_matriz.T.shape)   # (14, 71) -> ahora cada fila es una acción, cada columna un mes
+```
+
+### Multiplicación Matricial (`@`): un vector de pesos de portafolio
+
+A diferencia de `*`, el operador `@` (o `np.dot`) sigue la regla clásica del álgebra lineal: para multiplicar una matriz `A` por una matriz `B`, **el número de columnas de A debe igualar el número de filas de B**.
+
+**Caso real**: si armamos un portafolio con un peso (proporción invertida) por cada una de las 14 acciones, `precios_matriz @ pesos` nos da el **valor del portafolio en cada uno de los 71 meses**, en una sola operación.
+
+```python
+# Un peso igual para las 14 acciones (suman 1 entre todas)
+pesos = np.ones(14) / 14
+print(f"Shape de pesos: {pesos.shape}")             # (14,)
+
+valor_portafolio = precios_matriz @ pesos            # (71,14) @ (14,) -> (71,)
+print(f"Shape del resultado: {valor_portafolio.shape}")
+print(valor_portafolio[:5])   # valor del portafolio en los primeros 5 meses
+```
+
+### Errores comunes de broadcasting
+
+```python
+vector_mal_dimensionado = np.array([1, 2, 3])   # shape (3,), pero precios_matriz tiene 14 columnas
+
+# precios_matriz - vector_mal_dimensionado
+# ValueError: operands could not be broadcast together with shapes (71,14) (3,)
+```
+
+| Error | Causa | Solución |
+|---|---|---|
+| `could not be broadcast together` | Las formas no son iguales ni una de ellas es 1 (comparando de derecha a izquierda) | Verificar `.shape` de ambos arrays antes de operar |
+| `shapes not aligned` (con `@`) | Las columnas de A no igualan las filas de B | Usar `.T` para transponer el que corresponda: `A @ B.T` |
+| Confundir `*` con `@` | `*` es elemento a elemento; `@` combina filas y columnas (álgebra lineal) | Preguntarse: "¿quiero ajustar cada valor, o combinar variables?" |
+
+---
+
+## Módulo 3 — Álgebra Lineal con NumPy
+
+### Producto punto (Dot Product)
+
+El producto punto toma dos vectores de la **misma longitud** y devuelve un único **escalar**: multiplica los elementos correspondientes y suma los resultados.
+
+**Caso real**: si tenemos el retorno promedio de cada acción y los pesos del portafolio del Módulo 2, el producto punto entre ambos vectores nos da el **retorno esperado del portafolio completo**, en una sola cuenta.
+
+```python
+retornos_mensuales = (precios_matriz[1:] - precios_matriz[:-1]) / precios_matriz[:-1]  # % de cambio mes a mes
+retorno_promedio_por_accion = retornos_mensuales.mean(axis=0)   # shape (14,)
+
+retorno_esperado_portafolio = np.dot(retorno_promedio_por_accion, pesos)   # escalar
+print(f"Retorno mensual esperado del portafolio: {retorno_esperado_portafolio:.4%}")
+```
+
+En NumPy moderno se prefiere el operador infijo `@` sobre `np.dot()` por legibilidad — para vectores 1D ambos hacen exactamente lo mismo.
+
+### Sistemas de Ecuaciones Lineales: `np.linalg.solve`
+
+Muchos problemas se reducen a resolver $Ax = b$: $A$ son los coeficientes conocidos, $b$ los términos independientes, $x$ las incógnitas que buscamos.
+
+**Calcular la inversa de A ($x = A^{-1}b$) es ineficiente y propenso a errores de redondeo.** NumPy usa descomposición LU internamente con `np.linalg.solve`, mucho más rápida y estable — y solo funciona si $A$ es cuadrada y **no singular** (determinante distinto de cero).
+
+**Caso real**: queremos comprar una combinación de acciones de MCD y SBUX tal que el total sean **100 acciones** y el valor total sea de **10.000 USD**, usando los precios reales del primer mes del dataset.
+
+```python
+precio_mcd = precios_matriz[0, 0]    # MCD, mes 0
+precio_sbux = precios_matriz[0, 1]   # SBUX, mes 0
+
+# x + y = 100                 (cantidad total de acciones)
+# precio_mcd*x + precio_sbux*y = 10000   (valor total en USD)
+A = np.array([[1, 1],
+              [precio_mcd, precio_sbux]])
+b = np.array([100, 10000])
+
+x_mcd, y_sbux = np.linalg.solve(A, b)
+print(f"Acciones de MCD:  {x_mcd:.1f}")
+print(f"Acciones de SBUX: {y_sbux:.1f}")
+```
+
+### Diagnóstico y Propiedades Matriciales (`np.linalg`)
+
+| Función | Propiedad matemática | Utilidad en Data Science |
+|---|---|---|
+| `np.linalg.det(A)` | Determinante: si es 0, la matriz es singular (no invertible) | Diagnóstico de colinealidad entre variables |
+| `np.linalg.norm(v)` | Norma: magnitud geométrica de un vector | Distancias, similitud coseno, algoritmos como KNN |
+| `np.linalg.eig(A)` | Eigenvalues / eigenvectors: direcciones que solo se escalan, no rotan | Reducción de dimensionalidad (PCA) |
+
+**Caso real**: la matriz de correlación entre las 14 acciones es cuadrada (14×14) — perfecta para diagnosticarla con `np.linalg`.
+
+```python
+correlaciones = np.corrcoef(precios_matriz.T)   # matriz 14x14: correlación entre cada par de acciones
+print(f"Shape: {correlaciones.shape}")
+
+determinante = np.linalg.det(correlaciones)
+print(f"Determinante: {determinante:.6f}")   # muy cercano a 0 -> hay acciones fuertemente correlacionadas
+
+valores_propios, vectores_propios = np.linalg.eig(correlaciones)
+print(f"Eigenvalues: {valores_propios.round(2)}")
+```
+
+**Por qué esto importa para lo que viene**: la ecuación normal de la Regresión Lineal ($\beta = (X^TX)^{-1}X^Ty$) y el Análisis de Componentes Principales (PCA) se apoyan exactamente en estas operaciones — transposición, multiplicación matricial, sistemas lineales y eigendecomposition — todas resueltas por NumPy en milisegundos.
+
+---
+
+## Módulo 4 — NumPy y Pandas: la Relación entre el Cálculo y la Estructura de Datos
+
+### Dos librerías de Python, dos especialidades
+
+**Tan importante como saber usar cada una es tener clarísimo que ambas son librerías de Python** — ninguna viene instalada por defecto, ambas se instalan (`pip install numpy pandas`) y se importan explícitamente. No son "modos" distintos de Python: son herramientas externas, cada una diseñada para resolver un problema distinto.
+
+- **NumPy** existe para la **parte matemática**: números homogéneos, memoria contigua, cálculos vectorizados a velocidad de C. Ya lo vimos en los Módulos 1 a 3.
+- **Pandas** existe para la **parte de tablas**: datos del mundo real con nombres de columna, tipos mixtos (texto + números + fechas en la misma tabla) y valores faltantes. Es la pieza que nos faltaba desde el Módulo 1, cuando tuvimos que **excluir la columna de fechas** de `stocks.csv` para poder cargarla en un `ndarray`.
+
+**¿Por qué Pandas es tan buena para la parte de tablas, específicamente?**
+
+1. **Etiquetas en vez de posiciones**: en NumPy, si querés la columna de precios tenés que acordarte que es la columna índice `4`. En Pandas simplemente pedís `df["MSFT"]`.
+2. **Tipos heterogéneos por columna**: cada columna de un DataFrame puede tener su propio `dtype` — una de fechas, otras de texto, otras de números — todas conviviendo en la misma tabla sin forzar una conversión global (algo que a NumPy, por su regla de homogeneidad, le resulta imposible).
+3. **Datos faltantes de primera clase**: Pandas tiene herramientas integradas (`isnull()`, `dropna()`, `fillna()`) para detectar y tratar esos huecos que **siempre** aparecen en datos reales — algo que en NumPy hay que resolver "a mano".
+4. **Ingesta de archivos reales**: `pd.read_csv()`, `pd.read_excel()`, `pd.read_json()`... Pandas lee directamente los formatos que se usan en la industria; NumPy, en el mejor de los casos, solo lee bloques numéricos puros (como vimos con `np.genfromtxt` en el Módulo 1).
+
+**El punto clave que conecta ambas**: Pandas **está construido sobre NumPy**. Por dentro, cada columna de un DataFrame es, literalmente, un array de NumPy con una etiqueta pegada encima. Cuando Pandas suma dos columnas, le pide el cálculo a NumPy y después le vuelve a poner las etiquetas al resultado.
+
+### Comparativa: ¿cuándo usar cuál?
+
+| Característica | NumPy | Pandas |
+|---|---|---|
+| Estructura principal | `ndarray` (matriz) | `DataFrame` (tabla) |
+| Tipo de datos | Homogéneo (todo números) | Heterogéneo (mezcla de tipos por columna) |
+| Identificación | Solo por posición (`[2, 1]`) | Por posición **y** por nombre (`df["MSFT"]`) |
+| Uso ideal | Álgebra lineal, cálculos pesados | Leer archivos, limpiar datos, EDA |
+| Celdas vacías | Difíciles de manejar | Diseñado para detectarlas y tratarlas |
+
+> **"NumPy trabaja con números; Pandas trabaja con datos."** En el 90% de los proyectos reales usamos las dos: Pandas para traer y ordenar la información, NumPy (por debajo, casi siempre sin que lo notemos) para hacer las cuentas.
+
+### Demostración: la misma tabla, dos herramientas
 
 ```python
 import numpy as np
-
-data = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
-
-print(f"Media:    {np.mean(data)}")
-print(f"Mediana:  {np.median(data)}")
-print(f"Desvío:   {np.std(data):.2f}")
-print(f"Varianza: {np.var(data):.2f}")
-print(f"Mínimo:   {np.min(data)}")
-print(f"Máximo:   {np.max(data)}")
-print(f"Suma:     {np.sum(data)}")
-print(f"Producto: {np.prod(data)}")
-
-# Percentiles
-print(np.percentile(data, [25, 50, 75]))
-
-# Sobre matrices: axis=0 por columna, axis=1 por fila
-matriz = np.array([[1, 2, 3],
-                   [4, 5, 6]])
-print(np.mean(matriz, axis=0))  # promedio por columna: [2.5, 3.5, 4.5]
-print(np.mean(matriz, axis=1))  # promedio por fila:    [2., 5.]
-
-# Correlación entre arrays
-a = np.array([1, 2, 3, 4, 5])
-b = np.array([5, 4, 3, 2, 1])
-print(f"Correlación: {np.corrcoef(a, b)[0, 1]:.2f}")
-```
-
----
-
-### 5.5 Álgebra Lineal
-
-```python
-import numpy as np
-
-A = np.array([[1, 2], [3, 4]])
-B = np.array([[5, 6], [7, 8]])
-
-print(A.T)                    # Transpuesta
-print(np.linalg.inv(A))       # Inversa
-print(np.dot(A, B))           # Producto matricial
-print(np.linalg.det(A))       # Determinante
-print(np.trace(A))            # Traza
-
-# Valores propios (eigenvalues)
-valores, vectores = np.linalg.eig(A)
-print(f"Eigenvalues: {valores}")
-
-# Resolver sistema de ecuaciones lineales
-# 2x + y = 5
-# x + 3y = 6
-coefs = np.array([[2, 1], [1, 3]])
-terminos = np.array([5, 6])
-solucion = np.linalg.solve(coefs, terminos)
-print(f"x = {solucion[0]:.2f}, y = {solucion[1]:.2f}")
-
-# Descomposición QR
-Q, R = np.linalg.qr(A)
-print(f"Q:\n{Q}")
-print(f"R:\n{R}")
-```
-
----
-
-### 5.6 Reshape, Concatenación y Splitting
-
-```python
-import numpy as np
-
-arr = np.arange(12)
-print(arr)              # [ 0  1  2 ... 11]
-
-# Reshape
-matriz = arr.reshape(3, 4)
-print(matriz)           # 3 filas, 4 columnas
-print(matriz.reshape(2, 6))
-print(matriz.reshape(-1))   # volver a 1D
-
-# Concatenar
-a = np.array([1, 2, 3])
-b = np.array([4, 5, 6])
-print(np.concatenate([a, b]))       # [1 2 3 4 5 6]
-
-m1 = np.array([[1, 2], [3, 4]])
-m2 = np.array([[5, 6], [7, 8]])
-print(np.vstack([m1, m2]))   # apilar verticalmente
-print(np.hstack([m1, m2]))   # apilar horizontalmente
-
-# Splitting
-arr = np.arange(9)
-partes = np.array_split(arr, 3)
-for p in partes:
-    print(p)
-```
-
----
-
-## 6. Cierre: NumPy + Pandas juntos
-
-En proyectos reales, NumPy y Pandas se usan en conjunto: Pandas para estructurar y limpiar datos, NumPy para los cálculos numéricos pesados.
-
-```python
 import pandas as pd
-import numpy as np
 
-# Cargar datos
-url = 'https://raw.githubusercontent.com/JJTorresDS/stocks-ds-edu/main/stocks.csv'
-df = pd.read_csv(url)
-df['formatted_date'] = pd.to_datetime(df['formatted_date'])
-df = df.set_index('formatted_date')
+# Con NumPy (Módulo 1): tuvimos que EXCLUIR la columna de fecha
+precios_matriz = np.genfromtxt("stocks.csv", delimiter=",", skip_header=1, usecols=range(1, 15))
+print(type(precios_matriz))   # <class 'numpy.ndarray'>
 
-# Pandas: preparación
-print(f"Forma: {df.shape}")
-print(f"Columnas: {list(df.columns)}")
+# Con Pandas: la tabla completa, fechas incluidas, sin perder nada
+df_stocks = pd.read_csv("stocks.csv")
+print(df_stocks.dtypes.head())   # formatted_date: object, MCD: float64, SBUX: float64...
 
-# NumPy: cálculos de rendimientos
-prices = df[['MSFT', 'AMZN', 'AAPL']].values
-returns = np.diff(prices, axis=0) / prices[:-1]
-
-returns_df = pd.DataFrame(
-    returns,
-    index=df.index[1:],
-    columns=['MSFT', 'AMZN', 'AAPL']
-)
-
-# Estadísticas con NumPy
-for col in returns_df.columns:
-    media = np.mean(returns_df[col])
-    vol   = np.std(returns_df[col]) * np.sqrt(252)
-    print(f"{col}: media={media:.4f}, volatilidad anual={vol:.4f}")
-
-# Pandas: agrupar por mes
-rendimientos_mensuales = returns_df.resample('M').apply(
-    lambda x: np.prod(1 + x) - 1
-)
-print("\nRendimientos mensuales promedio:")
-print(rendimientos_mensuales.mean())
+# La prueba de que Pandas está construido sobre NumPy:
+columna_msft = df_stocks["MSFT"]
+print(type(columna_msft))          # <class 'pandas.core.series.Series'>
+print(type(columna_msft.values))   # <class 'numpy.ndarray'> -> ¡por dentro, sigue siendo un array!
 ```
 
-**Regla práctica:** usá Pandas para estructurar y manipular datos, y NumPy cuando necesités cálculos matemáticos puros — son complementarios, no competidores.
+---
+
+## Módulo 5 — Introducción a Pandas: Series y DataFrames
+
+### La Serie: el bloque de construcción unidimensional
+
+Una **Serie** es como una lista de Python, pero "con esteroides": además de los **valores**, tiene un **índice** — una etiqueta para cada valor. Si no le asignás uno, Pandas pone `0, 1, 2...` por defecto.
+
+```python
+precios_msft = df_stocks["MSFT"]        # esto ya es una Serie
+print(type(precios_msft))                # pandas.core.series.Series
+print(precios_msft.index[:5])            # RangeIndex: 0, 1, 2, 3, 4... (por defecto)
+
+# Una Serie creada "a mano", con índice con nombre propio (no numérico)
+stock_por_sector = pd.Series(
+    {"Tecnología": 3, "Consumo": 4, "Finanzas": 3, "Turismo": 3},
+)
+print(stock_por_sector["Consumo"])        # acceso directo por etiqueta, sin saber la posición
+```
+
+### El DataFrame: la tabla bidimensional
+
+El **DataFrame** es la hoja de cálculo completa — la estructura más usada en Ciencia de Datos. Se puede pensar como un **diccionario de Series** que comparten el mismo índice de filas.
+
+**Componentes clave:**
+- **Datos**: la información en celdas.
+- **Índice de filas**: identifica cada registro (por defecto, `0, 1, 2...`, pero puede ser cualquier otra cosa — como una fecha).
+- **Columnas**: los nombres de cada variable.
+
+Ahora cargamos `stocks.csv` "bien hecho": convertimos la columna de fechas a tipo fecha real (`parse_dates`) y la usamos como **índice** de filas (`set_index`), en vez de dejarla como una columna de texto más.
+
+```python
+df_stocks = pd.read_csv("stocks.csv", parse_dates=["formatted_date"])
+df_stocks = df_stocks.set_index("formatted_date")
+
+print(df_stocks.index[:3])     # DatetimeIndex: ahora las fechas son el índice, no una columna
+print(df_stocks.columns)        # Index(['MCD', 'SBUX', 'GOOG', ...], dtype='object')
+print(df_stocks.shape)          # (71, 14) -> mismo tamaño que precios_matriz, pero con etiquetas
+```
+
+### Creación de Series y DataFrames desde listas y diccionarios
+
+No siempre partimos de un archivo — a veces armamos estas estructuras a mano, desde objetos que ya conocemos.
+
+```python
+# Desde una lista: la forma más simple, para una Serie
+precios_ejemplo = pd.Series([15.0, 45.0, 120.0], name="Precio")
+
+# Desde un diccionario: el método más común para un DataFrame
+# (las llaves se convierten naturalmente en nombres de columna)
+sectores_dict = {
+    "ticker": ["MCD", "SBUX", "GOOG", "AMZN", "MSFT", "JPM", "BAC"],
+    "sector": ["Consumo", "Consumo", "Tecnología", "Consumo", "Tecnología", "Finanzas", "Finanzas"],
+}
+df_sectores = pd.DataFrame(sectores_dict)
+print(df_sectores)
+```
+
+Vamos a reutilizar `df_sectores` en el Módulo 7 para mostrar cómo **combinar** (`merge`) dos tablas relacionadas.
+
+### Errores comunes: dimensión, índice y tipos
+
+| Confusión | Aclaración |
+|---|---|
+| `df["MSFT"]` vs. `df[["MSFT"]]` | `df["MSFT"]` devuelve una **Serie**; `df[["MSFT", "AAPL"]]` (con doble corchete) devuelve un **DataFrame**, aunque sea de una sola columna. |
+| "El índice siempre es un número" | Falso — acá el índice de `df_stocks` son fechas. Un índice con sentido de negocio facilita muchísimo la búsqueda de datos puntuales. |
+| "Si mezclo texto y número, Pandas se rompe" | No se rompe, pero si una columna numérica trae **un solo** valor de texto (ej. `"N/D"`), Pandas convierte **toda la columna** a `object` y no vas a poder calcular hasta limpiarla. |
+
+---
+
+## Módulo 6 — Preprocesamiento de Datos
+
+### El fenómeno de los datos ausentes
+
+En entornos productivos, los datos faltantes (`NaN` — *Not a Number*) son una constante: fallas de sensores, pipelines interrumpidos, registros incompletos. `stocks.csv` viene limpio, así que para practicar vamos a **simular** el problema sobre una copia — algo muy común al enseñar o probar un pipeline de limpieza.
+
+```python
+df_sucio = df_stocks.copy()
+
+# Introducimos NaN a propósito para simular datos reales incompletos
+df_sucio.iloc[3, 2] = np.nan     # un NaN en la fila 3
+df_sucio.iloc[7, 0] = np.nan     # primer NaN en la fila 7
+df_sucio.iloc[7, 5] = np.nan     # segundo NaN en la MISMA fila 7
+df_sucio.iloc[20, 1] = np.nan    # un NaN en la fila 20
+
+print(df_sucio.isnull().sum())          # conteo de NaN por columna
+print(f"Total de NaN: {df_sucio.isnull().sum().sum()}")
+```
+
+### Eliminación vs. Imputación
+
+| Estrategia | Ventaja | Riesgo |
+|---|---|---|
+| **Eliminación por filas** | No inventa datos; mantiene la certeza de los registros restantes | Reduce la muestra; puede sesgarla si los datos no faltan al azar |
+| **Imputación por la media** | Preserva el tamaño de la muestra; computacionalmente eficiente | Subestima la varianza original y altera correlaciones con otras variables |
+
+### El algoritmo de decisión y la Regla de Oro
+
+Regla aplicada fila por fila: si tiene **más de 1** NaN, se elimina el registro completo; si tiene **exactamente 1**, se imputa con la media de esa columna.
+
+**Regla de oro (para evitar Data Leakage)**: las medias de cada columna se calculan **antes** de eliminar ninguna fila, usando todos los valores presentes. Si calculáramos la media después de eliminar filas, estaríamos alterando la distribución original de la variable e invalidando el valor imputado.
+
+```python
+# 1) Medias ANTES de eliminar nada (regla de oro)
+medias_columnas = df_sucio.mean(numeric_only=True)
+
+# 2) Clasificamos cada fila según su cantidad de NaN
+nan_por_fila = df_sucio.isnull().sum(axis=1)
+filas_a_eliminar = nan_por_fila[nan_por_fila > 1].index
+filas_a_imputar = nan_por_fila[nan_por_fila == 1].index
+
+# 3) Aplicamos la regla
+df_limpio = df_sucio.drop(index=filas_a_eliminar)
+df_limpio = df_limpio.fillna(medias_columnas)
+
+print(f"Filas eliminadas (>1 NaN): {len(filas_a_eliminar)}")
+print(f"Filas imputadas (==1 NaN): {len(filas_a_imputar)}")
+print(f"NaN restantes: {df_limpio.isnull().sum().sum()}")   # 0
+```
+
+---
+
+## Módulo 7 — Integración, Agregación y Preprocesamiento Avanzado
+
+### Combinar tablas: claves y tipos de join
+
+La información real casi nunca vive en una sola tabla. `stocks.csv` tiene precios, pero no sectores — eso está en `df_sectores` (Módulo 5). Para combinarlas, primero convertimos `df_stocks` de formato **ancho** (una columna por ticker) a formato **largo** (una fila por combinación fecha-ticker) con `melt`, y después unimos con `merge` usando `ticker` como clave.
+
+```python
+df_largo = df_stocks.reset_index().melt(
+    id_vars="formatted_date", var_name="ticker", value_name="precio"
+)
+print(df_largo.head())   # formatted_date | ticker | precio
+
+df_con_sector = pd.merge(
+    left=df_largo,
+    right=df_sectores,
+    on="ticker",
+    how="left",             # conservamos TODOS los precios, tengan sector o no
+    validate="many_to_one",  # error si "ticker" estuviera duplicado en df_sectores
+    indicator=True,
+)
+print(df_con_sector["_merge"].value_counts())
+```
+
+`df_sectores` solo tiene 7 de los 14 tickers — por eso el `left join` deja `NaN` en `sector` para el resto, y la columna `_merge` (gracias a `indicator=True`) nos deja **auditar** exactamente cuáles.
+
+| Tipo de Join | Comportamiento |
+|---|---|
+| **Inner** | Solo las filas cuya clave está en ambas tablas (intersección) |
+| **Left** | Todas las filas de la izquierda; sin coincidencia, `NaN` |
+| **Right** | Simétrico al Left; se prefiere reordenar y usar Left |
+| **Outer** | Todas las filas de ambas tablas (unión), con `NaN` donde falte |
+
+### Split-Apply-Combine: `agg()` vs. `transform()`
+
+`groupby` divide el DataFrame en subgrupos, aplica una función y combina los resultados.
+
+- **`.agg()`**: **reduce** — un grupo de 100 filas se convierte en 1 fila con el estadístico.
+- **`.transform()`**: **preserva la forma** — devuelve un valor por cada fila original, proyectando el resultado del grupo hacia atrás. Es la base de la normalización intragrupo.
+
+```python
+df_con_sector = df_con_sector.dropna(subset=["sector"])   # nos quedamos con las que sí tienen sector
+
+# agg(): reduce a un resumen por sector
+resumen_sector = df_con_sector.groupby("sector")["precio"].agg(
+    precio_promedio="mean", precio_max="max", n_registros="count"
+)
+print(resumen_sector)
+
+# transform(): Z-score, pero DENTRO de cada sector (no global)
+df_con_sector["precio_z_sector"] = df_con_sector.groupby("sector")["precio"].transform(
+    lambda x: (x - x.mean()) / x.std()
+)
+```
+
+### Outliers y escalamiento: Winsorización, Z-Score y Robust Scaling
+
+En vez de eliminar valores extremos (perdiendo información), la **Winsorización** les pone un tope en un percentil bajo y otro alto — típicamente P1 y P99.
+
+```python
+p1, p99 = np.percentile(df_con_sector["precio"], [1, 99])
+precio_winsorizado = np.clip(df_con_sector["precio"], p1, p99)   # los extremos se "achatan" al tope
+```
+
+Para llevar variables a la misma escala (imprescindible en KNN, regresiones regularizadas o redes neuronales):
+
+```python
+# Z-Score: sensible a outliers (media y desvío se distorsionan con valores extremos)
+z_score = (df_con_sector["precio"] - df_con_sector["precio"].mean()) / df_con_sector["precio"].std()
+
+# Robust Scaling: usa mediana e IQR, inmune a outliers extremos
+mediana = df_con_sector["precio"].median()
+iqr = df_con_sector["precio"].quantile(0.75) - df_con_sector["precio"].quantile(0.25)
+precio_robusto = (df_con_sector["precio"] - mediana) / iqr
+```
+
+---
+
+## Material de la clase
+
+| Archivo | Qué es |
+|---|---|
+| `Clase 03.pdf` | Material teórico oficial de la unidad (fuente original de esta guía). |
+| `Clase03.html` | Diapositivas para proyectar en clase (40 filminas). Abrir en el navegador; navegación con flechas del teclado o los botones inferiores. |
+| `Clase 03.ipynb` | Notebook con teoría ampliada + todos los ejemplos ejecutables. Es el material que se comparte con los alumnos. |
+| `stocks.csv` | Dataset de precios de acciones, usado como ejemplo real más adelante en la clase. |
+| `Material/` | Carpeta con recursos adicionales. |
+
+**Cómo usar esta guía durante la clase**: cada sección sigue el mismo orden que las diapositivas y el notebook. Se va a ir completando módulo por módulo a medida que avanza la construcción de la clase.
