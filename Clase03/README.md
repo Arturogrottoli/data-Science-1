@@ -8,7 +8,7 @@ Esta guía es el **libreto de apoyo para dictar la Clase 03**. Reúne, en un sol
 
 La idea es la misma que en la guía de Clase 02: si en medio de la clase te falla la memoria sobre un detalle (¿por qué `reshape` tira error si no coinciden las dimensiones?, ¿cuál era la regla de broadcasting?, ¿`agg` o `transform`?), lo encuentres acá explicado con más contexto del que alcanza a mostrar una filmina.
 
-> **Nota de construcción**: esta guía se está armando de forma incremental, bloque por bloque, en el mismo orden en que se dicta la clase. Cada sección nueva se agrega acá y al notebook a la vez.
+Todos los ejemplos de código usan `stocks.csv` (en esta misma carpeta) como dataset real de referencia: precios mensuales de 14 acciones entre 2016 y 2021.
 
 ---
 
@@ -22,8 +22,8 @@ La idea es la misma que en la guía de Clase 02: si en medio de la clase te fall
 5. [Módulo 5 — Introducción a Pandas: Series y DataFrames](#módulo-5--introducción-a-pandas-series-y-dataframes)
 6. [Módulo 6 — Preprocesamiento de Datos](#módulo-6--preprocesamiento-de-datos)
 7. [Módulo 7 — Integración, Agregación y Preprocesamiento Avanzado](#módulo-7--integración-agregación-y-preprocesamiento-avanzado)
-8. Módulo 8 — La Sinergia de Datos: NumPy y Pandas en Profundidad *(próximamente)*
-9. Módulo 9 — Inspección Inicial de Datos y Pre-Entrega *(próximamente)*
+8. [Módulo 8 — La Sinergia de Datos: NumPy y Pandas en Profundidad](#módulo-8--la-sinergia-de-datos-numpy-y-pandas-en-profundidad)
+9. [Módulo 9 — Inspección Inicial de Datos y Pre-Entrega](#módulo-9--inspección-inicial-de-datos-y-pre-entrega)
 
 ---
 
@@ -626,6 +626,83 @@ precio_robusto = (df_con_sector["precio"] - mediana) / iqr
 
 ---
 
+## Módulo 8 — La Sinergia de Datos: NumPy y Pandas en Profundidad
+
+### El motor y la carrocería, en un caso completo
+
+Retomando el Módulo 4: **NumPy es el motor** (cálculo puro, homogéneo, veloz) y **Pandas es la carrocería** (etiquetas, tipos mixtos, manejo de nulos) — y por dentro, cada columna de un DataFrame **es** un array de NumPy. En un proyecto real, casi siempre se usan las dos en la misma celda: Pandas prepara y limpia, NumPy hace la cuenta pesada.
+
+**Caso real: calcular la volatilidad de un portafolio.** La fórmula de la varianza de un portafolio es $\sigma_p^2 = w^T \Sigma w$, donde $w$ es el vector de pesos y $\Sigma$ la matriz de covarianzas entre activos — pura álgebra lineal, la misma herramienta del Módulo 3.
+
+```python
+# Pandas: preparar los datos (retornos porcentuales, maneja el primer NaN solo)
+retornos = df_stocks.pct_change().dropna()
+
+# NumPy: la cuenta pesada (covarianza + álgebra lineal)
+matriz_covarianza = np.cov(retornos.values.T)   # retornos.values -> ya es un ndarray
+pesos = np.ones(14) / 14
+
+varianza_portafolio = pesos @ matriz_covarianza @ pesos   # w^T Σ w
+volatilidad_portafolio = np.sqrt(varianza_portafolio)
+
+print(f"Volatilidad mensual del portafolio: {volatilidad_portafolio:.4%}")
+```
+
+### El mito del bucle `for` sobre un DataFrame
+
+**Error frecuente**: recorrer un DataFrame fila por fila con `for` y `.iloc[i]` para calcular algo que ya tiene una operación vectorizada. Es lento y destruye la ventaja competitiva de las dos librerías.
+
+```python
+# Mal: recorrer fila por fila
+totales = []
+for i in range(len(df_stocks)):
+    totales.append(df_stocks.iloc[i].sum())
+
+# Bien: vectorizado, con la misma API de Pandas (que delega en NumPy por debajo)
+totales_vectorizado = df_stocks.sum(axis=1)
+```
+
+### Aplicaciones reales por industria
+
+- **Finanzas** (nuestro propio `stocks.csv`): Pandas nació en el sector financiero para manejar series temporales de precios; calcular medias móviles o volatilidad toma dos líneas.
+- **Retail**: unir tablas de "Ventas" e "Inventario" por ID de producto (el mismo patrón de `merge` del Módulo 7) para anticipar faltantes de stock.
+- **Investigación científica**: NumPy es el estándar para procesar imágenes (matrices de píxeles) o señales — cálculos que en Python puro tardarían días.
+
+---
+
+## Módulo 9 — Inspección Inicial de Datos y Pre-Entrega
+
+### `head()`, `info()`, `describe()`: el perfilado inicial
+
+Antes de cualquier cálculo o gráfico, un Data Scientist le "toma el pulso" al dataset. Tres funciones cubren el 90% del diagnóstico inicial:
+
+- **`df.head(n)`**: primeras `n` filas — ¿se cargaron bien las columnas?
+- **`df.info()`**: nombre de cada columna, cantidad de valores no nulos y `dtype` — el comando más importante del diagnóstico.
+- **`df.describe()`**: resumen estadístico (`count`, `mean`, `std`, `min`, percentiles, `max`) de las columnas numéricas.
+
+```python
+print(df_stocks.head())
+print(df_stocks.shape)          # (71, 14)
+df_stocks.info()
+print(df_stocks.describe())
+print(df_stocks.isnull().sum()) # en este dataset, todo en cero: no hay nulos reales
+```
+
+**Cómo leer un `describe()` real**: en `df_stocks.describe()`, comparar `min` y `max` de cada acción contra lo que sabés del mundo real es la primera línea de defensa contra errores de carga — un precio de acción negativo, por ejemplo, sería una alerta inmediata (no es el caso acá, pero es el hábito a construir).
+
+### Pre-Entrega: Checkpoint — Estructura Inicial del Dataset
+
+| Bloque | Contenido |
+|---|---|
+| **1. Carga e Inspección** | `pd.read_csv`, `.head()` para inspección visual, `.shape` e `.info()` para volumen y tipos. |
+| **2. Perfilado Inicial** | Total de valores nulos por columna (`isnull().sum()`) y estadísticas descriptivas con `.describe()`. |
+| **3. Saneamiento y Selección** | Al menos 3 filtros booleanos para recortar el dataset (ej. `df[df["MSFT"] > 100]`); eliminar alguna columna innecesaria. |
+| **4. Reflexión** | Celda Markdown: ¿qué problemas encontraste en los datos? ¿cuáles van a ser tus variables clave? |
+
+**Entregable**: un PDF con el Jupyter Notebook exportado (código + resultados + comentarios), incluyendo el diagnóstico de nulos, `dtypes`, `describe()` y los filtros aplicados. Nombre sugerido: `Apellido_Nombre_Checkpoint1.pdf`.
+
+---
+
 ## Material de la clase
 
 | Archivo | Qué es |
@@ -633,7 +710,7 @@ precio_robusto = (df_con_sector["precio"] - mediana) / iqr
 | `Clase 03.pdf` | Material teórico oficial de la unidad (fuente original de esta guía). |
 | `Clase03.html` | Diapositivas para proyectar en clase (40 filminas). Abrir en el navegador; navegación con flechas del teclado o los botones inferiores. |
 | `Clase 03.ipynb` | Notebook con teoría ampliada + todos los ejemplos ejecutables. Es el material que se comparte con los alumnos. |
-| `stocks.csv` | Dataset de precios de acciones, usado como ejemplo real más adelante en la clase. |
+| `stocks.csv` | Dataset real de precios de acciones (14 tickers, 2016–2021), usado como hilo conductor en todos los módulos. |
 | `Material/` | Carpeta con recursos adicionales. |
 
-**Cómo usar esta guía durante la clase**: cada sección sigue el mismo orden que las diapositivas y el notebook. Se va a ir completando módulo por módulo a medida que avanza la construcción de la clase.
+**Cómo usar esta guía durante la clase**: cada sección sigue el mismo orden que las diapositivas y el notebook — se puede ir alternando entre proyectar la filmina/notebook correspondiente y volver acá si hace falta más contexto, una analogía o recordar un detalle técnico.
