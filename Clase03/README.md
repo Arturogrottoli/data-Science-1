@@ -15,6 +15,7 @@ Todos los ejemplos de código usan `stocks.csv` (en esta misma carpeta) como dat
 ## Índice
 
 - [Mapa rápido de la clase](#0-mapa-rápido-de-la-clase)
+- [Sobre el Dataset: `stocks.csv`](#sobre-el-dataset-stockscsv)
 
 0. [Bloque 0 — Repaso de la Clase Anterior](#bloque-0--repaso-de-la-clase-anterior-fundamentos-de-python)
 1. [Módulo 1 — Arrays Multidimensionales y Vectorización en NumPy](#módulo-1--arrays-multidimensionales-y-vectorización-en-numpy)
@@ -48,6 +49,44 @@ Para ir siguiendo la clase en paralelo con `Clase03.html` (43 filminas) sin perd
 | 8 | La Sinergia de Datos en Profundidad | 37–39 | Módulo 8 | Un caso end-to-end combinando las dos librerías, y el mito del bucle `for` |
 | 9 | Inspección Inicial y Pre-Entrega | 40–42 | Módulo 9 | `head`/`info`/`describe` + la consigna del Checkpoint |
 | — | ¿Dudas? | 43 | — | Cierre y preguntas |
+
+---
+
+## Sobre el Dataset: `stocks.csv`
+
+Antes de meternos con el código, vale la pena aclarar en clase qué es exactamente lo que estamos abriendo, porque a simple vista es "una tabla de números" y sin este contexto no dice nada.
+
+**Estructura del archivo:**
+- **71 filas**, una por mes, desde **enero de 2016** hasta **noviembre de 2021**.
+- **Columna `formatted_date`**: el primer día de cada mes (frecuencia mensual, no diaria).
+- **Las otras 14 columnas**: cada una es el **ticker** (código bursátil) de una empresa que cotiza en bolsa, y el valor numérico es el **precio de su acción ese mes, en dólares (USD)**.
+
+**¿Qué tipo de "precio" es exactamente?** El archivo no lo aclara con un nombre de columna explícito (no dice "Close" ni "Adj Close"), pero por dos señales podemos inferir con bastante confianza que es el **precio de cierre ajustado (Adjusted Close)**:
+1. La cantidad de decimales (`106.33214569091797`) es el patrón típico de datos descargados con la librería `yfinance` de Yahoo Finance, que reporta así el Adjusted Close.
+2. El valor de MCD en enero de 2016 (~106) es más bajo que el precio de cierre "de pizarra" real de esa fecha (~118) — exactamente el efecto esperado del ajuste retroactivo por dividendos pagados, que es lo que distingue al Adjusted Close del precio de cierre nominal.
+
+**Por qué importa usar el precio ajustado (para mencionar en clase)**: el precio de cierre nominal no refleja el dinero que efectivamente ganó o perdió un inversor, porque no cuenta los dividendos cobrados en el camino. El Adjusted Close sí, y por eso es el estándar en análisis financiero para comparar el rendimiento real de una acción a través del tiempo.
+
+**Qué empresa es cada ticker:**
+
+| Ticker | Empresa | Rubro |
+|---|---|---|
+| MCD | McDonald's | Consumo — restaurantes |
+| SBUX | Starbucks | Consumo — restaurantes |
+| GOOG | Alphabet (Google) | Tecnología |
+| AMZN | Amazon | Consumo / Tecnología — e-commerce |
+| MSFT | Microsoft | Tecnología |
+| JPM | JPMorgan Chase | Finanzas — banca |
+| BAC | Bank of America | Finanzas — banca |
+| C | Citigroup | Finanzas — banca |
+| MAR | Marriott | Turismo — hotelería |
+| HLT | Hilton | Turismo — hotelería |
+| RCL | Royal Caribbean | Turismo — cruceros |
+| V | Visa | Finanzas — medios de pago |
+| MA | Mastercard | Finanzas — medios de pago |
+| PYPL | PayPal | Finanzas — pagos digitales |
+
+**Fuente**: el archivo viene del repositorio público [`JJTorresDS/stocks-ds-edu`](https://raw.githubusercontent.com/JJTorresDS/stocks-ds-edu/main/stocks.csv) en GitHub, usado como dataset estándar de práctica en este curso.
 
 ---
 
