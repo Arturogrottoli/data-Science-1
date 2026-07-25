@@ -3,7 +3,7 @@
 Esta guía es el **libreto de apoyo para dictar la Clase 03**. Reúne, en un solo lugar y con más profundidad de la que entra en una diapositiva, toda la teoría y todos los ejemplos que aparecen en:
 
 - **`Clase 03.pdf`** — el material teórico oficial de la unidad (9 secciones: de Arrays y Vectorización hasta la Inspección Inicial de datos).
-- **`Clase03.html`** — las diapositivas que se proyectan en clase (40 filminas).
+- **`Clase03.html`** — las diapositivas que se proyectan en clase (43 filminas).
 - **`Clase 03.ipynb`** — el notebook con todos los ejemplos ejecutables y comentados, con teoría ampliada en celdas Markdown.
 
 La idea es la misma que en la guía de Clase 02: si en medio de la clase te falla la memoria sobre un detalle (¿por qué `reshape` tira error si no coinciden las dimensiones?, ¿cuál era la regla de broadcasting?, ¿`agg` o `transform`?), lo encuentres acá explicado con más contexto del que alcanza a mostrar una filmina.
@@ -13,6 +13,8 @@ Todos los ejemplos de código usan `stocks.csv` (en esta misma carpeta) como dat
 ---
 
 ## Índice
+
+- [Mapa rápido de la clase](#0-mapa-rápido-de-la-clase)
 
 0. [Bloque 0 — Repaso de la Clase Anterior](#bloque-0--repaso-de-la-clase-anterior-fundamentos-de-python)
 1. [Módulo 1 — Arrays Multidimensionales y Vectorización en NumPy](#módulo-1--arrays-multidimensionales-y-vectorización-en-numpy)
@@ -24,6 +26,28 @@ Todos los ejemplos de código usan `stocks.csv` (en esta misma carpeta) como dat
 7. [Módulo 7 — Integración, Agregación y Preprocesamiento Avanzado](#módulo-7--integración-agregación-y-preprocesamiento-avanzado)
 8. [Módulo 8 — La Sinergia de Datos: NumPy y Pandas en Profundidad](#módulo-8--la-sinergia-de-datos-numpy-y-pandas-en-profundidad)
 9. [Módulo 9 — Inspección Inicial de Datos y Pre-Entrega](#módulo-9--inspección-inicial-de-datos-y-pre-entrega)
+
+---
+
+## 0. Mapa rápido de la clase
+
+Para ir siguiendo la clase en paralelo con `Clase03.html` (43 filminas) sin perderte: qué filmina corresponde a qué sección de esta guía y del notebook.
+
+| # | Módulo | Slides | Notebook (`Clase 03.ipynb`) | Idea central |
+|---|---|---|---|---|
+| — | Portada | 01 | Celda de título | Presentación de la clase |
+| 0 | Repaso de la Clase Anterior | *(sin slides — repaso previo)* | Bloque 0 | Variables, condicionales, `for` y funciones, frescos para contrastar con la vectorización |
+| 1 | Arrays Multidimensionales y Vectorización | 02–09 | Módulo 1 | El `ndarray`, su homogeneidad, y por qué reemplaza al `for` |
+| 2 | Broadcasting y Operaciones sobre Matrices | 10–15 | Módulo 2 | Operar arrays de distinta forma sin bucles ni copias de más |
+| 3 | Álgebra Lineal con NumPy | 16–19 | Módulo 3 | Producto punto, sistemas de ecuaciones, diagnóstico matricial |
+| — | Break del Coder | 20 | — | Corte de ~10 minutos |
+| 4 | NumPy y Pandas: la Relación | 21–23 | Módulo 4 | Dos librerías, dos especialidades — y por qué Pandas está construido sobre NumPy |
+| 5 | Series y DataFrames | 24–28 | Módulo 5 | Las dos estructuras de Pandas, con etiquetas en vez de posiciones |
+| 6 | Preprocesamiento de Datos | 29–31 | Módulo 6 | Eliminación vs. imputación, y la regla de oro contra el Data Leakage |
+| 7 | Integración, Agregación y Preprocesamiento Avanzado | 32–36 | Módulo 7 | `merge`, `agg` vs. `transform`, outliers y escalamiento |
+| 8 | La Sinergia de Datos en Profundidad | 37–39 | Módulo 8 | Un caso end-to-end combinando las dos librerías, y el mito del bucle `for` |
+| 9 | Inspección Inicial y Pre-Entrega | 40–42 | Módulo 9 | `head`/`info`/`describe` + la consigna del Checkpoint |
+| — | ¿Dudas? | 43 | — | Cierre y preguntas |
 
 ---
 
@@ -240,6 +264,8 @@ Con 71 elementos la diferencia de tiempo es imperceptible — pero la diferencia
 
 ## Módulo 2 — Broadcasting y Operaciones sobre Matrices
 
+**Contexto para abrir el módulo**: en el Módulo 1 vimos operaciones entre arrays del mismo tamaño. En el mundo real casi nunca es así — rara vez trabajamos con arreglos de tamaño exacto. Acá entra el verdadero "superpoder" de NumPy: el Broadcasting.
+
 ### La Matriz de Datos: filas, columnas e indexación
 
 En Data Science, la información casi siempre se organiza de forma tabular — una **Matriz de Datos**:
@@ -312,6 +338,8 @@ vector_mal_dimensionado = np.array([1, 2, 3])   # shape (3,), pero precios_matri
 ---
 
 ## Módulo 3 — Álgebra Lineal con NumPy
+
+**Contexto para abrir el módulo**: en Ciencia de Datos, los algoritmos rara vez procesan datos de forma aislada. Este módulo es el puente directo hacia la Regresión Lineal y las Redes Neuronales, que por dentro no son otra cosa que multiplicaciones matriciales y sistemas de ecuaciones resueltos a alta velocidad.
 
 ### Producto punto (Dot Product)
 
@@ -430,6 +458,8 @@ print(type(columna_msft.values))   # <class 'numpy.ndarray'> -> ¡por dentro, si
 ---
 
 ## Módulo 5 — Introducción a Pandas: Series y DataFrames
+
+**Contexto para abrir el módulo**: si trabajar con listas y diccionarios se siente como organizar una biblioteca sin estantes, Pandas es el sistema de estanterías profesional que estábamos esperando. Acá vemos cómo organiza la información en sus dos estructuras fundamentales.
 
 ### La Serie: el bloque de construcción unidimensional
 
@@ -550,6 +580,8 @@ print(f"NaN restantes: {df_limpio.isnull().sum().sum()}")   # 0
 ---
 
 ## Módulo 7 — Integración, Agregación y Preprocesamiento Avanzado
+
+**Contexto para abrir el módulo**: en la práctica profesional, la información casi nunca vive en una sola tabla prolija — está distribuida en varias fuentes relacionadas. Este módulo cubre cómo combinarlas sin romper la integridad de los datos, y cómo resumirlas en métricas de negocio.
 
 ### Combinar tablas: claves y tipos de join
 
@@ -708,7 +740,7 @@ print(df_stocks.isnull().sum()) # en este dataset, todo en cero: no hay nulos re
 | Archivo | Qué es |
 |---|---|
 | `Clase 03.pdf` | Material teórico oficial de la unidad (fuente original de esta guía). |
-| `Clase03.html` | Diapositivas para proyectar en clase (40 filminas). Abrir en el navegador; navegación con flechas del teclado o los botones inferiores. |
+| `Clase03.html` | Diapositivas para proyectar en clase (43 filminas). Abrir en el navegador; navegación con flechas del teclado o los botones inferiores. |
 | `Clase 03.ipynb` | Notebook con teoría ampliada + todos los ejemplos ejecutables. Es el material que se comparte con los alumnos. |
 | `stocks.csv` | Dataset real de precios de acciones (14 tickers, 2016–2021), usado como hilo conductor en todos los módulos. |
 | `Material/` | Carpeta con recursos adicionales. |
