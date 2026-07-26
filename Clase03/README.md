@@ -772,6 +772,96 @@ print(df_stocks.isnull().sum()) # en este dataset, todo en cero: no hay nulos re
 
 **Entregable**: un PDF con el Jupyter Notebook exportado (código + resultados + comentarios), incluyendo el diagnóstico de nulos, `dtypes`, `describe()` y los filtros aplicados. Nombre sugerido: `Apellido_Nombre_Checkpoint1.pdf`.
 
+### `.apply()`: aplicar funciones propias a un DataFrame
+
+Hasta acá vimos operaciones vectorizadas nativas (`df["col"] * 2`, `.mean()`, `.groupby().transform()`) y, en el Bloque 0, funciones `def` con `if/elif/else`. **`.apply()` es el puente entre las dos cosas**: te deja correr **tu propia función de Python** — con toda la lógica condicional que necesites — sobre cada valor de una columna o cada fila de un DataFrame.
+
+```python
+# Sobre una columna (Serie): la función recibe UN VALOR por vez
+df["MSFT"].apply(mi_funcion)
+
+# Sobre el DataFrame completo, fila por fila: la función recibe LA FILA completa (axis=1)
+df.apply(mi_funcion, axis=1)
+```
+
+**Con una función `def` (para lógica de negocio con `if/elif/else`):**
+
+```python
+def categorizar_precio(precio):
+    if precio < 100:
+        return "Bajo"
+    elif precio < 250:
+        return "Medio"
+    else:
+        return "Alto"
+
+df_stocks["MSFT_categoria"] = df_stocks["MSFT"].apply(categorizar_precio)
+```
+
+**Con una `lambda` (para una transformación de una sola línea):**
+
+```python
+df_stocks["GOOG_miles"] = df_stocks["GOOG"].apply(lambda x: round(x / 1000, 2))
+```
+
+**¿Por qué no usarlo siempre, si es tan cómodo?** Por dentro, `.apply()` **sí itera** fila por fila o valor por valor — no es vectorización real, es "el mito del bucle `for`" del Módulo 8 con otro disfraz. Es más lento que `df["col"] * 2` sobre datasets grandes. La regla práctica: **si existe una operación vectorizada que resuelve lo mismo, se prefiere esa**; `.apply()` se reserva para cuando la lógica es condicional o demasiado específica como para expresarla con operadores matemáticos directos — exactamente el caso de una función `def` con `if/elif/else`.
+
+### Ejemplo resuelto: cómo encarar la Segunda Pre-Entrega
+
+La consigna de la Segunda Pre-Entrega (Ingesta, Radiografía y Funciones de Transformación) pide 4 bloques. Así se resuelven los cuatro, de punta a punta, sobre `stocks.csv` — es el mismo patrón que vas a aplicar sobre el dataset que elegiste en tu Pre-entrega 1.
+
+```python
+# ==========================================
+# BLOQUE 1: INGESTA DE DATOS Y PRIMER VISTAZO
+# ==========================================
+import pandas as pd
+
+df = pd.read_csv("stocks.csv", parse_dates=["formatted_date"])
+display(df.head())
+
+# ==========================================
+# BLOQUE 2: RADIOGRAFÍA TÉCNICA
+# ==========================================
+print(f"Dimensiones del dataset: {df.shape}")
+df.info()
+display(df.describe())
+
+# Hallazgos (irían en una celda Markdown en el notebook real):
+# 1) MSFT va de ~45 a ~330 USD: rango amplio, coherente con el crecimiento
+#    tecnológico entre 2016 y 2021.
+# 2) RCL (Royal Caribbean) tiene una desviación estándar alta relativa a su media:
+#    coherente con el shock del turismo/cruceros durante 2020.
+
+# ==========================================
+# BLOQUE 3: DIAGNÓSTICO DE DATOS FALTANTES
+# ==========================================
+porcentaje_nulos = (df.isnull().mean() * 100).sort_values(ascending=False)
+display(porcentaje_nulos)
+# En stocks.csv da 0% en todas las columnas porque el dataset viene limpio;
+# con un dataset real casi siempre vas a ver porcentajes distintos de cero acá.
+
+# ==========================================
+# BLOQUE 4: LÓGICA ALGORÍTMICA Y FUNCIONES PERSONALIZADAS
+# ==========================================
+# Función formal (def + if/elif/else): regla de negocio sobre MSFT
+def categorizar_precio_msft(precio):
+    if precio < 100:
+        return "Bajo"
+    elif precio < 250:
+        return "Medio"
+    else:
+        return "Alto"
+
+df["MSFT_categoria"] = df["MSFT"].apply(categorizar_precio_msft)
+
+# Función express (lambda): transformación rápida sobre GOOG
+df["GOOG_miles"] = df["GOOG"].apply(lambda x: round(x / 1000, 2))
+
+display(df[["MSFT", "MSFT_categoria", "GOOG", "GOOG_miles"]].head())
+```
+
+Con esto, los 4 bloques de la consigna quedan resueltos: ingesta con vistazo estilizado, radiografía técnica con hallazgos comentados, ranking de nulos, y las dos funciones (formal + lambda) aplicadas al dataset con `.apply()`.
+
 ---
 
 ## Material de la clase
