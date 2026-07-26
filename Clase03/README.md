@@ -108,6 +108,13 @@ print(f"{producto} -> tipo: {type(producto)}")
 print(f"{precio} -> tipo: {type(precio)}")
 ```
 
+**Línea por línea:**
+- `producto = "Auriculares"` → asigna un `str` (texto entre comillas).
+- `precio = 45.90` → asigna un `float` (número con decimales).
+- `stock = 12` → asigna un `int` (número entero).
+- `en_oferta = True` → asigna un `bool` (solo puede ser `True` o `False`).
+- Los dos `print(f"...")` arman un string con `f""` que inserta el valor de la variable y, con `type(...)`, el tipo que Python le asignó automáticamente.
+
 **Y las listas también son variables**: hasta acá `producto`, `precio`, `stock` y `en_oferta` son **escalares** — un solo valor cada una. Python también tiene **colecciones**, que agrupan muchos escalares en una sola variable; la más simple es la **lista**. Definimos acá `precios_lista`, que vamos a reutilizar tal cual en el `for` y en la función de más abajo — así queda claro desde el principio que no es un dato nuevo que aparece de la nada.
 
 ```python
@@ -116,6 +123,12 @@ print(f"{precios_lista} -> tipo: {type(precios_lista)}")
 print(f"Primer precio: {precios_lista[0]}")
 print(f"Cantidad de precios: {len(precios_lista)}")
 ```
+
+**Línea por línea:**
+- `precios_lista = [...]` → crea una **lista**, una colección ordenada que agrupa 7 escalares (`int`) en una sola variable.
+- `type(precios_lista)` → confirma que el tipo es `list`.
+- `precios_lista[0]` → **indexación**: accede al elemento en la posición 0 (el primero), no al valor "0".
+- `len(precios_lista)` → cuenta cuántos elementos tiene la lista (acá, 7).
 
 ### Condicionales (repaso)
 
@@ -132,6 +145,13 @@ else:
 print(f"{producto}: {estado}")
 ```
 
+**Línea por línea:**
+- `input("...")` → pausa la ejecución y pide un valor por teclado; siempre devuelve **texto**, por eso `int(...)` lo convierte a número.
+- `if stock == 0 or (...)`: → se cumple si el stock es 0, **o** si se cumple lo de adentro del paréntesis. `or` alcanza con que una de las dos partes sea verdadera.
+- `(stock < 5 and en_oferta)` → esta parte necesita **ambas** condiciones a la vez: poco stock **y** que esté en oferta.
+- `else: estado = "Stock ok"` → se ejecuta si ninguna condición del `if` se cumplió.
+- El `print` final muestra el producto junto con el resultado de la decisión.
+
 ### Ciclo for (repaso)
 
 `for` recorre una colección elemento por elemento — en este caso, la misma `precios_lista` que ya definimos arriba. **Este es el protagonista del contraste que viene**: todo lo que hoy resolvemos con un `for` sobre una lista, en NumPy lo vamos a resolver sin ningún bucle explícito, operando sobre el array completo de una sola vez.
@@ -140,6 +160,10 @@ print(f"{producto}: {estado}")
 for p in precios_lista:
     print(f"Precio: {p}")
 ```
+
+**Línea por línea:**
+- `for p in precios_lista:` → recorre `precios_lista` elemento por elemento; en cada vuelta, `p` toma el valor de un elemento distinto.
+- `print(f"Precio: {p}")` → está **indentado dentro** del `for`, así que se ejecuta una vez por cada elemento de la lista (7 veces en total).
 
 ### Función que reúne todo
 
@@ -166,6 +190,16 @@ reporte = clasificar_precios(precios_lista)
 print(reporte)
 # {'Económico': 3, 'Medio': 2, 'Premium': 2}
 ```
+
+**Línea por línea:**
+- `def clasificar_precios(precios):` → define la función; `precios` es el **parámetro**, el molde que va a recibir la lista real.
+- El docstring (`"""..."""`) documenta qué hace la función — buena práctica, no afecta la ejecución.
+- `resumen = {...}` → un diccionario que arranca en 0 para cada categoría; es la variable donde vamos a ir contando.
+- `for precio in precios:` → recorre cada precio de la lista que se le pasó a la función.
+- `if / elif / else` → decide a qué categoría pertenece ese precio puntual, según su valor.
+- `resumen[categoria] += 1` → suma 1 al contador de la categoría que correspondió (equivale a `resumen[categoria] = resumen[categoria] + 1`).
+- `return resumen` → termina la función y entrega el diccionario completo, para poder guardarlo en una variable y reutilizarlo.
+- `reporte = clasificar_precios(precios_lista)` → **llama** a la función pasándole `precios_lista` como **argumento** (el valor real que ocupa el lugar del parámetro `precios`).
 
 **Por qué este bloque va primero**: cuando en la próxima sección resolvamos el mismo tipo de transformación con `precios_array * 1.21` (sin `for`, sin `if` explícito por elemento), el salto de un enfoque al otro se entiende mucho mejor si el enfoque "de toda la vida" está fresco y no es una abstracción lejana.
 
@@ -198,6 +232,12 @@ array_numpy = np.array([1, 2, 3.0, 4])    # NumPy homogeneiza: todo termina en f
 print(array_numpy.dtype)   # float64 -> NumPy convirtió los enteros a flotante
 ```
 
+**Línea por línea:**
+- `import numpy as np` → carga la librería NumPy y le da el alias `np` (convención universal, siempre se usa así).
+- `lista_python = [1, "dos", 3.0, True]` → una lista de Python acepta un `int`, un `str`, un `float` y un `bool` sin quejarse.
+- `np.array([1, 2, 3.0, 4])` → `np.array()` convierte esa lista en un `ndarray`; como hay un `3.0` (float) en el medio, NumPy "sube" **todos** los elementos a `float64` para mantenerlos homogéneos.
+- `array_numpy.dtype` → el atributo que revela de qué tipo son, por dentro, los elementos del array.
+
 ### Dimensiones, forma y tipo: `ndim`, `shape`, `dtype`
 
 | Concepto | Qué responde | Ejemplo |
@@ -227,6 +267,12 @@ np.ones(5)            # [1. 1. 1. 1. 1.]
 np.arange(0, 10, 2)   # [0 2 4 6 8]
 ```
 
+**Línea por línea:**
+- `np.array([1, 2, 3, 4])` → toma una lista ya existente y la convierte en `ndarray`.
+- `np.zeros((3, 4))` → la tupla `(3, 4)` indica **3 filas, 4 columnas**; crea esa matriz llena de ceros, lista para "rellenar" con resultados después.
+- `np.ones(5)` → un solo número (sin tupla) crea un array 1D de 5 elementos, todos en `1`.
+- `np.arange(0, 10, 2)` → genera una secuencia desde `0` hasta `10` **sin incluir el 10**, saltando de a `2`: `[0, 2, 4, 6, 8]`.
+
 ### Ejemplo real: cargando `stocks.csv` como matriz de NumPy
 
 `stocks.csv` (en esta misma carpeta) tiene precios mensuales de 14 acciones (McDonald's, Starbucks, Google, Amazon, Microsoft, bancos, hoteles, tarjetas...) entre 2016 y 2021. Es un archivo de texto plano con una primera columna de **fechas** (texto) y 14 columnas de **precios** (números).
@@ -242,6 +288,13 @@ print(f"Shape: {precios_matriz.shape}")   # (71, 14) -> 71 meses, 14 acciones
 print(f"ndim:  {precios_matriz.ndim}")    # 2
 print(f"dtype: {precios_matriz.dtype}")   # float64
 ```
+
+**Línea por línea:**
+- `np.genfromtxt("stocks.csv", ...)` → lee el archivo de texto y arma un `ndarray` numérico a partir de él.
+- `delimiter=","` → indica que las columnas están separadas por comas (formato CSV estándar).
+- `skip_header=1` → salta la primera fila del archivo (los nombres de columna), que son texto y no números.
+- `usecols=range(1, 15)` → `range(1, 15)` genera los índices `1, 2, ..., 14`: toma solo esas 14 columnas de precios, dejando afuera la columna 0 (la fecha).
+- `.shape`, `.ndim`, `.dtype` → los tres atributos que ya vimos: forma, cantidad de ejes y tipo de dato del array resultante.
 
 **Un detalle importante para remarcar acá**: tuvimos que **excluir la columna de fechas** con `usecols`. Si intentáramos meterla en el array, NumPy — fiel a la regla de homogeneidad — convertiría **todos** los precios a texto para poder incluir las fechas, y perderíamos la capacidad de hacer cuentas. Esta limitación es exactamente el motivo por el que en el Módulo 5 vamos a introducir **Pandas**: necesitamos una herramienta que sí pueda mezclar fechas, texto y números en la misma tabla sin perder la parte matemática de NumPy por debajo.
 
@@ -262,6 +315,12 @@ print(msft_columna.shape)  # (71, 1)
 precio_en_pesos = msft * 1000          # simulando un tipo de cambio fijo
 diferencia_mensual = msft[1:] - msft[:-1]   # variación mes a mes
 ```
+
+**Línea por línea:**
+- `precios_matriz[:, 4]` → `[:, 4]` se lee "todas las filas, columna con índice 4"; extrae la columna de MSFT como un vector 1D.
+- `msft.reshape(71, 1)` → reorganiza esos 71 números en una matriz de 71 filas y 1 columna; `71 × 1 = 71` coincide con el total original, así que es válido.
+- `msft * 1000` → multiplica **cada uno** de los 71 valores por 1000, sin escribir ningún bucle.
+- `msft[1:] - msft[:-1]` → `msft[1:]` es "del segundo elemento en adelante"; `msft[:-1]` es "del primero al anteúltimo". Restar ambos alinea cada mes con el anterior y da la variación mes a mes.
 
 ### Vectorización frente a bucles: retomando el Bloque 0
 
@@ -287,6 +346,13 @@ tiempo_numpy = time.time() - inicio
 print(f"Bucle for : {tiempo_for:.6f}s")
 print(f"NumPy     : {tiempo_numpy:.6f}s")
 ```
+
+**Línea por línea:**
+- `list(msft)` → convierte el array de NumPy de vuelta a una lista de Python, para poder comparar "en igualdad de condiciones".
+- `time.time()` antes y después de cada bloque → mide cuánto tiempo real pasó entre ambas llamadas; la resta da la duración.
+- El bucle `for` crea una lista vacía y va agregando (`.append()`) cada precio ya aumentado, uno por uno.
+- `msft * 1.21` → la misma transformación, pero aplicada a los 71 elementos de una sola vez.
+- `:.6f` en el `print` → formatea el número con 6 decimales, para que se note la diferencia de tiempo aunque sea mínima.
 
 Con 71 elementos la diferencia de tiempo es imperceptible — pero la diferencia de **código** ya es contundente: 4 líneas contra 1. Si `msft_lista` tuviera 10 millones de elementos (como el ejemplo de la tienda global del PDF), la diferencia de tiempo también se volvería contundente.
 
@@ -317,6 +383,9 @@ En Data Science, la información casi siempre se organiza de forma tabular — u
 print(precios_matriz[2, 1])   # precio de SBUX (columna 1) en el mes con índice 2
 ```
 
+**Línea por línea:**
+- `precios_matriz[2, 1]` → indexación 2D: el primer número (`2`) es la fila, el segundo (`1`) es la columna. Devuelve un único valor: el precio de SBUX en el tercer mes registrado (índice 2, porque se cuenta desde 0).
+
 ### Broadcasting: el superpoder de NumPy
 
 El **Broadcasting** es el conjunto de reglas que le permite a NumPy operar entre arrays de **distinta forma**, sin escribir un bucle y sin copiar datos de más en memoria. NumPy compara las formas **de derecha a izquierda**: dos dimensiones son compatibles si son iguales o si una de ellas es `1`.
@@ -331,6 +400,11 @@ precios_centrados = precios_matriz - medias_por_accion   # broadcasting: (71,14)
 print(precios_centrados[0])   # cuánto se desvía cada acción de su propia media, en el primer mes
 ```
 
+**Línea por línea:**
+- `precios_matriz.mean(axis=0)` → `axis=0` significa "promediar recorriendo las filas", es decir, calcular un promedio **por columna**; el resultado es un vector de 14 medias, una por acción.
+- `precios_matriz - medias_por_accion` → resta un vector `(14,)` a una matriz `(71,14)`. Por broadcasting, NumPy "estira" el vector para restarlo a cada una de las 71 filas, sin copiarlo 71 veces en memoria.
+- `precios_centrados[0]` → la primera fila del resultado: cuánto se aleja cada acción de su propio promedio, en el primer mes del dataset.
+
 ### Multiplicación elemento a elemento (`*`) vs. Transposición (`.T`)
 
 - **`*` (elemento a elemento)**: multiplica posición a posición — (0,0) con (0,0), (0,1) con (0,1)... Debe cumplir las reglas de broadcasting, **no** es álgebra lineal.
@@ -342,6 +416,11 @@ precios_normalizados = precios_centrados / volatilidad   # * y / también son el
 
 print(precios_matriz.T.shape)   # (14, 71) -> ahora cada fila es una acción, cada columna un mes
 ```
+
+**Línea por línea:**
+- `precios_matriz.std(axis=0)` → desvío estándar por columna (por acción), igual lógica que `.mean(axis=0)` antes.
+- `precios_centrados / volatilidad` → divide cada columna de `precios_centrados` por su propio desvío; es otra operación elemento a elemento con broadcasting, no álgebra lineal.
+- `precios_matriz.T` → `.T` transpone la matriz: intercambia filas por columnas. No mueve datos en memoria, solo cambia cómo se los "lee", así que es prácticamente instantáneo.
 
 ### Multiplicación Matricial (`@`): un vector de pesos de portafolio
 
@@ -359,6 +438,11 @@ print(f"Shape del resultado: {valor_portafolio.shape}")
 print(valor_portafolio[:5])   # valor del portafolio en los primeros 5 meses
 ```
 
+**Línea por línea:**
+- `np.ones(14) / 14` → crea un array de 14 unos y divide **cada uno** por 14: da 14 pesos iguales, cada uno de aproximadamente `0.0714`, que suman 1 entre todos.
+- `precios_matriz @ pesos` → multiplicación matricial: por cada mes (fila), multiplica cada precio por su peso y suma los 14 resultados — el mismo cálculo que un producto punto, repetido para las 71 filas a la vez. `(71,14) @ (14,)` da como resultado un vector `(71,)`.
+- `valor_portafolio[:5]` → los primeros 5 valores del vector resultante, uno por cada uno de los primeros 5 meses.
+
 ### Errores comunes de broadcasting
 
 ```python
@@ -367,6 +451,10 @@ vector_mal_dimensionado = np.array([1, 2, 3])   # shape (3,), pero precios_matri
 # precios_matriz - vector_mal_dimensionado
 # ValueError: operands could not be broadcast together with shapes (71,14) (3,)
 ```
+
+**Línea por línea:**
+- `np.array([1, 2, 3])` → un vector de shape `(3,)`. Comparado de derecha a izquierda contra `(71, 14)`, el `3` no coincide con el `14` ni es `1`, así que la regla de broadcasting no se cumple.
+- La resta comentada es justamente la que **fallaría**: la dejamos comentada para mostrar el error sin frenar la ejecución del resto del notebook.
 
 | Error | Causa | Solución |
 |---|---|---|
@@ -394,6 +482,12 @@ retorno_esperado_portafolio = np.dot(retorno_promedio_por_accion, pesos)   # esc
 print(f"Retorno mensual esperado del portafolio: {retorno_esperado_portafolio:.4%}")
 ```
 
+**Línea por línea:**
+- `(precios_matriz[1:] - precios_matriz[:-1]) / precios_matriz[:-1]` → la fórmula del % de cambio: `(precio actual − precio anterior) / precio anterior`, calculada para los 71 meses y las 14 acciones a la vez.
+- `retornos_mensuales.mean(axis=0)` → promedio por columna: el retorno promedio histórico de cada una de las 14 acciones.
+- `np.dot(retorno_promedio_por_accion, pesos)` → producto punto: multiplica cada retorno promedio por su peso correspondiente y suma los 14 resultados en un único número (el retorno esperado del portafolio completo).
+- `:.4%` → formatea el número como porcentaje con 4 decimales.
+
 En NumPy moderno se prefiere el operador infijo `@` sobre `np.dot()` por legibilidad — para vectores 1D ambos hacen exactamente lo mismo.
 
 ### Sistemas de Ecuaciones Lineales: `np.linalg.solve`
@@ -419,6 +513,13 @@ print(f"Acciones de MCD:  {x_mcd:.1f}")
 print(f"Acciones de SBUX: {y_sbux:.1f}")
 ```
 
+**Línea por línea:**
+- `precios_matriz[0, 0]` y `[0, 1]` → los precios de MCD y SBUX en el mes 0 (el primero del dataset).
+- `A = np.array([[1, 1], [precio_mcd, precio_sbux]])` → la matriz de coeficientes: la primera fila representa la ecuación "cantidad total = 100"; la segunda, "valor total = 10.000".
+- `b = np.array([100, 10000])` → el vector de resultados de cada ecuación, en el mismo orden que las filas de `A`.
+- `np.linalg.solve(A, b)` → resuelve el sistema $Ax = b$ y devuelve un array con las dos incógnitas; lo "desempaquetamos" directo en `x_mcd, y_sbux`.
+- `:.1f` → redondea el resultado a 1 decimal para mostrarlo más prolijo.
+
 ### Diagnóstico y Propiedades Matriciales (`np.linalg`)
 
 | Función | Propiedad matemática | Utilidad en Data Science |
@@ -439,6 +540,13 @@ print(f"Determinante: {determinante:.6f}")   # muy cercano a 0 -> hay acciones f
 valores_propios, vectores_propios = np.linalg.eig(correlaciones)
 print(f"Eigenvalues: {valores_propios.round(2)}")
 ```
+
+**Línea por línea:**
+- `np.corrcoef(precios_matriz.T)` → calcula la correlación entre cada par de columnas; se usa `.T` porque `corrcoef` espera una **fila por variable**, no por observación como está `precios_matriz` originalmente.
+- `correlaciones.shape` → confirma que el resultado es una matriz cuadrada `(14, 14)`, una fila y columna por cada acción.
+- `np.linalg.det(correlaciones)` → calcula el determinante de esa matriz cuadrada.
+- `np.linalg.eig(correlaciones)` → devuelve **dos** resultados a la vez (eigenvalues y eigenvectors), que se desempaquetan en dos variables.
+- `.round(2)` → redondea cada valor del array a 2 decimales antes de mostrarlo.
 
 **Por qué esto importa para lo que viene**: la ecuación normal de la Regresión Lineal ($\beta = (X^TX)^{-1}X^Ty$) y el Análisis de Componentes Principales (PCA) se apoyan exactamente en estas operaciones — transposición, multiplicación matricial, sistemas lineales y eigendecomposition — todas resueltas por NumPy en milisegundos.
 
@@ -494,6 +602,13 @@ print(type(columna_msft))          # <class 'pandas.core.series.Series'>
 print(type(columna_msft.values))   # <class 'numpy.ndarray'> -> ¡por dentro, sigue siendo un array!
 ```
 
+**Línea por línea:**
+- `np.genfromtxt(...)` → la misma carga del Módulo 1: solo columnas numéricas, sin la fecha.
+- `pd.read_csv("stocks.csv")` → carga la tabla **completa**, dejando que Pandas maneje la mezcla de texto (fecha) y números sin quejarse.
+- `df_stocks.dtypes.head()` → `.dtypes` lista el tipo de cada columna; `.head()` muestra solo las primeras (para no imprimir las 15).
+- `df_stocks["MSFT"]` → seleccionar una columna con corchete simple devuelve una **Serie**.
+- `columna_msft.values` → extrae los datos "en crudo" de la Serie, sin la etiqueta del índice — y ese resultado es, literalmente, un `numpy.ndarray`.
+
 ---
 
 ## Módulo 5 — Introducción a Pandas: Series y DataFrames
@@ -516,6 +631,12 @@ stock_por_sector = pd.Series(
 print(stock_por_sector["Consumo"])        # acceso directo por etiqueta, sin saber la posición
 ```
 
+**Línea por línea:**
+- `df_stocks["MSFT"]` → seleccionar una columna de un DataFrame con `[]` devuelve una Serie.
+- `precios_msft.index[:5]` → los primeros 5 valores del índice; como no le asignamos ninguno explícito, Pandas puso números correlativos (`RangeIndex`).
+- `pd.Series({...})` → cuando se crea una Serie a partir de un diccionario, las **llaves** se convierten automáticamente en el índice y los **valores**, en los datos.
+- `stock_por_sector["Consumo"]` → accede al valor por su etiqueta (`"Consumo"`), sin necesidad de saber en qué posición numérica está.
+
 ### El DataFrame: la tabla bidimensional
 
 El **DataFrame** es la hoja de cálculo completa — la estructura más usada en Ciencia de Datos. Se puede pensar como un **diccionario de Series** que comparten el mismo índice de filas.
@@ -536,6 +657,13 @@ print(df_stocks.columns)        # Index(['MCD', 'SBUX', 'GOOG', ...], dtype='obj
 print(df_stocks.shape)          # (71, 14) -> mismo tamaño que precios_matriz, pero con etiquetas
 ```
 
+**Línea por línea:**
+- `parse_dates=["formatted_date"]` → le dice a `read_csv` que convierta esa columna a tipo fecha real (`datetime64`) durante la carga, en vez de dejarla como texto.
+- `df_stocks.set_index("formatted_date")` → mueve la columna de fechas para que pase a ser el **índice** de filas; por eso hay que reasignar el resultado a `df_stocks`.
+- `df_stocks.index[:3]` → las primeras 3 etiquetas del nuevo índice (ahora son fechas, no números).
+- `df_stocks.columns` → los nombres de las 14 columnas que quedaron (ya sin la fecha, que pasó a ser índice).
+- `df_stocks.shape` → sigue siendo `(71, 14)`: mismas dimensiones que `precios_matriz`, pero acá con nombres y fechas en vez de solo números.
+
 ### Creación de Series y DataFrames desde listas y diccionarios
 
 No siempre partimos de un archivo — a veces armamos estas estructuras a mano, desde objetos que ya conocemos.
@@ -553,6 +681,11 @@ sectores_dict = {
 df_sectores = pd.DataFrame(sectores_dict)
 print(df_sectores)
 ```
+
+**Línea por línea:**
+- `pd.Series([15.0, 45.0, 120.0], name="Precio")` → una Serie desde una lista simple; `name=` le pone nombre a la Serie completa (útil si después se convierte en columna de un DataFrame).
+- `sectores_dict = {...}` → un diccionario donde cada llave (`"ticker"`, `"sector"`) va a convertirse en el nombre de una columna, y cada lista, en los valores de esa columna.
+- `pd.DataFrame(sectores_dict)` → arma la tabla; Pandas alinea automáticamente los elementos por posición dentro de cada lista (el primer ticker con el primer sector, y así sucesivamente).
 
 Vamos a reutilizar `df_sectores` en el Módulo 7 para mostrar cómo **combinar** (`merge`) dos tablas relacionadas.
 
@@ -585,6 +718,13 @@ print(df_sucio.isnull().sum())          # conteo de NaN por columna
 print(f"Total de NaN: {df_sucio.isnull().sum().sum()}")
 ```
 
+**Línea por línea:**
+- `df_stocks.copy()` → crea una copia **independiente**; sin `.copy()`, `df_sucio` apuntaría a la misma tabla que `df_stocks` y modificar una modificaría la otra.
+- `df_sucio.iloc[3, 2] = np.nan` → `iloc[fila, columna]` accede por **posición numérica**; le asigna `NaN` a esa celda puntual.
+- `df_sucio.isnull()` → devuelve una tabla del mismo tamaño, pero con `True`/`False` según si cada celda es nula.
+- `.sum()` → sobre esa tabla booleana, suma por columna (`True` vale 1, `False` vale 0): da el conteo de nulos por columna.
+- `.sum().sum()` → el segundo `.sum()` suma esos conteos de columna en un solo número: el total de nulos del DataFrame.
+
 ### Eliminación vs. Imputación
 
 | Estrategia | Ventaja | Riesgo |
@@ -616,6 +756,14 @@ print(f"Filas imputadas (==1 NaN): {len(filas_a_imputar)}")
 print(f"NaN restantes: {df_limpio.isnull().sum().sum()}")   # 0
 ```
 
+**Línea por línea:**
+- `df_sucio.mean(numeric_only=True)` → calcula el promedio de cada columna numérica; `numeric_only=True` evita que Pandas intente promediar columnas de texto.
+- `df_sucio.isnull().sum(axis=1)` → acá `axis=1` cambia el sentido: suma **a lo largo de las columnas**, es decir, cuenta cuántos `NaN` tiene cada **fila**.
+- `nan_por_fila[nan_por_fila > 1]` → filtro booleano: se queda solo con las filas cuyo conteo de nulos es mayor a 1; `.index` extrae las etiquetas de esas filas.
+- `df_sucio.drop(index=filas_a_eliminar)` → elimina del DataFrame las filas cuyas etiquetas están en esa lista.
+- `df_limpio.fillna(medias_columnas)` → rellena cualquier `NaN` restante con la media de su propia columna (calculada en el primer paso, antes de eliminar nada).
+- `len(filas_a_eliminar)` → cuenta cuántas etiquetas quedaron en ese índice filtrado.
+
 ---
 
 ## Módulo 7 — Integración, Agregación y Preprocesamiento Avanzado
@@ -642,6 +790,14 @@ df_con_sector = pd.merge(
 )
 print(df_con_sector["_merge"].value_counts())
 ```
+
+**Línea por línea:**
+- `df_stocks.reset_index()` → vuelve a poner la fecha como columna normal (se lo pedimos porque `melt` necesita que las columnas a "derretir" no sean el índice).
+- `.melt(id_vars="formatted_date", var_name="ticker", value_name="precio")` → `id_vars` es la columna que se mantiene fija; el resto de las columnas (los 14 tickers) se "apilan" en dos columnas nuevas: `ticker` (con el nombre de cada columna original) y `precio` (con su valor).
+- `pd.merge(left=..., right=..., on="ticker", how="left", ...)` → une `df_largo` con `df_sectores` usando `"ticker"` como clave común; `how="left"` conserva todas las filas de `df_largo` aunque no tengan sector.
+- `validate="many_to_one"` → verificación de seguridad: lanza un error si `"ticker"` estuviera duplicado en `df_sectores` (evita un producto cartesiano accidental).
+- `indicator=True` → agrega la columna `_merge`, que etiqueta cada fila como `both`, `left_only` o `right_only`.
+- `.value_counts()` → cuenta cuántas filas cayeron en cada una de esas categorías.
 
 `df_sectores` solo tiene 7 de los 14 tickers — por eso el `left join` deja `NaN` en `sector` para el resto, y la columna `_merge` (gracias a `indicator=True`) nos deja **auditar** exactamente cuáles.
 
@@ -674,6 +830,12 @@ df_con_sector["precio_z_sector"] = df_con_sector.groupby("sector")["precio"].tra
 )
 ```
 
+**Línea por línea:**
+- `dropna(subset=["sector"])` → `subset=["sector"]` hace que solo se eliminen filas con `NaN` **en esa columna puntual**, no en cualquier otra.
+- `df_con_sector.groupby("sector")["precio"]` → agrupa las filas por sector y selecciona la columna `precio` dentro de cada grupo.
+- `.agg(precio_promedio="mean", precio_max="max", n_registros="count")` → cada `nombre="función"` calcula un estadístico distinto y lo guarda en una columna con ese nombre — tres preguntas de negocio resueltas en una sola línea.
+- `.transform(lambda x: (x - x.mean()) / x.std())` → a diferencia de `.agg()`, `transform` devuelve **un valor por cada fila original** (no una fila por grupo); acá, `x` es la Serie de precios de un solo sector, y la fórmula calcula el z-score de cada precio **dentro de su propio sector**.
+
 ### Outliers y escalamiento: Winsorización, Z-Score y Robust Scaling
 
 En vez de eliminar valores extremos (perdiendo información), la **Winsorización** les pone un tope en un percentil bajo y otro alto — típicamente P1 y P99.
@@ -682,6 +844,10 @@ En vez de eliminar valores extremos (perdiendo información), la **Winsorizació
 p1, p99 = np.percentile(df_con_sector["precio"], [1, 99])
 precio_winsorizado = np.clip(df_con_sector["precio"], p1, p99)   # los extremos se "achatan" al tope
 ```
+
+**Línea por línea:**
+- `np.percentile(df_con_sector["precio"], [1, 99])` → calcula, en una sola llamada, los valores que dejan el 1% y el 99% de los datos por debajo; se desempaquetan en `p1` y `p99`.
+- `np.clip(serie, p1, p99)` → cualquier valor menor a `p1` se sube a `p1`, y cualquier valor mayor a `p99` se baja a `p99` — el resto de los valores queda intacto.
 
 Para llevar variables a la misma escala (imprescindible en KNN, regresiones regularizadas o redes neuronales):
 
@@ -694,6 +860,12 @@ mediana = df_con_sector["precio"].median()
 iqr = df_con_sector["precio"].quantile(0.75) - df_con_sector["precio"].quantile(0.25)
 precio_robusto = (df_con_sector["precio"] - mediana) / iqr
 ```
+
+**Línea por línea:**
+- `z_score = (precio - media) / desvío` → la fórmula clásica de estandarización: centra los datos en 0 y los escala a una desviación estándar de 1.
+- `df_con_sector["precio"].median()` → el valor central de la columna (menos sensible a outliers que la media).
+- `.quantile(0.75) - .quantile(0.25)` → el Rango Intercuartílico (IQR): la diferencia entre el percentil 75 y el percentil 25.
+- `precio_robusto = (precio - mediana) / iqr` → la misma idea que el z-score, pero con estadísticos robustos en vez de media y desvío estándar.
 
 ---
 
@@ -719,6 +891,13 @@ volatilidad_portafolio = np.sqrt(varianza_portafolio)
 print(f"Volatilidad mensual del portafolio: {volatilidad_portafolio:.4%}")
 ```
 
+**Línea por línea:**
+- `df_stocks.pct_change()` → calcula el % de cambio entre cada fila y la anterior, columna por columna; la primera fila siempre da `NaN` (no tiene fila anterior con la cual compararse).
+- `.dropna()` → elimina esa primera fila con `NaN`.
+- `np.cov(retornos.values.T)` → calcula la matriz de covarianzas; se transpone con `.T` porque `np.cov` espera una fila por variable (acción), no por observación (mes).
+- `pesos @ matriz_covarianza @ pesos` → dos multiplicaciones matriciales encadenadas: primero `matriz_covarianza @ pesos`, y el resultado se vuelve a multiplicar por `pesos` — la fórmula $w^T\Sigma w$ de la varianza del portafolio.
+- `np.sqrt(varianza_portafolio)` → la volatilidad es, por definición, la raíz cuadrada de la varianza.
+
 ### El mito del bucle `for` sobre un DataFrame
 
 **Error frecuente**: recorrer un DataFrame fila por fila con `for` y `.iloc[i]` para calcular algo que ya tiene una operación vectorizada. Es lento y destruye la ventaja competitiva de las dos librerías.
@@ -732,6 +911,12 @@ for i in range(len(df_stocks)):
 # Bien: vectorizado, con la misma API de Pandas (que delega en NumPy por debajo)
 totales_vectorizado = df_stocks.sum(axis=1)
 ```
+
+**Línea por línea:**
+- `totales = []` → lista vacía donde vamos a ir acumulando un resultado por fila.
+- `for i in range(len(df_stocks)):` → genera un índice numérico `0, 1, 2...` por cada fila del DataFrame.
+- `df_stocks.iloc[i].sum()` → `iloc[i]` trae la fila `i` completa; `.sum()` la suma. El problema no es esta suma (que sí es rápida), sino el bucle de Python que la llama fila por fila.
+- `df_stocks.sum(axis=1)` → `axis=1` suma a lo largo de las columnas, **una vez por fila**, pero todo resuelto internamente por Pandas/NumPy, sin que Python itere.
 
 ### Aplicaciones reales por industria
 
@@ -759,6 +944,13 @@ print(df_stocks.describe())
 print(df_stocks.isnull().sum()) # en este dataset, todo en cero: no hay nulos reales
 ```
 
+**Línea por línea:**
+- `df_stocks.head()` → sin argumento, muestra las primeras 5 filas por defecto.
+- `df_stocks.shape` → es un **atributo** (sin paréntesis): la tupla `(filas, columnas)`.
+- `df_stocks.info()` → imprime, para cada columna, su nombre, cuántos valores no nulos tiene y su `dtype`.
+- `df_stocks.describe()` → calcula `count`, `mean`, `std`, `min`, los percentiles 25/50/75% y `max` de cada columna numérica.
+- `df_stocks.isnull().sum()` → la misma combinación que en el Módulo 6: máscara booleana + suma por columna.
+
 **Cómo leer un `describe()` real**: en `df_stocks.describe()`, comparar `min` y `max` de cada acción contra lo que sabés del mundo real es la primera línea de defensa contra errores de carga — un precio de acción negativo, por ejemplo, sería una alerta inmediata (no es el caso acá, pero es el hábito a construir).
 
 ### Pre-Entrega: Checkpoint — Estructura Inicial del Dataset
@@ -784,6 +976,10 @@ df["MSFT"].apply(mi_funcion)
 df.apply(mi_funcion, axis=1)
 ```
 
+**Línea por línea:**
+- `df["MSFT"].apply(mi_funcion)` → recorre la Serie `df["MSFT"]` y le pasa **cada valor individual** a `mi_funcion`, uno por uno.
+- `df.apply(mi_funcion, axis=1)` → `axis=1` cambia el comportamiento: ahora `mi_funcion` recibe **la fila entera** (como una Serie), lo que permite reglas que combinan varias columnas a la vez.
+
 **Con una función `def` (para lógica de negocio con `if/elif/else`):**
 
 ```python
@@ -798,11 +994,20 @@ def categorizar_precio(precio):
 df_stocks["MSFT_categoria"] = df_stocks["MSFT"].apply(categorizar_precio)
 ```
 
+**Línea por línea:**
+- `def categorizar_precio(precio):` → recibe un **único** valor numérico (un precio puntual) cada vez que se la llama.
+- `if / elif / else` → la misma estructura condicional del Bloque 0, ahora aplicada a un precio de acción en vez de un precio de producto.
+- `df_stocks["MSFT"].apply(categorizar_precio)` → llama a la función una vez por cada valor de la columna `MSFT`, y el resultado se guarda en una columna nueva.
+
 **Con una `lambda` (para una transformación de una sola línea):**
 
 ```python
 df_stocks["GOOG_miles"] = df_stocks["GOOG"].apply(lambda x: round(x / 1000, 2))
 ```
+
+**Línea por línea:**
+- `lambda x: round(x / 1000, 2)` → función anónima de una sola línea: recibe `x` (un precio), lo divide por 1000 y lo redondea a 2 decimales.
+- `.apply(lambda ...)` → aplica esa mini función a cada valor de la columna `GOOG`, igual que hicimos antes con `categorizar_precio`, pero sin necesidad de darle nombre a la función.
 
 **¿Por qué no usarlo siempre, si es tan cómodo?** Por dentro, `.apply()` **sí itera** fila por fila o valor por valor — no es vectorización real, es "el mito del bucle `for`" del Módulo 8 con otro disfraz. Es más lento que `df["col"] * 2` sobre datasets grandes. La regla práctica: **si existe una operación vectorizada que resuelve lo mismo, se prefiere esa**; `.apply()` se reserva para cuando la lógica es condicional o demasiado específica como para expresarla con operadores matemáticos directos — exactamente el caso de una función `def` con `if/elif/else`.
 
@@ -859,6 +1064,14 @@ df["GOOG_miles"] = df["GOOG"].apply(lambda x: round(x / 1000, 2))
 
 display(df[["MSFT", "MSFT_categoria", "GOOG", "GOOG_miles"]].head())
 ```
+
+**Línea por línea:**
+- **Bloque 1**: `pd.read_csv(..., parse_dates=[...])` carga el archivo y convierte la fecha; `display(df.head())` renderiza las primeras 5 filas con estilo (mejor que `print()` en un notebook).
+- **Bloque 2**: `df.shape` da las dimensiones; `df.info()` lista tipos y no-nulos; `df.describe()` da el resumen estadístico — los tres comandos de radiografía técnica que pide la consigna.
+- Los comentarios de "Hallazgos" son el equivalente en código de lo que en el notebook real iría en una **celda Markdown aparte**, como pide el bloque 2 de la consigna.
+- **Bloque 3**: `df.isnull().mean() * 100` da el porcentaje de nulos por columna; `.sort_values(ascending=False)` lo ordena de mayor a menor, tal como pide la consigna.
+- **Bloque 4**: la función `categorizar_precio_msft` (con `if/elif/else`) y la `lambda` sobre `GOOG` son las dos funciones que pide la consigna, y ambas se aplican con `.apply()` para crear columnas nuevas.
+- El `display()` final selecciona 4 columnas a la vez (doble corchete `[[...]]`) para comparar el valor original contra el transformado, en la misma tabla.
 
 Con esto, los 4 bloques de la consigna quedan resueltos: ingesta con vistazo estilizado, radiografía técnica con hallazgos comentados, ranking de nulos, y las dos funciones (formal + lambda) aplicadas al dataset con `.apply()`.
 

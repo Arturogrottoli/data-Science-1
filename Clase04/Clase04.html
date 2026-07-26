@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clase 03 - NumPy y Pandas | Coderhouse</title>
+    <title>Clase 04 - Manipulación de Datos con Pandas | Coderhouse</title>
     <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -501,15 +501,15 @@
     <div class="slide-container active" id="slide1">
         <div></div>
         <div class="transition-layout" style="margin-bottom: 30px;">
-            <span class="moment-badge">CODER 4.0 • CLASE 03</span>
-            <h1 style="font-size: 54px;">NumPy y Pandas: Arrays, Vectorización y el Motor de la Ciencia de Datos</h1>
+            <span class="moment-badge">CODER 4.0 • CLASE 04</span>
+            <h1 style="font-size: 54px;">Manipulación de Datos con Pandas: Limpieza, Transformación y Agregación</h1>
             <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
-                De listas de Python a estructuras profesionales: velocidad, forma y organización
+                De datos crudos y sucios a información lista para decidir
             </p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">01 / 40</div>
+            <div class="slide-index">01 / 41</div>
         </div>
     </div>
 
@@ -519,250 +519,238 @@
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 01</span>
-            <h2>NumPy y la Vectorización</h2>
-            <p style="font-size: 20px;">Por qué tratar miles de datos como uno solo es la base de toda la Ciencia de Datos.</p>
+            <h2>Valores Faltantes y Duplicados</h2>
+            <p style="font-size: 20px;">Decidir qué limpiar y qué conservar: el lenguaje de la ausencia, la detección y los criterios de limpieza.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">02 / 40</div>
+            <div class="slide-index">02 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 3: Por qué existe NumPy -->
+    <!-- SLIDE 3: El lenguaje de la ausencia -->
     <div class="slide-container" id="slide3">
-        <h2 class="slide-title">¿Por qué existe NumPy en el Flujo de Trabajo de Datos?</h2>
+        <h2 class="slide-title">El Lenguaje de la Ausencia: NaN, Null, None y Vacío</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge">El cimiento de Data Science</span>
-                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
-                        Las listas de Python son flexibles (mezclan tipos), pero esa flexibilidad cuesta lentitud y memoria.
-                    </p>
+                    <span class="moment-badge">Matices técnicos que hay que conocer</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-gauge-high"></i> <strong>Rendimiento:</strong> operaciones escritas en C, hasta 100 veces más rápidas que los bucles de Python.</li>
-                            <li><i class="fa-solid fa-square-root-variable"></i> <strong>Sintaxis matemática:</strong> escribimos fórmulas directamente sobre el conjunto, sin "abrirlo" elemento por elemento.</li>
-                            <li><i class="fa-solid fa-layer-group"></i> <strong>Debajo del capó:</strong> Pandas, Matplotlib y Scikit-Learn dependen de NumPy para funcionar.</li>
+                            <li><i class="fa-solid fa-circle-question"></i> <strong>NaN:</strong> el estándar técnico en Pandas/NumPy para faltantes numéricos. Para la computadora, es un objeto de tipo <em>float</em>.</li>
+                            <li><i class="fa-solid fa-code"></i> <strong>None:</strong> el "vacío" nativo de Python. Pandas suele convertirlo en NaN al cargar un DataFrame.</li>
+                            <li><i class="fa-solid fa-database"></i> <strong>Null:</strong> término genérico de SQL; en Pandas usamos "nulo" y "faltante" casi como sinónimos.</li>
+                            <li><i class="fa-solid fa-quote-left"></i> <strong>Cadena vacía ("") ≠ Faltante:</strong> es texto válido sin caracteres, no un nulo para Pandas.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
-<span style="color: #6a737d;"># Bucle tradicional: 500 productos, +21% IVA</span>
-precios = [100, 250, 80, 500]
-con_iva = []
-for p in precios:
-    con_iva.append(p * 1.21)
-
-<span style="color: #6a737d;"># Con NumPy: una tienda con 10 millones</span>
-<span style="color: #6a737d;"># de productos ya no es un problema</span>
+import pandas as pd
 import numpy as np
-precios_np = np.array(precios)
-con_iva_np = precios_np * 1.21
+
+<span style="color: #6a737d;"># NaN == NaN da False: por eso</span>
+<span style="color: #6a737d;"># existen funciones especiales</span>
+print(np.nan == np.nan)
+<span style="color: #6a737d;"># False</span>
+
+data = {<span style="color: #032f62;">'Edad'</span>: [25, np.nan, 30],
+        <span style="color: #032f62;">'Ciudad'</span>: [<span style="color: #032f62;">'Madrid'</span>, <span style="color: #032f62;">'Bogotá'</span>, None]}
+df = pd.DataFrame(data)
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">03 / 40</div>
+            <div class="slide-index">03 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 4: ndarray y homogeneidad -->
+    <!-- SLIDE 4: Por qué aparecen valores faltantes -->
     <div class="slide-container" id="slide4">
-        <h2 class="slide-title">¿Qué es un ndarray? El Corazón de NumPy</h2>
-        <div class="content-area">
-            <div class="two-column tiled">
-                <div>
-                    <h3>Homogeneidad de Tipo</h3>
-                    <p>A diferencia de una lista de Python, donde puedes mezclar peras con manzanas, en un array de NumPy <strong>todos los elementos deben ser del mismo tipo</strong>.</p>
-                </div>
-                <div>
-                    <h3>¿Por qué importa?</h3>
-                    <p>Si NumPy sabe que "todo es un entero de 64 bits", reserva un bloque exacto de memoria y calcula en bloque. Como una estantería diseñada para cajas del mismo tamaño: se apilan y mueven mucho más rápido.</p>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">04 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 5: Dimensiones, ejes y forma -->
-    <div class="slide-container" id="slide5">
-        <h2 class="slide-title">Dimensiones, Ejes y Forma: ndim, shape, dtype</h2>
+        <h2 class="slide-title">¿Por Qué Aparecen los Valores Faltantes?</h2>
         <div class="content-area">
             <div class="tiled-content">
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-circle-dot"></i></div>
-                    <h3>0D — Escalar</h3>
-                    <p>Un solo número. Ej: 5. Cero ejes.</p>
+                    <div class="icon-box"><i class="fa-solid fa-satellite-dish"></i></div>
+                    <h3>Captura incompleta</h3>
+                    <p>El sensor falló por un segundo, o el encuestado prefirió no decir su salario.</p>
                 </div>
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-grip-lines"></i></div>
-                    <h3>1D — Vector</h3>
-                    <p>Una fila de números, como una lista simple. shape = (5,)</p>
+                    <div class="icon-box"><i class="fa-solid fa-object-ungroup"></i></div>
+                    <h3>Errores de integración</h3>
+                    <p>Al unir Clientes y Compras, un cliente sin compras deja "monto" vacío — ¡es información valiosa!</p>
                 </div>
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-table-cells"></i></div>
-                    <h3>2D — Matriz</h3>
-                    <p>Filas y columnas. shape = (3, 2): 3 filas, 2 columnas.</p>
+                    <div class="icon-box"><i class="fa-solid fa-paw"></i></div>
+                    <h3>Datos no aplicables</h3>
+                    <p>"Nombre de la mascota" vacío en alguien sin animales: vacío por lógica, no por error.</p>
                 </div>
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-cube"></i></div>
-                    <h3>3D — Tensor</h3>
-                    <p>Un "cubo" de datos: varias pestañas o una imagen (Alto, Ancho, Color).</p>
+                    <div class="icon-box"><i class="fa-solid fa-pen-ruler"></i></div>
+                    <h3>Diseño intencional</h3>
+                    <p>El proceso de recolección cambió y antes no se pedía esa información.</p>
                 </div>
             </div>
+            <p class="note-text">Principio de oro: nunca limpies sin entender el contexto. Borrar todos los nulos de "descuento aplicado" podría borrar a todos los clientes que pagaron el precio completo.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">05 / 40</div>
+            <div class="slide-index">04 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 6: Creación de arrays -->
-    <div class="slide-container" id="slide6">
-        <h2 class="slide-title">Creación de Arrays: Tus Primeras Herramientas</h2>
+    <!-- SLIDE 5: Detección de valores faltantes -->
+    <div class="slide-container" id="slide5">
+        <h2 class="slide-title">Detección de Valores Faltantes</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-toolbox"></i> Dar vida a un array</span>
+                    <span class="moment-badge tip"><i class="fa-solid fa-magnifying-glass"></i> El vistazo y la lupa quirúrgica</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-arrow-right-arrow-left"></i> <strong>np.array():</strong> convierte una lista de Python existente en un array.</li>
-                            <li><i class="fa-solid fa-square"></i> <strong>np.zeros() / np.ones():</strong> arrays llenos de ceros o unos; útil para "preparar" el espacio de resultados.</li>
-                            <li><i class="fa-solid fa-ruler-horizontal"></i> <strong>np.arange(inicio, fin, paso):</strong> como el range() de Python, pero devuelve un array.</li>
+                            <li><i class="fa-solid fa-eye"></i> <strong>info():</strong> muestra cuántos valores "Non-Null" hay por columna — el vistazo general.</li>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> <strong>isna() / isnull():</strong> hacen exactamente lo mismo — devuelven una máscara de True/False.</li>
+                            <li><i class="fa-solid fa-table-cells"></i> Ver una tabla de True/False no ayuda mucho con un millón de filas: necesitamos cuantificar.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="code-block" style="border-left-color: var(--amarillo-solar);">
-import numpy as np
+<span style="color: #6a737d;"># Si tu dataset tiene 1,000 filas y una</span>
+<span style="color: #6a737d;"># columna solo tiene 800 Non-Null,</span>
+<span style="color: #6a737d;"># ya sabes que tenés 200 problemas</span>
+df.info()
 
-mi_lista = [1, 2, 3]
-mi_array = np.array(mi_lista)
-
-np.zeros((2, 3))
-<span style="color: #6a737d;"># [[0. 0. 0.]
-#  [0. 0. 0.]]</span>
-
-np.ones((2, 3))
-<span style="color: #6a737d;"># [[1. 1. 1.]
-#  [1. 1. 1.]]</span>
-
-np.arange(0, 10, 2)
-<span style="color: #6a737d;"># [0 2 4 6 8]</span>
+<span style="color: #6a737d;"># Máscara booleana de nulos</span>
+print(df.isna())
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">06 / 40</div>
+            <div class="slide-index">05 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 7: Reshape y operaciones elemento a elemento -->
+    <!-- SLIDE 6: Cuantificación -->
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title">Cuantificación: ¿Qué Tan Grave es el Problema?</h2>
+        <div class="content-area">
+            <span class="moment-badge">Regla empírica (pero no universal)</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>% de Nulos</th><th>Estrategia sugerida</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Menos del 5%</strong></td><td>Suele ser seguro eliminar las filas o imputar con métodos sencillos.</td></tr>
+                        <tr><td><strong>Entre 5% y 30%</strong></td><td>Requiere pensar una estrategia de imputación más sofisticada.</td></tr>
+                        <tr><td><strong>Más de 50%</strong></td><td>A veces es mejor descartar la columna entera: más "ruido" que información real.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Recuerda: True vale 1 y False vale 0. nulos_totales = df.isna().sum() cuenta por columna; porcentaje_nulos = (df.isna().sum() / len(df)) * 100 lo expresa en %. 50 nulos en 60 filas es un desastre; 50 nulos en 50.000 filas, no.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">06 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Identificación de duplicados -->
     <div class="slide-container" id="slide7">
-        <h2 class="slide-title">Cambio de Forma y Operaciones Elemento a Elemento</h2>
+        <h2 class="slide-title">Identificación de Duplicados: duplicated() y drop_duplicates()</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge">reshape: reorganizar sin alterar</span>
+                    <span class="moment-badge bug"><i class="fa-solid fa-clone"></i> Una posible distorsión de la realidad</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-shuffle"></i> <strong>reshape:</strong> cambia la estructura de 1D a 2D sin tocar los datos.</li>
-                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Regla:</strong> el número total de elementos debe coincidir; 6 elementos no entran en una tabla 2x2.</li>
-                            <li><i class="fa-solid fa-equals"></i> <strong>Posición a posición:</strong> sumar dos arrays ocurre automáticamente elemento por elemento, sin bucles.</li>
+                            <li><i class="fa-solid fa-copy"></i> <strong>duplicated():</strong> marca True las filas que ya aparecieron antes.</li>
+                            <li><i class="fa-solid fa-list-check"></i> Por defecto, compara <strong>todos</strong> los valores de la fila.</li>
+                            <li><i class="fa-solid fa-key"></i> <strong>subset=['columna_id']:</strong> busca duplicados solo por una columna (DNI, ID de transacción).</li>
+                            <li><i class="fa-solid fa-broom"></i> <strong>drop_duplicates():</strong> limpia el DataFrame; keep='first' o keep='last'.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="code-block" style="border-left-color: var(--rosa-energia);">
-arr = np.arange(1, 7)
-<span style="color: #6a737d;"># [1 2 3 4 5 6]  shape (6,)</span>
+<span style="color: #6a737d;"># Si un sistema registró dos veces</span>
+<span style="color: #6a737d;"># la misma venta de 2000, es falso</span>
 
-matriz = arr.reshape(2, 3)
-<span style="color: #6a737d;"># [[1 2 3]
-#  [4 5 6]]  shape (2, 3)</span>
+df.duplicated().sum()
 
-array_A = np.array([1, 2])
-array_B = np.array([10, 20])
-array_A + array_B
-<span style="color: #6a737d;"># [11, 22]  ¡Sin bucles for!</span>
+<span style="color: #6a737d;"># Elimina duplicados según el ID</span>
+<span style="color: #6a737d;"># de usuario, conservando el primero</span>
+df_limpio = df.drop_duplicates(
+    subset=<span style="color: #032f62;">'user_id'</span>, keep=<span style="color: #032f62;">'first'</span>
+)
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">07 / 40</div>
+            <div class="slide-index">07 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 8: Vectorización vs bucles -->
+    <!-- SLIDE 8: Criterios de limpieza -->
     <div class="slide-container" id="slide8">
-        <h2 class="slide-title">Vectorización frente a Bucles Python</h2>
+        <h2 class="slide-title">Criterios de Limpieza: ¿Eliminar o Imputar?</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Estrategia A: Eliminar (dropna)</h3>
+                    <p>La opción más drástica. Válida cuando: (1) te sobran datos y perder un 2% no afecta estadísticamente, o (2) falta justo la "etiqueta" que querés predecir.</p>
+                </div>
+                <div>
+                    <h3>Estrategia B: Imputar (Rellenar)</h3>
+                    <p><strong>Media:</strong> distribución normal, sin outliers. <strong>Mediana:</strong> más robusta con valores extremos. <strong>Moda:</strong> ideal para categóricas. <strong>Valor constante:</strong> "Desconocido" o "0" para conservar la fila.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">08 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: El dilema de los duplicados + Síntesis -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">El Dilema de los Duplicados y tu Flujo de Limpieza</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge live"><i class="fa-solid fa-bolt"></i> El concepto más importante</span>
+                    <span class="moment-badge tip"><i class="fa-solid fa-scale-balanced"></i> No todos los duplicados se borran</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-list-ol"></i> <strong>Enfoque bucle:</strong> crear lista vacía, iterar, multiplicar, agregar — 4 pasos.</li>
-                            <li><i class="fa-solid fa-bolt"></i> <strong>Enfoque NumPy:</strong> mi_array * 2 — un solo paso.</li>
-                            <li><i class="fa-solid fa-eye"></i> <strong>Claridad:</strong> el código se parece a una fórmula matemática real.</li>
-                            <li><i class="fa-solid fa-gauge-high"></i> <strong>Velocidad:</strong> el procesador multiplica todo el bloque de una vez, no tarea por tarea.</li>
+                            <li><i class="fa-solid fa-user-xmark"></i> <strong>Identidad:</strong> misma persona, mismo producto, mismo segundo exacto → error del sistema: BORRAR.</li>
+                            <li><i class="fa-solid fa-calendar-check"></i> <strong>Eventos:</strong> mismo cliente comprando el mismo artículo dos días seguidos → dos eventos reales: CONSERVAR.</li>
+                            <li><i class="fa-solid fa-stopwatch"></i> Revisá si tenés un Timestamp o un ID único de transacción antes de borrar.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
-                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
-<span style="color: #6a737d;"># Bucle: 4 pasos</span>
-duplicados = []
-for x in mi_lista:
-    duplicados.append(x * 2)
-
-<span style="color: #6a737d;"># Vectorización: 1 paso</span>
-duplicados_np = mi_array * 2
+                    <div class="bullet-list">
+                        <span class="moment-badge">Mapa mental de la unidad</span>
+                        <ul>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Explora:</strong> info() e isna().sum().</li>
+                            <li><i class="fa-solid fa-lightbulb"></i> <strong>Contextualiza:</strong> ¿error o realidad del negocio?</li>
+                            <li><i class="fa-solid fa-percent"></i> <strong>Mide:</strong> calculá porcentajes, no absolutos.</li>
+                            <li><i class="fa-solid fa-code-branch"></i> <strong>Decide:</strong> dropna(), imputar, o descartar la columna.</li>
+                            <li><i class="fa-solid fa-copy"></i> <strong>Deduplica:</strong> cada evento único según claves de negocio.</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">08 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 9: Errores comunes NumPy -->
-    <div class="slide-container" id="slide9">
-        <h2 class="slide-title">Errores Comunes y Mejores Prácticas de NumPy</h2>
-        <div class="content-area">
-            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Trampas frecuentes</span>
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Error</th>
-                            <th>Qué pasa</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>Mezclar tipos</strong></td><td>[1, 2, "3"] convierte TODO a texto para mantener la homogeneidad; ya no podés calcular.</td></tr>
-                        <tr><td><strong>shape vs. len()</strong></td><td>En una matriz de 4x5, len() solo devuelve 4 (filas). Para la estructura completa, usá .shape.</td></tr>
-                        <tr><td><strong>Bucles innecesarios</strong></td><td>Si sentís la tentación de escribir un for sobre un array, buscá primero la función vectorizada de NumPy.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <p class="note-text">Práctica recomendada: siempre verificá el dtype de tu array antes de operar matemáticamente sobre él.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">09 / 40</div>
+            <div class="slide-index">09 / 41</div>
         </div>
     </div>
 
@@ -772,167 +760,165 @@ duplicados_np = mi_array * 2
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 02</span>
-            <h2>Broadcasting y Operaciones Matriciales</h2>
-            <p style="font-size: 20px;">El verdadero superpoder de NumPy: operar arrays de distinto tamaño sin un solo bucle.</p>
+            <h2>Transformaciones con map y apply</h2>
+            <p style="font-size: 20px;">Traducir etiquetas inconsistentes y calcular nuevos indicadores sin un solo bucle.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">10 / 40</div>
+            <div class="slide-index">10 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 11: Matriz de Datos -->
+    <!-- SLIDE 11: Por qué transformar datos -->
     <div class="slide-container" id="slide11">
-        <h2 class="slide-title">El Concepto de Matriz de Datos</h2>
+        <h2 class="slide-title">¿Por Qué Transformar Datos?</h2>
         <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge">Filas, columnas e indexación</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-grip-lines"></i> <strong>Filas (eje 0):</strong> cada observación — un cliente, sensor, transacción o día.</li>
-                            <li><i class="fa-solid fa-table-columns"></i> <strong>Columnas (eje 1):</strong> las características de esa observación (edad, precio, temperatura).</li>
-                            <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Indexación base 0:</strong> el elemento (2, 1) es la tercera fila, segunda columna.</li>
-                        </ul>
-                    </div>
+            <span class="moment-badge">"ESP", "esp" y "España" son 3 categorías distintas para la máquina</span>
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-ruler"></i></div>
+                    <h3>Estandarizar</h3>
+                    <p>Unificar criterios — todos los países pasan a "España".</p>
                 </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
-import numpy as np
-<span style="color: #6a737d;"># 3 observaciones (filas), 2 columnas</span>
-datos = np.array([
-    [25, 50000],  <span style="color: #6a737d;"># Cliente 1</span>
-    [30, 60000],  <span style="color: #6a737d;"># Cliente 2</span>
-    [45, 80000]   <span style="color: #6a737d;"># Cliente 3</span>
-])
-print(datos[2, 1])
-<span style="color: #6a737d;"># 80000 (tercera fila, segunda columna)</span>
-                    </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>Enriquecer</h3>
+                    <p>Crear columnas derivadas — calcular el IVA a partir del precio.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-tags"></i></div>
+                    <h3>Categorizar</h3>
+                    <p>Traducir números a etiquetas de negocio — "Gasto Alto", "Gasto Bajo".</p>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">11 / 40</div>
+            <div class="slide-index">11 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 12: Broadcasting -->
+    <!-- SLIDE 12: El método map -->
     <div class="slide-container" id="slide12">
-        <h2 class="slide-title">Broadcasting: el Superpoder de NumPy</h2>
+        <h2 class="slide-title">El Método map(): la Tabla de Traducción</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-expand"></i> Expansión virtual, sin copiar</span>
+                    <span class="moment-badge tip"><i class="fa-solid fa-right-left"></i> Correspondencia uno a uno</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-arrows-left-right"></i> NumPy compara las formas <strong>de derecha a izquierda</strong>. Son compatibles si son iguales o si una de ellas es 1.</li>
-                            <li><i class="fa-solid fa-wand-magic-sparkles"></i> "Estira" virtualmente el array más chico, sin copiar datos en memoria.</li>
-                            <li><i class="fa-solid fa-chart-column"></i> Caso real: restar el promedio de cada grupo a 1,000 alturas sin crear 1,000 copias.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
-<span style="color: #6a737d;"># Matriz 3x2 y vector de medias (2,)</span>
-matriz_datos = np.array([[20, 100],
-                          [30, 200],
-                          [40, 300]])
-medias = np.array([30, 200])
-
-datos_centrados = matriz_datos - medias
-<span style="color: #6a737d;"># [[-10, -100],
-#  [  0,    0],
-#  [ 10,  100]]</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">12 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 13: Multiplicación elemento a elemento vs Transposición -->
-    <div class="slide-container" id="slide13">
-        <h2 class="slide-title">Multiplicación Elemento a Elemento (*) y Transposición (.T)</h2>
-        <div class="content-area">
-            <div class="two-column tiled">
-                <div>
-                    <h3>Multiplicación (*)</h3>
-                    <p>Multiplica posición a posición: (0,0) con (0,0), (0,1) con (0,1), etc. Las dimensiones deben cumplir las reglas de broadcasting. No es álgebra lineal.</p>
-                </div>
-                <div>
-                    <h3>Transposición (.T)</h3>
-                    <p>Gira la matriz: filas se convierten en columnas. Una 3x2 se vuelve 2x3. No copia datos, solo cambia cómo se leen — extremadamente eficiente. Clave para alinear dimensiones antes de calcular.</p>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">13 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 14: Multiplicación matricial y casos de uso -->
-    <div class="slide-container" id="slide14">
-        <h2 class="slide-title">Multiplicación Matricial (@) y Casos de Uso Reales</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge">Fila por columna</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-at"></i> <strong>A @ B:</strong> el número de columnas de A debe igualar las filas de B.</li>
-                            <li><i class="fa-solid fa-percent"></i> <strong>Escalado:</strong> ajustar precios por inflación con un escalar (precios * 1.05).</li>
-                            <li><i class="fa-solid fa-chart-line"></i> <strong>Normalización Z-score:</strong> (datos - medias) / desviaciones, en una sola línea gracias al broadcasting.</li>
-                            <li><i class="fa-solid fa-brain"></i> <strong>Redes neuronales:</strong> las predicciones se calculan con multiplicación matricial entre datos y pesos.</li>
+                            <li><i class="fa-solid fa-table-list"></i> <strong>.map():</strong> se usa sobre una Series (una columna).</li>
+                            <li><i class="fa-solid fa-check"></i> Ideal cuando hay una correspondencia clara, uno a uno.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Error común:</strong> si un valor no está en el diccionario, map lo convierte en NaN. ¡Cubrí todos los casos!</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
-A = np.array([[1, 2], [3, 4], [5, 6]])  <span style="color: #6a737d;"># 3x2</span>
-B = np.array([[10, 20], [30, 40]])       <span style="color: #6a737d;"># 2x2</span>
-
-resultado = A @ B  <span style="color: #6a737d;"># 3x2 @ 2x2 = 3x2</span>
-print(resultado)
+<span style="color: #6a737d;"># Convertir códigos en nombres legibles</span>
+diccionario_genero = {
+    <span style="color: #032f62;">'M'</span>: <span style="color: #032f62;">'Masculino'</span>,
+    <span style="color: #032f62;">'F'</span>: <span style="color: #032f62;">'Femenino'</span>
+}
+df[<span style="color: #032f62;">'genero_completo'</span>] = df[<span style="color: #032f62;">'genero'</span>].map(
+    diccionario_genero
+)
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">14 / 40</div>
+            <div class="slide-index">12 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 15: Errores comunes de la trinchera -->
-    <div class="slide-container" id="slide15">
-        <h2 class="slide-title">Errores Comunes de la Trinchera</h2>
+    <!-- SLIDE 13: El método apply -->
+    <div class="slide-container" id="slide13">
+        <h2 class="slide-title">El Método apply(): Flexibilidad Total</h2>
         <div class="content-area">
-            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Los tres clásicos</span>
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Error</th>
-                            <th>Causa y solución</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>could not be broadcast together</strong></td><td>Sumar o multiplicar con * arrays que no cumplen la regla de compatibilidad (ej. 3 vs. 4 elementos).</td></tr>
-                        <tr><td><strong>shapes not aligned</strong></td><td>Usar @ o np.dot cuando las dimensiones internas no coinciden. Solución habitual: A @ B.T.</td></tr>
-                        <tr><td><strong>Confundir * con @</strong></td><td>* es para ajustes elemento a elemento; @ combina características con pesos en álgebra lineal.</td></tr>
-                    </tbody>
-                </table>
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-screwdriver-wrench"></i> La navaja suiza de Pandas</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-align-left"></i> <strong>Sobre una Series:</strong> transforma una columna con lógica más compleja que un mapeo.</li>
+                            <li><i class="fa-solid fa-table-cells"></i> <strong>Sobre un DataFrame (axis=1):</strong> le pasa a tu función la <strong>fila completa</strong>.</li>
+                            <li><i class="fa-solid fa-briefcase"></i> Ahí es donde brilla para reglas de negocio con varias columnas a la vez.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+df[<span style="color: #032f62;">'nombre_mayuscula'</span>] = df[<span style="color: #032f62;">'nombre'</span>].apply(
+    lambda x: x.upper()
+)
+
+def calcular_riesgo(fila):
+    if fila[<span style="color: #032f62;">'deuda'</span>] &gt; 1000 and \
+       fila[<span style="color: #032f62;">'score_crediticio'</span>] &lt; 500:
+        return <span style="color: #032f62;">'Alto'</span>
+    return <span style="color: #032f62;">'Bajo'</span>
+
+df[<span style="color: #032f62;">'riesgo'</span>] = df.apply(calcular_riesgo, axis=1)
+                    </div>
+                </div>
             </div>
-            <p class="note-text">Mini-desafío: dar puntos extra distintos por examen (+2, +1, +3) a 4 alumnos en 3 exámenes, en una sola línea con broadcasting.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">15 / 40</div>
+            <div class="slide-index">13 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Diferencias clave -->
+    <div class="slide-container" id="slide14">
+        <h2 class="slide-title">Diferencias Clave: map, apply y applymap</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Método</th><th>Aplicación</th><th>Uso principal</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>map</strong></td><td>Series</td><td>Sustitución simple (diccionarios).</td></tr>
+                        <tr><td><strong>apply</strong></td><td>Series / DataFrame</td><td>Funciones complejas o lógica entre varias columnas.</td></tr>
+                        <tr><td><strong>applymap</strong></td><td>DataFrame completo</td><td>Aplicar una función a todas las celdas (ej. redondear decimales).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Recomendaciones de oro -->
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title">Recomendaciones de Oro para Transformar</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>Prioriza Vectorización</h3>
+                    <p>Si podés hacer df['A'] + df['B'], no uses apply. Las operaciones directas son mucho más rápidas.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-clipboard-check"></i></div>
+                    <h3>Valida tras transformar</h3>
+                    <p>Usá siempre df.head() y df['col'].value_counts() para verificar que hizo lo esperado.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h3>Cuidado con los Nulos</h3>
+                    <p>Las funciones personalizadas a veces fallan con un NaN. Considerá limpiar antes de transformar.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 41</div>
         </div>
     </div>
 
@@ -942,117 +928,231 @@ print(resultado)
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 03</span>
-            <h2>Álgebra Lineal con NumPy</h2>
-            <p style="font-size: 20px;">Producto punto, sistemas de ecuaciones y diagnóstico matricial: el motor de la regresión y las redes neuronales.</p>
+            <h2>Agrupar, Resumir y Comparar</h2>
+            <p style="font-size: 20px;">De lo micro a lo macro: GroupBy y tablas dinámicas, el corazón del análisis descriptivo.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">16 / 40</div>
+            <div class="slide-index">16 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 17: Producto punto y multiplicación matricial -->
+    <!-- SLIDE 17: Concepto de agrupación -->
     <div class="slide-container" id="slide17">
-        <h2 class="slide-title">Producto Punto (Dot Product) y Multiplicación Matricial</h2>
+        <h2 class="slide-title">El Concepto de Agrupación y Resumen Estadístico</h2>
         <div class="content-area">
-            <div class="two-column">
+            <div class="two-column tiled">
                 <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-vector-square"></i> De vectores a un escalar</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-circle-dot"></i> <strong>Producto punto:</strong> multiplica elementos correspondientes y suma los resultados; devuelve un único escalar.</li>
-                            <li><i class="fa-solid fa-table-cells"></i> <strong>Multiplicación matricial:</strong> el elemento (i, j) del resultado es el producto punto de la fila i de A y la columna j de B.</li>
-                            <li><i class="fa-solid fa-code"></i> <strong>Estilo moderno:</strong> se prefiere el operador @ sobre np.dot() por legibilidad.</li>
-                        </ul>
-                    </div>
+                    <h3>De lo Micro...</h3>
+                    <p>Una cadena de 50 cafeterías vende miles de cafés hoy. La venta de un latte a las 10:15 AM en la Sucursal Norte es un dato micro, aislado.</p>
                 </div>
                 <div>
-                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
-v1 = np.array([1, 2, 3])
-v2 = np.array([4, 5, 6])
-<span style="color: #6a737d;"># (1*4)+(2*5)+(3*6) = 4+10+18 = 32</span>
-dot_product = np.dot(v1, v2)
-
-A = np.array([[1, 2], [3, 4]])
-B = np.array([[5, 6], [7, 8]])
-C = A @ B
-<span style="color: #6a737d;"># [[19, 22], [43, 50]]</span>
-                    </div>
+                    <h3>...a lo Macro</h3>
+                    <p>Agrupar responde "¿cuál sucursal vendió más?" con Suma, Promedio, Conteo o Máximo/Mínimo. Sin agrupación, los datos son solo ruido; con ella, son información de negocio.</p>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">17 / 40</div>
+            <div class="slide-index">17 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 18: Transposición y sistemas de ecuaciones -->
+    <!-- SLIDE 18: Split-Apply-Combine -->
     <div class="slide-container" id="slide18">
-        <h2 class="slide-title">Sistemas de Ecuaciones Lineales: np.linalg.solve</h2>
+        <h2 class="slide-title">El Flujo Split-Apply-Combine</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-scissors"></i></div>
+                    <h3>Split (Dividir)</h3>
+                    <p>Pandas separa el DataFrame en "cajas", una por cada valor de la columna agrupadora (ej. cada sucursal).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-calculator"></i></div>
+                    <h3>Apply (Aplicar)</h3>
+                    <p>Dentro de cada caja, aplicás una operación — sumar los precios de la Sucursal Norte, y así con cada una.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>Combine (Combinar)</h3>
+                    <p>Pandas une los resultados de cada caja en una tabla resumen, mucho más pequeña que la original.</p>
+                </div>
+            </div>
+            <p class="note-text">Concepto desarrollado por Hadley Wickham — es el modelo mental detrás de cada groupby que escribas.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">18 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Selección de columnas y agregaciones comunes -->
+    <div class="slide-container" id="slide19">
+        <h2 class="slide-title">Selección de Columnas y Agregaciones Comunes</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge">Ax = b, sin calcular la inversa</span>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> ¿Cómo promediás un email?</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-equals"></i> <strong>Ax = b:</strong> A es la matriz de coeficientes, b los términos independientes, x las incógnitas.</li>
-                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Calcular la inversa es ineficiente</strong> y propenso a errores de redondeo (inestabilidad numérica).</li>
-                            <li><i class="fa-solid fa-check"></i> <strong>np.linalg.solve:</strong> usa descomposición LU, mucho más rápida y estable.</li>
-                            <li><i class="fa-solid fa-shield-halved"></i> <strong>Restricción:</strong> A debe ser cuadrada y no singular (determinante ≠ 0).</li>
+                            <li><i class="fa-solid fa-hashtag"></i> <strong>Regla de oro:</strong> seleccioná la columna numérica antes de aplicar el resumen.</li>
+                            <li><i class="fa-solid fa-chart-line"></i> <strong>.mean():</strong> promedio — ticket promedio de venta.</li>
+                            <li><i class="fa-solid fa-sack-dollar"></i> <strong>.sum():</strong> ingresos totales.</li>
+                            <li><i class="fa-solid fa-list-ol"></i> <strong>.count():</strong> volumen de pedidos.</li>
+                            <li><i class="fa-solid fa-arrows-up-down"></i> <strong>.median(), .min(), .max():</strong> robustez ante outliers y extremos.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="code-block" style="border-left-color: var(--rosa-energia);">
-<span style="color: #6a737d;"># 3x + 1y = 9
-# 1x + 2y = 8</span>
-A = np.array([[3, 1], [1, 2]])
-b = np.array([9, 8])
+<span style="color: #6a737d;"># Sintaxis básica</span>
+df.groupby(<span style="color: #032f62;">'columna_agrupadora'</span>)\
+  [<span style="color: #032f62;">'columna_a_resumir'</span>].metodo()
 
-x = np.linalg.solve(A, b)
-<span style="color: #6a737d;"># [2., 3.]  ->  x = 2, y = 3</span>
+<span style="color: #6a737d;"># Promedio de ventas por categoría</span>
+ventas_por_categoria = df.groupby(
+    <span style="color: #032f62;">'Categoria'</span>
+)[<span style="color: #032f62;">'Precio'</span>].mean()
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">18 / 40</div>
+            <div class="slide-index">19 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 19: Diagnóstico matricial -->
-    <div class="slide-container" id="slide19">
-        <h2 class="slide-title">Diagnóstico y Propiedades Matriciales (np.linalg)</h2>
+    <!-- SLIDE 20: Agregaciones múltiples con agg -->
+    <div class="slide-container" id="slide20">
+        <h2 class="slide-title">Agregaciones Múltiples con agg()</h2>
         <div class="content-area">
-            <span class="moment-badge">Inspeccionar antes de modelar</span>
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Función</th>
-                            <th>Propiedad</th>
-                            <th>Utilidad en Data Science</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>np.linalg.det(A)</td><td>Determinante: si es 0, la matriz es singular.</td><td>Diagnóstico de colinealidad en variables.</td></tr>
-                        <tr><td>np.linalg.norm(v)</td><td>Norma: magnitud geométrica de un vector.</td><td>Distancias, similitud coseno, KNN.</td></tr>
-                        <tr><td>np.linalg.eig(A)</td><td>Eigenvalues / Eigenvectors: direcciones que solo se escalan.</td><td>Reducción de dimensionalidad (PCA).</td></tr>
-                    </tbody>
-                </table>
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-list-check"></i> Varias preguntas, una sola línea</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-scale-unbalanced"></i> A veces necesitás el total <strong>y</strong> el promedio a la vez, para comparar volumen contra rentabilidad.</li>
+                            <li><i class="fa-solid fa-list"></i> <strong>.agg():</strong> recibe una lista de funciones a aplicar de una vez.</li>
+                            <li><i class="fa-solid fa-table"></i> El resultado es una tabla con una columna nueva por cada función pedida.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+resumen = df.groupby(<span style="color: #032f62;">'Sucursal'</span>)[<span style="color: #032f62;">'Venta'</span>]\
+    .agg([<span style="color: #032f62;">'sum'</span>, <span style="color: #032f62;">'mean'</span>, <span style="color: #032f62;">'count'</span>])
+
+<span style="color: #6a737d;"># Una sola línea responde tres</span>
+<span style="color: #6a737d;"># preguntas de negocio distintas</span>
+                    </div>
+                </div>
             </div>
-            <p class="note-text">La ecuación normal de la Regresión Lineal (β = (XᵀX)⁻¹Xᵀy) combina transpuestas, multiplicaciones y sistemas lineales que NumPy resuelve en milisegundos.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">19 / 40</div>
+            <div class="slide-index">20 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 20: Break de Coder ("Recreo") -->
-    <div class="slide-container break-slide" id="slide20">
+    <!-- SLIDE 21: Agrupación por múltiples columnas -->
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title">Agrupación por Múltiples Columnas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Más nivel de detalle</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-sitemap"></i> Pasás una <strong>lista</strong> de columnas al groupby para crear una jerarquía.</li>
+                            <li><i class="fa-solid fa-magnifying-glass-chart"></i> Ej: total de ventas por Sucursal <strong>y</strong> por Tipo de Bebida.</li>
+                            <li><i class="fa-solid fa-lightbulb"></i> Útil para detectar perfiles de cliente distintos — una sucursal cerca de un gimnasio vs. una en un centro financiero.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+detalle = df.groupby(
+    [<span style="color: #032f62;">'Sucursal'</span>, <span style="color: #032f62;">'Tipo_Bebida'</span>]
+)[<span style="color: #032f62;">'Venta'</span>].sum()
+
+<span style="color: #6a737d;"># Sucursal A</span>
+<span style="color: #6a737d;">#   Café    ...</span>
+<span style="color: #6a737d;">#   Té      ...</span>
+<span style="color: #6a737d;">#   Jugo    ...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">21 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Pivot Tables -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">Pivot Tables: el Poder de las Tablas Dinámicas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-table-cells-large"></i> Vertical vs. matriz 2D</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrows-up-down"></i> <strong>Index:</strong> la columna que va en las filas.</li>
+                            <li><i class="fa-solid fa-arrows-left-right"></i> <strong>Columns:</strong> la columna que va en la parte superior.</li>
+                            <li><i class="fa-solid fa-hashtag"></i> <strong>Values:</strong> la columna numérica a resumir.</li>
+                            <li><i class="fa-solid fa-calculator"></i> <strong>Aggfunc:</strong> la operación — por defecto, el promedio.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;"># Ventas cruzando Región y Año</span>
+tabla = df.pivot_table(
+    index=<span style="color: #032f62;">'Region'</span>,
+    columns=<span style="color: #032f62;">'Anio'</span>,
+    values=<span style="color: #032f62;">'Venta'</span>,
+    aggfunc=<span style="color: #032f62;">'sum'</span>
+)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: Errores comunes de GroupBy -->
+    <div class="slide-container" id="slide23">
+        <h2 class="slide-title">Errores Comunes y Mejores Prácticas de GroupBy</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Los tres clásicos</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Error</th><th>Cómo evitarlo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Confundir count() con sum()</strong></td><td>count() dice cuántas filas hay; sum() suma sus valores. ¿Contar clientes o sumar dinero?</td></tr>
+                        <tr><td><strong>Olvidar los nulos</strong></td><td>Pandas los ignora por defecto en mean/sum — engañoso si falta el 90% de una columna.</td></tr>
+                        <tr><td><strong>No resetear el índice</strong></td><td>La columna agrupada pasa a ser el índice. Usá .reset_index() para volver a filtrar o graficar.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">resumen = df.groupby('Sucursal')['Venta'].sum().reset_index()</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: Break de Coder ("Recreo") -->
+    <div class="slide-container break-slide" id="slide24">
         <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
             <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
             <h2>Break del Coder</h2>
@@ -1060,549 +1160,385 @@ x = np.linalg.solve(A, b)
         </div>
         <div class="slide-footer" style="border-top: 1px solid rgba(248, 242, 232, 0.2);">
             <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span style="color: var(--naranja-horizonte);">HOUSE</span></div>
-            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">20 / 40</div>
+            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">24 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 21: División Módulo 4 -->
-    <div class="slide-container" id="slide21">
+    <!-- SLIDE 25: División Módulo 4 -->
+    <div class="slide-container" id="slide25">
         <div></div>
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 04</span>
-            <h2>NumPy y Pandas: La Sinergia</h2>
-            <p style="font-size: 20px;">El motor y la carrocería: NumPy aporta el músculo matemático, Pandas la inteligencia organizativa.</p>
+            <h2>Fechas, Series Temporales y Resampling</h2>
+            <p style="font-size: 20px;">El tiempo como dimensión fundamental: que el calendario trabaje a tu favor.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">21 / 40</div>
+            <div class="slide-index">25 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 22: El motor y la carrocería -->
-    <div class="slide-container" id="slide22">
-        <h2 class="slide-title">El Motor (NumPy) y la Carrocería (Pandas)</h2>
+    <!-- SLIDE 26: Conversión de texto a Datetime -->
+    <div class="slide-container" id="slide26">
+        <h2 class="slide-title">Conversión de Texto a Datetime</h2>
         <div class="content-area">
-            <div class="two-column tiled">
+            <div class="two-column">
                 <div>
-                    <h3>NumPy: rejilla matemática pura</h3>
-                    <p>Homogéneo, veloz, ideal para álgebra lineal y cálculos pesados. Pero no tiene etiquetas: si quieres la columna "Precios" debés recordar que es el índice 2.</p>
+                    <span class="moment-badge">"01/12/2023" vs. "2023-12-01"</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-file-csv"></i> Al cargar un CSV, las fechas suelen leerse como texto simple (string/object).</li>
+                            <li><i class="fa-solid fa-calendar-days"></i> <strong>pd.to_datetime():</strong> convierte ese texto en objetos de fecha reales, con toda la lógica del calendario.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> Formatos distintos, meses con distinta cantidad de días, años bisiestos: todo lo resuelve esta conversión.</li>
+                        </ul>
+                    </div>
                 </div>
                 <div>
-                    <h3>Pandas: hoja de cálculo programable</h3>
-                    <p>Construido <strong>sobre</strong> NumPy. Cada columna de un DataFrame es, por dentro, un array de NumPy con una etiqueta encima. Añade nombres de columnas, tipos mixtos y manejo de nulos.</p>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+<span style="color: #6a737d;"># Convierte texto a fechas reales</span>
+df[<span style="color: #032f62;">'fecha'</span>] = pd.to_datetime(
+    df[<span style="color: #032f62;">'fecha'</span>]
+)
+                    </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">22 / 40</div>
+            <div class="slide-index">26 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 23: Comparativa cuándo usar cuál -->
-    <div class="slide-container" id="slide23">
-        <h2 class="slide-title">Comparativa: ¿Cuándo Usar Cuál?</h2>
+    <!-- SLIDE 27: El índice temporal -->
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title">El Índice Temporal: tu Mejor Aliado</h2>
         <div class="content-area">
-            <span class="moment-badge">"NumPy trabaja con números; Pandas trabaja con datos"</span>
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-clock"></i> De columna a índice</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrow-right"></i> La mejor práctica: convertir la columna de fechas en el <strong>índice</strong> del DataFrame.</li>
+                            <li><i class="fa-solid fa-calendar-week"></i> Habilita acceder a datos por periodo — df['2023-01'] trae todo enero.</li>
+                            <li><i class="fa-solid fa-arrows-rotate"></i> Es el requisito para hacer <strong>Resampling</strong> (cambio de frecuencia).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+df = df.set_index(<span style="color: #032f62;">'fecha'</span>)
+
+<span style="color: #6a737d;"># Todas las filas de enero de 2023</span>
+enero = df[<span style="color: #032f62;">'2023-01'</span>]
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">27 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 28: Resampling -->
+    <div class="slide-container" id="slide28">
+        <h2 class="slide-title">Resampling: Cambiando el "Zoom" de tus Datos</h2>
+        <div class="content-area">
+            <span class="moment-badge">resample() es un groupby especializado en tiempo</span>
             <div class="table-layout">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Característica</th>
-                            <th>NumPy</th>
-                            <th>Pandas</th>
-                        </tr>
+                        <tr><th>Código</th><th>Frecuencia</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td>Estructura principal</td><td>ndarray (Matriz)</td><td>DataFrame (Tabla)</td></tr>
-                        <tr><td>Tipo de datos</td><td>Homogéneo (todo números)</td><td>Heterogéneo (mezcla tipos)</td></tr>
-                        <tr><td>Identificación</td><td>Solo por posición (0, 1, 2...)</td><td>Por posición y por nombre</td></tr>
-                        <tr><td>Uso ideal</td><td>Álgebra lineal, cálculos pesados</td><td>EDA, limpieza, leer CSV/Excel</td></tr>
-                        <tr><td>Celdas vacías</td><td>Difíciles de manejar</td><td>Diseñado para detectar y limpiar nulos</td></tr>
+                        <tr><td><strong>D</strong></td><td>Diario</td></tr>
+                        <tr><td><strong>W</strong></td><td>Semanal</td></tr>
+                        <tr><td><strong>ME</strong></td><td>Fin de mes (Month End)</td></tr>
+                        <tr><td><strong>YE</strong></td><td>Fin de año (Year End)</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p class="note-text">En el 90% de los proyectos usarás ambos: Pandas para leer el CSV, NumPy para las transformaciones matemáticas.</p>
+            <p class="note-text">Downsampling: reducir frecuencia (diario → mensual), resumiendo con una estadística. Upsampling: aumentar frecuencia (anual → mensual), decidiendo cómo rellenar los huecos nuevos.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">23 / 40</div>
+            <div class="slide-index">28 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 24: División Módulo 5 -->
-    <div class="slide-container" id="slide24">
+    <!-- SLIDE 29: Errores comunes de fechas -->
+    <div class="slide-container" id="slide29">
+        <h2 class="slide-title">Errores Comunes al Trabajar con Fechas</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Antes de remuestrear</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Error</th><th>Cómo evitarlo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>No ordenar los datos</strong></td><td>Usá df.sort_index() antes de remuestrear; un índice desordenado da resultados impredecibles.</td></tr>
+                        <tr><td><strong>Operar con texto</strong></td><td>Sumar o promediar fechas sin convertir a datetime lanza un error de tipos.</td></tr>
+                        <tr><td><strong>Confundir sumas con promedios</strong></td><td>¿Venta total (.sum()) o venta promedio por día (.mean())? Elegí según la pregunta de negocio.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">29 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: División Módulo 5 -->
+    <div class="slide-container" id="slide30">
         <div></div>
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 05</span>
-            <h2>Series y DataFrames</h2>
-            <p style="font-size: 20px;">Las dos estructuras que convierten datos sueltos en información con nombre y etiqueta.</p>
+            <h2>Manipulación de Datos: Pandas</h2>
+            <p style="font-size: 20px;">Tu superpoder analítico: consolidando el flujo de trabajo profesional completo.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">24 / 40</div>
+            <div class="slide-index">30 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 25: La Serie -->
-    <div class="slide-container" id="slide25">
-        <h2 class="slide-title">La Serie: el Bloque de Construcción Unidimensional</h2>
+    <!-- SLIDE 31: Por qué existe Pandas -->
+    <div class="slide-container" id="slide31">
+        <h2 class="slide-title">¿Por Qué Existe Pandas? De la Hoja de Cálculo a la Programación</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Origen: Panel Data</h3>
+                    <p>Creada por <strong>Wes McKinney</strong> en el sector financiero hacia 2008. Los analistas necesitaban la flexibilidad de Python con la estructura de una base de datos. Su nombre viene de "Panel Data", término de econometría.</p>
+                </div>
+                <div>
+                    <h3>Escala y Repetibilidad</h3>
+                    <p>Excel te obliga a repetir clics y fórmulas con cada archivo nuevo. En Pandas escribís el "recetario" una vez: funciona igual con 100 filas o con 1.000.000, sin errores humanos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">31 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 32: Los pilares de Pandas -->
+    <div class="slide-container" id="slide32">
+        <h2 class="slide-title">Los Pilares de Pandas: DataFrame y Series</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>DataFrame: tu tabla de comando</h3>
+                    <p>Estructura bidimensional. <strong>Eje 0 (filas):</strong> registros u observaciones. <strong>Eje 1 (columnas):</strong> variables o atributos.</p>
+                </div>
+                <div>
+                    <h3>Series: el ADN de los datos</h3>
+                    <p>Una sola columna, unidimensional, con <strong>Índice</strong>. Error común: pensar que es solo una lista — una lista de precios no sabe a qué producto pertenece cada uno; una Series sí, gracias a sus etiquetas.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">32 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 33: El flujo de trabajo profesional -->
+    <div class="slide-container" id="slide33">
+        <h2 class="slide-title">El Flujo de Trabajo Profesional (Pipeline)</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-download"></i></div>
+                    <h3>Fase 1: Ingesta e Inspección</h3>
+                    <p>head()/tail() dan una probada. info() es vital: nulos y tipos de dato por columna.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-broom"></i></div>
+                    <h3>Fase 2: Limpieza</h3>
+                    <p>Decidir entre dropna() (borrar filas con nulos) o fillna() (rellenar sin perder información).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>Fase 3: Transformación y Vectorización</h3>
+                    <p>df['precio'] * 0.9 en vez de un for: miles de veces más rápido, apoyado en NumPy.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">33 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 34: Agregación en la industria financiera -->
+    <div class="slide-container" id="slide34">
+        <h2 class="slide-title">Agregación: Split-Apply-Combine en la Industria</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-tags"></i> Una lista con esteroides</span>
+                    <span class="moment-badge">Separar, Aplicar, Combinar</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-database"></i> <strong>Valores:</strong> los datos reales (números o textos).</li>
-                            <li><i class="fa-solid fa-tag"></i> <strong>Índice (Index):</strong> las etiquetas de cada valor; si no asignás uno, Pandas pone 0, 1, 2...</li>
-                            <li><i class="fa-solid fa-apple-whole"></i> Con etiquetas accedés al dato de forma inmediata, sin saber su posición.</li>
+                            <li><i class="fa-solid fa-scissors"></i> <strong>Separar:</strong> dividir por una columna (ej. "País").</li>
+                            <li><i class="fa-solid fa-calculator"></i> <strong>Aplicar:</strong> calcular algo por grupo, independiente.</li>
+                            <li><i class="fa-solid fa-layer-group"></i> <strong>Combinar:</strong> unir todo en una tabla resumen.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
-                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
-import pandas as pd
-
-stock_frutas = pd.Series(
-    [50, 120, 30],
-    index=[<span style="color: #032f62;">"Manzanas"</span>, <span style="color: #032f62;">"Bananas"</span>, <span style="color: #032f62;">"Cerezas"</span>]
-)
-print(stock_frutas[<span style="color: #032f62;">"Manzanas"</span>])
-<span style="color: #6a737d;"># 50</span>
+                    <div class="slido-box" style="padding: 25px;">
+                        <h3 style="font-size: 20px;">En la industria real</h3>
+                        <p style="font-size: 15px;">Este proceso permite a firmas como <strong>J.P. Morgan</strong> o <strong>Goldman Sachs</strong> analizar miles de transacciones por segundo para obtener promedios diarios o máximos históricos por activo financiero.</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">25 / 40</div>
+            <div class="slide-index">34 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 26: El DataFrame -->
-    <div class="slide-container" id="slide26">
-        <h2 class="slide-title">El DataFrame: la Tabla Bidimensional</h2>
+    <!-- SLIDE 35: Merge vs Concat -->
+    <div class="slide-container" id="slide35">
+        <h2 class="slide-title">Combinación de Fuentes: Merge vs. Concat</h2>
         <div class="content-area">
-            <div class="two-column">
+            <div class="two-column tiled">
                 <div>
-                    <span class="moment-badge">Un diccionario de Series</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-table"></i> <strong>Datos:</strong> la información organizada en celdas.</li>
-                            <li><i class="fa-solid fa-list-ol"></i> <strong>Índice de filas:</strong> las etiquetas de cada registro.</li>
-                            <li><i class="fa-solid fa-heading"></i> <strong>Columnas:</strong> los nombres de cada variable.</li>
-                            <li><i class="fa-solid fa-check"></i> Si pedís una columna (df['col']) obtenés una Serie; si pedís varias (df[['a','b']]), obtenés un DataFrame.</li>
-                        </ul>
-                    </div>
+                    <h3>Merge</h3>
+                    <p>Como el JOIN de SQL. Buscás una columna común (ej. ID_Cliente) y fusionás las tablas <strong>lateralmente</strong> — añade columnas nuevas sobre los mismos registros.</p>
                 </div>
                 <div>
-                    <div class="table-layout">
-                        <table>
-                            <thead>
-                                <tr><th></th><th>Producto</th><th>Precio</th><th>Cantidad</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>0</td><td>Camiseta</td><td>15.0</td><td>100</td></tr>
-                                <tr><td>1</td><td>Pantalón</td><td>30.0</td><td>50</td></tr>
-                                <tr><td>2</td><td>Zapatos</td><td>60.0</td><td>25</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <h3>Concat</h3>
+                    <p>Como apilar hojas de papel. Ponés una tabla debajo de otra (ventas de Enero debajo de Febrero) — añade <strong>filas</strong> nuevas del mismo tipo.</p>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">26 / 40</div>
+            <div class="slide-index">35 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 27: Creación desde Listas y Diccionarios -->
-    <div class="slide-container" id="slide27">
-        <h2 class="slide-title">Creación de Series y DataFrames</h2>
+    <!-- SLIDE 36: Errores comunes y mejores prácticas -->
+    <div class="slide-container" id="slide36">
+        <h2 class="slide-title">Errores Comunes y Mejores Prácticas</h2>
         <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge live"><i class="fa-solid fa-code"></i> Desde objetos que ya conocés</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-list"></i> <strong>Desde listas:</strong> la forma más sencilla, ideal para una Serie.</li>
-                            <li><i class="fa-solid fa-key"></i> <strong>Desde diccionarios (el método más común):</strong> las llaves se convierten en nombres de columnas.</li>
-                            <li><i class="fa-solid fa-link"></i> Pandas alinea automáticamente los datos: sabe que 'Ana' tiene 9.5 porque están en la misma posición.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
-precios = pd.Series([10.5, 22.0, 5.0],
-    name=<span style="color: #032f62;">"Precio_Productos"</span>)
-
-data_dict = {
-  <span style="color: #032f62;">'Estudiante'</span>: [<span style="color: #032f62;">'Ana'</span>, <span style="color: #032f62;">'Luis'</span>, <span style="color: #032f62;">'Marta'</span>],
-  <span style="color: #032f62;">'Nota'</span>: [9.5, 8.0, 10.0],
-  <span style="color: #032f62;">'Asistencia'</span>: [True, True, False]
-}
-df = pd.DataFrame(data_dict)
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">27 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 28: Errores comunes Pandas -->
-    <div class="slide-container" id="slide28">
-        <h2 class="slide-title">Errores Comunes: Dimensión, Índice y Tipos</h2>
-        <div class="content-area">
-            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Trampas conceptuales</span>
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Hasta los expertos caen acá</span>
             <div class="table-layout">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Confusión</th>
-                            <th>Aclaración</th>
-                        </tr>
+                        <tr><th>Error</th><th>Detalle</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td><strong>Error de dimensión</strong></td><td>df['col'] devuelve una Serie; df[['col1','col2']] devuelve un DataFrame.</td></tr>
-                        <tr><td><strong>El índice no es solo un número</strong></td><td>Puede ser texto (Argentina, México...), lo que facilita buscar datos específicos.</td></tr>
-                        <tr><td><strong>Tipos heterogéneos</strong></td><td>Si una columna de precios llega como texto ("$10"), no podrás calcular hasta limpiarla.</td></tr>
+                        <tr><td><strong>La trampa del índice</strong></td><td>No es una columna normal, es el sistema de direcciones. Decidí si conservarlo al resetear.</td></tr>
+                        <tr><td><strong>Copias vs. Vistas</strong></td><td>Filtrar a veces da una "ventana" a la tabla original (SettingWithCopyWarning). Usá .copy() si querés independencia.</td></tr>
+                        <tr><td><strong>No tratar nulos al inicio</strong></td><td>Sin gestionar los NaN, los cálculos estadísticos pueden salir sesgados o directamente fallar.</td></tr>
+                        <tr><td><strong>Alineación automática</strong></td><td>Al sumar dos Series, Pandas alinea por etiqueta, no por posición física — ventaja, pero confunde a quien viene de listas.</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p class="note-text">Al crear un DataFrame desde un diccionario, todas las listas deben tener exactamente la misma cantidad de elementos.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">28 / 40</div>
+            <div class="slide-index">36 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 29: División Módulo 6 -->
-    <div class="slide-container" id="slide29">
+    <!-- SLIDE 37: Aplicaciones en la industria real -->
+    <div class="slide-container" id="slide37">
+        <h2 class="slide-title">Aplicaciones en la Industria Real</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-cart-shopping"></i></div>
+                    <h3>Comercio Electrónico</h3>
+                    <p>Detectar valores atípicos (outliers) en precios que podrían indicar errores en la carga de productos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-truck"></i></div>
+                    <h3>Logística</h3>
+                    <p>Calcular tiempos de entrega promedio uniendo tablas de rutas, tráfico y conductores.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-notes-medical"></i></div>
+                    <h3>Salud</h3>
+                    <p>Limpiar registros de pacientes: unificar formatos de fechas y manejar datos clínicos faltantes en ensayos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">37 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 38: División Módulo 6 -->
+    <div class="slide-container" id="slide38">
         <div></div>
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 06</span>
-            <h2>Preprocesamiento de Datos</h2>
-            <p style="font-size: 20px;">Estrategias de eliminación e imputación frente al fenómeno inevitable de los datos ausentes.</p>
+            <h2>Pre-Entrega: Limpieza y Análisis Exploratorio</h2>
+            <p style="font-size: 20px;">Poné a prueba tu criterio analítico sobre un dataset real, con nulos, duplicados y tipos incorrectos.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">29 / 40</div>
+            <div class="slide-index">38 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 30: Datos Ausentes: Eliminación vs Imputación -->
-    <div class="slide-container" id="slide30">
-        <h2 class="slide-title">Datos Ausentes: Eliminación vs. Imputación</h2>
-        <div class="content-area">
-            <span class="moment-badge">Cuadro comparativo de impacto estadístico</span>
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Estrategia</th>
-                            <th>Ventaja</th>
-                            <th>Riesgo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>Eliminación por Filas</strong></td><td>No inventa datos; mantiene la certeza de los registros restantes.</td><td>Reduce la muestra y puede sesgarla si los datos no faltan al azar.</td></tr>
-                        <tr><td><strong>Imputación por la Media</strong></td><td>Preserva el tamaño de la muestra; computacionalmente eficiente.</td><td>Subestima la varianza y altera correlaciones.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <p class="note-text">NA / NaN surgen por fallas de sensores, pipelines interrumpidos o registros incompletos — y la mayoría de los modelos de ML no admiten nulos.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">30 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 31: Algoritmo de decisión y regla de oro -->
-    <div class="slide-container" id="slide31">
-        <h2 class="slide-title">El Algoritmo de Decisión y la Regla de Oro</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-diagram-project"></i> Flujo basado en reglas</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-code-branch"></i> Si una fila tiene <strong>más de 1 NA</strong> → eliminar el registro completo.</li>
-                            <li><i class="fa-solid fa-code-branch"></i> Si tiene <strong>exactamente 1 NA</strong> → imputar con la media de la columna.</li>
-                            <li><i class="fa-solid fa-shield-halved"></i> <strong>Regla de oro:</strong> las medias deben calcularse ANTES de eliminar filas, usando solo los valores presentes.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
-<span style="color: #6a737d;"># Data Leakage: por qué el orden importa</span>
-<span style="color: #6a737d;"># Si eliminás filas antes de calcular</span>
-<span style="color: #6a737d;"># la media, alterás la distribución</span>
-<span style="color: #6a737d;"># original e invalidás el valor imputado</span>
-
-Si (NA en fila i) &gt; 1:
-    eliminar registro
-Si (NA en fila i) == 1:
-    imputar con media de columna
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">31 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 32: División Módulo 7 -->
-    <div class="slide-container" id="slide32">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 07</span>
-            <h2>Integración y Agregación Avanzada</h2>
-            <p style="font-size: 20px;">Combinar tablas relacionales con merge y resumir métricas de negocio con groupby.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">32 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 33: Merge: claves y tipos de joins -->
-    <div class="slide-container" id="slide33">
-        <h2 class="slide-title">Combinación de Datos: Claves y Tipos de Joins</h2>
-        <div class="content-area">
-            <span class="moment-badge">Comportamiento setorial de cada unión</span>
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Tipo de Join</th>
-                            <th>Comportamiento</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>Inner</strong></td><td>Conserva solo las filas cuyas claves están en ambos DataFrames (intersección).</td></tr>
-                        <tr><td><strong>Left</strong></td><td>Preserva todo el DataFrame izquierdo; sin coincidencia, rellena con NaN.</td></tr>
-                        <tr><td><strong>Right</strong></td><td>Simétrico al Left; menos usado, se prefiere reordenar argumentos.</td></tr>
-                        <tr><td><strong>Outer</strong></td><td>Conserva todas las filas de ambos (unión); genera alta presencia de NaN.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <p class="note-text">Las claves de ambas tablas deben compartir exactamente el mismo tipo de dato (int64 con int64, no con "1" como texto).</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">33 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 34: Buenas prácticas en pd.merge -->
-    <div class="slide-container" id="slide34">
-        <h2 class="slide-title">Buenas Prácticas y Control de Calidad en pd.merge()</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> El peligro del producto cartesiano</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-clone"></i> Si una clave está duplicada, el merge multiplica filas inesperadamente.</li>
-                            <li><i class="fa-solid fa-shield-halved"></i> <strong>validate:</strong> lanza un error si la cardinalidad esperada no se cumple.</li>
-                            <li><i class="fa-solid fa-magnifying-glass"></i> <strong>indicator=True:</strong> crea la columna _merge (left_only, right_only, both) para auditar pérdidas.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
-df_resultado = pd.merge(
-    left=orders,
-    right=customers[[<span style="color: #032f62;">'customer_id'</span>,
-                      <span style="color: #032f62;">'customer_name'</span>]],
-    on=<span style="color: #032f62;">'customer_id'</span>,
-    how=<span style="color: #032f62;">'left'</span>,
-    validate=<span style="color: #032f62;">'many_to_one'</span>,
-    suffixes=(<span style="color: #032f62;">'_order'</span>, <span style="color: #032f62;">'_customer'</span>)
-)
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">34 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 35: Split-Apply-Combine -->
-    <div class="slide-container" id="slide35">
-        <h2 class="slide-title">Split-Apply-Combine: agg() vs. transform()</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-layer-group"></i> Dividir, aplicar, combinar</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-scissors"></i> <strong>Split:</strong> se particiona en sub-tablas por valores únicos de una categoría.</li>
-                            <li><i class="fa-solid fa-compress"></i> <strong>.agg():</strong> reduce — 1,000 filas de un grupo devuelven una sola fila con el estadístico.</li>
-                            <li><i class="fa-solid fa-expand"></i> <strong>.transform():</strong> preserva la dimensionalidad — proyecta el resultado a cada fila original.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
-<span style="color: #6a737d;"># agg(): reduce a una fila por grupo</span>
-df_resumen = df.groupby([<span style="color: #032f62;">'month'</span>,<span style="color: #032f62;">'category'</span>]).agg(
-    total_sales=(<span style="color: #032f62;">'sales'</span>, <span style="color: #032f62;">'sum'</span>),
-    avg_price=(<span style="color: #032f62;">'price'</span>, <span style="color: #032f62;">'mean'</span>)
-).reset_index()
-
-<span style="color: #6a737d;"># transform(): Z-score por categoría</span>
-df[<span style="color: #032f62;">'sales_z'</span>] = df.groupby(<span style="color: #032f62;">'category'</span>)[<span style="color: #032f62;">'sales'</span>]\
-    .transform(lambda x: (x-x.mean())/x.std())
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">35 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 36: Outliers y escalamiento -->
-    <div class="slide-container" id="slide36">
-        <h2 class="slide-title">Outliers y Escalamiento: Winsorización, Z-Score y Robust</h2>
-        <div class="content-area">
-            <div class="tiled-content">
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-scissors"></i></div>
-                    <h3>Winsorización</h3>
-                    <p>En vez de eliminar outliers, se les asigna un tope (percentil 1 y 99), estabilizando la varianza sin perder registros.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-bell"></i></div>
-                    <h3>Z-Score</h3>
-                    <p>Media 0, desviación estándar 1. Altamente sensible a outliers extremos.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-shield-halved"></i></div>
-                    <h3>Robust Scaling</h3>
-                    <p>Usa mediana e IQR (P75 - P25); inmune a la distorsión de valores atípicos. Estándar cuando hay colas largas.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-fingerprint"></i></div>
-                    <h3>Reproducibilidad</h3>
-                    <p>Fijar random seed, versionar cada estado del dataset y loguear metadatos: así el pipeline es auditable.</p>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">36 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 37: División Módulo 8 -->
-    <div class="slide-container" id="slide37">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 08</span>
-            <h2>Inspección Inicial y Pre-Entrega</h2>
-            <p style="font-size: 20px;">head(), info() y describe(): tus ojos para tomarle el pulso a cualquier dataset en segundos.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">37 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 38: head, info, describe -->
-    <div class="slide-container" id="slide38">
-        <h2 class="slide-title">Inspección Inicial: head(), info() y describe()</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge live"><i class="fa-solid fa-magnifying-glass"></i> Tomarle el pulso a los datos</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-eye"></i> <strong>head():</strong> ¿se importó bien el archivo, con las columnas en orden?</li>
-                            <li><i class="fa-solid fa-list-check"></i> <strong>info():</strong> ¿qué tipos de datos tenemos y dónde hay nulos?</li>
-                            <li><i class="fa-solid fa-chart-simple"></i> <strong>describe():</strong> ¿en qué rangos se mueven mis variables numéricas?</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
-import pandas as pd
-
-df = pd.read_csv(<span style="color: #032f62;">"dataset.csv"</span>)
-df.head()
-print(df.shape)
-df.info()
-df.describe()
-df.isnull().sum()
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">38 / 40</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 39: Pre-entrega -->
+    <!-- SLIDE 39: Pre-Entrega: consigna -->
     <div class="slide-container" id="slide39">
-        <h2 class="slide-title">Pre-Entrega: Checkpoint — Estructura Inicial del Dataset</h2>
+        <h2 class="slide-title">Pre-Entrega: ¿Qué Debés Entregar?</h2>
         <div class="content-area">
             <div class="table-layout">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Bloque</th>
-                            <th>Contenido</th>
-                        </tr>
+                        <tr><th>Bloque</th><th>Contenido</th></tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><strong>1. Carga e Inspección</strong></td>
-                            <td>read_csv, .head() para inspección visual, .shape e .info() para volumen y tipos.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>2. Perfilado Inicial</strong></td>
-                            <td>Total de valores nulos por columna y estadísticas descriptivas con .describe().</td>
-                        </tr>
-                        <tr>
-                            <td><strong>3. Saneamiento y Selección</strong></td>
-                            <td>Al menos 3 filtros booleanos para recortar el dataset; eliminar columnas innecesarias.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>4. Reflexión</strong></td>
-                            <td>Celda Markdown: ¿qué problemas encontraste? ¿cuáles serán tus variables clave?</td>
-                        </tr>
+                        <tr><td><strong>1. Carga y Medición Inicial</strong></td><td>Total de valores faltantes por columna y qué % de las filas representa cada ausencia.</td></tr>
+                        <tr><td><strong>2. Detección de Duplicados</strong></td><td>Filas exactamente iguales, y duplicados en columnas que deberían ser únicas (IDs, facturas).</td></tr>
+                        <tr><td><strong>3. Análisis de Impacto</strong></td><td>Para cada columna con nulos: ¿qué significa que falte? ¿Los duplicados son error o dato válido?</td></tr>
+                        <tr><td><strong>4. Creación del Informe</strong></td><td>Documento legible por un supervisor que no sabe programar (Word, Docs o Markdown).</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p class="note-text">Entregable: PDF del Jupyter Notebook con código, resultados y comentarios. Nombre sugerido: Apellido_Nombre_Checkpoint1.pdf</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">39 / 40</div>
+            <div class="slide-index">39 / 41</div>
         </div>
     </div>
 
-    <!-- SLIDE 40: ¿Dudas? ¿Consultas? -->
+    <!-- SLIDE 40: Pre-Entrega: errores a evitar + entregable -->
     <div class="slide-container" id="slide40">
+        <h2 class="slide-title">Pre-Entrega: Errores Comunes a Evitar</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-percent"></i> <strong>Confundir porcentajes:</strong> dividí el total de nulos entre el total de <strong>filas</strong>, no de columnas.</li>
+                    <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Imputar sin pensar:</strong> no rellenes "edad" con 0 sin una razón válida — distorsiona el promedio mucho más que un nulo.</li>
+                    <li><i class="fa-solid fa-file-code"></i> <strong>Entregar código sin más:</strong> este checkpoint evalúa tu <strong>criterio analítico</strong>. Las tablas pueden ser capturas del notebook, pero lo central es explicar el porqué de cada decisión.</li>
+                </ul>
+            </div>
+            <p class="note-text">Entregable: Pre-entrega — Limpieza y Análisis Exploratorio con Pandas (evaluable, suma al proyecto final). Consigna y rúbrica completas en la unidad de pre-entrega.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">40 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 41: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide41">
         <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
             <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
                 <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
@@ -1616,7 +1552,7 @@ df.isnull().sum()
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">40 / 40</div>
+            <div class="slide-index">41 / 41</div>
         </div>
     </div>
 
