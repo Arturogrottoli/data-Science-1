@@ -96,7 +96,9 @@ Antes de meternos con el código, vale la pena aclarar en clase qué es exactame
 
 ### Variables (repaso)
 
-Una variable es la etiqueta que le ponemos a un dato en memoria. Python decide el tipo automáticamente al momento de la asignación (**tipado dinámico**).
+Una variable es la etiqueta que le ponemos a un dato en memoria. Python decide el tipo automáticamente al momento de la asignación (**tipado dinámico**): no hace falta escribir `int edad = 30` como en otros lenguajes — simplemente `edad = 30`, y Python infiere que es un entero mirando el valor.
+
+🎯 **Qué mostramos acá:** que un mismo tipo de instrucción (`variable = valor`) produce cuatro tipos de dato distintos (`str`, `float`, `int`, `bool`) sin que lo declaremos nunca — y que `type()` es la forma de confirmarlo.
 
 ```python
 producto = "Auriculares"
@@ -117,6 +119,8 @@ print(f"{precio} -> tipo: {type(precio)}")
 
 **Y las listas también son variables**: hasta acá `producto`, `precio`, `stock` y `en_oferta` son **escalares** — un solo valor cada una. Python también tiene **colecciones**, que agrupan muchos escalares en una sola variable; la más simple es la **lista**. Definimos acá `precios_lista`, que vamos a reutilizar tal cual en el `for` y en la función de más abajo — así queda claro desde el principio que no es un dato nuevo que aparece de la nada.
 
+🎯 **Qué mostramos acá:** la diferencia entre un escalar (`precio = 45.90`, un solo valor) y una colección (`precios_lista`, varios valores bajo un mismo nombre) — y que se accede a un elemento puntual de la colección con `[índice]`, no con el valor mismo.
+
 ```python
 precios_lista = [15, 45, 120, 300, 80, 500, 20]
 print(f"{precios_lista} -> tipo: {type(precios_lista)}")
@@ -133,6 +137,8 @@ print(f"Cantidad de precios: {len(precios_lista)}")
 ### Condicionales (repaso)
 
 `if` / `elif` / `else` bifurcan el camino de ejecución según una condición booleana. Para que se sienta "en vivo", pedimos el stock por teclado con `input()` — así cada vez que se corre la celda con un valor distinto, cambia el resultado. También combinamos condiciones con `and` / `or`, como una regla de negocio real: sin stock **siempre** es alerta; con poco stock, solo es alerta si el producto **además** está en oferta (mayor demanda esperada).
+
+🎯 **Qué mostramos acá:** que `and`/`or` permiten combinar más de una condición en un solo `if`, y que el resultado cambia según el valor que ingreses — el mismo código, dos caminos distintos según el dato.
 
 ```python
 stock = int(input("Ingresá el stock actual: "))
@@ -156,6 +162,8 @@ print(f"{producto}: {estado}")
 
 `for` recorre una colección elemento por elemento — en este caso, la misma `precios_lista` que ya definimos arriba. **Este es el protagonista del contraste que viene**: todo lo que hoy resolvemos con un `for` sobre una lista, en NumPy lo vamos a resolver sin ningún bucle explícito, operando sobre el array completo de una sola vez.
 
+🎯 **Qué mostramos acá:** el patrón más básico de iteración — "por cada elemento, hacé algo" — que en un rato vamos a comparar directamente contra la vectorización de NumPy sobre el mismo tipo de dato.
+
 ```python
 for p in precios_lista:
     print(f"Precio: {p}")
@@ -168,6 +176,8 @@ for p in precios_lista:
 ### Función que reúne todo
 
 Una función combina variables, condicionales y bucles en un bloque reutilizable. El ejemplo de referencia — clasificar una lista de precios en categorías de negocio — es el mismo problema que vamos a retomar con NumPy en el próximo módulo, para poder comparar código y enfoque lado a lado.
+
+🎯 **Qué mostramos acá:** cómo empaquetar variables + condicional + `for` en una sola función reutilizable, que se puede llamar una y otra vez con distintos datos (`clasificar_precios(otra_lista)`) sin reescribir la lógica.
 
 ```python
 def clasificar_precios(precios):
@@ -229,6 +239,8 @@ El objeto central de NumPy es el `ndarray` (n-dimensional array). Se parece a un
 
 **La analogía de la filmina**: pensá en una estantería diseñada específicamente para cajas de zapatos, todas del mismo tamaño. Como todas las cajas son iguales, se pueden apilar y mover mucho más rápido que si cada caja tuviera un tamaño y una forma distinta. Eso es exactamente lo que gana NumPy con la homogeneidad: si sabe que "todo lo que hay en este array es un entero de 64 bits", puede reservar un bloque de memoria exacto y operar en bloque, sin tener que revisar el tipo de cada elemento uno por uno.
 
+🎯 **Qué mostramos acá:** el contraste directo entre una lista de Python (que deja mezclar `int`, `str`, `float` y `bool` sin protestar) y un array de NumPy (que fuerza a todo al mismo `dtype`, en este caso `float64`) — la homogeneidad "en cámara lenta", viendo el `dtype` resultante.
+
 👉 **En Colab:**
 ```python
 import numpy as np
@@ -267,6 +279,8 @@ Existen varias formas de "dar vida" a un array en NumPy — las tres herramienta
 - **`np.array()`**: convierte una lista de Python ya existente en un array.
 - **`np.zeros()` / `np.ones()`**: crean arrays llenos de ceros o unos; muy útil para "preparar" el espacio donde después vamos a guardar resultados de cálculos.
 - **`np.arange(inicio, fin, paso)`**: funciona como el `range()` de Python, pero devuelve directamente un array — ideal para crear secuencias numéricas rápidas.
+
+🎯 **Qué mostramos acá:** las tres formas más comunes de "hacer aparecer" un array — convirtiendo una lista existente, generando un array vacío/relleno para después completarlo, y generando una secuencia numérica automática — para que después, al ver `np.genfromtxt` o `np.zeros` en cualquier código ajeno, ya sean caras conocidas.
 
 👉 **En Colab:**
 ```python
@@ -320,6 +334,8 @@ print(f"dtype: {precios_matriz.dtype}")   # float64
 ### Reshape y operaciones elemento a elemento *(Filmina 07)*
 
 `reshape` reorganiza un array sin tocar sus datos — el único requisito es que la cantidad total de elementos coincida (la filmina lo remarca con un ejemplo simple: 6 elementos no entran en una tabla 2x2, porque sobrarían 2). Y las operaciones aritméticas entre arrays ocurren automáticamente "posición a posición": sumar `array_A + array_B` no necesita ningún bucle `for`.
+
+🎯 **Qué mostramos acá:** tomar una sola columna real de nuestra matriz (MSFT), cambiarle la forma sin tocar los datos (`reshape`), y aplicarle operaciones elemento a elemento (multiplicar todo por un número, restar el array contra sí mismo desfasado un lugar) — todo sin escribir un solo `for`.
 
 👉 **En Colab:**
 ```python
@@ -434,6 +450,8 @@ print(precios_centrados[0])   # cuánto se desvía cada acción de su propia med
 
 - **`*` (elemento a elemento)**: multiplica posición a posición — (0,0) con (0,0), (0,1) con (0,1)... Las dimensiones tienen que cumplir las reglas de broadcasting que vimos recién. **No** es álgebra lineal.
 - **`.T` (transposición)**: gira la matriz — filas pasan a ser columnas. Una matriz `3x2` se convierte en `2x3` (en nuestro caso, `precios_matriz` es `(71, 14)` y `precios_matriz.T` es `(14, 71)`). Lo más importante: **no copia datos**, solo cambia cómo se *leen* — es prácticamente gratis en rendimiento, y es la herramienta clave para alinear dimensiones antes de una multiplicación matricial.
+
+🎯 **Qué mostramos acá:** una operación elemento a elemento más (`/`, para normalizar) encadenada sobre el resultado del broadcasting anterior, y el efecto visual de `.T` sobre la forma de la matriz — sin imprimir la matriz entera, solo comparando sus `.shape` antes y después.
 
 👉 **En Colab:**
 ```python
@@ -660,6 +678,8 @@ print(type(columna_msft.values))   # <class 'numpy.ndarray'> -> ¡por dentro, si
 
 Una **Serie** es como una lista de Python, pero "con esteroides": además de los **valores** (los datos reales, números o textos), tiene un **índice** — una etiqueta para cada valor. Si no le asignás uno, Pandas pone `0, 1, 2...` por defecto. La filmina lo muestra con un ejemplo de stock de frutas (`{"Manzanas": 50, "Bananas": 120, "Cerezas": 30}`): con etiquetas accedés al dato de forma inmediata, sin necesidad de saber en qué posición está.
 
+🎯 **Qué mostramos acá:** dos formas de llegar a una Serie — sacándola de un DataFrame ya existente (`df_stocks["MSFT"]`, con índice numérico automático) y armándola nosotros desde cero con un índice de texto propio — para comparar el índice por defecto contra un índice con sentido de negocio.
+
 👉 **En Colab:**
 ```python
 precios_msft = df_stocks["MSFT"]        # esto ya es una Serie
@@ -691,6 +711,8 @@ El **DataFrame** es la hoja de cálculo completa — la estructura más usada en
 
 Ahora cargamos `stocks.csv` "bien hecho": convertimos la columna de fechas a tipo fecha real (`parse_dates`) y la usamos como **índice** de filas (`set_index`), en vez de dejarla como una columna de texto más.
 
+🎯 **Qué mostramos acá:** el "antes y después" de cargar el mismo archivo correctamente — con la fecha convertida a `datetime` y promovida a índice — y cómo eso se refleja en `.index`, `.columns` y `.shape`, los tres atributos que vamos a chequear cada vez que carguemos un dataset nuevo.
+
 👉 **En Colab:**
 ```python
 df_stocks = pd.read_csv("stocks.csv", parse_dates=["formatted_date"])
@@ -711,6 +733,8 @@ print(df_stocks.shape)          # (71, 14) -> mismo tamaño que precios_matriz, 
 ### Creación de Series y DataFrames desde listas y diccionarios *(Filmina 27)*
 
 No siempre partimos de un archivo — a veces armamos estas estructuras a mano, desde objetos que ya conocemos: **desde listas**, la forma más sencilla, ideal para una Serie; y **desde diccionarios** (el método más común para un DataFrame), donde las llaves se convierten en nombres de columnas. La filmina remarca un detalle clave: Pandas **alinea automáticamente** los datos — sabe que "Ana" tiene un 9.5 de nota porque están en la misma posición dentro de sus respectivas listas, sin que se lo digamos explícitamente.
+
+🎯 **Qué mostramos acá:** construir `df_sectores` desde cero, a mano, con un diccionario — la misma técnica que vas a usar en tu propio proyecto cuando necesites una tabla chica de referencia (categorías, sectores, códigos) que no viene en ningún archivo. Esta tabla en particular la vamos a reutilizar de verdad más adelante (Módulo 7), no es solo un ejemplo de una vez.
 
 👉 **En Colab:**
 ```python
@@ -790,6 +814,8 @@ Regla aplicada fila por fila, tal como la plantea la filmina ("Flujo basado en r
 
 **Regla de oro (para evitar Data Leakage)**: las medias de cada columna se calculan **antes** de eliminar ninguna fila, usando todos los valores presentes. Si calculáramos la media después de eliminar filas, estaríamos alterando la distribución original de la variable e invalidando el valor imputado. La filmina lo resume en pseudocódigo (`Si NA en fila i > 1: eliminar` / `Si == 1: imputar con media`); acá lo traducimos a Pandas real.
 
+**Por qué el umbral es ">1" y no otro número (para pensar en clase)**: no es un número mágico, es una forma simple de operacionalizar una idea más general — "si falta poco, lo estimamos; si falta demasiado, el registro ya no es confiable". Con 1 solo dato faltante, el resto de la fila sigue dando contexto suficiente para una imputación razonable. Con 2 o más, empezás a "inventar" una porción demasiado grande de esa fila, y el riesgo de introducir ruido supera el beneficio de conservarla. En un proyecto real, este umbral se ajusta según cuántas columnas tenga el dataset — no es lo mismo perder 2 de 5 columnas que 2 de 50.
+
 👉 **En Colab:**
 ```python
 # 1) Medias ANTES de eliminar nada (regla de oro)
@@ -861,6 +887,8 @@ print(df_con_sector["_merge"].value_counts())
 | **Left** | Todas las filas de la izquierda; sin coincidencia, `NaN` |
 | **Right** | Simétrico al Left; se prefiere reordenar y usar Left |
 | **Outer** | Todas las filas de ambas tablas (unión), con `NaN` donde falte |
+
+**Cómo elegir el tipo de join en la práctica**: la pregunta que hay que hacerse no es "¿cuál es el más común?" sino "¿qué universo de filas necesito conservar?". Si estás enriqueciendo una tabla base con datos opcionales (como nosotros: precios que *pueden* tener sector) usás **Left**. Si necesitás garantizar que ambos lados tengan match — por ejemplo, solo analizar transacciones de clientes que además están en tu base de CRM — usás **Inner**. **Outer** se usa poco en producción porque genera muchos `NaN`, pero es útil para *auditar* qué tan bien "calzan" dos fuentes antes de decidir cómo combinarlas.
 
 ### Split-Apply-Combine: `agg()` vs. `transform()` *(Filmina 35)*
 
@@ -1077,7 +1105,7 @@ df_stocks["GOOG_miles"] = df_stocks["GOOG"].apply(lambda x: round(x / 1000, 2))
 
 **¿Por qué no usarlo siempre, si es tan cómodo?** Por dentro, `.apply()` **sí itera** fila por fila o valor por valor — no es vectorización real, es "el mito del bucle `for`" del Módulo 8 con otro disfraz. Es más lento que `df["col"] * 2` sobre datasets grandes. La regla práctica: **si existe una operación vectorizada que resuelve lo mismo, se prefiere esa**; `.apply()` se reserva para cuando la lógica es condicional o demasiado específica como para expresarla con operadores matemáticos directos — exactamente el caso de una función `def` con `if/elif/else`.
 
-### Ejemplo resuelto: cómo encarar la Segunda Pre-Entrega *(sin filmina — es la consigna de la pre-entrega, resuelta en código)*
+### Ejemplo Pre-Entrega: cómo encarar la Segunda Pre-Entrega *(sin filmina — es la consigna de la pre-entrega, llevada a código)*
 
 La consigna de la Segunda Pre-Entrega (Ingesta, Radiografía y Funciones de Transformación) pide 4 bloques. Así se resuelven los cuatro, de punta a punta, sobre `stocks.csv` — es el mismo patrón que vas a aplicar sobre el dataset que elegiste en tu Pre-entrega 1.
 
@@ -1141,7 +1169,7 @@ display(df[["MSFT", "MSFT_categoria", "GOOG", "GOOG_miles"]].head())
 - **Bloque 4**: la función `categorizar_precio_msft` (con `if/elif/else`) y la `lambda` sobre `GOOG` son las dos funciones que pide la consigna, y ambas se aplican con `.apply()` para crear columnas nuevas.
 - El `display()` final selecciona 4 columnas a la vez (doble corchete `[[...]]`) para comparar el valor original contra el transformado, en la misma tabla.
 
-Con esto, los 4 bloques de la consigna quedan resueltos: ingesta con vistazo estilizado, radiografía técnica con hallazgos comentados, ranking de nulos, y las dos funciones (formal + lambda) aplicadas al dataset con `.apply()`.
+Con esto, los 4 bloques de la consigna quedan cubiertos: ingesta con vistazo estilizado, radiografía técnica con hallazgos comentados, ranking de nulos, y las dos funciones (formal + lambda) aplicadas al dataset con `.apply()`.
 
 ---
 
