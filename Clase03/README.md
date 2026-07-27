@@ -203,26 +203,33 @@ print(reporte)
 
 **Por qué este bloque va primero**: cuando en la próxima sección resolvamos el mismo tipo de transformación con `precios_array * 1.21` (sin `for`, sin `if` explícito por elemento), el salto de un enfoque al otro se entiende mucho mejor si el enfoque "de toda la vida" está fresco y no es una abstracción lejana.
 
+**Orden sugerido para dictar la clase**: terminado el repaso del Bloque 0, no se pasa directo al notebook. Primero se repasan las filminas **02 a 09** de `Clase03.html` (la teoría del Módulo 1: por qué existe NumPy, el ndarray, dimensiones, creación de arrays, vectorización) y recién después se abre Colab para correr el código. Ver el "por qué" antes que el `np.genfromtxt(...)` en pantalla evita que el alumno copie código sin entender todavía para qué sirve NumPy. Esta misma lógica — filminas primero, notebook después — se repite en cada módulo de acá en adelante.
+
 ---
 
 ## Módulo 1 — Arrays Multidimensionales y Vectorización en NumPy
 
-### ¿Qué es NumPy, y por qué es tan buena para la parte matemática?
+**Contexto para abrir el módulo**: repasá primero las filminas 02–09 (teoría) antes de pasar al código de esta sección en el notebook/Colab.
+
+### ¿Qué es NumPy, y por qué es tan buena para la parte matemática? *(Filmina 03)*
 
 **NumPy (Numerical Python) es una librería de Python** — no es parte del lenguaje "de fábrica": hay que instalarla (`pip install numpy`) e importarla en cada notebook con `import numpy as np`. Por dentro, la mayor parte de NumPy **no está escrita en Python sino en C**: cuando llamás a una función de NumPy, Python le pasa el trabajo pesado a rutinas compiladas, muchísimo más rápidas que un bucle interpretado línea por línea.
 
+**El escenario de la filmina**: imaginá una tienda que vende 500 productos y necesita sumarle el 21% de IVA a cada precio. Con un bucle `for` tradicional funciona, sin problema. Pero si esa tienda fuera una cadena global con **10 millones de productos**, ese mismo bucle empieza a tardar segundos o minutos — y ese tiempo se multiplica cada vez que hay que repetir el cálculo. Las listas de Python son flexibles (podés mezclar un `int`, un `str` y un `bool` en la misma lista sin que se queje), pero esa flexibilidad tiene un costo: lentitud y alto consumo de memoria, porque en cada operación Python tiene que "preguntarle" a cada elemento qué tipo es antes de operar con él.
+
 **Lo que la hace tan buena para matemática, específicamente:**
 
-1. **Homogeneidad de tipo**: un array de NumPy exige que todos sus elementos sean del mismo tipo (todos `int64`, todos `float64`, etc.). Al saberlo de antemano, NumPy reserva un bloque de memoria **contiguo** y de tamaño exacto — nada de "adivinar" qué tipo es cada elemento en cada operación, como sí pasa con una lista de Python (que puede mezclar tipos).
-2. **Vectorización**: gracias a esa memoria contigua y homogénea, una operación como `array * 2` no itera elemento por elemento en Python — le pide al procesador que aplique la multiplicación a todo el bloque de una sola vez. Resultado: operaciones hasta **100 veces más rápidas** que el equivalente con `for`.
-3. **Sintaxis matemática nativa**: `matriz_a @ matriz_b`, `array ** 2`, `np.sqrt(array)` — se escribe álgebra casi como en el papel, sin tener que "abrir" la colección elemento por elemento.
+1. **Rendimiento / Homogeneidad de tipo**: un array de NumPy exige que todos sus elementos sean del mismo tipo (todos `int64`, todos `float64`, etc.). Al saberlo de antemano, NumPy reserva un bloque de memoria **contiguo** y de tamaño exacto — nada de "adivinar" qué tipo es cada elemento en cada operación, como sí pasa con una lista de Python. Esto es lo que habilita operaciones escritas en C, hasta **100 veces más rápidas** que los bucles de Python.
+2. **Sintaxis matemática nativa**: `matriz_a @ matriz_b`, `array ** 2`, `np.sqrt(array)` — se escribe álgebra casi como en el papel, sin tener que "abrir" la colección elemento por elemento. Por eso `precios_np * 1.21` reemplaza directamente al bucle `for` + `.append()` de la tienda de 500 productos.
+3. **Es el cimiento del ecosistema**: **Pandas**, **Matplotlib** y **Scikit-Learn** están construidos "debajo del capó" sobre NumPy y dependen de él para funcionar. Aprender NumPy no es un desvío antes de llegar a Pandas — es la base sobre la que Pandas está parado.
 
-**Por qué importa en Data Science**: NumPy es el cimiento silencioso de casi todo el ecosistema — **Pandas**, **Matplotlib** y **Scikit-Learn** están construidos sobre NumPy y lo usan para todos sus cálculos internos. Aprender NumPy no es un desvío, es la base.
+### El ndarray: la regla de la homogeneidad *(Filmina 04)*
 
-### El ndarray: la regla de la homogeneidad
+El objeto central de NumPy es el `ndarray` (n-dimensional array). Se parece a una lista de Python, pero con una regla de oro que una lista no tiene: **todos los elementos deben ser del mismo tipo**. A diferencia de una lista, donde podés mezclar peras con manzanas, en un array de NumPy todos los elementos tienen que ser del mismo tipo.
 
-El objeto central de NumPy es el `ndarray` (n-dimensional array). Se parece a una lista de Python, pero con una regla de oro que una lista no tiene: **todos los elementos deben ser del mismo tipo**.
+**La analogía de la filmina**: pensá en una estantería diseñada específicamente para cajas de zapatos, todas del mismo tamaño. Como todas las cajas son iguales, se pueden apilar y mover mucho más rápido que si cada caja tuviera un tamaño y una forma distinta. Eso es exactamente lo que gana NumPy con la homogeneidad: si sabe que "todo lo que hay en este array es un entero de 64 bits", puede reservar un bloque de memoria exacto y operar en bloque, sin tener que revisar el tipo de cada elemento uno por uno.
 
+👉 **En Colab:**
 ```python
 import numpy as np
 
@@ -238,21 +245,30 @@ print(array_numpy.dtype)   # float64 -> NumPy convirtió los enteros a flotante
 - `np.array([1, 2, 3.0, 4])` → `np.array()` convierte esa lista en un `ndarray`; como hay un `3.0` (float) en el medio, NumPy "sube" **todos** los elementos a `float64` para mantenerlos homogéneos.
 - `array_numpy.dtype` → el atributo que revela de qué tipo son, por dentro, los elementos del array.
 
-### Dimensiones, forma y tipo: `ndim`, `shape`, `dtype`
+### Dimensiones, forma y tipo: `ndim`, `shape`, `dtype` *(Filmina 05)*
+
+Para trabajar con datos necesitamos entender cómo están organizados espacialmente. NumPy usa tres conceptos clave para describirlo:
 
 | Concepto | Qué responde | Ejemplo |
 |---|---|---|
-| `ndim` | ¿Cuántos "ejes" tiene el array? | Un vector tiene `ndim = 1`, una matriz `ndim = 2` |
+| `ndim` | ¿Cuántos "ejes" (dimensiones) tiene el array? | Un vector tiene `ndim = 1`, una matriz `ndim = 2` |
 | `shape` | ¿Cuántos elementos hay en cada eje? | `(71, 14)` → 71 filas, 14 columnas |
 | `dtype` | ¿De qué tipo son los elementos? | `float64`, `int32`, `bool` |
 
-- **0D (Escalar)**: un solo número, ej. `5`.
-- **1D (Vector)**: una fila de números, como una lista simple.
-- **2D (Matriz)**: filas y columnas — la forma típica de una tabla de datos.
-- **3D (Tensor)**: un "cubo" de datos — varias matrices apiladas (ej. una imagen a color: alto × ancho × canales de color).
+La escalera de dimensiones que muestra la filmina, de menor a mayor complejidad:
+- **0D (Escalar)**: un solo número, ej. `5`. Cero ejes.
+- **1D (Vector)**: una fila de números, como una lista simple. Ej: `shape = (5,)`.
+- **2D (Matriz)**: filas y columnas — la forma típica de una tabla de datos. Ej: `shape = (3, 2)`, 3 filas y 2 columnas.
+- **3D (Tensor)**: un "cubo" de datos — varias matrices apiladas, como varias pestañas de una hoja de cálculo, o una imagen a color con Alto, Ancho y Canales de Color.
 
-### Creación de arrays
+### Creación de arrays *(Filmina 06)*
 
+Existen varias formas de "dar vida" a un array en NumPy — las tres herramientas básicas que vamos a usar todo el tiempo:
+- **`np.array()`**: convierte una lista de Python ya existente en un array.
+- **`np.zeros()` / `np.ones()`**: crean arrays llenos de ceros o unos; muy útil para "preparar" el espacio donde después vamos a guardar resultados de cálculos.
+- **`np.arange(inicio, fin, paso)`**: funciona como el `range()` de Python, pero devuelve directamente un array — ideal para crear secuencias numéricas rápidas.
+
+👉 **En Colab:**
 ```python
 import numpy as np
 
@@ -273,10 +289,13 @@ np.arange(0, 10, 2)   # [0 2 4 6 8]
 - `np.ones(5)` → un solo número (sin tupla) crea un array 1D de 5 elementos, todos en `1`.
 - `np.arange(0, 10, 2)` → genera una secuencia desde `0` hasta `10` **sin incluir el 10**, saltando de a `2`: `[0, 2, 4, 6, 8]`.
 
-### Ejemplo real: cargando `stocks.csv` como matriz de NumPy
+### Ejemplo real: cargando `stocks.csv` como matriz de NumPy *(sin filmina dedicada — ejercicio de Colab)*
+
+Este ejemplo no tiene una filmina propia: es la ampliación práctica de la Filmina 06 (Creación de Arrays), armada especialmente para este notebook usando nuestro dataset real en vez de un ejemplo genérico.
 
 `stocks.csv` (en esta misma carpeta) tiene precios mensuales de 14 acciones (McDonald's, Starbucks, Google, Amazon, Microsoft, bancos, hoteles, tarjetas...) entre 2016 y 2021. Es un archivo de texto plano con una primera columna de **fechas** (texto) y 14 columnas de **precios** (números).
 
+👉 **En Colab:**
 ```python
 import numpy as np
 
@@ -298,10 +317,11 @@ print(f"dtype: {precios_matriz.dtype}")   # float64
 
 **Un detalle importante para remarcar acá**: tuvimos que **excluir la columna de fechas** con `usecols`. Si intentáramos meterla en el array, NumPy — fiel a la regla de homogeneidad — convertiría **todos** los precios a texto para poder incluir las fechas, y perderíamos la capacidad de hacer cuentas. Esta limitación es exactamente el motivo por el que en el Módulo 5 vamos a introducir **Pandas**: necesitamos una herramienta que sí pueda mezclar fechas, texto y números en la misma tabla sin perder la parte matemática de NumPy por debajo.
 
-### Reshape y operaciones elemento a elemento
+### Reshape y operaciones elemento a elemento *(Filmina 07)*
 
-`reshape` reorganiza un array sin tocar sus datos — el único requisito es que la cantidad total de elementos coincida.
+`reshape` reorganiza un array sin tocar sus datos — el único requisito es que la cantidad total de elementos coincida (la filmina lo remarca con un ejemplo simple: 6 elementos no entran en una tabla 2x2, porque sobrarían 2). Y las operaciones aritméticas entre arrays ocurren automáticamente "posición a posición": sumar `array_A + array_B` no necesita ningún bucle `for`.
 
+👉 **En Colab:**
 ```python
 # Tomamos solo la columna de MSFT (columna índice 4) como vector 1D
 msft = precios_matriz[:, 4]
@@ -322,10 +342,13 @@ diferencia_mensual = msft[1:] - msft[:-1]   # variación mes a mes
 - `msft * 1000` → multiplica **cada uno** de los 71 valores por 1000, sin escribir ningún bucle.
 - `msft[1:] - msft[:-1]` → `msft[1:]` es "del segundo elemento en adelante"; `msft[:-1]` es "del primero al anteúltimo". Restar ambos alinea cada mes con el anterior y da la variación mes a mes.
 
-### Vectorización frente a bucles: retomando el Bloque 0
+### Vectorización frente a bucles: retomando el Bloque 0 *(Filmina 08)*
+
+**El concepto más importante del módulo.** El enfoque bucle necesita 4 pasos: crear una lista vacía, iterar, multiplicar, agregar el resultado con `.append()`. El enfoque NumPy necesita 1 solo paso: `mi_array * 2`. La diferencia no es solo de velocidad — es de **claridad**: el código vectorizado se parece a una fórmula matemática real, mientras que el bucle es una receta de pasos mecánicos. Y en cuanto a velocidad, el procesador multiplica todo el bloque de una sola vez, en vez de hacer la tarea elemento por elemento.
 
 En el Bloque 0 resolvimos "clasificar una lista de precios" con un `for` y un `if`. Ahora resolvamos un problema del mismo estilo — **aplicar un 21% de aumento a todos los precios de MSFT** — de las dos formas, para comparar:
 
+👉 **En Colab:**
 ```python
 import time
 
@@ -356,7 +379,7 @@ print(f"NumPy     : {tiempo_numpy:.6f}s")
 
 Con 71 elementos la diferencia de tiempo es imperceptible — pero la diferencia de **código** ya es contundente: 4 líneas contra 1. Si `msft_lista` tuviera 10 millones de elementos (como el ejemplo de la tienda global del PDF), la diferencia de tiempo también se volvería contundente.
 
-### Errores comunes y buenas prácticas
+### Errores comunes y buenas prácticas *(Filmina 09)*
 
 | Error | Qué pasa | Cómo evitarlo |
 |---|---|---|
@@ -371,14 +394,15 @@ Con 71 elementos la diferencia de tiempo es imperceptible — pero la diferencia
 
 **Contexto para abrir el módulo**: en el Módulo 1 vimos operaciones entre arrays del mismo tamaño. En el mundo real casi nunca es así — rara vez trabajamos con arreglos de tamaño exacto. Acá entra el verdadero "superpoder" de NumPy: el Broadcasting.
 
-### La Matriz de Datos: filas, columnas e indexación
+### La Matriz de Datos: filas, columnas e indexación *(Filmina 11)*
 
 En Data Science, la información casi siempre se organiza de forma tabular — una **Matriz de Datos**:
 
-- **Filas (eje 0)**: cada observación. En `precios_matriz` (Módulo 1), cada fila es **un mes**.
-- **Columnas (eje 1)**: cada variable. Cada columna es **una acción** (MCD, SBUX, GOOG...).
-- **Indexación base 0**: `precios_matriz[2, 1]` es la **tercera fila, segunda columna** → el precio de SBUX en el tercer mes registrado.
+- **Filas (eje 0)**: cada observación — un cliente, un sensor, una transacción o, en nuestro caso, un mes. En `precios_matriz` (Módulo 1), cada fila es **un mes**.
+- **Columnas (eje 1)**: las características de esa observación — edad, precio, temperatura. En nuestra matriz, cada columna es **una acción** (MCD, SBUX, GOOG...).
+- **Indexación base 0**: la filmina lo muestra con un ejemplo de clientes (`datos[2, 1]` sobre una matriz de edad e ingresos) — el elemento `(2, 1)` es la **tercera fila, segunda columna**. Con nuestra matriz real, `precios_matriz[2, 1]` es el precio de SBUX en el tercer mes registrado.
 
+👉 **En Colab:**
 ```python
 print(precios_matriz[2, 1])   # precio de SBUX (columna 1) en el mes con índice 2
 ```
@@ -386,12 +410,13 @@ print(precios_matriz[2, 1])   # precio de SBUX (columna 1) en el mes con índice
 **Línea por línea:**
 - `precios_matriz[2, 1]` → indexación 2D: el primer número (`2`) es la fila, el segundo (`1`) es la columna. Devuelve un único valor: el precio de SBUX en el tercer mes registrado (índice 2, porque se cuenta desde 0).
 
-### Broadcasting: el superpoder de NumPy
+### Broadcasting: el superpoder de NumPy *(Filmina 12)*
 
-El **Broadcasting** es el conjunto de reglas que le permite a NumPy operar entre arrays de **distinta forma**, sin escribir un bucle y sin copiar datos de más en memoria. NumPy compara las formas **de derecha a izquierda**: dos dimensiones son compatibles si son iguales o si una de ellas es `1`.
+El **Broadcasting** es el conjunto de reglas que le permite a NumPy operar entre arrays de **distinta forma**, sin escribir un bucle y sin copiar datos de más en memoria. Es "expansión virtual": NumPy "estira" el array más chico para que encaje con el más grande, pero sin copiar realmente esos datos en memoria — por eso es tan eficiente. NumPy compara las formas **de derecha a izquierda**: dos dimensiones son compatibles si son iguales o si una de ellas es `1`.
 
-**Caso real: centrar los precios restando la media de cada acción.** `precios_matriz` tiene shape `(71, 14)`; el vector de medias por columna tiene shape `(14,)`. NumPy "estira" el vector de 14 medias para cubrir las 71 filas, sin crear 71 copias del vector.
+**El caso de la filmina**: restar el promedio de cada grupo a 1.000 alturas, sin crear 1.000 copias del promedio — la filmina lo ilustra con una matriz `(3,2)` menos un vector `(2,)`. Nuestro caso real es el mismo patrón a mayor escala: **centrar los precios restando la media de cada acción.** `precios_matriz` tiene shape `(71, 14)`; el vector de medias por columna tiene shape `(14,)`. NumPy "estira" el vector de 14 medias para cubrir las 71 filas, sin crear 71 copias del vector.
 
+👉 **En Colab:**
 ```python
 medias_por_accion = precios_matriz.mean(axis=0)     # shape (14,) -> una media por columna
 print(f"Shape de las medias: {medias_por_accion.shape}")
@@ -405,11 +430,12 @@ print(precios_centrados[0])   # cuánto se desvía cada acción de su propia med
 - `precios_matriz - medias_por_accion` → resta un vector `(14,)` a una matriz `(71,14)`. Por broadcasting, NumPy "estira" el vector para restarlo a cada una de las 71 filas, sin copiarlo 71 veces en memoria.
 - `precios_centrados[0]` → la primera fila del resultado: cuánto se aleja cada acción de su propio promedio, en el primer mes del dataset.
 
-### Multiplicación elemento a elemento (`*`) vs. Transposición (`.T`)
+### Multiplicación elemento a elemento (`*`) vs. Transposición (`.T`) *(Filmina 13)*
 
-- **`*` (elemento a elemento)**: multiplica posición a posición — (0,0) con (0,0), (0,1) con (0,1)... Debe cumplir las reglas de broadcasting, **no** es álgebra lineal.
-- **`.T` (transposición)**: gira la matriz — filas pasan a ser columnas. `precios_matriz` es `(71, 14)`; `precios_matriz.T` es `(14, 71)`. No copia datos, solo cambia cómo se *leen* — es prácticamente gratis en rendimiento, y es la herramienta clave para alinear dimensiones antes de una multiplicación matricial.
+- **`*` (elemento a elemento)**: multiplica posición a posición — (0,0) con (0,0), (0,1) con (0,1)... Las dimensiones tienen que cumplir las reglas de broadcasting que vimos recién. **No** es álgebra lineal.
+- **`.T` (transposición)**: gira la matriz — filas pasan a ser columnas. Una matriz `3x2` se convierte en `2x3` (en nuestro caso, `precios_matriz` es `(71, 14)` y `precios_matriz.T` es `(14, 71)`). Lo más importante: **no copia datos**, solo cambia cómo se *leen* — es prácticamente gratis en rendimiento, y es la herramienta clave para alinear dimensiones antes de una multiplicación matricial.
 
+👉 **En Colab:**
 ```python
 volatilidad = precios_matriz.std(axis=0)           # desvío estándar por acción, shape (14,)
 precios_normalizados = precios_centrados / volatilidad   # * y / también son elemento a elemento
@@ -422,12 +448,13 @@ print(precios_matriz.T.shape)   # (14, 71) -> ahora cada fila es una acción, ca
 - `precios_centrados / volatilidad` → divide cada columna de `precios_centrados` por su propio desvío; es otra operación elemento a elemento con broadcasting, no álgebra lineal.
 - `precios_matriz.T` → `.T` transpone la matriz: intercambia filas por columnas. No mueve datos en memoria, solo cambia cómo se los "lee", así que es prácticamente instantáneo.
 
-### Multiplicación Matricial (`@`): un vector de pesos de portafolio
+### Multiplicación Matricial (`@`): un vector de pesos de portafolio *(Filmina 14)*
 
-A diferencia de `*`, el operador `@` (o `np.dot`) sigue la regla clásica del álgebra lineal: para multiplicar una matriz `A` por una matriz `B`, **el número de columnas de A debe igualar el número de filas de B**.
+A diferencia de `*`, el operador `@` (o `np.dot`) sigue la regla clásica del álgebra lineal, "fila por columna": para multiplicar una matriz `A` por una matriz `B`, **el número de columnas de A debe igualar el número de filas de B**. La filmina menciona tres casos de uso reales de esta operación: **escalado** de precios por inflación con un escalar, **normalización Z-score** ((datos − medias) / desviaciones, en una sola línea gracias al broadcasting) y **redes neuronales**, donde las predicciones se calculan multiplicando los datos de entrada por los pesos del modelo — exactamente el mismo tipo de cuenta que vamos a hacer ahora.
 
 **Caso real**: si armamos un portafolio con un peso (proporción invertida) por cada una de las 14 acciones, `precios_matriz @ pesos` nos da el **valor del portafolio en cada uno de los 71 meses**, en una sola operación.
 
+👉 **En Colab:**
 ```python
 # Un peso igual para las 14 acciones (suman 1 entre todas)
 pesos = np.ones(14) / 14
@@ -443,8 +470,11 @@ print(valor_portafolio[:5])   # valor del portafolio en los primeros 5 meses
 - `precios_matriz @ pesos` → multiplicación matricial: por cada mes (fila), multiplica cada precio por su peso y suma los 14 resultados — el mismo cálculo que un producto punto, repetido para las 71 filas a la vez. `(71,14) @ (14,)` da como resultado un vector `(71,)`.
 - `valor_portafolio[:5]` → los primeros 5 valores del vector resultante, uno por cada uno de los primeros 5 meses.
 
-### Errores comunes de broadcasting
+### Errores comunes de broadcasting *(Filmina 15)*
 
+"Los tres clásicos" que aparecen en la filmina — vale la pena anticiparlos antes de que un alumno se los encuentre solo.
+
+👉 **En Colab:**
 ```python
 vector_mal_dimensionado = np.array([1, 2, 3])   # shape (3,), pero precios_matriz tiene 14 columnas
 
@@ -462,18 +492,21 @@ vector_mal_dimensionado = np.array([1, 2, 3])   # shape (3,), pero precios_matri
 | `shapes not aligned` (con `@`) | Las columnas de A no igualan las filas de B | Usar `.T` para transponer el que corresponda: `A @ B.T` |
 | Confundir `*` con `@` | `*` es elemento a elemento; `@` combina filas y columnas (álgebra lineal) | Preguntarse: "¿quiero ajustar cada valor, o combinar variables?" |
 
+**Mini-desafío para proponer en clase** (tal cual lo plantea la filmina): dar puntos extra distintos por examen (+2 al primero, +1 al segundo, +3 al tercero) a 4 alumnos en 3 exámenes, en una sola línea usando broadcasting.
+
 ---
 
 ## Módulo 3 — Álgebra Lineal con NumPy
 
 **Contexto para abrir el módulo**: en Ciencia de Datos, los algoritmos rara vez procesan datos de forma aislada. Este módulo es el puente directo hacia la Regresión Lineal y las Redes Neuronales, que por dentro no son otra cosa que multiplicaciones matriciales y sistemas de ecuaciones resueltos a alta velocidad.
 
-### Producto punto (Dot Product)
+### Producto punto (Dot Product) *(Filmina 17)*
 
-El producto punto toma dos vectores de la **misma longitud** y devuelve un único **escalar**: multiplica los elementos correspondientes y suma los resultados.
+El producto punto toma dos vectores de la **misma longitud** y devuelve un único **escalar**: multiplica los elementos correspondientes y suma los resultados. La filmina lo muestra con dos ejemplos chicos: `v1 · v2 = (1·4)+(2·5)+(3·6) = 32`, y una multiplicación matricial `A @ B` donde cada elemento del resultado es, por dentro, un producto punto entre una fila de `A` y una columna de `B`. En NumPy moderno se prefiere el operador infijo `@` sobre `np.dot()` por legibilidad — para vectores 1D ambos hacen exactamente lo mismo.
 
 **Caso real**: si tenemos el retorno promedio de cada acción y los pesos del portafolio del Módulo 2, el producto punto entre ambos vectores nos da el **retorno esperado del portafolio completo**, en una sola cuenta.
 
+👉 **En Colab:**
 ```python
 retornos_mensuales = (precios_matriz[1:] - precios_matriz[:-1]) / precios_matriz[:-1]  # % de cambio mes a mes
 retorno_promedio_por_accion = retornos_mensuales.mean(axis=0)   # shape (14,)
@@ -488,16 +521,15 @@ print(f"Retorno mensual esperado del portafolio: {retorno_esperado_portafolio:.4
 - `np.dot(retorno_promedio_por_accion, pesos)` → producto punto: multiplica cada retorno promedio por su peso correspondiente y suma los 14 resultados en un único número (el retorno esperado del portafolio completo).
 - `:.4%` → formatea el número como porcentaje con 4 decimales.
 
-En NumPy moderno se prefiere el operador infijo `@` sobre `np.dot()` por legibilidad — para vectores 1D ambos hacen exactamente lo mismo.
-
-### Sistemas de Ecuaciones Lineales: `np.linalg.solve`
+### Sistemas de Ecuaciones Lineales: `np.linalg.solve` *(Filmina 18)*
 
 Muchos problemas se reducen a resolver $Ax = b$: $A$ son los coeficientes conocidos, $b$ los términos independientes, $x$ las incógnitas que buscamos.
 
-**Calcular la inversa de A ($x = A^{-1}b$) es ineficiente y propenso a errores de redondeo.** NumPy usa descomposición LU internamente con `np.linalg.solve`, mucho más rápida y estable — y solo funciona si $A$ es cuadrada y **no singular** (determinante distinto de cero).
+**Calcular la inversa de A ($x = A^{-1}b$) es ineficiente y propenso a errores de redondeo** (inestabilidad numérica). NumPy usa descomposición LU internamente con `np.linalg.solve`, mucho más rápida y estable — y solo funciona si $A$ es cuadrada y **no singular** (determinante distinto de cero). La filmina lo ilustra con un sistema simple de dos ecuaciones (`3x + 1y = 9`, `1x + 2y = 8`) que resuelve a `x=2, y=3`; nosotros vamos a resolver el mismo tipo de sistema, pero con una pregunta de negocio real.
 
 **Caso real**: queremos comprar una combinación de acciones de MCD y SBUX tal que el total sean **100 acciones** y el valor total sea de **10.000 USD**, usando los precios reales del primer mes del dataset.
 
+👉 **En Colab:**
 ```python
 precio_mcd = precios_matriz[0, 0]    # MCD, mes 0
 precio_sbux = precios_matriz[0, 1]   # SBUX, mes 0
@@ -520,7 +552,9 @@ print(f"Acciones de SBUX: {y_sbux:.1f}")
 - `np.linalg.solve(A, b)` → resuelve el sistema $Ax = b$ y devuelve un array con las dos incógnitas; lo "desempaquetamos" directo en `x_mcd, y_sbux`.
 - `:.1f` → redondea el resultado a 1 decimal para mostrarlo más prolijo.
 
-### Diagnóstico y Propiedades Matriciales (`np.linalg`)
+### Diagnóstico y Propiedades Matriciales (`np.linalg`) *(Filmina 19)*
+
+Antes de meter una matriz en un modelo, conviene "inspeccionarla" — la filmina lo resume como "Inspeccionar antes de modelar":
 
 | Función | Propiedad matemática | Utilidad en Data Science |
 |---|---|---|
@@ -530,6 +564,7 @@ print(f"Acciones de SBUX: {y_sbux:.1f}")
 
 **Caso real**: la matriz de correlación entre las 14 acciones es cuadrada (14×14) — perfecta para diagnosticarla con `np.linalg`.
 
+👉 **En Colab:**
 ```python
 correlaciones = np.corrcoef(precios_matriz.T)   # matriz 14x14: correlación entre cada par de acciones
 print(f"Shape: {correlaciones.shape}")
@@ -554,12 +589,15 @@ print(f"Eigenvalues: {valores_propios.round(2)}")
 
 ## Módulo 4 — NumPy y Pandas: la Relación entre el Cálculo y la Estructura de Datos
 
-### Dos librerías de Python, dos especialidades
+**Contexto para abrir el módulo**: repasá las filminas 21–23 antes del código — son solo 2 filminas de contenido (más la portada del módulo), así que este es el módulo más corto en teoría, pero uno de los más importantes para que el resto de la clase tenga sentido.
+
+### Dos librerías de Python, dos especialidades *(Filmina 22)*
 
 **Tan importante como saber usar cada una es tener clarísimo que ambas son librerías de Python** — ninguna viene instalada por defecto, ambas se instalan (`pip install numpy pandas`) y se importan explícitamente. No son "modos" distintos de Python: son herramientas externas, cada una diseñada para resolver un problema distinto.
 
-- **NumPy** existe para la **parte matemática**: números homogéneos, memoria contigua, cálculos vectorizados a velocidad de C. Ya lo vimos en los Módulos 1 a 3.
-- **Pandas** existe para la **parte de tablas**: datos del mundo real con nombres de columna, tipos mixtos (texto + números + fechas en la misma tabla) y valores faltantes. Es la pieza que nos faltaba desde el Módulo 1, cuando tuvimos que **excluir la columna de fechas** de `stocks.csv` para poder cargarla en un `ndarray`.
+**La analogía de la filmina: el motor y la carrocería.**
+- **NumPy es el motor**: una "rejilla matemática pura" — homogénea, veloz, ideal para álgebra lineal y cálculos pesados. Pero no tiene etiquetas: si querés la columna "Precios" tenés que acordarte que es el índice 2. Existe para la **parte matemática**: números homogéneos, memoria contigua, cálculos vectorizados a velocidad de C. Ya lo vimos en los Módulos 1 a 3.
+- **Pandas es la carrocería**: una "hoja de cálculo programable", construida **sobre** NumPy, que le agrega nombres de columnas, tipos mixtos y manejo de nulos. Existe para la **parte de tablas**: datos del mundo real con nombres de columna, tipos mixtos (texto + números + fechas en la misma tabla) y valores faltantes. Es la pieza que nos faltaba desde el Módulo 1, cuando tuvimos que **excluir la columna de fechas** de `stocks.csv` para poder cargarla en un `ndarray`.
 
 **¿Por qué Pandas es tan buena para la parte de tablas, específicamente?**
 
@@ -570,7 +608,7 @@ print(f"Eigenvalues: {valores_propios.round(2)}")
 
 **El punto clave que conecta ambas**: Pandas **está construido sobre NumPy**. Por dentro, cada columna de un DataFrame es, literalmente, un array de NumPy con una etiqueta pegada encima. Cuando Pandas suma dos columnas, le pide el cálculo a NumPy y después le vuelve a poner las etiquetas al resultado.
 
-### Comparativa: ¿cuándo usar cuál?
+### Comparativa: ¿cuándo usar cuál? *(Filmina 23)*
 
 | Característica | NumPy | Pandas |
 |---|---|---|
@@ -582,8 +620,11 @@ print(f"Eigenvalues: {valores_propios.round(2)}")
 
 > **"NumPy trabaja con números; Pandas trabaja con datos."** En el 90% de los proyectos reales usamos las dos: Pandas para traer y ordenar la información, NumPy (por debajo, casi siempre sin que lo notemos) para hacer las cuentas.
 
-### Demostración: la misma tabla, dos herramientas
+### Demostración: la misma tabla, dos herramientas *(sin filmina dedicada — demo de Colab)*
 
+Esta demo no tiene una filmina propia: es donde el alumno **ve con sus propios ojos** la diferencia entre las Filminas 22 y 23 corriendo en código real, comparando la carga con NumPy (Módulo 1) contra la misma carga con Pandas.
+
+👉 **En Colab:**
 ```python
 import numpy as np
 import pandas as pd
@@ -615,10 +656,11 @@ print(type(columna_msft.values))   # <class 'numpy.ndarray'> -> ¡por dentro, si
 
 **Contexto para abrir el módulo**: si trabajar con listas y diccionarios se siente como organizar una biblioteca sin estantes, Pandas es el sistema de estanterías profesional que estábamos esperando. Acá vemos cómo organiza la información en sus dos estructuras fundamentales.
 
-### La Serie: el bloque de construcción unidimensional
+### La Serie: el bloque de construcción unidimensional *(Filmina 25)*
 
-Una **Serie** es como una lista de Python, pero "con esteroides": además de los **valores**, tiene un **índice** — una etiqueta para cada valor. Si no le asignás uno, Pandas pone `0, 1, 2...` por defecto.
+Una **Serie** es como una lista de Python, pero "con esteroides": además de los **valores** (los datos reales, números o textos), tiene un **índice** — una etiqueta para cada valor. Si no le asignás uno, Pandas pone `0, 1, 2...` por defecto. La filmina lo muestra con un ejemplo de stock de frutas (`{"Manzanas": 50, "Bananas": 120, "Cerezas": 30}`): con etiquetas accedés al dato de forma inmediata, sin necesidad de saber en qué posición está.
 
+👉 **En Colab:**
 ```python
 precios_msft = df_stocks["MSFT"]        # esto ya es una Serie
 print(type(precios_msft))                # pandas.core.series.Series
@@ -637,17 +679,19 @@ print(stock_por_sector["Consumo"])        # acceso directo por etiqueta, sin sab
 - `pd.Series({...})` → cuando se crea una Serie a partir de un diccionario, las **llaves** se convierten automáticamente en el índice y los **valores**, en los datos.
 - `stock_por_sector["Consumo"]` → accede al valor por su etiqueta (`"Consumo"`), sin necesidad de saber en qué posición numérica está.
 
-### El DataFrame: la tabla bidimensional
+### El DataFrame: la tabla bidimensional *(Filmina 26)*
 
 El **DataFrame** es la hoja de cálculo completa — la estructura más usada en Ciencia de Datos. Se puede pensar como un **diccionario de Series** que comparten el mismo índice de filas.
 
-**Componentes clave:**
-- **Datos**: la información en celdas.
+**Componentes clave** (la filmina lo ilustra con una tabla de Producto/Precio/Cantidad):
+- **Datos**: la información organizada en celdas.
 - **Índice de filas**: identifica cada registro (por defecto, `0, 1, 2...`, pero puede ser cualquier otra cosa — como una fecha).
 - **Columnas**: los nombres de cada variable.
+- **Un matiz que remarca la filmina**: si pedís **una** columna (`df['col']`) obtenés una **Serie**; si pedís **varias** (`df[['a', 'b']]`), obtenés un **DataFrame** — aunque sea de una sola columna, el doble corchete cambia el tipo de resultado.
 
 Ahora cargamos `stocks.csv` "bien hecho": convertimos la columna de fechas a tipo fecha real (`parse_dates`) y la usamos como **índice** de filas (`set_index`), en vez de dejarla como una columna de texto más.
 
+👉 **En Colab:**
 ```python
 df_stocks = pd.read_csv("stocks.csv", parse_dates=["formatted_date"])
 df_stocks = df_stocks.set_index("formatted_date")
@@ -664,10 +708,11 @@ print(df_stocks.shape)          # (71, 14) -> mismo tamaño que precios_matriz, 
 - `df_stocks.columns` → los nombres de las 14 columnas que quedaron (ya sin la fecha, que pasó a ser índice).
 - `df_stocks.shape` → sigue siendo `(71, 14)`: mismas dimensiones que `precios_matriz`, pero acá con nombres y fechas en vez de solo números.
 
-### Creación de Series y DataFrames desde listas y diccionarios
+### Creación de Series y DataFrames desde listas y diccionarios *(Filmina 27)*
 
-No siempre partimos de un archivo — a veces armamos estas estructuras a mano, desde objetos que ya conocemos.
+No siempre partimos de un archivo — a veces armamos estas estructuras a mano, desde objetos que ya conocemos: **desde listas**, la forma más sencilla, ideal para una Serie; y **desde diccionarios** (el método más común para un DataFrame), donde las llaves se convierten en nombres de columnas. La filmina remarca un detalle clave: Pandas **alinea automáticamente** los datos — sabe que "Ana" tiene un 9.5 de nota porque están en la misma posición dentro de sus respectivas listas, sin que se lo digamos explícitamente.
 
+👉 **En Colab:**
 ```python
 # Desde una lista: la forma más simple, para una Serie
 precios_ejemplo = pd.Series([15.0, 45.0, 120.0], name="Precio")
@@ -689,7 +734,9 @@ print(df_sectores)
 
 Vamos a reutilizar `df_sectores` en el Módulo 7 para mostrar cómo **combinar** (`merge`) dos tablas relacionadas.
 
-### Errores comunes: dimensión, índice y tipos
+### Errores comunes: dimensión, índice y tipos *(Filmina 28)*
+
+Las "trampas conceptuales" que trae la filmina, ahora con nuestro propio caso:
 
 | Confusión | Aclaración |
 |---|---|
@@ -701,10 +748,13 @@ Vamos a reutilizar `df_sectores` en el Módulo 7 para mostrar cómo **combinar**
 
 ## Módulo 6 — Preprocesamiento de Datos
 
-### El fenómeno de los datos ausentes
+**Contexto para abrir el módulo**: repasá la Filmina 30 antes del código de esta sección.
 
-En entornos productivos, los datos faltantes (`NaN` — *Not a Number*) son una constante: fallas de sensores, pipelines interrumpidos, registros incompletos. `stocks.csv` viene limpio, así que para practicar vamos a **simular** el problema sobre una copia — algo muy común al enseñar o probar un pipeline de limpieza.
+### El fenómeno de los datos ausentes *(introducción a la Filmina 30)*
 
+En entornos productivos, los datos faltantes (`NaN` — *Not a Number*) son una constante: fallas de sensores, pipelines interrumpidos, registros incompletos — la filmina lo resume como "NA/NaN surgen por fallas de sensores, pipelines interrumpidos o registros incompletos", y remarca que la mayoría de los modelos de Machine Learning **no admiten nulos**, así que este paso no es opcional. `stocks.csv` viene limpio, así que para practicar vamos a **simular** el problema sobre una copia — algo muy común al enseñar o probar un pipeline de limpieza.
+
+👉 **En Colab:**
 ```python
 df_sucio = df_stocks.copy()
 
@@ -725,19 +775,22 @@ print(f"Total de NaN: {df_sucio.isnull().sum().sum()}")
 - `.sum()` → sobre esa tabla booleana, suma por columna (`True` vale 1, `False` vale 0): da el conteo de nulos por columna.
 - `.sum().sum()` → el segundo `.sum()` suma esos conteos de columna en un solo número: el total de nulos del DataFrame.
 
-### Eliminación vs. Imputación
+### Eliminación vs. Imputación *(Filmina 30)*
+
+El "cuadro comparativo de impacto estadístico" de la filmina, la decisión central del módulo:
 
 | Estrategia | Ventaja | Riesgo |
 |---|---|---|
 | **Eliminación por filas** | No inventa datos; mantiene la certeza de los registros restantes | Reduce la muestra; puede sesgarla si los datos no faltan al azar |
 | **Imputación por la media** | Preserva el tamaño de la muestra; computacionalmente eficiente | Subestima la varianza original y altera correlaciones con otras variables |
 
-### El algoritmo de decisión y la Regla de Oro
+### El algoritmo de decisión y la Regla de Oro *(Filmina 31)*
 
-Regla aplicada fila por fila: si tiene **más de 1** NaN, se elimina el registro completo; si tiene **exactamente 1**, se imputa con la media de esa columna.
+Regla aplicada fila por fila, tal como la plantea la filmina ("Flujo basado en reglas"): si tiene **más de 1** NaN, se elimina el registro completo; si tiene **exactamente 1**, se imputa con la media de esa columna.
 
-**Regla de oro (para evitar Data Leakage)**: las medias de cada columna se calculan **antes** de eliminar ninguna fila, usando todos los valores presentes. Si calculáramos la media después de eliminar filas, estaríamos alterando la distribución original de la variable e invalidando el valor imputado.
+**Regla de oro (para evitar Data Leakage)**: las medias de cada columna se calculan **antes** de eliminar ninguna fila, usando todos los valores presentes. Si calculáramos la media después de eliminar filas, estaríamos alterando la distribución original de la variable e invalidando el valor imputado. La filmina lo resume en pseudocódigo (`Si NA en fila i > 1: eliminar` / `Si == 1: imputar con media`); acá lo traducimos a Pandas real.
 
+👉 **En Colab:**
 ```python
 # 1) Medias ANTES de eliminar nada (regla de oro)
 medias_columnas = df_sucio.mean(numeric_only=True)
@@ -770,10 +823,11 @@ print(f"NaN restantes: {df_limpio.isnull().sum().sum()}")   # 0
 
 **Contexto para abrir el módulo**: en la práctica profesional, la información casi nunca vive en una sola tabla prolija — está distribuida en varias fuentes relacionadas. Este módulo cubre cómo combinarlas sin romper la integridad de los datos, y cómo resumirlas en métricas de negocio.
 
-### Combinar tablas: claves y tipos de join
+### Combinar tablas: claves y tipos de join *(Filminas 33 y 34)*
 
-La información real casi nunca vive en una sola tabla. `stocks.csv` tiene precios, pero no sectores — eso está en `df_sectores` (Módulo 5). Para combinarlas, primero convertimos `df_stocks` de formato **ancho** (una columna por ticker) a formato **largo** (una fila por combinación fecha-ticker) con `melt`, y después unimos con `merge` usando `ticker` como clave.
+La información real casi nunca vive en una sola tabla. `stocks.csv` tiene precios, pero no sectores — eso está en `df_sectores` (Módulo 5). Para combinarlas, primero convertimos `df_stocks` de formato **ancho** (una columna por ticker) a formato **largo** (una fila por combinación fecha-ticker) con `melt`, y después unimos con `merge` usando `ticker` como clave. El código de abajo combina las dos filminas: los tipos de join (Filmina 33) y las buenas prácticas de control de calidad — `validate` e `indicator` (Filmina 34), que existen justamente para evitar "el peligro del producto cartesiano": si una clave estuviera duplicada en una de las tablas, un `merge` sin estas protecciones multiplicaría filas sin que nos demos cuenta.
 
+👉 **En Colab:**
 ```python
 df_largo = df_stocks.reset_index().melt(
     id_vars="formatted_date", var_name="ticker", value_name="precio"
@@ -808,13 +862,14 @@ print(df_con_sector["_merge"].value_counts())
 | **Right** | Simétrico al Left; se prefiere reordenar y usar Left |
 | **Outer** | Todas las filas de ambas tablas (unión), con `NaN` donde falte |
 
-### Split-Apply-Combine: `agg()` vs. `transform()`
+### Split-Apply-Combine: `agg()` vs. `transform()` *(Filmina 35)*
 
-`groupby` divide el DataFrame en subgrupos, aplica una función y combina los resultados.
+`groupby` divide el DataFrame en subgrupos, aplica una función y combina los resultados — el mismo patrón "Dividir, aplicar, combinar" que ya vimos conceptualmente. La diferencia clave que remarca la filmina:
 
-- **`.agg()`**: **reduce** — un grupo de 100 filas se convierte en 1 fila con el estadístico.
-- **`.transform()`**: **preserva la forma** — devuelve un valor por cada fila original, proyectando el resultado del grupo hacia atrás. Es la base de la normalización intragrupo.
+- **`.agg()`**: **reduce** — un grupo de 1.000 filas se convierte en 1 fila con el estadístico.
+- **`.transform()`**: **preserva la dimensionalidad** — devuelve un valor por cada fila original, proyectando el resultado del grupo hacia atrás. Es la base de la normalización intragrupo.
 
+👉 **En Colab:**
 ```python
 df_con_sector = df_con_sector.dropna(subset=["sector"])   # nos quedamos con las que sí tienen sector
 
@@ -836,10 +891,11 @@ df_con_sector["precio_z_sector"] = df_con_sector.groupby("sector")["precio"].tra
 - `.agg(precio_promedio="mean", precio_max="max", n_registros="count")` → cada `nombre="función"` calcula un estadístico distinto y lo guarda en una columna con ese nombre — tres preguntas de negocio resueltas en una sola línea.
 - `.transform(lambda x: (x - x.mean()) / x.std())` → a diferencia de `.agg()`, `transform` devuelve **un valor por cada fila original** (no una fila por grupo); acá, `x` es la Serie de precios de un solo sector, y la fórmula calcula el z-score de cada precio **dentro de su propio sector**.
 
-### Outliers y escalamiento: Winsorización, Z-Score y Robust Scaling
+### Outliers y escalamiento: Winsorización, Z-Score y Robust Scaling *(Filmina 36)*
 
-En vez de eliminar valores extremos (perdiendo información), la **Winsorización** les pone un tope en un percentil bajo y otro alto — típicamente P1 y P99.
+En vez de eliminar valores extremos (perdiendo información), la **Winsorización** les pone un tope en un percentil bajo y otro alto — típicamente P1 y P99, estabilizando la varianza sin perder registros. La filmina agrega un cuarto concepto que conviene mencionar aunque no tenga código propio: **Reproducibilidad** — fijar la semilla aleatoria (`random seed`), versionar cada estado del dataset y loguear metadatos, para que todo el pipeline de limpieza sea auditable después.
 
+👉 **En Colab:**
 ```python
 p1, p99 = np.percentile(df_con_sector["precio"], [1, 99])
 precio_winsorizado = np.clip(df_con_sector["precio"], p1, p99)   # los extremos se "achatan" al tope
@@ -871,12 +927,15 @@ precio_robusto = (df_con_sector["precio"] - mediana) / iqr
 
 ## Módulo 8 — La Sinergia de Datos: NumPy y Pandas en Profundidad
 
-### El motor y la carrocería, en un caso completo
+**Contexto para abrir el módulo**: repasá las filminas 37–39 antes del código. Este módulo retoma directamente al Módulo 4 ("El Motor y la Carrocería"), así que puede ser útil tenerlo fresco.
 
-Retomando el Módulo 4: **NumPy es el motor** (cálculo puro, homogéneo, veloz) y **Pandas es la carrocería** (etiquetas, tipos mixtos, manejo de nulos) — y por dentro, cada columna de un DataFrame **es** un array de NumPy. En un proyecto real, casi siempre se usan las dos en la misma celda: Pandas prepara y limpia, NumPy hace la cuenta pesada.
+### El motor y la carrocería, en un caso completo *(Filmina 38)*
+
+Retomando el Módulo 4: **NumPy es el motor** (cálculo puro, homogéneo, veloz) y **Pandas es la carrocería** (etiquetas, tipos mixtos, manejo de nulos) — y por dentro, cada columna de un DataFrame **es** un array de NumPy. En un proyecto real, casi siempre se usan las dos en la misma celda: Pandas prepara y limpia, NumPy hace la cuenta pesada. La filmina lo resume en cuatro puntos: Pandas prepara los retornos porcentuales; NumPy hace la cuenta pesada (covarianza + álgebra lineal); la fórmula $\sigma_p^2 = w^T\Sigma w$ es la misma álgebra lineal del Módulo 3; y "la prueba de la sinergia" es que `retornos.values` ya es, por dentro, un array de NumPy — Pandas nunca dejó de apoyarse en él.
 
 **Caso real: calcular la volatilidad de un portafolio.** La fórmula de la varianza de un portafolio es $\sigma_p^2 = w^T \Sigma w$, donde $w$ es el vector de pesos y $\Sigma$ la matriz de covarianzas entre activos — pura álgebra lineal, la misma herramienta del Módulo 3.
 
+👉 **En Colab:**
 ```python
 # Pandas: preparar los datos (retornos porcentuales, maneja el primer NaN solo)
 retornos = df_stocks.pct_change().dropna()
@@ -898,10 +957,11 @@ print(f"Volatilidad mensual del portafolio: {volatilidad_portafolio:.4%}")
 - `pesos @ matriz_covarianza @ pesos` → dos multiplicaciones matriciales encadenadas: primero `matriz_covarianza @ pesos`, y el resultado se vuelve a multiplicar por `pesos` — la fórmula $w^T\Sigma w$ de la varianza del portafolio.
 - `np.sqrt(varianza_portafolio)` → la volatilidad es, por definición, la raíz cuadrada de la varianza.
 
-### El mito del bucle `for` sobre un DataFrame
+### El mito del bucle `for` sobre un DataFrame *(Filmina 39)*
 
-**Error frecuente**: recorrer un DataFrame fila por fila con `for` y `.iloc[i]` para calcular algo que ya tiene una operación vectorizada. Es lento y destruye la ventaja competitiva de las dos librerías.
+**Error frecuente**: recorrer un DataFrame fila por fila con `for` y `.iloc[i]` para calcular algo que ya tiene una operación vectorizada. Es lento y destruye la ventaja competitiva de las dos librerías — la filmina lo resume con la fórmula exacta: `for i in range(len(df)): df.iloc[i].sum()` es lento; si existe una operación vectorizada equivalente (`df.sum(axis=1)`), esa gana siempre.
 
+👉 **En Colab:**
 ```python
 # Mal: recorrer fila por fila
 totales = []
@@ -918,7 +978,7 @@ totales_vectorizado = df_stocks.sum(axis=1)
 - `df_stocks.iloc[i].sum()` → `iloc[i]` trae la fila `i` completa; `.sum()` la suma. El problema no es esta suma (que sí es rápida), sino el bucle de Python que la llama fila por fila.
 - `df_stocks.sum(axis=1)` → `axis=1` suma a lo largo de las columnas, **una vez por fila**, pero todo resuelto internamente por Pandas/NumPy, sin que Python itere.
 
-### Aplicaciones reales por industria
+### Aplicaciones reales por industria *(Filmina 39, misma tabla)*
 
 - **Finanzas** (nuestro propio `stocks.csv`): Pandas nació en el sector financiero para manejar series temporales de precios; calcular medias móviles o volatilidad toma dos líneas.
 - **Retail**: unir tablas de "Ventas" e "Inventario" por ID de producto (el mismo patrón de `merge` del Módulo 7) para anticipar faltantes de stock.
@@ -928,14 +988,17 @@ totales_vectorizado = df_stocks.sum(axis=1)
 
 ## Módulo 9 — Inspección Inicial de Datos y Pre-Entrega
 
-### `head()`, `info()`, `describe()`: el perfilado inicial
+**Contexto para abrir el módulo**: repasá las filminas 40–42 antes del código; es el cierre de la clase y el puente directo hacia la Segunda Pre-Entrega.
 
-Antes de cualquier cálculo o gráfico, un Data Scientist le "toma el pulso" al dataset. Tres funciones cubren el 90% del diagnóstico inicial:
+### `head()`, `info()`, `describe()`: el perfilado inicial *(Filmina 41)*
+
+Antes de cualquier cálculo o gráfico, un Data Scientist le "toma el pulso" al dataset — la filmina lo llama "tus ojos para tomarle el pulso a cualquier dataset en segundos". Tres funciones cubren el 90% del diagnóstico inicial:
 
 - **`df.head(n)`**: primeras `n` filas — ¿se cargaron bien las columnas?
 - **`df.info()`**: nombre de cada columna, cantidad de valores no nulos y `dtype` — el comando más importante del diagnóstico.
 - **`df.describe()`**: resumen estadístico (`count`, `mean`, `std`, `min`, percentiles, `max`) de las columnas numéricas.
 
+👉 **En Colab:**
 ```python
 print(df_stocks.head())
 print(df_stocks.shape)          # (71, 14)
@@ -953,7 +1016,7 @@ print(df_stocks.isnull().sum()) # en este dataset, todo en cero: no hay nulos re
 
 **Cómo leer un `describe()` real**: en `df_stocks.describe()`, comparar `min` y `max` de cada acción contra lo que sabés del mundo real es la primera línea de defensa contra errores de carga — un precio de acción negativo, por ejemplo, sería una alerta inmediata (no es el caso acá, pero es el hábito a construir).
 
-### Pre-Entrega: Checkpoint — Estructura Inicial del Dataset
+### Pre-Entrega: Checkpoint — Estructura Inicial del Dataset *(Filmina 42)*
 
 | Bloque | Contenido |
 |---|---|
@@ -964,10 +1027,11 @@ print(df_stocks.isnull().sum()) # en este dataset, todo en cero: no hay nulos re
 
 **Entregable**: un PDF con el Jupyter Notebook exportado (código + resultados + comentarios), incluyendo el diagnóstico de nulos, `dtypes`, `describe()` y los filtros aplicados. Nombre sugerido: `Apellido_Nombre_Checkpoint1.pdf`.
 
-### `.apply()`: aplicar funciones propias a un DataFrame
+### `.apply()`: aplicar funciones propias a un DataFrame *(sin filmina dedicada — contenido extra de Colab)*
 
-Hasta acá vimos operaciones vectorizadas nativas (`df["col"] * 2`, `.mean()`, `.groupby().transform()`) y, en el Bloque 0, funciones `def` con `if/elif/else`. **`.apply()` es el puente entre las dos cosas**: te deja correr **tu propia función de Python** — con toda la lógica condicional que necesites — sobre cada valor de una columna o cada fila de un DataFrame.
+Esta sección no tiene filmina propia: se agregó para cerrar un hueco puntual entre la teoría de la clase y lo que pide la Segunda Pre-Entrega (ver más abajo). Hasta acá vimos operaciones vectorizadas nativas (`df["col"] * 2`, `.mean()`, `.groupby().transform()`) y, en el Bloque 0, funciones `def` con `if/elif/else`. **`.apply()` es el puente entre las dos cosas**: te deja correr **tu propia función de Python** — con toda la lógica condicional que necesites — sobre cada valor de una columna o cada fila de un DataFrame.
 
+👉 **En Colab:**
 ```python
 # Sobre una columna (Serie): la función recibe UN VALOR por vez
 df["MSFT"].apply(mi_funcion)
@@ -982,6 +1046,7 @@ df.apply(mi_funcion, axis=1)
 
 **Con una función `def` (para lógica de negocio con `if/elif/else`):**
 
+👉 **En Colab:**
 ```python
 def categorizar_precio(precio):
     if precio < 100:
@@ -1001,6 +1066,7 @@ df_stocks["MSFT_categoria"] = df_stocks["MSFT"].apply(categorizar_precio)
 
 **Con una `lambda` (para una transformación de una sola línea):**
 
+👉 **En Colab:**
 ```python
 df_stocks["GOOG_miles"] = df_stocks["GOOG"].apply(lambda x: round(x / 1000, 2))
 ```
@@ -1011,9 +1077,11 @@ df_stocks["GOOG_miles"] = df_stocks["GOOG"].apply(lambda x: round(x / 1000, 2))
 
 **¿Por qué no usarlo siempre, si es tan cómodo?** Por dentro, `.apply()` **sí itera** fila por fila o valor por valor — no es vectorización real, es "el mito del bucle `for`" del Módulo 8 con otro disfraz. Es más lento que `df["col"] * 2` sobre datasets grandes. La regla práctica: **si existe una operación vectorizada que resuelve lo mismo, se prefiere esa**; `.apply()` se reserva para cuando la lógica es condicional o demasiado específica como para expresarla con operadores matemáticos directos — exactamente el caso de una función `def` con `if/elif/else`.
 
-### Ejemplo resuelto: cómo encarar la Segunda Pre-Entrega
+### Ejemplo resuelto: cómo encarar la Segunda Pre-Entrega *(sin filmina — es la consigna de la pre-entrega, resuelta en código)*
 
 La consigna de la Segunda Pre-Entrega (Ingesta, Radiografía y Funciones de Transformación) pide 4 bloques. Así se resuelven los cuatro, de punta a punta, sobre `stocks.csv` — es el mismo patrón que vas a aplicar sobre el dataset que elegiste en tu Pre-entrega 1.
+
+👉 **En Colab (podés pegar todo este bloque en una sola celda o dividirlo en 4):**
 
 ```python
 # ==========================================
