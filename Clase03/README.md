@@ -215,6 +215,31 @@ print(reporte)
 
 **Orden sugerido para dictar la clase**: terminado el repaso del Bloque 0, no se pasa directo al notebook. Primero se repasan las filminas **02 a 09** de `Clase03.html` (la teoría del Módulo 1: por qué existe NumPy, el ndarray, dimensiones, creación de arrays, vectorización) y recién después se abre Colab para correr el código. Ver el "por qué" antes que el `np.genfromtxt(...)` en pantalla evita que el alumno copie código sin entender todavía para qué sirve NumPy. Esta misma lógica — filminas primero, notebook después — se repite en cada módulo de acá en adelante.
 
+### ¿Qué es una librería de Python, y por qué la usamos?
+
+Antes de escribir el primer `import numpy as np` de la clase, vale la pena frenar en esa palabra — **`import`** — porque todo lo que viene de acá en adelante depende de entenderla bien.
+
+**Una librería (o "biblioteca") es código ya escrito por otra persona, empaquetado para que lo reutilices.** Alguien ya resolvió el problema de "cómo hacer cálculos matemáticos súper rápido" (esa es NumPy) o "cómo organizar datos en tablas" (esa es Pandas), lo probó, lo optimizó, y lo dejó disponible para que cualquiera lo use con una sola línea — sin tener que reinventar esa rueda cada vez que empezás un proyecto nuevo.
+
+**La analogía de la calculadora**: pensá en el Python "puro" (sin ninguna librería) como una **calculadora común** — suma, resta, multiplica, divide, y con un poco de esfuerzo hasta hace bucles y condicionales. Le alcanza para tareas básicas, pero se queda corta apenas la cuenta se complica. Cuando hacés `import numpy as np`, es como si le **cambiaras la carcasa a esa calculadora común y la convirtieras en una científica**: de repente aparecen botones nuevos que antes no estaban — raíz cuadrada de una matriz entera, álgebra lineal, estadística — sin que vos hayas programado ni uno de esos botones. Cada `import` es eso: activar un set de herramientas especializadas que ya vienen armadas.
+
+**¿Por qué no viene todo "de fábrica" en Python?** Porque Python está diseñado para ser un lenguaje de propósito general — chico, rápido de instalar, sin cargar con herramientas que el 90% de los usuarios ni va a tocar. Las librerías son la forma de "agregar" capacidades específicas **solo cuando las necesitás**, en vez de que el lenguaje entero pese más de lo necesario.
+
+**Dos tipos de librerías, con una diferencia práctica clave:**
+- **Librerías estándar** (vienen instaladas con Python, no hace falta nada extra): `math` (funciones matemáticas básicas), `random` (números aleatorios), `datetime` (fechas). Solo hace falta `import math`.
+- **Librerías de terceros** (las escribió la comunidad, hay que instalarlas primero): `numpy`, `pandas`, `matplotlib`... Se instalan una vez por entorno con `pip install numpy` (en Colab, la mayoría ya vienen preinstaladas) y se importan en cada notebook con `import numpy as np`.
+
+**Algunos ejemplos del "kit de herramientas" que vamos a ir sumando en el curso:**
+
+| Librería | Qué "botones" agrega a la calculadora | Cuándo la usamos |
+|---|---|---|
+| `numpy` | Álgebra lineal, vectorización, cálculo numérico a velocidad de C | Esta clase, Módulos 1 a 3 |
+| `pandas` | Tablas con etiquetas, lectura de CSV/Excel, limpieza de datos | Esta clase, Módulos 4 en adelante |
+| `matplotlib` / `seaborn` | Gráficos y visualizaciones | Próximas clases |
+| `scikit-learn` | Modelos de Machine Learning ya implementados | Más adelante en el curso |
+
+**El porqué en una frase**: usamos librerías porque es mucho más rápido y confiable pararse sobre código que miles de personas ya probaron y corrigieron, que reescribir esa lógica desde cero cada vez — exactamente como preferís una calculadora científica ya armada antes que soldar tus propios circuitos para calcular un seno.
+
 ---
 
 ## Módulo 1 — Arrays Multidimensionales y Vectorización en NumPy
