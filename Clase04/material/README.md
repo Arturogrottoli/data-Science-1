@@ -8,14 +8,35 @@ Esta guía es el **libreto de apoyo para dictar la Clase 04**. Reúne, en un sol
 
 Antes de los 5 módulos nuevos hay un **Módulo 0 de repaso**, pensado como puente: retoma comandos de Pandas que ya se usaron en la Clase 03 (Módulos 5 a 8: Series/DataFrame, Preprocesamiento, Integración/Agregación, Sinergia NumPy-Pandas) pero que en esa clase no llegaron a explicarse con el detalle que merecen — `.loc`/`.iloc`, filtrado booleano combinado, `value_counts`, `sort_values`, `rename`, `drop`, un `groupby` simple. Sirve para nivelar antes de sumar contenido nuevo.
 
-> **Estado de esta guía**: el Módulo 0 (repaso) está completo. Los Módulos 1 a 5 (contenido nuevo de Clase 04) se documentan en una próxima iteración, siguiendo la misma estructura que `Clase04.html`.
-
 ---
 
 ## Índice
 
 - [Sobre el Dataset: `fifa_world_cup_2026_player_performance.csv`](#sobre-el-dataset-fifa_world_cup_2026_player_performancecsv)
 - [Módulo 0 — Repaso: NumPy Relámpago y Comandos Clásicos de Pandas](#módulo-0--repaso-numpy-relámpago-y-comandos-clásicos-de-pandas)
+- [Módulo 1 — Valores Faltantes y Duplicados](#módulo-1--valores-faltantes-y-duplicados)
+- [Módulo 2 — Transformaciones con `map` y `apply`](#módulo-2--transformaciones-con-map-y-apply)
+- [Módulo 3 — Agrupar, Resumir y Comparar: GroupBy y Pivot Tables](#módulo-3--agrupar-resumir-y-comparar-groupby-y-pivot-tables)
+- [Módulo 4 — Fechas, Series Temporales y Resampling](#módulo-4--fechas-series-temporales-y-resampling)
+- [Módulo 5 — Manipulación de Datos: Pandas (Síntesis)](#módulo-5--manipulación-de-datos-pandas-síntesis)
+- [Módulo 6 — Pre-Entrega: Limpieza y Análisis Exploratorio](#módulo-6--pre-entrega-limpieza-y-análisis-exploratorio)
+
+---
+
+## Mapa rápido de la clase
+
+Para seguir la clase en paralelo con `Clase04.html` (41 filminas) sin perderte:
+
+| # | Módulo | Slides | Notebook (`Clase 04.ipynb`) | Idea central |
+|---|---|---|---|---|
+| 0 | Repaso: NumPy relámpago y Pandas clásico | *(sin slides — repaso previo)* | Módulo 0 | Puente con la Clase 03: `.loc`/`.iloc`, filtros combinados, `value_counts`, `sort_values`, `rename`, `drop`, `groupby` simple |
+| 1 | Valores Faltantes y Duplicados | 02–09 | Módulo 1 | El lenguaje de la ausencia, detección, cuantificación, `duplicated()`/`drop_duplicates()`, eliminar vs. imputar |
+| 2 | Transformaciones con `map` y `apply` | 10–15 | Módulo 2 | Traducir etiquetas y calcular indicadores sin bucles |
+| 3 | Agrupar, Resumir y Comparar | 16–23 | Módulo 3 | Split-Apply-Combine, `agg()` múltiple, `groupby` con varias columnas, `pivot_table` |
+| — | Break del Coder | 24 | — | Corte de ~10 minutos |
+| 4 | Fechas, Series Temporales y Resampling | 25–29 | Módulo 4 | `to_datetime`, índice temporal, `resample()` |
+| 5 | Manipulación de Datos: Pandas (Síntesis) | 30–37 | Módulo 5 | Origen de Pandas, pipeline profesional completo, `merge` vs. `concat`, errores comunes |
+| 6 | Pre-Entrega: Limpieza y Análisis Exploratorio | 38–41 | Módulo 6 | Consigna evaluable: nulos, duplicados, análisis de impacto e informe |
 
 ---
 
@@ -214,3 +235,157 @@ print(df["tuvo_gol"].value_counts())
 - `.value_counts()` → confirma cuántas apariciones jugador-partido terminaron con al menos un gol.
 
 > **Con esto cerramos el repaso.** A partir del Módulo 1 (`Clase04.html`, Filmina 02 en adelante) el contenido es nuevo: duplicados, `map`/`apply` en profundidad, `groupby`/`pivot_table` avanzado, fechas y resampling, y la síntesis final con la Pre-Entrega de esta clase.
+
+---
+
+## Módulo 1 — Valores Faltantes y Duplicados
+
+**Contexto**: `fifa_world_cup_2026_player_performance.csv` viene sin nulos y sin filas duplicadas — perfecto para un primer análisis, pero inútil para practicar limpieza. Igual que hicimos con `stocks.csv` en la Clase 03, **simulamos** ambos problemas sobre una copia (`df_sucio`), como si un par de fallas reales de captura hubieran ocurrido: un partido cargado dos veces por el sistema, y algunas métricas que no se pudieron registrar en vivo.
+
+### El lenguaje de la ausencia: NaN, None, Null y vacío *(Filmina 03)*
+
+Cuatro términos que se usan casi como sinónimos, pero no son lo mismo:
+- **NaN** (*Not a Number*): el estándar técnico de Pandas/NumPy para faltantes numéricos. Para la computadora es, por dentro, un `float`.
+- **None**: el "vacío" nativo de Python. Al cargar un DataFrame, Pandas suele convertirlo en `NaN` automáticamente.
+- **Null**: término genérico de SQL; en Pandas se usa "nulo" y "faltante" casi indistintamente.
+- **Cadena vacía (`""`) ≠ Faltante**: es texto válido sin caracteres — Pandas **no** la trata como nulo.
+
+Un detalle que sorprende la primera vez: `np.nan == np.nan` da **`False`**. Por eso no se puede filtrar nulos con `==`; existen `isna()`/`isnull()`, hechas específicamente para esto.
+
+🎯 **Qué mostramos acá:** el comportamiento contraintuitivo de `NaN` contra sí mismo, y cómo `None` se convierte en `NaN` apenas entra a un DataFrame.
+
+👉 **En Colab:**
+```python
+import pandas as pd
+import numpy as np
+
+print(np.nan == np.nan)   # False -> NaN nunca es igual a sí mismo
+
+data = {"Edad": [25, np.nan, 30], "Ciudad": ["Madrid", "Bogotá", None]}
+df_ejemplo = pd.DataFrame(data)
+print(df_ejemplo.isna())   # None también se detecta como nulo
+```
+
+**Línea por línea:**
+- `np.nan == np.nan` → comparar `NaN` con `NaN` da `False`: es la razón técnica por la que existen `isna()`/`isnull()` en vez de comparar con `==`.
+- `data = {...}` → un diccionario con un `np.nan` explícito (numérico) y un `None` (genérico de Python) en la misma estructura.
+- `df_ejemplo.isna()` → máscara booleana; confirma que Pandas trata a **ambos**, `NaN` y `None`, como faltantes.
+
+### ¿Por qué aparecen los valores faltantes? *(Filmina 04)*
+
+Cuatro causas típicas, y por qué importa distinguirlas antes de limpiar:
+1. **Captura incompleta**: un sensor falló, o alguien prefirió no responder un campo.
+2. **Errores de integración**: al unir dos tablas (ej. Clientes y Compras), un cliente sin compras queda con "monto" vacío — y **eso es información válida**, no un error.
+3. **Datos no aplicables**: "nombre de la mascota" vacío en alguien sin mascota — vacío por lógica, no por falla.
+4. **Diseño intencional**: el proceso de recolección cambió con el tiempo y un campo no se pedía antes.
+
+**Principio de oro**: nunca limpiar sin entender el contexto. Borrar todas las filas con "descuento aplicado" nulo borraría a todos los clientes que pagaron el precio completo — el nulo, ahí, *es* el dato.
+
+**En nuestro dataset real** hay un caso análogo, ya visto en el Módulo 0: `player_rating == 0` no es una falla de captura, es información válida (el jugador no jugó ese partido). Si alguien "limpiara" esas filas sin entender el contexto, estaría borrando exactamente a los suplentes no utilizados — un dato de convocatoria, no basura.
+
+### Detección de valores faltantes: `info()`, `isna()`, `isnull()` *(Filmina 05)*
+
+`info()` da el panorama general (columna por columna, cuántos valores "Non-Null" hay); `isna()`/`isnull()` (son alias, hacen lo mismo) devuelven la máscara booleana completa — útil para filtrar, inútil para "mirar" en un dataset de miles de filas.
+
+🎯 **Qué mostramos acá:** simular la falla de captura sobre una copia del dataset real, y confirmarla con `info()`.
+
+👉 **En Colab:**
+```python
+df_sucio = df.copy()
+
+# Simulamos métricas que no se pudieron registrar en vivo (falla de captura real)
+df_sucio.loc[50, "player_rating"] = np.nan
+df_sucio.loc[120, "pass_accuracy"] = np.nan
+df_sucio.loc[120, "distance_covered_km"] = np.nan   # dos nulos en la MISMA fila
+df_sucio.loc[300, "nationality"] = np.nan
+
+df_sucio.info()
+```
+
+**Línea por línea:**
+- `df.copy()` → trabajamos sobre una copia; nunca se simulan fallas sobre el DataFrame original.
+- `df_sucio.loc[50, "player_rating"] = np.nan` → `.loc[fila, columna]` asigna un valor puntual; acá lo usamos para "romper" una celda a propósito.
+- La fila `120` recibe **dos** nulos en columnas distintas — así después la Filmina 06 (cuantificación) tiene un caso real de "más de un problema en la misma fila".
+- `df_sucio.info()` → confirma la baja: las columnas tocadas ahora muestran menos valores `Non-Null` que el resto.
+
+### Cuantificación: ¿qué tan grave es el problema? *(Filmina 06)*
+
+Una tabla, no una ciencia exacta, pero sirve como regla de arranque:
+
+| % de Nulos | Estrategia sugerida |
+|---|---|
+| Menos del 5% | Suele ser seguro eliminar las filas o imputar con métodos sencillos. |
+| Entre 5% y 30% | Requiere pensar una estrategia de imputación más sofisticada. |
+| Más del 50% | A veces es mejor descartar la columna entera: más "ruido" que información real. |
+
+Como `True` vale `1` y `False` vale `0`, `df.isna().sum()` cuenta nulos por columna sin necesidad de un `if`. Dividido por `len(df)` y multiplicado por 100, da el porcentaje — la métrica que realmente importa (50 nulos en 60 filas es un desastre; 50 nulos en 54.600, no).
+
+👉 **En Colab:**
+```python
+nulos_totales = df_sucio.isna().sum()
+porcentaje_nulos = (nulos_totales / len(df_sucio) * 100).round(4)
+
+print(porcentaje_nulos[porcentaje_nulos > 0])   # solo las columnas afectadas
+```
+
+**Línea por línea:**
+- `df_sucio.isna().sum()` → cuenta de nulos por columna (el `sum()` de una columna de booleanos cuenta los `True`).
+- `nulos_totales / len(df_sucio) * 100` → convierte el conteo absoluto en porcentaje sobre el total de filas (54.600).
+- `porcentaje_nulos[porcentaje_nulos > 0]` → filtro booleano (repaso del Módulo 0) para mostrar solo las columnas realmente afectadas, en vez de una lista de 74 columnas en cero.
+- Con solo 4 celdas tocadas sobre 54.600 filas, cada porcentaje da bien por debajo del 5% — según la tabla, seguro para eliminar o imputar con un método simple.
+
+### Identificación de duplicados: `duplicated()` y `drop_duplicates()` *(Filmina 07)*
+
+- **`duplicated()`**: marca `True` las filas que **ya aparecieron antes**; por defecto compara **todos** los valores de la fila.
+- **`subset=["columna"]`**: busca duplicados mirando solo una columna (por ejemplo, un ID que debería ser único).
+- **`drop_duplicates()`**: limpia el DataFrame; `keep="first"` o `keep="last"` decide cuál copia conservar.
+
+🎯 **Qué mostramos acá:** simulamos el error típico de un sistema que registra el mismo partido dos veces (duplicado exacto de fila), lo detectamos y lo eliminamos.
+
+👉 **En Colab:**
+```python
+# Simulamos que el sistema cargó por duplicado las apariciones de las filas 100 a 102
+df_sucio = pd.concat([df_sucio, df_sucio.iloc[100:103]], ignore_index=True)
+
+print(f"Duplicados exactos: {df_sucio.duplicated().sum()}")   # 3
+
+df_limpio = df_sucio.drop_duplicates(keep="first")
+print(f"Filas antes: {len(df_sucio)} | Filas después: {len(df_limpio)}")
+```
+
+**Línea por línea:**
+- `pd.concat([df_sucio, df_sucio.iloc[100:103]], ignore_index=True)` → le pega **al final** una copia de las filas 100 a 102, simulando que el sistema las cargó dos veces; `ignore_index=True` genera un índice nuevo y correlativo (si no, quedarían índices repetidos).
+- `df_sucio.duplicated().sum()` → cuenta cuántas filas son copia exacta de una anterior: da `3`, las que acabamos de duplicar.
+- `df_sucio.drop_duplicates(keep="first")` → elimina las copias, conservando la primera aparición de cada una.
+
+### Criterios de limpieza: ¿eliminar o imputar? *(Filmina 08)*
+
+- **Eliminar (`dropna()`)**: la opción más drástica. Válida cuando sobran datos y perder un 2% no afecta estadísticamente, o cuando falta justo la columna "etiqueta" que se quiere predecir.
+- **Imputar (rellenar)**: **media** si la distribución es normal y sin outliers; **mediana** si hay valores extremos (más robusta); **moda** para columnas categóricas; **valor constante** (`"Desconocido"`, `0`) cuando conviene conservar la fila sin inventar un número.
+
+👉 **En Colab:**
+```python
+media_rating = df_sucio["player_rating"].mean()
+df_sucio["player_rating"] = df_sucio["player_rating"].fillna(media_rating)   # numérica -> media
+
+moda_nacionalidad = df_sucio["nationality"].mode()[0]
+df_sucio["nationality"] = df_sucio["nationality"].fillna(moda_nacionalidad)   # categórica -> moda
+
+df_sucio = df_sucio.dropna(subset=["pass_accuracy", "distance_covered_km"])   # sin sustituto razonable -> eliminar
+```
+
+**Línea por línea:**
+- `df_sucio["player_rating"].mean()` → calcula el promedio **ignorando** el `NaN` (comportamiento por defecto de Pandas), y se usa para imputar.
+- `.fillna(media_rating)` → reemplaza únicamente los `NaN` de esa columna por el valor dado; el resto de los datos queda intacto.
+- `.mode()[0]` → la moda puede devolver más de un valor si hay empate; `[0]` toma el primero como criterio simple.
+- `dropna(subset=["pass_accuracy", "distance_covered_km"])` → elimina solo las filas con nulo en **esas** columnas puntuales (no en todo el DataFrame), porque ahí no hay un sustituto razonable (inventar la distancia recorrida por un jugador sería fabricar el dato).
+
+### El dilema de los duplicados: no todos se borran *(Filmina 09)*
+
+No todo duplicado es un error:
+- **Identidad** (misma persona, mismo producto, mismo segundo exacto): error del sistema → **borrar**.
+- **Eventos** (mismo cliente comprando el mismo artículo dos días seguidos): son dos eventos reales → **conservar**.
+
+La pregunta clave antes de borrar: ¿hay un timestamp o un ID único de transacción que distinga un evento real de un error de carga? En nuestro caso, cada fila ya tiene `match_id` + `player_id`: dos filas con la misma combinación **sí** son un error (un jugador no puede tener dos aparaciones distintas en el mismo partido), a diferencia de un cliente comprando dos veces el mismo producto en días distintos.
+
+> **Mapa mental del módulo**: explorá (`info()`, `isna().sum()`) → contextualizá (¿error o realidad del negocio?) → medí en porcentajes, no en absolutos → decidí (`dropna()`, imputar, o descartar la columna) → deduplicá según las claves de negocio que correspondan (acá, `match_id` + `player_id`).
