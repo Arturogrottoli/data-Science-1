@@ -1041,7 +1041,7 @@ totales_vectorizado = df_stocks.sum(axis=1)
 
 ## Módulo 9 — Inspección Inicial de Datos y Pre-Entrega
 
-**Contexto para abrir el módulo**: repasá las filminas 40–42 antes del código; es el cierre de la clase y el puente directo hacia la Segunda Pre-Entrega.
+**Contexto para abrir el módulo**: repasá las filminas 40–42 antes del código; es el cierre de la clase y el puente directo hacia la Pre-Entrega.
 
 ### `head()`, `info()`, `describe()`: el perfilado inicial *(Filmina 41)*
 
@@ -1067,110 +1067,103 @@ print(df_stocks.isnull().sum()) # en este dataset, todo en cero: no hay nulos re
 - `df_stocks.describe()` → calcula `count`, `mean`, `std`, `min`, los percentiles 25/50/75% y `max` de cada columna numérica.
 - `df_stocks.isnull().sum()` → la misma combinación que en el Módulo 6: máscara booleana + suma por columna.
 
-**Cómo leer un `describe()` real**: en `df_stocks.describe()`, comparar `min` y `max` de cada acción contra lo que sabés del mundo real es la primera línea de defensa contra errores de carga — un precio de acción negativo, por ejemplo, sería una alerta inmediata (no es el caso acá, pero es el hábito a construir).
-
-### Pre-Entrega: Checkpoint — Estructura Inicial del Dataset *(Filmina 42)*
-
-| Bloque | Contenido |
-|---|---|
-| **1. Carga e Inspección** | `pd.read_csv`, `.head()` para inspección visual, `.shape` e `.info()` para volumen y tipos. |
-| **2. Perfilado Inicial** | Total de valores nulos por columna (`isnull().sum()`) y estadísticas descriptivas con `.describe()`. |
-| **3. Saneamiento y Selección** | Al menos 3 filtros booleanos para recortar el dataset (ej. `df[df["MSFT"] > 100]`); eliminar alguna columna innecesaria. |
-| **4. Reflexión** | Celda Markdown: ¿qué problemas encontraste en los datos? ¿cuáles van a ser tus variables clave? |
-
-**Entregable**: un PDF con el Jupyter Notebook exportado (código + resultados + comentarios), incluyendo el diagnóstico de nulos, `dtypes`, `describe()` y los filtros aplicados. Nombre sugerido: `Apellido_Nombre_Checkpoint1.pdf`.
+**Cómo leer un `describe()` real**: comparar `min` y `max` de cada columna contra lo que sabés del mundo real es la primera línea de defensa contra errores de carga — un precio de acción negativo, por ejemplo, sería una alerta inmediata.
 
 ### `.apply()`: aplicar funciones propias a un DataFrame *(sin filmina dedicada — contenido extra de Colab)*
 
-Esta sección no tiene filmina propia: se agregó para cerrar un hueco puntual entre la teoría de la clase y lo que pide la Segunda Pre-Entrega (ver más abajo). Hasta acá vimos operaciones vectorizadas nativas (`df["col"] * 2`, `.mean()`, `.groupby().transform()`) y, en el Bloque 0, funciones `def` con `if/elif/else`. **`.apply()` es el puente entre las dos cosas**: te deja correr **tu propia función de Python** — con toda la lógica condicional que necesites — sobre cada valor de una columna o cada fila de un DataFrame.
+Hasta acá vimos operaciones vectorizadas nativas (`df["col"] * 2`, `.mean()`, `.groupby().transform()`) y, en el Bloque 0, funciones `def` con `if/elif/else`. **`.apply()` es el puente entre las dos cosas**: te deja correr **tu propia función de Python** — con toda la lógica condicional que necesites — sobre cada valor de una columna o cada fila de un DataFrame.
 
 👉 **En Colab:**
 ```python
-# Sobre una columna (Serie): la función recibe UN VALOR por vez
-df["MSFT"].apply(mi_funcion)
-
-# Sobre el DataFrame completo, fila por fila: la función recibe LA FILA completa (axis=1)
-df.apply(mi_funcion, axis=1)
+df["MSFT"].apply(mi_funcion)        # sobre una columna: la función recibe UN VALOR por vez
+df.apply(mi_funcion, axis=1)        # sobre el DataFrame: axis=1 -> recibe LA FILA completa
 ```
 
-**Línea por línea:**
-- `df["MSFT"].apply(mi_funcion)` → recorre la Serie `df["MSFT"]` y le pasa **cada valor individual** a `mi_funcion`, uno por uno.
-- `df.apply(mi_funcion, axis=1)` → `axis=1` cambia el comportamiento: ahora `mi_funcion` recibe **la fila entera** (como una Serie), lo que permite reglas que combinan varias columnas a la vez.
+**¿Por qué no usarlo siempre, si es tan cómodo?** Por dentro, `.apply()` **sí itera** — no es vectorización real, es "el mito del bucle `for`" del Módulo 8 con otro disfraz, y es más lento que `df["col"] * 2` sobre datasets grandes. Regla práctica: **si existe una operación vectorizada que resuelve lo mismo, se prefiere esa**; `.apply()` se reserva para lógica condicional, como una función `def` con `if/elif/else`.
 
-**Con una función `def` (para lógica de negocio con `if/elif/else`):**
+---
 
-👉 **En Colab:**
-```python
-def categorizar_precio(precio):
-    if precio < 100:
-        return "Bajo"
-    elif precio < 250:
-        return "Medio"
-    else:
-        return "Alto"
+## 📎 Material para compartir con los alumnos: Guía de la Pre-Entrega
 
-df_stocks["MSFT_categoria"] = df_stocks["MSFT"].apply(categorizar_precio)
-```
+*(Todo lo que sigue está redactado en segunda persona para pegarlo tal cual en un documento aparte o en el enunciado de la plataforma — no hace falta traducirlo del "modo docente".)*
 
-**Línea por línea:**
-- `def categorizar_precio(precio):` → recibe un **único** valor numérico (un precio puntual) cada vez que se la llama.
-- `if / elif / else` → la misma estructura condicional del Bloque 0, ahora aplicada a un precio de acción en vez de un precio de producto.
-- `df_stocks["MSFT"].apply(categorizar_precio)` → llama a la función una vez por cada valor de la columna `MSFT`, y el resultado se guarda en una columna nueva.
+### ¿Qué tenés que entregar?
 
-**Con una `lambda` (para una transformación de una sola línea):**
+Un Jupyter Notebook (`.ipynb`) o un link a tu Google Colab (con acceso público de lectura), con tu dataset de la Pre-entrega 1 cargado en una variable llamada `df`. El código tiene que estar limpio, comentado, y organizado en estos 5 bloques:
 
-👉 **En Colab:**
-```python
-df_stocks["GOOG_miles"] = df_stocks["GOOG"].apply(lambda x: round(x / 1000, 2))
-```
+| Bloque | Qué incluye |
+|---|---|
+| **1. Ingesta y Primer Vistazo** | `import pandas`, cargar tu dataset en `df`, mostrar las primeras 5 filas de forma estilizada (`display()`, no `print()`). |
+| **2. Radiografía Técnica** | `.shape` (dimensiones exactas), `.info()` (¿los tipos de cada columna son correctos, o hay números leídos como texto?), `.describe()` (foto estadística) + una celda de **Markdown** con al menos 2 hallazgos o anomalías. |
+| **3. Datos Faltantes** | Código que calcule y muestre, **ordenado de mayor a menor**, el % exacto de nulos por columna. |
+| **4. Saneamiento y Selección** | Al menos 3 filtros booleanos que recorten tu dataset (ej. `df[df["columna"] > valor]`) + eliminar al menos una columna que no aporte a tu análisis. |
+| **5. Funciones Personalizadas** | Una función `def` que reciba un parámetro, use `if/elif/else` según una regla de tu negocio, y haga `return`; y una función `lambda` para una transformación rápida (matemática o de texto). Ambas aplicadas a tu dataset con `.apply()`, generando columnas nuevas. |
 
-**Línea por línea:**
-- `lambda x: round(x / 1000, 2)` → función anónima de una sola línea: recibe `x` (un precio), lo divide por 1000 y lo redondea a 2 decimales.
-- `.apply(lambda ...)` → aplica esa mini función a cada valor de la columna `GOOG`, igual que hicimos antes con `categorizar_precio`, pero sin necesidad de darle nombre a la función.
+Cerrá el notebook con una **celda de Markdown de reflexión**: ¿qué problemas encontraste en los datos? ¿cuáles van a ser tus variables clave de acá en adelante?
 
-**¿Por qué no usarlo siempre, si es tan cómodo?** Por dentro, `.apply()` **sí itera** fila por fila o valor por valor — no es vectorización real, es "el mito del bucle `for`" del Módulo 8 con otro disfraz. Es más lento que `df["col"] * 2` sobre datasets grandes. La regla práctica: **si existe una operación vectorizada que resuelve lo mismo, se prefiere esa**; `.apply()` se reserva para cuando la lógica es condicional o demasiado específica como para expresarla con operadores matemáticos directos — exactamente el caso de una función `def` con `if/elif/else`.
+**Entregable**: notebook exportado a PDF (código + resultados + comentarios visibles) o el link a tu Colab. Nombre sugerido: `Apellido_Nombre_Checkpoint1.pdf`.
 
-### Ejemplo Pre-Entrega: cómo encarar la Segunda Pre-Entrega *(sin filmina — es la consigna de la pre-entrega, llevada a código)*
+**Antes de entregar, releé cada comentario que escribiste** y preguntate: ¿este comentario explica *qué* hace la línea (algo que ya se lee solo en el código), o explica *por qué* elegiste esa lógica para tu caso de negocio? Solo lo segundo suma.
 
-La consigna de la Segunda Pre-Entrega (Ingesta, Radiografía y Funciones de Transformación) pide 4 bloques. Así se resuelven los cuatro, de punta a punta, sobre `stocks.csv` — es el mismo patrón que vas a aplicar sobre el dataset que elegiste en tu Pre-entrega 1.
+### Ejemplo completo, paso a paso, sobre `stocks.csv`
 
-👉 **En Colab (podés pegar todo este bloque en una sola celda o dividirlo en 4):**
+Así se resuelven los 5 bloques sobre nuestro dataset de la clase. Es la misma estructura que vas a usar con el tuyo — cambiando el archivo, las columnas y la regla de negocio por las de tu proyecto.
+
+**Bloque 1 — Ingesta y Primer Vistazo**
 
 ```python
-# ==========================================
-# BLOQUE 1: INGESTA DE DATOS Y PRIMER VISTAZO
-# ==========================================
 import pandas as pd
 
 df = pd.read_csv("stocks.csv", parse_dates=["formatted_date"])
 display(df.head())
+```
 
-# ==========================================
-# BLOQUE 2: RADIOGRAFÍA TÉCNICA
-# ==========================================
+`parse_dates` convierte la columna de fecha a `datetime` durante la carga (si tu dataset no tiene fechas, no hace falta este argumento). `display()` muestra la tabla con estilo, en vez del texto plano de `print()`.
+
+**Bloque 2 — Radiografía Técnica**
+
+```python
 print(f"Dimensiones del dataset: {df.shape}")
 df.info()
 display(df.describe())
+```
 
-# Hallazgos (irían en una celda Markdown en el notebook real):
-# 1) MSFT va de ~45 a ~330 USD: rango amplio, coherente con el crecimiento
-#    tecnológico entre 2016 y 2021.
-# 2) RCL (Royal Caribbean) tiene una desviación estándar alta relativa a su media:
-#    coherente con el shock del turismo/cruceros durante 2020.
+Revisá la columna `Dtype` de `df.info()` columna por columna: ¿tiene sentido ese tipo para lo que representa el dato? Una columna de precios que aparece como `object` en vez de `float64` es la señal de que hay texto colado (un símbolo de moneda, una coma de miles). Acá las 14 columnas de precios ya son `float64`, no hace falta convertir nada.
 
-# ==========================================
-# BLOQUE 3: DIAGNÓSTICO DE DATOS FALTANTES
-# ==========================================
+Con la tabla de `describe()` a la vista, se arma la celda de Markdown de hallazgos — **comparando cada número contra lo que tiene sentido en el mundo real**, no repitiendo la tabla:
+
+> **Hallazgos:**
+> 1. **MSFT** va de USD 45 a USD 331 — un rango de casi 7 veces, coherente con el crecimiento del sector tecnológico entre 2016 y 2021.
+> 2. **PYPL** tiene la mayor dispersión relativa (desvío estándar ≈ 65% de su media, contra ≈19% de Citigroup) — coherente con haber salido a bolsa en 2015 y haber tenido una suba y una caída marcadas en el período.
+> 3. Los precios **no son comparables en su escala nominal**: BAC va de USD 11 a 47, AMZN de USD 552 a 3.507. Antes de cruzar columnas (correlación, portafolios) hay que normalizar.
+
+**Bloque 3 — Datos Faltantes**
+
+```python
 porcentaje_nulos = (df.isnull().mean() * 100).sort_values(ascending=False)
 display(porcentaje_nulos)
-# En stocks.csv da 0% en todas las columnas porque el dataset viene limpio;
-# con un dataset real casi siempre vas a ver porcentajes distintos de cero acá.
+```
 
-# ==========================================
-# BLOQUE 4: LÓGICA ALGORÍTMICA Y FUNCIONES PERSONALIZADAS
-# ==========================================
-# Función formal (def + if/elif/else): regla de negocio sobre MSFT
+`isnull().mean() * 100` da el % exacto por columna; `sort_values(ascending=False)` lo ordena de mayor a menor. Acá da 0% en las 14 columnas porque el dataset viene limpio — con el tuyo, este ranking te va a decir qué columnas atacar primero.
+
+**Bloque 4 — Saneamiento y Selección**
+
+```python
+df_msft_caro = df[df["MSFT"] > 200]                                  # filtro 1: meses con MSFT por encima de 200
+df_2020 = df[df["formatted_date"].dt.year == 2020]                    # filtro 2: solo el año de la pandemia
+df_ambas_altas = df[(df["MSFT"] > 100) & (df["GOOG"] > 1000)]         # filtro 3: condición combinada con &
+
+df_reducido = df.drop(columns=["PYPL"])   # eliminamos una columna que no vamos a analizar
+```
+
+Cada filtro es una **pregunta de negocio** convertida en código: "¿qué meses tuvo MSFT un precio alto?", "¿cómo se vieron los precios en 2020?", "¿cuándo estuvieron caras las dos tech grandes a la vez?". `&` combina condiciones (no uses `and` acá, es para booleanos sueltos, no para Series). `.drop(columns=[...])` saca una columna completa, no filas.
+
+**Bloque 5 — Funciones Personalizadas**
+
+```python
 def categorizar_precio_msft(precio):
+    # Umbrales elegidos mirando el describe() de MSFT (min ~45, mediana ~135, max ~331):
+    # "Bajo" = niveles pre-2019, "Medio" = crecimiento sostenido, "Alto" = rally de 2021.
     if precio < 100:
         return "Bajo"
     elif precio < 250:
@@ -1180,21 +1173,17 @@ def categorizar_precio_msft(precio):
 
 df["MSFT_categoria"] = df["MSFT"].apply(categorizar_precio_msft)
 
-# Función express (lambda): transformación rápida sobre GOOG
+# Función express: redondeamos GOOG a miles para que sea más fácil de leer en un reporte ejecutivo
 df["GOOG_miles"] = df["GOOG"].apply(lambda x: round(x / 1000, 2))
 
 display(df[["MSFT", "MSFT_categoria", "GOOG", "GOOG_miles"]].head())
 ```
 
-**Línea por línea:**
-- **Bloque 1**: `pd.read_csv(..., parse_dates=[...])` carga el archivo y convierte la fecha; `display(df.head())` renderiza las primeras 5 filas con estilo (mejor que `print()` en un notebook).
-- **Bloque 2**: `df.shape` da las dimensiones; `df.info()` lista tipos y no-nulos; `df.describe()` da el resumen estadístico — los tres comandos de radiografía técnica que pide la consigna.
-- Los comentarios de "Hallazgos" son el equivalente en código de lo que en el notebook real iría en una **celda Markdown aparte**, como pide el bloque 2 de la consigna.
-- **Bloque 3**: `df.isnull().mean() * 100` da el porcentaje de nulos por columna; `.sort_values(ascending=False)` lo ordena de mayor a menor, tal como pide la consigna.
-- **Bloque 4**: la función `categorizar_precio_msft` (con `if/elif/else`) y la `lambda` sobre `GOOG` son las dos funciones que pide la consigna, y ambas se aplican con `.apply()` para crear columnas nuevas.
-- El `display()` final selecciona 4 columnas a la vez (doble corchete `[[...]]`) para comparar el valor original contra el transformado, en la misma tabla.
+Los umbrales (`100` y `250`) no son números elegidos al azar: salen de mirar el `describe()` de MSFT del Bloque 2 (mínimo ~45, mediana ~135, máximo ~331) y de ponerle nombre de negocio a cada tramo. Esa es la lógica que tenés que replicar con tu propia columna: mirá su distribución real antes de definir los cortes.
 
-Con esto, los 4 bloques de la consigna quedan cubiertos: ingesta con vistazo estilizado, radiografía técnica con hallazgos comentados, ranking de nulos, y las dos funciones (formal + lambda) aplicadas al dataset con `.apply()`.
+**Celda de Markdown — Reflexión final**
+
+> Con este diagnóstico, el dataset queda mapeado: 71 filas × 14 columnas, todas con el tipo de dato correcto y sin nulos que resolver. Los precios no son comparables entre sí en su escala nominal, así que cualquier análisis que cruce acciones (correlación, portafolios) va a necesitar normalización previa. Las variables clave para lo que sigue son `MSFT` (mayor crecimiento) y `PYPL` (mayor volatilidad relativa).
 
 ---
 
