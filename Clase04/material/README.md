@@ -389,3 +389,327 @@ No todo duplicado es un error:
 La pregunta clave antes de borrar: ¿hay un timestamp o un ID único de transacción que distinga un evento real de un error de carga? En nuestro caso, cada fila ya tiene `match_id` + `player_id`: dos filas con la misma combinación **sí** son un error (un jugador no puede tener dos aparaciones distintas en el mismo partido), a diferencia de un cliente comprando dos veces el mismo producto en días distintos.
 
 > **Mapa mental del módulo**: explorá (`info()`, `isna().sum()`) → contextualizá (¿error o realidad del negocio?) → medí en porcentajes, no en absolutos → decidí (`dropna()`, imputar, o descartar la columna) → deduplicá según las claves de negocio que correspondan (acá, `match_id` + `player_id`).
+
+---
+
+## Módulo 2 — Transformaciones con `map` y `apply`
+
+**Contexto**: con los datos ya limpios (Módulo 1), el siguiente paso es transformarlos — traducir códigos a etiquetas legibles, y calcular columnas nuevas a partir de reglas de negocio, sin escribir un solo `for`.
+
+### ¿Por qué transformar datos? *(Filmina 11)*
+
+Para la máquina, `"ESP"`, `"esp"` y `"España"` son tres categorías distintas. Transformar sirve para tres cosas:
+- **Estandarizar**: unificar criterios (todas las variantes de país pasan a un único valor).
+- **Enriquecer**: crear columnas derivadas (calcular el IVA a partir del precio).
+- **Categorizar**: traducir números a etiquetas de negocio ("Gasto Alto", "Gasto Bajo").
+
+### El método `map()`: la tabla de traducción *(Filmina 12)*
+
+`.map()` se usa sobre una **Series** (una sola columna) y es ideal cuando hay una correspondencia clara, uno a uno — como un diccionario de traducción. **Error común**: si un valor de la columna no está como clave en el diccionario, `map()` lo convierte en `NaN` — hay que cubrir todos los casos posibles.
+
+🎯 **Qué mostramos acá:** traducir la columna `preferred_foot` (`"Left"`/`"Right"`) a etiquetas en español, con un diccionario de dos entradas.
+
+👉 **En Colab:**
+```python
+diccionario_pie = {"Left": "Izquierdo", "Right": "Derecho"}
+
+df["pie_habil"] = df["preferred_foot"].map(diccionario_pie)
+print(df["pie_habil"].value_counts())   # Derecho: 40.656 | Izquierdo: 13.944
+```
+
+**Línea por línea:**
+- `diccionario_pie = {...}` → mapa de traducción uno a uno: cada valor posible de `preferred_foot` tiene su equivalente en español.
+- `df["preferred_foot"].map(diccionario_pie)` → recorre la Series y reemplaza cada valor por su traducción según el diccionario; como cubrimos **las dos únicas** categorías que existen en la columna (`Left`/`Right`), no queda ningún `NaN`.
+- `.value_counts()` → confirma el resultado y de paso valida que no se coló ningún valor inesperado.
+
+### El método `apply()`: flexibilidad total *(Filmina 13)*
+
+- **Sobre una Series**: transforma una columna con lógica más compleja que un simple mapeo (una función, no solo un diccionario).
+- **Sobre un DataFrame con `axis=1`**: le pasa a la función la **fila completa** — ahí es donde brilla para reglas de negocio que combinan varias columnas a la vez.
+
+🎯 **Qué mostramos acá:** `.apply()` con una `lambda` sobre una sola columna, y `.apply(axis=1)` con una función `def` que combina dos columnas para una regla de negocio real: identificar apariciones de "riesgo disciplinario" (jugador que además de cometer varias faltas, ya fue amonestado en ese partido).
+
+👉 **En Colab:**
+```python
+df["equipo_mayuscula"] = df["team"].apply(lambda x: x.upper())   # transformación simple con lambda
+
+def calcular_riesgo(fila):
+    if fila["fouls_committed"] >= 2 and fila["yellow_cards"] == 1:
+        return "Riesgo disciplinario"
+    return "Bajo"
+
+df["riesgo"] = df.apply(calcular_riesgo, axis=1)   # axis=1 -> la función recibe la FILA completa
+print(df["riesgo"].value_counts())   # Riesgo disciplinario: 540
+```
+
+**Línea por línea:**
+- `df["team"].apply(lambda x: x.upper())` → aplica la función a **cada valor** de la columna; acá una `lambda` de una línea alcanza porque la lógica es simple (pasar a mayúsculas).
+- `def calcular_riesgo(fila):` → una función que recibe una **fila entera** (una especie de diccionario de columna→valor), no un solo valor.
+- `fila["fouls_committed"] >= 2 and fila["yellow_cards"] == 1` → acá sí se usa `and` de Python normal (no `&`), porque `fila["..."]` es un único valor escalar, no una Series completa.
+- `df.apply(calcular_riesgo, axis=1)` → `axis=1` es la clave: le dice a `apply` que le pase **la fila** a la función, no columna por columna (que sería `axis=0`, el default).
+- El resultado real: 540 apariciones jugador-partido caen en "Riesgo disciplinario" sobre 54.600 — una regla que un `.map()` no podría resolver, porque depende de **dos** columnas a la vez.
+
+### Diferencias clave: `map`, `apply` y `applymap` *(Filmina 14)*
+
+| Método | Se aplica sobre | Uso principal |
+|---|---|---|
+| `map` | Series | Sustitución simple, con un diccionario. |
+| `apply` | Series o DataFrame | Funciones más complejas, o lógica entre varias columnas (`axis=1`). |
+| `applymap` | DataFrame completo | Aplicar una función a **todas** las celdas a la vez (ej. redondear todos los decimales). |
+
+### Recomendaciones de oro para transformar *(Filmina 15)*
+
+1. **Priorizá la vectorización**: si se puede resolver con `df["A"] + df["B"]` (como en el Módulo 0 con `np.where`), no uses `apply` — las operaciones directas son mucho más rápidas.
+2. **Validá después de transformar**: `df.head()` y `df["columna"].value_counts()` confirman que la transformación hizo lo esperado (como hicimos arriba con `pie_habil` y `riesgo`).
+3. **Cuidado con los nulos**: una función personalizada puede fallar con un `NaN` inesperado (por ejemplo, `.upper()` sobre un valor nulo). Conviene limpiar (Módulo 1) antes de transformar.
+
+---
+
+## Módulo 3 — Agrupar, Resumir y Comparar: GroupBy y Pivot Tables
+
+**Contexto**: en el Módulo 0 ya usamos un `groupby` con una sola columna y una sola métrica. Acá profundizamos: varias agregaciones a la vez, agrupar por más de una columna, y la versión "en cruz" del mismo concepto — la `pivot_table`.
+
+### De lo micro a lo macro *(Filmina 17)*
+
+Una fila de nuestro dataset (un jugador, en un partido, con sus estadísticas) es un dato **micro**, aislado. Agrupar responde preguntas de negocio — "¿qué posición metió más goles?", "¿cómo varía el rendimiento según la instancia del torneo?" — con suma, promedio, conteo o máximo/mínimo. Sin agrupación, los datos son ruido; con ella, son información.
+
+### El flujo Split-Apply-Combine *(Filmina 18)*
+
+Concepto de **Hadley Wickham**, el modelo mental detrás de cada `groupby`:
+1. **Split (dividir)**: Pandas separa el DataFrame en "cajas", una por cada valor de la columna agrupadora (ej. cada posición).
+2. **Apply (aplicar)**: dentro de cada caja, se aplica una operación (sumar los goles de los `Forward`, y así con cada posición).
+3. **Combine (combinar)**: Pandas une los resultados de cada caja en una tabla resumen, mucho más chica que la original.
+
+### Selección de columnas y agregaciones comunes *(Filmina 19)*
+
+**Regla de oro**: seleccioná la columna numérica **antes** de aplicar el resumen (no tiene sentido promediar una columna de texto). `.mean()`, `.sum()`, `.count()`, `.median()`, `.min()`, `.max()` son las agregaciones más usadas.
+
+### Agregaciones múltiples con `agg()` *(Filmina 20)*
+
+A veces hace falta el total **y** el promedio a la vez, para comparar volumen contra rendimiento. `.agg([...])` recibe una lista de funciones y las aplica todas de una sola vez.
+
+🎯 **Qué mostramos acá:** tres preguntas de negocio sobre los goles por posición, respondidas en una sola línea: total de goles, promedio por aparición, y cantidad de apariciones (para poner el promedio en contexto).
+
+👉 **En Colab:**
+```python
+resumen_goles = df.groupby("position")["goals"].agg(["sum", "mean", "count"])
+print(resumen_goles.round(2))
+```
+
+**Línea por línea:**
+- `df.groupby("position")["goals"]` → agrupa las 54.600 filas en 4 posiciones, y selecciona la columna `goals` dentro de cada grupo.
+- `.agg(["sum", "mean", "count"])` → aplica las tres funciones a la vez; el resultado es una tabla con una columna por cada una.
+- El resultado real: **Forward** suma 1.805 goles (promedio 0.14 por aparición) sobre 12.600 apariciones; **Defender** suma 353 (0.02) sobre 18.900; **Midfielder** 866 (0.05) sobre 16.800; **Goalkeeper** 0 goles, como es esperable. El `count` es lo que evita una lectura ingenua del promedio: los `Forward` tienen menos apariciones que los `Defender`, pero convierten muchas más veces por aparición.
+
+### Agrupación por múltiples columnas *(Filmina 21)*
+
+Pasar una **lista** de columnas al `groupby` crea una jerarquía — más nivel de detalle. Útil para detectar patrones que una sola columna esconde (ej. el rendimiento no es igual en un partido de Grupos que en una Final, y esa diferencia puede variar según la posición).
+
+👉 **En Colab:**
+```python
+rating_detallado = df.groupby(["tournament_stage", "position"])["player_rating"].mean().round(2)
+print(rating_detallado.head(8))
+```
+
+**Línea por línea:**
+- `df.groupby(["tournament_stage", "position"])` → la lista `[...]` agrupa primero por instancia del torneo, y dentro de cada instancia, por posición — una jerarquía de dos niveles.
+- `["player_rating"].mean()` → el promedio de rating dentro de cada combinación instancia+posición.
+- El resultado queda con un **índice múltiple** (`MultiIndex`): cada fila combina una instancia y una posición.
+
+### Pivot Tables: el poder de las tablas dinámicas *(Filmina 22)*
+
+Una `pivot_table` es la misma idea que un `groupby` de dos columnas, pero mostrada como una **matriz 2D** en vez de una lista vertical — igual que una tabla dinámica de Excel:
+- **`index`**: la columna que va en las filas.
+- **`columns`**: la columna que va en la parte superior.
+- **`values`**: la columna numérica a resumir.
+- **`aggfunc`**: la operación (por defecto, el promedio).
+
+🎯 **Qué mostramos acá:** la misma información del punto anterior (rating promedio por instancia y posición), pero en formato cruzado — mucho más fácil de leer de un vistazo.
+
+👉 **En Colab:**
+```python
+tabla_rating = df.pivot_table(
+    index="tournament_stage", columns="position", values="player_rating", aggfunc="mean"
+).round(2)
+print(tabla_rating)
+```
+
+**Línea por línea:**
+- `index="tournament_stage"` → cada instancia del torneo (Group Stage, Round of 32... Final) se convierte en una fila.
+- `columns="position"` → cada posición se convierte en una columna: el cruce da una matriz de 7 filas × 4 columnas.
+- `values="player_rating", aggfunc="mean"` → cada celda de la matriz es el promedio de `player_rating` para esa combinación puntual de instancia y posición.
+
+**Un hallazgo real, mirando la tabla resultante**: los arqueros (`Goalkeeper`) tienen un rating promedio de ~2.0–2.1 en todas las instancias, muy por debajo de las demás posiciones (~3.7–4.0). No es que jueguen peor: es que **el 66,7% de las apariciones de arquero son de suplentes que no llegaron a jugar** (rating en 0, el hallazgo del Módulo 0), contra ~39% en el resto de las posiciones — porque cada plantel lleva 2 o 3 arqueros al torneo, pero solo uno juega por partido. Antes de comparar posiciones por rating, conviene filtrar `df[df["minutes_played"] > 0]` (Módulo 0) para no mezclar quien jugó con quien no.
+
+### Errores comunes y mejores prácticas de GroupBy *(Filmina 23)*
+
+| Error | Cómo evitarlo |
+|---|---|
+| **Confundir `count()` con `sum()`** | `count()` dice cuántas filas hay; `sum()` suma sus valores. ¿La pregunta es "cuántos" o "cuánto"? |
+| **Olvidar los nulos** | Pandas los ignora por defecto en `mean()`/`sum()` — engañoso si falta gran parte de una columna (por eso el Módulo 1 va **antes** que este). |
+| **No resetear el índice** | La columna agrupada pasa a ser el índice del resultado. `.reset_index()` la devuelve a columna normal, necesario para volver a filtrar o graficar. |
+
+```python
+resumen_reseteado = df.groupby("position")["goals"].sum().reset_index()
+```
+
+---
+
+## Módulo 4 — Fechas, Series Temporales y Resampling
+
+**Contexto**: `match_date` viene como texto (`"2026-06-11"`) al cargar el CSV. El torneo completo va del **11 de junio al 31 de julio de 2026** (51 fechas distintas con partidos) — suficiente rango para ver de verdad qué hace un `resample()`.
+
+### Conversión de texto a Datetime *(Filmina 26)*
+
+Al cargar un CSV, las fechas se leen como texto simple (`object`), no como fechas reales. `pd.to_datetime()` convierte ese texto en objetos de fecha reales, con toda la lógica del calendario adentro (meses con distinta cantidad de días, años bisiestos, etc.) — algo que un `string` no sabe manejar por sí solo.
+
+👉 **En Colab:**
+```python
+df["match_date"] = pd.to_datetime(df["match_date"])
+print(df["match_date"].dtype)   # datetime64[...], ya no object
+```
+
+**Línea por línea:**
+- `pd.to_datetime(df["match_date"])` → interpreta cada valor de texto como una fecha real y devuelve una Series de tipo fecha.
+- `df["match_date"].dtype` → confirma el cambio: pasa de `object` (texto) a un `datetime64` real (la resolución exacta — `ns`, `us`— depende de la versión de Pandas, pero en cualquier caso ya es un tipo de fecha, no texto).
+
+### El índice temporal: tu mejor aliado *(Filmina 27)*
+
+La mejor práctica es convertir la columna de fechas en el **índice** del DataFrame. Eso habilita acceder a datos por período (`df["2026-06"]` trae todo junio) y es el requisito para poder hacer **Resampling**.
+
+👉 **En Colab:**
+```python
+df_temporal = df.set_index("match_date").sort_index()   # sort_index: fechas en orden antes de operar
+
+junio = df_temporal.loc["2026-06"]
+print(f"Apariciones jugador-partido en junio: {len(junio)}")
+```
+
+**Línea por línea:**
+- `df.set_index("match_date")` → la columna de fechas deja de ser una columna y pasa a ser el índice del DataFrame.
+- `.sort_index()` → ordena las filas por fecha; imprescindible antes de cualquier operación temporal (ver "Errores comunes" más abajo).
+- `df_temporal.loc["2026-06"]` → acceso por período: con un índice de fechas, `.loc["2026-06"]` trae directamente "todo junio de 2026", sin necesidad de armar un filtro booleano con `>=`/`<=`.
+
+### Resampling: cambiando el "zoom" de tus datos *(Filmina 28)*
+
+`resample()` es un `groupby` especializado en tiempo: agrupa automáticamente por período de calendario.
+
+| Código | Frecuencia |
+|---|---|
+| `D` | Diario |
+| `W` | Semanal |
+| `ME` | Fin de mes (*Month End*) |
+| `YE` | Fin de año (*Year End*) |
+
+**Downsampling**: reducir la frecuencia (diario → semanal), resumiendo con una estadística. **Upsampling**: aumentar la frecuencia (mensual → diario), decidiendo cómo rellenar los huecos nuevos que aparecen.
+
+🎯 **Qué mostramos acá:** downsampling de partido-por-partido a semana-por-semana, contando partidos únicos y sumando goles — dos preguntas de negocio distintas sobre la misma serie temporal.
+
+👉 **En Colab:**
+```python
+partidos_por_semana = (
+    df_temporal.drop_duplicates("match_id")   # cada partido cuenta una sola vez, no una por jugador
+    .resample("W")
+    .size()
+)
+print(partidos_por_semana.head())
+
+goles_por_semana = df_temporal.resample("W")["goals"].sum()
+print(goles_por_semana.head())
+```
+
+**Línea por línea:**
+- `drop_duplicates("match_id")` → antes de contar partidos, sacamos las filas repetidas por jugador (cada partido tiene ~22 filas, una por jugador); sin este paso, "partidos por semana" en realidad contaría apariciones.
+- `.resample("W")` → agrupa el índice temporal en bloques semanales, igual que un `groupby` agruparía por categoría.
+- `.size()` → cuenta cuántas filas (partidos únicos) cayeron en cada semana.
+- `df_temporal.resample("W")["goals"].sum()` → misma lógica de agrupación semanal, pero ahora sumando los goles de **todas** las apariciones (no hace falta deduplicar: cada gol de cada jugador debe contarse).
+- La primera semana completa (que arranca el 15/06) tiene 448 goles sobre 153 partidos — casi 3 goles por partido, un dato que solo aparece al agrupar por tiempo.
+
+### Errores comunes al trabajar con fechas *(Filmina 29)*
+
+| Error | Cómo evitarlo |
+|---|---|
+| **No ordenar los datos** | Usar `.sort_index()` antes de remuestrear; un índice desordenado da resultados impredecibles. |
+| **Operar con texto** | Sumar o comparar fechas sin convertir a `datetime` primero lanza un error de tipos — por eso el Módulo 4 empieza con `pd.to_datetime()`. |
+| **Confundir sumas con promedios** | ¿La pregunta es el total de goles de la semana (`.sum()`) o el promedio de goles por partido (`.mean()`)? Cada una responde algo distinto. |
+
+---
+
+## Módulo 5 — Manipulación de Datos: Pandas (Síntesis)
+
+**Contexto**: cierre conceptual de la clase — de dónde viene Pandas, cómo se conecta todo lo visto en un pipeline profesional, y las dos piezas que faltaban: combinar tablas (`merge`/`concat`) y los errores más comunes incluso entre gente con experiencia.
+
+### ¿Por qué existe Pandas? *(Filmina 31)*
+
+Pandas fue creada por **Wes McKinney** en el sector financiero, hacia 2008. Los analistas necesitaban la flexibilidad de Python con la estructura de una base de datos — el nombre viene de **"Panel Data"**, un término de econometría. La ventaja frente a una hoja de cálculo: en Excel hay que repetir clics y fórmulas con cada archivo nuevo; en Pandas se escribe el "recetario" una sola vez, y funciona igual con 100 filas o con 1.000.000, sin errores humanos de por medio.
+
+### Los pilares de Pandas: DataFrame y Series *(Filmina 32)*
+
+- **DataFrame**: estructura bidimensional. Eje 0 (filas) = registros/observaciones; eje 1 (columnas) = variables/atributos.
+- **Series**: una sola columna, unidimensional, **con índice**. Error común: pensarla como una simple lista — una lista de valores no sabe a qué fila pertenece cada uno; una Series sí, gracias a sus etiquetas.
+
+### El flujo de trabajo profesional (pipeline) *(Filmina 33)*
+
+Las tres fases que ya recorrimos en esta clase, ahora nombradas como proceso:
+1. **Ingesta e Inspección**: `head()`/`tail()` para una primera probada, `info()` para tipos y nulos por columna (Módulo 0 y 1).
+2. **Limpieza**: decidir entre `dropna()` (borrar) o `fillna()` (rellenar sin perder información) (Módulo 1).
+3. **Transformación y Vectorización**: `df["precio"] * 0.9` en vez de un `for` — miles de veces más rápido, apoyado en NumPy (Módulo 0, 2 y el "mito del `for`" de la Clase 03).
+
+### Agregación: Split-Apply-Combine en la industria *(Filmina 34)*
+
+El mismo flujo del Módulo 3 (separar, aplicar, combinar) es el que usan firmas como **J.P. Morgan** o **Goldman Sachs** para analizar miles de transacciones por segundo y obtener promedios diarios o máximos históricos por activo financiero — la escala cambia, la lógica es exactamente la misma.
+
+### Combinación de fuentes: Merge vs. Concat *(Filmina 35)*
+
+- **`merge`**: como el `JOIN` de SQL. Se busca una columna en común y se fusionan las tablas **lateralmente** — agrega columnas nuevas sobre los mismos registros.
+- **`concat`**: como apilar hojas de papel. Se pone una tabla debajo de otra — agrega **filas** nuevas del mismo tipo.
+
+🎯 **Qué mostramos acá:** un `merge` real, agregando la confederación de cada equipo a partir de una tabla de referencia chica (a propósito, incompleta — para mostrar qué pasa con los equipos que no aparecen); y un `concat`, dividiendo el dataset en dos mitades cronológicas y volviendo a unirlas.
+
+👉 **En Colab:**
+```python
+# Tabla de referencia chica, A PROPÓSITO incompleta (solo 10 de los 48 equipos)
+df_confederaciones = pd.DataFrame({
+    "team": ["Argentina", "Brazil", "France", "Spain", "Germany",
+             "Japan", "Morocco", "Mexico", "Nigeria", "Qatar"],
+    "confederacion": ["CONMEBOL", "CONMEBOL", "UEFA", "UEFA", "UEFA",
+                       "AFC", "CAF", "CONCACAF", "CAF", "AFC"],
+})
+
+df_con_confederacion = pd.merge(df, df_confederaciones, on="team", how="left")
+print(df_con_confederacion["confederacion"].isna().sum())   # equipos sin match en la tabla chica
+
+# concat: partimos el dataset en dos mitades cronológicas y las volvemos a unir
+primera_mitad = df[df["match_date"] < "2026-07-01"]
+segunda_mitad = df[df["match_date"] >= "2026-07-01"]
+df_reunido = pd.concat([primera_mitad, segunda_mitad])
+print(len(df_reunido) == len(df))   # True -> concat no perdió ni duplicó filas
+```
+
+**Línea por línea:**
+- `df_confederaciones` → una tabla de referencia mínima, con solo 10 de los 48 equipos — a propósito, para que el `merge` deje algo sin matchear.
+- `pd.merge(df, df_confederaciones, on="team", how="left")` → `on="team"` es la columna en común; `how="left"` conserva **todas** las filas de `df`, tengan o no confederación asignada.
+- `df_con_confederacion["confederacion"].isna().sum()` → cuenta cuántas apariciones quedaron con `NaN` en `confederacion`: son las de los 38 equipos que no estaban en la tabla chica — el mismo patrón de `how="left"` que se vio con `merge` en la Clase 03.
+- `primera_mitad` / `segunda_mitad` → dos recortes del mismo DataFrame por fecha, sin superposición.
+- `pd.concat([primera_mitad, segunda_mitad])` → apila una tabla debajo de la otra; como no hay filas repetidas ni perdidas, el total coincide exactamente con el original.
+
+### Errores comunes y mejores prácticas *(Filmina 36)*
+
+| Error | Detalle |
+|---|---|
+| **La trampa del índice** | No es una columna normal, es el sistema de direcciones de las filas. Decidí si conservarlo al hacer `.reset_index()`. |
+| **Copias vs. Vistas** | Filtrar a veces da una "ventana" a la tabla original, no una copia independiente (Pandas avisa con `SettingWithCopyWarning`). Usá `.copy()` explícito si vas a modificar el resultado de un filtro. |
+| **No tratar nulos al inicio** | Sin gestionar los `NaN` (Módulo 1), los cálculos estadísticos pueden salir sesgados o directamente fallar. |
+| **Alineación automática** | Al sumar dos Series, Pandas alinea por **etiqueta** de índice, no por posición física — una ventaja una vez que se entiende, pero confunde a quien viene de listas de Python. |
+
+```python
+# Patrón seguro: .copy() explícito antes de modificar un recorte
+delanteros = df[df["position"] == "Forward"].copy()
+delanteros["goles_por_90"] = delanteros["goals"] / (delanteros["minutes_played"] / 90)
+```
+
+### Aplicaciones en la industria real *(Filmina 37)*
+
+- **Comercio electrónico**: detectar outliers en precios que podrían indicar errores en la carga de productos.
+- **Logística**: calcular tiempos de entrega promedio uniendo tablas de rutas, tráfico y conductores (`merge`).
+- **Salud**: limpiar registros de pacientes — unificar formatos de fechas y manejar datos clínicos faltantes en ensayos (Módulos 1 y 4, aplicados a un dominio distinto).
