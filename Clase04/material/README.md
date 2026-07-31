@@ -186,7 +186,7 @@ print(top_valor[["player_name", "team", "market_value_eur"]])
 
 ### 0.6 Preprocesamiento: nulos, `rename()` y `drop()`
 
-Repaso del Módulo 6 de Clase 03 (nulos), más dos comandos clásicos que faltaban: `rename()` para ponerle otro nombre a una columna sin tocar los datos, y `drop()` para sacar filas o columnas completas.
+Repaso del Módulo 6 de Clase 03 (nulos), más `rename()` — el comando que realmente faltaba (cero apariciones en toda la guía de Clase 03) — reforzado junto con `drop()`, que sí se usó en Clase 03 pero conviene repasar en el mismo bloque por lo seguido que se usan juntos en la práctica.
 
 👉 **En Colab:**
 ```python

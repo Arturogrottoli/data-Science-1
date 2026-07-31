@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 09 - Aprendizaje No Supervisado | Coderhouse</title>
+    <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==========================================================================
+           CODER 4.0 DESIGN SYSTEM & VARS
+           ========================================================================== */
+        :root {
+            --blanco-lienzo: #F8F2E8;
+            --negro-coder: #171717;
+            --naranja-oscuro: #260700;
+            --naranja-horizonte: #FF632B;
+            --amarillo-solar: #FE872D;
+            --rosa-energia: #FE64A3;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #dcd6cd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: var(--font-main);
+            overflow: hidden;
+        }
+
+        /* Slide Viewer (Absolute 1280x720 No-Scale-Shift) */
+        .presentation-viewport {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: var(--blanco-lienzo);
+        }
+
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            color: var(--negro-coder);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 70px 40px 70px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out, visibility var(--transition-speed) ease-in-out;
+            z-index: 1;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Abstract Brand Accents: Subtly warm gradients connecting to Coder 4.0 */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -150px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(255,99,43,0.06) 0%, rgba(248,242,232,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .slide-container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography & Hierarchy */
+        h1 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+        }
+
+        .slide-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slide-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 2px;
+            background-color: rgba(38, 7, 0, 0.1);
+            margin-left: 15px;
+        }
+
+        p, li {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #3d3430;
+            font-weight: 400;
+        }
+
+        /* Content Area Layout Wrapper */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Grid & Column Definitions */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 45px;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Coder 4.0 Split Card layouts */
+        .two-column.tiled > div {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            padding: 35px;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .two-column.tiled h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--naranja-horizonte);
+            margin-bottom: 12px;
+        }
+
+        /* Warm Retro Photography Frame */
+        .image-wrapper {
+            border-radius: 16px;
+            height: 340px;
+            overflow: hidden;
+            width: 100%;
+            border: 4px solid #ffffff;
+            box-shadow: 0 10px 25px rgba(38, 7, 0, 0.08);
+        }
+
+        .image-wrapper img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* Custom 2D Filled Icons & Tiles */
+        .tiled-content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .tile {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .tile .icon-box {
+            background-color: rgba(255, 99, 43, 0.1);
+            color: var(--naranja-horizonte);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .tile h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--naranja-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .tile p {
+            font-size: 14px;
+        }
+
+        /* Bullet List styling */
+        .bullet-list ul {
+            list-style: none;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .bullet-list li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--naranja-horizonte);
+            font-size: 16px;
+        }
+
+        /* Footer & Brand Branding Mark */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(38, 7, 0, 0.06);
+            padding-top: 15px;
+            width: 100%;
+        }
+
+        .slide-footer .brand-logo {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--naranja-oscuro);
+            letter-spacing: -0.5px;
+        }
+
+        .slide-footer .brand-logo span {
+            color: var(--naranja-horizonte);
+        }
+
+        .slide-footer .slide-index {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(38, 7, 0, 0.4);
+        }
+
+        /* Slide Type Banners ("Momentos de la Clase") */
+        .moment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+
+        .moment-badge.live {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .moment-badge.bug {
+            background-color: var(--rosa-energia);
+        }
+
+        .moment-badge.tip {
+            background-color: var(--amarillo-solar);
+            color: var(--naranja-oscuro);
+        }
+
+        /* Slido Interactive layout */
+        .slido-box {
+            background-color: #ffffff;
+            border: 2px dashed var(--naranja-horizonte);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 99, 43, 0.05);
+        }
+
+        .slido-box h3 {
+            font-size: 26px;
+            color: var(--naranja-oscuro);
+            margin-bottom: 10px;
+        }
+
+        .slido-code {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--naranja-horizonte);
+            margin: 15px 0;
+            letter-spacing: -1px;
+        }
+
+        /* Transition slide */
+        .transition-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .transition-layout h2 {
+            font-size: 60px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.1;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+        }
+
+        .transition-layout hr {
+            width: 80px;
+            height: 5px;
+            background-color: var(--naranja-horizonte);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        /* Clean retro table */
+        .table-layout {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+            width: 100%;
+        }
+
+        .table-layout table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-layout th, .table-layout td {
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(38, 7, 0, 0.06);
+            font-size: 14px;
+        }
+
+        .table-layout th {
+            background-color: rgba(38, 7, 0, 0.03);
+            color: var(--naranja-oscuro);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .table-layout tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Break Slide Design */
+        .break-slide {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+        }
+
+        .break-slide::before {
+            display: none;
+        }
+
+        .break-slide h2 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--blanco-lienzo);
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        .break-slide p {
+            color: rgba(248, 242, 232, 0.75);
+            font-size: 22px;
+        }
+
+        .break-logo {
+            font-size: 80px;
+            color: var(--naranja-horizonte);
+            margin-bottom: 30px;
+        }
+
+        /* Q&A / Legal section */
+        .legal-notice {
+            font-size: 10px;
+            line-height: 1.4;
+            color: rgba(38, 7, 0, 0.4);
+            text-align: justify;
+            margin-top: 20px;
+        }
+
+        /* Presentation controls toolbar */
+        .controls-toolbar {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(38, 7, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dot.active {
+            background-color: var(--naranja-horizonte);
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        /* Code Block Container */
+        .code-block {
+            background-color: #ffffff;
+            border-left: 4px solid var(--naranja-horizonte);
+            padding: 15px 20px;
+            font-family: monospace;
+            font-size: 13px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        /* Small note under tables */
+        .note-text {
+            margin-top: 18px;
+            font-size: 14px;
+            font-style: italic;
+            color: rgba(38, 7, 0, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-viewport">
+
+    <!-- SLIDE 1: Portada General -->
+    <div class="slide-container active" id="slide1">
+        <div></div>
+        <div class="transition-layout" style="margin-bottom: 30px;">
+            <span class="moment-badge">CODER 4.0 • CLASE 09</span>
+            <h1 style="font-size: 50px;">Aprendizaje No Supervisado: Clustering, Reducción de Dimensionalidad y Reglas de Asociación</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Encontrar estructura en los datos sin etiquetas ni respuestas previas
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">01 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: División Módulo 1 -->
+    <div class="slide-container" id="slide2">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 01</span>
+            <h2>¿Qué es el Aprendizaje No Supervisado?</h2>
+            <p style="font-size: 20px;">Definición, tipos de problemas, ejemplos industriales y el flujo típico de trabajo.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">02 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: ¿Qué es? + diferencias -->
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title">¿Qué es el Aprendizaje No Supervisado?</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Sin etiquetas ni respuestas previas</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> Conjunto de técnicas de Machine Learning que buscan identificar estructuras, patrones o relaciones en datos <strong>sin etiquetas conocidas</strong>.</li>
+                            <li><i class="fa-solid fa-arrows-split-up-and-left"></i> A diferencia del aprendizaje supervisado (spam / no spam), acá no hay "respuesta correcta" para entrenar el modelo.</li>
+                            <li><i class="fa-solid fa-lightbulb"></i> El objetivo es descubrir información oculta sin guía explícita.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="table-layout">
+                        <table>
+                            <thead>
+                                <tr><th>Característica</th><th>Supervisado</th><th>No Supervisado</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>Datos de entrada</strong></td><td>Con etiquetas</td><td>Sin etiquetas</td></tr>
+                                <tr><td><strong>Objetivo</strong></td><td>Predecir o clasificar</td><td>Encontrar patrones</td></tr>
+                                <tr><td><strong>Ejemplos</strong></td><td>Clasificación, regresión</td><td>Clustering, PCA, reglas</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">03 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: Tipos de problemas -->
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title">Tres Grandes Tipos de Problemas</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-object-group"></i></div>
+                    <h3>Clustering</h3>
+                    <p>Agrupar datos similares en clusters. Ej: segmentar clientes según comportamiento de compra.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-compress"></i></div>
+                    <h3>Reducción de Dimensionalidad</h3>
+                    <p>Simplificar datos con muchas variables a representaciones manejables. Ej: PCA para visualizar en 2D o 3D.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-link"></i></div>
+                    <h3>Reglas de Asociación</h3>
+                    <p>Encontrar relaciones frecuentes entre variables. Ej: qué productos se compran juntos en retail.</p>
+                </div>
+            </div>
+            <p class="note-text">Estas tres categorías se exploran en detalle en los módulos siguientes de esta clase, cada una con sus algoritmos y métricas propias.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">04 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Ejemplos en la industria -->
+    <div class="slide-container" id="slide5">
+        <h2 class="slide-title">Ejemplos de Aplicación en la Industria</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-cart-shopping"></i></div>
+                    <h3>Retail y E-commerce</h3>
+                    <p>Segmentación de clientes para campañas personalizadas, análisis de cesta de la compra con reglas de asociación.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-server"></i></div>
+                    <h3>Tecnología y Big Data</h3>
+                    <p>Detección de anomalías en redes, agrupamiento de documentos o imágenes similares.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-chart-pie"></i></div>
+                    <h3>Analítica de Negocios</h3>
+                    <p>Reducción de variables para simplificar reportes y visualizaciones ejecutivas.</p>
+                </div>
+            </div>
+            <p class="note-text">El hilo común: extraer valor de datos sin necesidad de etiquetas previas, facilitando decisiones basadas en patrones reales.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">05 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Flujo típico de trabajo -->
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title">Flujo Típico de Trabajo</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-broom"></i> <strong>1. Recolección y preparación de datos:</strong> limpieza, selección y escalado de variables.</li>
+                    <li><i class="fa-solid fa-list-check"></i> <strong>2. Selección del método adecuado:</strong> según el problema y el tipo de datos.</li>
+                    <li><i class="fa-solid fa-gears"></i> <strong>3. Aplicación del algoritmo:</strong> ejecución y ajuste de parámetros.</li>
+                    <li><i class="fa-solid fa-ruler"></i> <strong>4. Evaluación y validación:</strong> métricas específicas para medir la calidad de agrupamientos o representaciones.</li>
+                    <li><i class="fa-solid fa-arrow-up-right-dots"></i> <strong>5. Interpretación y uso de resultados:</strong> integración en procesos de negocio o análisis posteriores.</li>
+                </ul>
+            </div>
+            <p class="note-text">Este flujo es la base para todas las técnicas que vemos en esta clase — cambia el algoritmo, no la lógica del proceso.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">06 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: División Módulo 2 -->
+    <div class="slide-container" id="slide7">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 02</span>
+            <h2>Reglas de Asociación</h2>
+            <p style="font-size: 20px;">Apriori, FP-Growth y las métricas support, confidence y lift.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">07 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Apriori vs FP-Growth -->
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title">Algoritmos: Apriori y FP-Growth</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Apriori</h3>
+                    <p>Método clásico: genera candidatos de conjuntos de ítems y evalúa su frecuencia, descartando los que no cumplen un umbral mínimo (support). Intuitivo y fácil de implementar, pero costoso en bases de datos grandes por la generación masiva de candidatos.</p>
+                </div>
+                <div>
+                    <h3>FP-Growth</h3>
+                    <p>Evita generar candidatos explícitos: construye un árbol FP que compacta las transacciones y extrae patrones frecuentes directamente. Más rápido y escalable que Apriori, aunque su implementación es más compleja.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">08 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Métricas support, confidence, lift -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">Métricas Clave: Support, Confidence y Lift</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Métrica</th><th>Definición</th><th>Interpretación</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Support</strong></td><td>P(A ∩ B) — proporción de transacciones que contienen A y B</td><td>Frecuencia con la que ocurre la regla</td></tr>
+                        <tr><td><strong>Confidence</strong></td><td>support(A∩B) / support(A) — P(B dado que ocurrió A)</td><td>Probabilidad condicional de la regla</td></tr>
+                        <tr><td><strong>Lift</strong></td><td>confidence(A→B) / support(B)</td><td>&gt;1 sugiere asociación positiva real, no azar</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Una regla con alto support y confidence es frecuente y confiable, pero el lift es el que dice si la asociación es significativa o solo coincidencia.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">09 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Cuándo usar en retail -->
+    <div class="slide-container" id="slide10">
+        <h2 class="slide-title">¿Cuándo Usar Reglas de Asociación?</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-basket-shopping"></i> Para descubrir productos que se compran juntos y diseñar promociones cruzadas.</li>
+                    <li><i class="fa-solid fa-store"></i> Para optimizar la disposición de productos en tiendas físicas o virtuales.</li>
+                    <li><i class="fa-solid fa-thumbs-up"></i> Para personalizar recomendaciones en plataformas de e-commerce.</li>
+                </ul>
+            </div>
+            <p class="note-text">Importante: estas reglas expresan co-ocurrencia, no causalidad — un support y confidence altos no prueban que A "cause" B.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: División Módulo 3 -->
+    <div class="slide-container" id="slide11">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 03</span>
+            <h2>K-Means y la Elección de k</h2>
+            <p style="font-size: 20px;">Cómo funciona el algoritmo más usado de clustering, y cómo elegir bien su parámetro clave.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">11 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Qué es K-Means -->
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title">K-Means: ¿Qué es y Qué Busca?</h2>
+        <div class="content-area">
+            <span class="moment-badge">Algoritmo de partición</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-diagram-project"></i> Divide un conjunto de datos en <strong>k</strong> grupos (clusters) según la similitud de sus características.</li>
+                    <li><i class="fa-solid fa-bullseye"></i> El objetivo: minimizar la suma de las distancias entre cada punto y el <strong>centroide</strong> (promedio) de su cluster asignado.</li>
+                    <li><i class="fa-solid fa-ruler-combined"></i> Se apoya en las métricas de distancia (Euclidiana, Manhattan, Coseno) que definen qué tan "similares" son dos puntos.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">12 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Pasos del algoritmo -->
+    <div class="slide-container" id="slide13">
+        <h2 class="slide-title">Los 4 Pasos del Algoritmo</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-1"></i></div>
+                    <h3>Inicialización</h3>
+                    <p>Se eligen k centroides iniciales — al azar o con k-means++ para mejorar la convergencia.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-2"></i></div>
+                    <h3>Asignación</h3>
+                    <p>Cada punto se asigna al cluster cuyo centroide esté más cerca (distancia Euclidiana).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-3"></i></div>
+                    <h3>Actualización</h3>
+                    <p>Se recalculan los centroides como el promedio de los puntos de cada cluster.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-4"></i></div>
+                    <h3>Repetición</h3>
+                    <p>Se repiten Asignación y Actualización hasta que nada cambie o se llegue al máximo de iteraciones.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">13 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Convergencia, inicialización y problemas comunes -->
+    <div class="slide-container" id="slide14">
+        <h2 class="slide-title">Convergencia, Inicialización y Problemas Comunes</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-arrows-spin"></i> Mínimo local, no global</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-check"></i> K-Means siempre converge, pero a un <strong>mínimo local</strong>, no necesariamente al óptimo global.</li>
+                            <li><i class="fa-solid fa-shuffle"></i> La inicialización de los centroides afecta calidad y velocidad; <strong>k-means++</strong> elige centroides iniciales más representativos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Dónde falla</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-chart-scatter"></i> <strong>Outliers:</strong> distorsionan los centroides.</li>
+                            <li><i class="fa-solid fa-shapes"></i> <strong>Formas no esféricas:</strong> K-Means asume clusters convexos y esféricos; falla con formas arbitrarias.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Elegir k - Método del codo -->
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title">Elegir k: Método del Codo (Elbow Method)</h2>
+        <div class="content-area">
+            <span class="moment-badge">Buscando el equilibrio</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-square-root-variable"></i> Para cada valor de k se calcula el <strong>WCSS</strong> (Within-Cluster Sum of Squares): la suma de distancias al cuadrado entre cada punto y el centroide de su cluster.</li>
+                    <li><i class="fa-solid fa-chart-line"></i> Se grafica WCSS en función de k: baja a medida que k crece, porque más clusters siempre reduce la distancia interna.</li>
+                    <li><i class="fa-solid fa-elbow-off"></i> Se busca el punto donde la caída de WCSS se frena notablemente — el "codo". Ese k es el candidato óptimo: agregar más clusters ya no mejora mucho.</li>
+                </ul>
+            </div>
+            <p class="note-text">Balancea complejidad del modelo (muchos clusters) contra calidad de la agrupación (pocos clusters, cada uno con sentido).</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Elegir k - Coeficiente silhouette -->
+    <div class="slide-container" id="slide16">
+        <h2 class="slide-title">Elegir k: Coeficiente Silhouette</h2>
+        <div class="content-area">
+            <span class="moment-badge">Cohesión vs. separación</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-arrows-to-circle"></i> Para cada punto, compara su distancia promedio dentro del propio cluster (cohesión) contra la distancia al cluster más cercano ajeno (separación).</li>
+                    <li><i class="fa-solid fa-ruler-vertical"></i> Da un valor entre <strong>-1 y 1</strong>: cerca de 1, el punto está bien asignado; cerca de -1, probablemente está en el cluster equivocado.</li>
+                    <li><i class="fa-solid fa-trophy"></i> Se promedia sobre todos los puntos para cada k, y se elige el k que <strong>maximiza</strong> el silhouette promedio.</li>
+                </ul>
+            </div>
+            <p class="note-text">También sirve para detectar outliers: puntos con coeficiente cercano a -1 son candidatos a estar mal asignados.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">16 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: Aplicación industria K-Means -->
+    <div class="slide-container" id="slide17">
+        <h2 class="slide-title">K-Means en la Industria</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-users"></i></div>
+                    <h3>Retail</h3>
+                    <p>Segmentar clientes por frecuencia de compra, monto gastado y preferencia de categorías, para campañas personalizadas.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-building-columns"></i></div>
+                    <h3>Finanzas</h3>
+                    <p>Agrupar clientes con perfiles de riesgo similares, mejorando gestión de cartera y detección de fraudes.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-image"></i></div>
+                    <h3>Imágenes</h3>
+                    <p>Segmentación de regiones en análisis de imágenes y sistemas de recomendación personalizados.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">17 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: Break de Coder -->
+    <div class="slide-container break-slide" id="slide18">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
+            <h2>Break del Coder</h2>
+            <p>Andá por un cafecito o mate, ¡y en 10 minutos volvemos!</p>
+        </div>
+        <div class="slide-footer" style="border-top: 1px solid rgba(248, 242, 232, 0.2);">
+            <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span style="color: var(--naranja-horizonte);">HOUSE</span></div>
+            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">18 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: División Módulo 4 -->
+    <div class="slide-container" id="slide19">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 04</span>
+            <h2>Clustering Jerárquico y DBSCAN</h2>
+            <p style="font-size: 20px;">Dos alternativas a K-Means: sin definir k de antemano, y con manejo explícito de ruido.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: Clustering jerárquico -->
+    <div class="slide-container" id="slide20">
+        <h2 class="slide-title">Clustering Jerárquico: Aglomerativo y Divisivo</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">No requiere definir k</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrow-up-from-bracket"></i> <strong>Aglomerativo</strong> (el más usado): empieza con cada punto como su propio cluster y va fusionando los más parecidos hasta llegar a uno solo.</li>
+                            <li><i class="fa-solid fa-arrow-down-from-bracket"></i> <strong>Divisivo</strong>: al revés — parte de un único cluster y lo va dividiendo.</li>
+                            <li><i class="fa-solid fa-sitemap"></i> El resultado se visualiza en un <strong>dendrograma</strong>: un árbol donde la altura de cada unión indica qué tan similares (o no) son los clusters que se combinan.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+from scipy.cluster.hierarchy import dendrogram, linkage
+
+<span style="color: #6a737d;"># Ward minimiza la varianza dentro de los clusters</span>
+Z = linkage(datos_escalados, method='ward')
+
+dendrogram(Z, leaf_rotation=90)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">20 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: Parámetro linkage -->
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title">Parámetro Clave: el Linkage</h2>
+        <div class="content-area">
+            <span class="moment-badge">¿Cómo se mide la distancia entre clusters?</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Linkage</th><th>Criterio</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Single</strong></td><td>Distancia mínima entre puntos de dos clusters.</td></tr>
+                        <tr><td><strong>Complete</strong></td><td>Distancia máxima entre puntos de dos clusters.</td></tr>
+                        <tr><td><strong>Average</strong></td><td>Promedio de todas las distancias entre pares de puntos.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Cada criterio de linkage afecta la forma y el tamaño de los clusters resultantes — no hay una elección "correcta" universal.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">21 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: DBSCAN concepto -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">DBSCAN: Clustering Basado en Densidad</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-circle-dot"></i> Density-Based Spatial Clustering</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-layer-group"></i> Identifica clusters como regiones <strong>densas</strong>, separadas por regiones de baja densidad.</li>
+                            <li><i class="fa-solid fa-broom"></i> Los puntos aislados quedan marcados como <strong>ruido</strong>, en vez de forzarlos a un cluster.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+from sklearn.cluster import DBSCAN
+
+<span style="color: #6a737d;"># eps: radio máx. para vecinos</span>
+<span style="color: #6a737d;"># min_samples: puntos mínimos</span>
+<span style="color: #6a737d;"># para formar un cluster denso</span>
+db = DBSCAN(eps=0.2, min_samples=4)
+labels = db.fit_predict(X)
+<span style="color: #6a737d;"># label == -1 -> ruido</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: DBSCAN tipos de puntos -->
+    <div class="slide-container" id="slide23">
+        <h2 class="slide-title">DBSCAN: Core, Border y Noise Points</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-circle"></i></div>
+                    <h3>Core point</h3>
+                    <p>Tiene al menos <code>min_samples</code> puntos dentro de su radio <code>eps</code>. Es el corazón de un cluster denso.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-circle-half-stroke"></i></div>
+                    <h3>Border point</h3>
+                    <p>Está dentro del radio <code>eps</code> de un core point, pero no tiene suficientes vecinos propios para ser core.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-xmark"></i></div>
+                    <h3>Noise point</h3>
+                    <p>No es ni core ni border: queda marcado con label <code>-1</code>, fuera de cualquier cluster.</p>
+                </div>
+            </div>
+            <p class="note-text">Ventaja frente a K-Means: detecta clusters de forma arbitraria (no solo esféricos) y maneja el ruido explícitamente, en vez de forzarlo dentro de un grupo.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: Comparación de métodos -->
+    <div class="slide-container" id="slide24">
+        <h2 class="slide-title">Comparación: Jerárquico vs. Particional vs. DBSCAN</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Característica</th><th>Jerárquico</th><th>Particional (K-Means)</th><th>DBSCAN</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Forma de clusters</strong></td><td>Jerarquía flexible</td><td>Convexa, esférica</td><td>Arbitraria</td></tr>
+                        <tr><td><strong>Número de clusters</strong></td><td>No requiere definirlo</td><td>Requiere definir k</td><td>No requiere definirlo</td></tr>
+                        <tr><td><strong>Manejo de ruido</strong></td><td>No explícito</td><td>No explícito</td><td>Sí, lo detecta</td></tr>
+                        <tr><td><strong>Parámetros clave</strong></td><td>Linkage</td><td>Número de clusters (k)</td><td>eps, min_samples</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">La elección depende del tipo de dato: si esperás clusters esféricos y sabés cuántos, K-Means; si hay ruido y formas irregulares, DBSCAN; si querés explorar la estructura sin comprometerte a un k, Jerárquico.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">24 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: División Módulo 5 -->
+    <div class="slide-container" id="slide25">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 05</span>
+            <h2>PCA: Reducción de Dimensionalidad</h2>
+            <p style="font-size: 20px;">La matemática detrás de simplificar datos complejos sin perder lo esencial.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">25 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 26: Covarianza -->
+    <div class="slide-container" id="slide26">
+        <h2 class="slide-title">Covarianza: la Relación entre Variables</h2>
+        <div class="content-area">
+            <span class="moment-badge">El punto de partida de PCA</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-arrows-left-right"></i> Mide cómo varían <strong>juntas</strong> dos variables: si ambas suben o bajan a la vez, la covarianza es positiva; si una sube y la otra baja, es negativa.</li>
+                    <li><i class="fa-solid fa-table-cells"></i> La <strong>matriz de covarianza</strong> resume esas relaciones entre <strong>todas</strong> las variables del dataset a la vez.</li>
+                    <li><i class="fa-solid fa-compass-drafting"></i> Es la base para identificar las direcciones de mayor variabilidad en los datos — el siguiente paso de PCA.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">26 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 27: Eigenvectores y eigenvalores -->
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title">Eigenvectores y Eigenvalores: Dirección y Magnitud</h2>
+        <div class="content-area">
+            <span class="moment-badge tip"><i class="fa-solid fa-compass"></i> Las dos piezas de PCA</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-arrow-up-right"></i> Un <strong>eigenvector</strong> de la matriz de covarianza es una <strong>Componente Principal</strong>: una nueva dirección ortogonal sobre la que se proyectan los datos.</li>
+                    <li><i class="fa-solid fa-ruler-vertical"></i> Su <strong>eigenvalor</strong> asociado indica cuánta <strong>varianza</strong> explica esa dirección — un eigenvalor alto significa que esa componente captura mucha variabilidad de los datos.</li>
+                </ul>
+            </div>
+            <p class="note-text">Ejemplo: si la primera componente tiene un eigenvalor mucho más alto que las demás, gran parte de la información del dataset original vive en esa única dirección.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">27 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 28: Varianza explicada -->
+    <div class="slide-container" id="slide28">
+        <h2 class="slide-title">Varianza Explicada y Selección de Componentes</h2>
+        <div class="content-area">
+            <span class="moment-badge">¿Cuántas componentes conservar?</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-percent"></i> La suma de todos los eigenvalores es la varianza total; cada componente explica el porcentaje que representa su eigenvalor sobre ese total.</li>
+                    <li><i class="fa-solid fa-flag-checkered"></i> Se suelen conservar los primeros componentes hasta cubrir un umbral (ej. 90% de la varianza acumulada).</li>
+                    <li><i class="fa-solid fa-chart-line"></i> Un gráfico de codo (igual lógica que en K-Means) ayuda a ver dónde agregar más componentes deja de aportar varianza relevante.</li>
+                </ul>
+            </div>
+            <p class="note-text">A veces conviene priorizar menos componentes para simplificar el modelo, aunque se pierda algo de varianza — es una decisión de compromiso, no una regla fija.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">28 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 29: Limitaciones de PCA -->
+    <div class="slide-container" id="slide29">
+        <h2 class="slide-title">Limitaciones de PCA</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Antes de aplicarlo sin pensar</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Limitación</th><th>Detalle</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Linealidad</strong></td><td>Solo captura relaciones lineales entre variables; con estructuras no lineales complejas, puede no alcanzar.</td></tr>
+                        <tr><td><strong>Escalado</strong></td><td>Es sensible a la escala de las variables — hay que normalizar o estandarizar antes de aplicarlo.</td></tr>
+                        <tr><td><strong>Interpretabilidad</strong></td><td>Las componentes son combinaciones lineales de las variables originales, difíciles de explicar directamente.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">29 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: Aplicación industria PCA -->
+    <div class="slide-container" id="slide30">
+        <h2 class="slide-title">PCA en la Industria</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Visualización</h3>
+                    <p>Reducir decenas o cientos de variables a 2-3 dimensiones para graficar y detectar patrones o segmentos de clientes a simple vista.</p>
+                </div>
+                <div>
+                    <h3>Preprocesamiento</h3>
+                    <p>Simplificar los datos antes de aplicar clustering o clasificación, mejorando el rendimiento y reduciendo el ruido — sobre todo en modelos sensibles a alta dimensionalidad.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">30 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 31: División Módulo 6 -->
+    <div class="slide-container" id="slide31">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 06</span>
+            <h2>Panorama de Métodos</h2>
+            <p style="font-size: 20px;">Clustering, PCA y reglas de asociación: cuándo usar cada uno, y una demostración de PCA en acción.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">31 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 32: Tabla comparativa técnicas -->
+    <div class="slide-container" id="slide32">
+        <h2 class="slide-title">Decisiones de Diseño y Parámetros Clave</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Técnica</th><th>Parámetros clave</th><th>Consideración principal</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>K-Means</strong></td><td>Número de clusters k</td><td>Elegir k adecuado; sensible a outliers</td></tr>
+                        <tr><td><strong>Jerárquico</strong></td><td>Método de linkage</td><td>Interpretación del dendrograma; escalabilidad</td></tr>
+                        <tr><td><strong>DBSCAN</strong></td><td>eps, min_samples</td><td>Detecta ruido; bueno para formas arbitrarias</td></tr>
+                        <tr><td><strong>PCA</strong></td><td>Número de componentes</td><td>Balance entre reducción y pérdida de información</td></tr>
+                        <tr><td><strong>Apriori</strong></td><td>Soporte y confianza mínimos</td><td>Controla cantidad y calidad de reglas generadas</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">32 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 33: Limitaciones y supuestos básicos -->
+    <div class="slide-container" id="slide33">
+        <h2 class="slide-title">Limitaciones y Supuestos Básicos</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Para reflexionar antes de aplicar</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-object-group"></i> <strong>Clustering</strong> asume que la similitud/diferencia entre puntos es significativa y que los datos pueden agruparse con claridad.</li>
+                    <li><i class="fa-solid fa-compress"></i> <strong>PCA</strong> asume relaciones lineales y que la varianza es una buena medida de "información".</li>
+                    <li><i class="fa-solid fa-link"></i> <strong>Reglas de asociación</strong> requieren datos transaccionales y pueden generar muchas reglas irrelevantes sin filtros adecuados.</li>
+                </ul>
+            </div>
+            <p class="note-text">Reflexioná: ¿qué pasaría si aplicás K-Means a clusters de formas muy irregulares? ¿O PCA a datos con relaciones no lineales?</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">33 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 34: Aplicaciones prácticas por escenario -->
+    <div class="slide-container" id="slide34">
+        <h2 class="slide-title">Aplicaciones Prácticas por Escenario</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-object-group"></i></div>
+                    <h3>Clustering</h3>
+                    <p>Segmentación de clientes, detección de fraude agrupando comportamientos atípicos, análisis de sensores industriales.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-compress"></i></div>
+                    <h3>PCA</h3>
+                    <p>Visualizar tendencias en datos complejos, reducir ruido antes de un modelo supervisado, comprimir datos para almacenamiento.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-link"></i></div>
+                    <h3>Reglas de Asociación</h3>
+                    <p>Productos que se compran juntos, optimización de layout de tienda, análisis de comportamiento de compra.</p>
+                </div>
+            </div>
+            <p class="note-text">La elección real depende del contexto de negocio: en un e-commerce con datos ruidosos y clusters de forma compleja, DBSCAN suele ganarle a K-Means.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">34 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 35: Demo destacado - PCA mejora rendimiento -->
+    <div class="slide-container" id="slide35">
+        <h2 class="slide-title">Demostración: PCA Mejorando un Modelo Real</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-flask"></i> Escenario didáctico controlado</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-database"></i> Dataset de cáncer de mama (30 features reales) + 300 columnas de <strong>ruido</strong> agregadas a propósito.</li>
+                            <li><i class="fa-solid fa-shoe-prints"></i> Clasificador <strong>KNN</strong>, muy sensible al "curse of dimensionality" (empeora con muchas features irrelevantes).</li>
+                            <li><i class="fa-solid fa-scale-balanced"></i> Se compara accuracy <strong>sin PCA</strong> vs. <strong>con PCA</strong> (reducción fuerte, 330 → 30 componentes).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte); font-size: 12px;">
+pca = PCA(n_components=30)
+X_train_pca = pca.fit_transform(X_train_s)
+X_test_pca = pca.transform(X_test_s)
+
+knn_pca = KNeighborsClassifier(n_neighbors=5)
+knn_pca.fit(X_train_pca, y_train)
+
+<span style="color: #6a737d;"># Resultado esperado:</span>
+<span style="color: #6a737d;"># accuracy_sin_pca < accuracy_con_pca</span>
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">Por qué funciona: PCA concentra la señal real en pocas componentes y descarta gran parte del ruido, mejorando la relación señal/ruido que ve el KNN.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">35 / 36</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 36: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide36">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 90px; color: var(--naranja-horizonte);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 60px; color: var(--rosa-energia);"></i>
+            </div>
+            <h1 style="font-size: 64px;">¿Dudas? ¿Consultas?</h1>
+            <p style="font-size: 22px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Este es el momento de preguntar todo lo que necesites
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">36 / 36</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Presentation navigation controls toolbar -->
+<div class="controls-toolbar">
+    <button class="control-btn" id="prev-slide"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+    <div class="slide-dots" id="slide-dots"></div>
+    <button class="control-btn" id="next-slide">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<script>
+    // Slider Presentation Logic
+    const slides = document.querySelectorAll('.slide-container');
+    const prevBtn = document.getElementById('prev-slide');
+    const nextBtn = document.getElementById('next-slide');
+    const dotsContainer = document.getElementById('slide-dots');
+
+    let currentSlideIndex = 0;
+
+    // Create Navigation Indicators Dynamically
+    slides.forEach((slide, idx) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (idx === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToSlide(idx);
+        });
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateControls() {
+        dots.forEach((dot, idx) => {
+            if (idx === currentSlideIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+
+        slides[currentSlideIndex].classList.remove('active');
+        currentSlideIndex = index;
+        slides[currentSlideIndex].classList.add('active');
+
+        updateControls();
+    }
+
+    // Keyboard Navigation Handlers
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+            goToSlide(currentSlideIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+            goToSlide(currentSlideIndex - 1);
+        }
+    });
+
+    // Button Click Event Listeners
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex + 1);
+    });
+</script>
+
+</body>
+</html>
