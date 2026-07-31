@@ -192,16 +192,16 @@ Repaso del Módulo 6 de Clase 03 (nulos), más dos comandos clásicos que faltab
 ```python
 print(df.isnull().sum().sum())    # 0 -> este dataset viene sin nulos
 
-df = df.rename(columns={"goals": "goles", "assists": "asistencias"})   # renombrar para trabajar en español
-df = df.drop(columns=["jersey_number"])                                 # sacar una columna que no vamos a usar
+df_renombrado = df.rename(columns={"goals": "goles", "assists": "asistencias"})   # renombrar para trabajar en español
+df_renombrado = df_renombrado.drop(columns=["jersey_number"])                      # sacar una columna que no vamos a usar
 
-print(df.columns[:5].tolist())
+print(df_renombrado.columns[:5].tolist())
 ```
 
 **Línea por línea:**
 - `df.isnull().sum().sum()` → el primer `.sum()` cuenta nulos por columna, el segundo suma esos totales en un único número: `0` en este dataset.
-- `df.rename(columns={...})` → recibe un diccionario `{"nombre viejo": "nombre nuevo"}`; devuelve un DataFrame nuevo con las columnas renombradas (no modifica `df` in place salvo que se reasigne, como acá).
-- `df.drop(columns=["jersey_number"])` → `columns=[...]` elimina columnas completas (para eliminar filas se usa `index=[...]`, visto ya en la Clase 03).
+- `df.rename(columns={...})` → recibe un diccionario `{"nombre viejo": "nombre nuevo"}`; devuelve un DataFrame **nuevo** con las columnas renombradas, sin tocar el original — por eso lo guardamos en `df_renombrado` en vez de sobreescribir `df` (los módulos siguientes de esta guía siguen usando los nombres originales `goals`/`assists`).
+- `df_renombrado.drop(columns=["jersey_number"])` → `columns=[...]` elimina columnas completas (para eliminar filas se usa `index=[...]`, visto ya en la Clase 03).
 
 ### 0.7 Agregación básica con `groupby` (puente al Módulo 3 de esta clase)
 
@@ -225,12 +225,12 @@ Cierre del módulo, repasando la idea central del Módulo 8 de Clase 03: Pandas 
 
 👉 **En Colab:**
 ```python
-df["tuvo_gol"] = np.where(df["goles"] > 0, "Sí", "No")   # if/else vectorizado, sin for ni apply
+df["tuvo_gol"] = np.where(df["goals"] > 0, "Sí", "No")   # if/else vectorizado, sin for ni apply
 print(df["tuvo_gol"].value_counts())
 ```
 
 **Línea por línea:**
-- `np.where(df["goles"] > 0, "Sí", "No")` → evalúa la condición para las 54.600 filas a la vez; donde es `True` pone `"Sí"`, donde es `False` pone `"No"`. Devuelve un `ndarray`, que Pandas acepta directamente como nueva columna.
+- `np.where(df["goals"] > 0, "Sí", "No")` → evalúa la condición para las 54.600 filas a la vez; donde es `True` pone `"Sí"`, donde es `False` pone `"No"`. Devuelve un `ndarray`, que Pandas acepta directamente como nueva columna.
 - `df["tuvo_gol"] = ...` → crea la columna nueva `tuvo_gol` asignando ese array.
 - `.value_counts()` → confirma cuántas apariciones jugador-partido terminaron con al menos un gol.
 
@@ -713,3 +713,82 @@ delanteros["goles_por_90"] = delanteros["goals"] / (delanteros["minutes_played"]
 - **Comercio electrónico**: detectar outliers en precios que podrían indicar errores en la carga de productos.
 - **Logística**: calcular tiempos de entrega promedio uniendo tablas de rutas, tráfico y conductores (`merge`).
 - **Salud**: limpiar registros de pacientes — unificar formatos de fechas y manejar datos clínicos faltantes en ensayos (Módulos 1 y 4, aplicados a un dominio distinto).
+
+---
+
+## Módulo 6 — Pre-Entrega: Limpieza y Análisis Exploratorio
+
+**Qué tenés que entregar** *(Filmina 39)*: un notebook (`.ipynb`) o un link a tu Colab, con tu propio dataset cargado en una variable llamada `df`, organizado en 4 bloques:
+
+| Bloque | Qué incluye |
+|---|---|
+| **1. Carga y Medición Inicial** | Total de valores faltantes por columna, y qué **porcentaje de las filas** representa cada ausencia (no porcentaje de columnas — ver "Errores a evitar"). |
+| **2. Detección de Duplicados** | Filas exactamente iguales (`duplicated()`), y duplicados en columnas que deberían ser únicas (IDs, números de factura, o en nuestro caso `match_id` + `player_id`). |
+| **3. Análisis de Impacto** | Para cada columna con nulos: ¿qué significa que falte? ¿Los duplicados son un error de carga o un dato válido? |
+| **4. Creación del Informe** | Un documento legible por un supervisor que no sabe programar (Word, Docs o Markdown) — las tablas pueden ser capturas del notebook, pero lo central es explicar el **porqué** de cada decisión. |
+
+**Errores a evitar** *(Filmina 40)*:
+- **Confundir porcentajes**: dividir el total de nulos entre el total de **filas**, no de columnas.
+- **Imputar sin pensar**: no rellenar "edad" con `0` sin una razón válida — distorsiona el promedio mucho más que dejar el nulo.
+- **Entregar código sin más**: este checkpoint evalúa el **criterio analítico**, no la sintaxis. Antes de entregar, releé: ¿tus comentarios explican *qué* hace la línea (ya se lee solo) o *por qué* elegiste esa lógica? Solo lo segundo suma.
+
+Ejemplo completo abajo, sobre el mismo `df_sucio` que armamos en el Módulo 1 (con los nulos y duplicados simulados) — la misma estructura que vas a usar con tu propio dataset.
+
+### Bloque 1 — Carga y Medición Inicial
+
+👉 **En Colab:**
+```python
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv("fifa_world_cup_2026_player_performance.csv")
+display(df.head())
+
+nulos_por_columna = df.isna().sum()
+porcentaje_nulos = (nulos_por_columna / len(df) * 100).round(4)
+display(porcentaje_nulos[porcentaje_nulos > 0].sort_values(ascending=False))
+```
+
+**Línea por línea:** carga estándar del dataset en `df`, y la medición inicial de nulos ya practicada en el Módulo 1 — acá el dataset real viene limpio, así que el resultado da una tabla vacía (0 columnas con nulos). El ejercicio real de este bloque ocurre en la próxima celda, sobre la versión con problemas simulados.
+
+### Bloque 2 — Detección de Duplicados
+
+👉 **En Colab:**
+```python
+# Reconstruimos el escenario "sucio" del Módulo 1: nulos + duplicados simulados
+df_sucio = df.copy()
+df_sucio.loc[50, "player_rating"] = np.nan
+df_sucio.loc[120, "pass_accuracy"] = np.nan
+df_sucio.loc[120, "distance_covered_km"] = np.nan
+df_sucio.loc[300, "nationality"] = np.nan
+df_sucio = pd.concat([df_sucio, df_sucio.iloc[100:103]], ignore_index=True)
+
+duplicados_exactos = df_sucio.duplicated().sum()
+duplicados_por_clave = df_sucio.duplicated(subset=["match_id", "player_id"]).sum()
+
+print(f"Duplicados exactos (fila completa): {duplicados_exactos}")
+print(f"Duplicados por clave de negocio (match_id + player_id): {duplicados_por_clave}")
+```
+
+**Línea por línea:**
+- Las primeras líneas reproducen exactamente la simulación del Módulo 1 (nulos puntuales + 3 filas duplicadas por un error de carga).
+- `df_sucio.duplicated().sum()` → duplicados considerando **todas** las columnas — da `3`.
+- `df_sucio.duplicated(subset=["match_id", "player_id"])` → duplicados mirando solo la clave de negocio; da el mismo `3`, porque en este dataset esa combinación es lo que identifica de forma única a una fila (un jugador no puede tener dos apariciones distintas en el mismo partido). En un dataset con más ruido, este número podría ser mayor al de arriba — señal de filas "casi iguales" pero con alguna columna distinta.
+
+### Bloque 3 — Análisis de Impacto
+
+**Hallazgos** *(interpretando los números del Bloque 1 y 2, no repitiéndolos)*:
+
+1. **Los 4 nulos simulados no son un problema estadístico** (0,0018% de las filas cada uno), pero **sí importan por lo que representan**: `player_rating` y `pass_accuracy` faltantes en una fila real significarían que esa aparición no se pudo calificar — antes de imputar con la media, valdría la pena confirmar si el jugador realmente jugó ese partido (Módulo 0: `minutes_played > 0`), porque imputar con la media a alguien que no jugó inventaría un rendimiento que nunca existió.
+2. **Los 3 duplicados son un error de carga, no un evento real**: la clave `match_id` + `player_id` los identifica igual de duplicados que la fila completa, lo que confirma que no hay ninguna columna que los distinga (a diferencia del ejemplo de "un cliente comprando el mismo producto dos días distintos", acá no hay una segunda dimensión de tiempo dentro del mismo partido que los vuelva eventos separados).
+3. **Nada de esto se explica solo mirando los números**: el 0,0018% de nulos podría ignorarse tranquilamente en un modelo, pero **no** debería ignorarse en un informe de calidad de datos — es la clase de detalle que un supervisor necesita conocer, aunque no cambie ninguna cuenta.
+
+### Bloque 4 — Creación del Informe
+
+> **Informe de Calidad de Datos — `fifa_world_cup_2026_player_performance.csv`**
+>
+> El dataset analizado contiene 54.600 registros (apariciones de jugador en partido) y 75 columnas. Sobre la versión con problemas simulados, se detectaron 4 valores faltantes puntuales (0,0018% de las filas cada uno, en `player_rating`, `pass_accuracy`, `distance_covered_km` y `nationality`) y 3 filas duplicadas, confirmadas tanto por comparación de fila completa como por la clave de negocio `match_id` + `player_id`.
+>
+> **Recomendación**: los duplicados deben eliminarse sin excepción — no representan eventos reales, sino un error de carga. Los nulos numéricos pueden imputarse con la media de su columna, siempre validando primero que el jugador haya participado del partido (`minutes_played > 0`); el nulo categórico (`nationality`) puede imputarse con la moda o dejarse como `"Desconocido"` si se prioriza no introducir un sesgo. Ninguna de las dos decisiones afecta de forma significativa al análisis agregado, dado el volumen total del dataset.
+
+**Cerrá con esto**: un informe de calidad de datos no reemplaza al código — lo traduce. El código de los Bloques 1 y 2 es la evidencia; el texto del Bloque 4 es lo que un supervisor sin conocimientos de programación necesita leer para decidir si el dataset está listo para el análisis siguiente.
