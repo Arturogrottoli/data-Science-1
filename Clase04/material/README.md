@@ -716,79 +716,100 @@ delanteros["goles_por_90"] = delanteros["goals"] / (delanteros["minutes_played"]
 
 ---
 
-## Módulo 6 — Pre-Entrega: Limpieza y Análisis Exploratorio
+## Módulo 6 — Pre-Entrega: Estructura Inicial del Dataset del Proyecto
 
-**Qué tenés que entregar** *(Filmina 39)*: un notebook (`.ipynb`) o un link a tu Colab, con tu propio dataset cargado en una variable llamada `df`, organizado en 4 bloques:
+**Origen de esta consigna**: es el **Checkpoint 1** oficial de la plataforma ("Pre-entrega: Estructura inicial del dataset del proyecto"). Nace como cierre del módulo de NumPy y Pandas (Clase 03), pero como en esa clase no llegamos a ver todo el contenido necesario, se corrió a Clase 04 — por eso vive acá y no en la guía de Clase 03.
+
+**Contexto y posición en la cadena**: en Nivelación y Fundamentos de Python preparaste el entorno y la lógica de programación; en este primer checkpoint aplicás Pandas y NumPy para "darle una identidad" a tu propio Proyecto Final. Lo que construyas hoy no es el análisis definitivo — es la base saneada y explorada sobre la que en el próximo módulo vas a aplicar visualización, y más adelante, Machine Learning.
+
+**Objetivo de aprendizaje**: consolidar la capacidad de cargar un dataset real, inspeccionar su estructura interna, validar tipos de datos y hacer un saneamiento inicial con funciones de Pandas y NumPy.
+
+**Qué construir**: un informe de inspección inicial en un Jupyter Notebook, que muestre el proceso de carga y el "diagnóstico" de tu dataset. El objetivo no es tener datos perfectos todavía — es tener un mapa claro de qué datos tenés y qué problemas (nulos, tipos erróneos) vas a tener que resolver.
+
+**Temas a cubrir en la entrega:**
 
 | Bloque | Qué incluye |
 |---|---|
-| **1. Carga y Medición Inicial** | Total de valores faltantes por columna, y qué **porcentaje de las filas** representa cada ausencia (no porcentaje de columnas — ver "Errores a evitar"). |
-| **2. Detección de Duplicados** | Filas exactamente iguales (`duplicated()`), y duplicados en columnas que deberían ser únicas (IDs, números de factura, o en nuestro caso `match_id` + `player_id`). |
-| **3. Análisis de Impacto** | Para cada columna con nulos: ¿qué significa que falte? ¿Los duplicados son un error de carga o un dato válido? |
-| **4. Creación del Informe** | Un documento legible por un supervisor que no sabe programar (Word, Docs o Markdown) — las tablas pueden ser capturas del notebook, pero lo central es explicar el **porqué** de cada decisión. |
+| **Carga del Dataset** | `read_csv` (o similar) para traer tus datos al entorno. |
+| **Estructura Base** | Reporte de filas y columnas (`.shape`). |
+| **Diagnóstico Estructural** | `.info()` para identificar columnas con nulos y `dtypes` que no coincidan con la realidad (ej. números que Pandas lee como texto). |
+| **Resumen Numérico** | `.describe()` para entender los rangos de tus variables. |
+| **Saneamiento Inicial** | Al menos **3 filtros o selecciones booleanas** que "recorten" o limpien el dataset, y eliminar al menos una columna que no aporte al problema de negocio. |
 
-**Errores a evitar** *(Filmina 40)*:
-- **Confundir porcentajes**: dividir el total de nulos entre el total de **filas**, no de columnas.
-- **Imputar sin pensar**: no rellenar "edad" con `0` sin una razón válida — distorsiona el promedio mucho más que dejar el nulo.
-- **Entregar código sin más**: este checkpoint evalúa el **criterio analítico**, no la sintaxis. Antes de entregar, releé: ¿tus comentarios explican *qué* hace la línea (ya se lee solo) o *por qué* elegiste esa lógica? Solo lo segundo suma.
+**Errores comunes a evitar:**
+- **Ignorar los tipos de datos**: es muy común intentar sumar una columna y que tire error porque Pandas la leyó como `object` (texto). Revisá siempre `.info()`.
+- **No guardar los cambios**: filtrar con `df[df["edad"] > 18]` no modifica el original a menos que lo reasignes (`df = df[df["edad"] > 18]`).
 
-Ejemplo completo abajo, sobre el mismo `df_sucio` que armamos en el Módulo 1 (con los nulos y duplicados simulados) — la misma estructura que vas a usar con tu propio dataset.
+**Conexión con el entregable final**: este dataset "saneado" es la materia prima para el resto del curso — en el próximo módulo se usa el mismo archivo para gráficos con Matplotlib y Seaborn. Una estructura sólida hoy evita que las visualizaciones de mañana "mientan".
 
-### Bloque 1 — Carga y Medición Inicial
+**Entregable**: un PDF con la exportación del notebook (código, resultados y comentarios visibles), incluyendo diagnóstico de nulos, `dtypes`, `describe()` y los filtros realizados. Nombre sugerido: `Apellido_Nombre_Checkpoint1.pdf` (en Jupyter: *File → Download as → PDF via HTML*, o imprimiendo la página como PDF).
+
+Ejemplo completo abajo, sobre `fifa_world_cup_2026_player_performance.csv` — la misma estructura que vas a usar con el dataset de tu propio proyecto.
+
+### Preparación
+
+Tené tu dataset (CSV o Excel) en la misma carpeta donde vas a crear el notebook — evita rutas absolutas que solo funcionan en tu computadora.
+
+### Carga e Inspección
 
 👉 **En Colab:**
 ```python
 import pandas as pd
-import numpy as np
 
 df = pd.read_csv("fifa_world_cup_2026_player_performance.csv")
 display(df.head())
 
-nulos_por_columna = df.isna().sum()
-porcentaje_nulos = (nulos_por_columna / len(df) * 100).round(4)
-display(porcentaje_nulos[porcentaje_nulos > 0].sort_values(ascending=False))
-```
-
-**Línea por línea:** carga estándar del dataset en `df`, y la medición inicial de nulos ya practicada en el Módulo 1 — acá el dataset real viene limpio, así que el resultado da una tabla vacía (0 columnas con nulos). El ejercicio real de este bloque ocurre en la próxima celda, sobre la versión con problemas simulados.
-
-### Bloque 2 — Detección de Duplicados
-
-👉 **En Colab:**
-```python
-# Reconstruimos el escenario "sucio" del Módulo 1: nulos + duplicados simulados
-df_sucio = df.copy()
-df_sucio.loc[50, "player_rating"] = np.nan
-df_sucio.loc[120, "pass_accuracy"] = np.nan
-df_sucio.loc[120, "distance_covered_km"] = np.nan
-df_sucio.loc[300, "nationality"] = np.nan
-df_sucio = pd.concat([df_sucio, df_sucio.iloc[100:103]], ignore_index=True)
-
-duplicados_exactos = df_sucio.duplicated().sum()
-duplicados_por_clave = df_sucio.duplicated(subset=["match_id", "player_id"]).sum()
-
-print(f"Duplicados exactos (fila completa): {duplicados_exactos}")
-print(f"Duplicados por clave de negocio (match_id + player_id): {duplicados_por_clave}")
+print(f"Dimensiones: {df.shape}")   # (54600, 75)
+df.info()
 ```
 
 **Línea por línea:**
-- Las primeras líneas reproducen exactamente la simulación del Módulo 1 (nulos puntuales + 3 filas duplicadas por un error de carga).
-- `df_sucio.duplicated().sum()` → duplicados considerando **todas** las columnas — da `3`.
-- `df_sucio.duplicated(subset=["match_id", "player_id"])` → duplicados mirando solo la clave de negocio; da el mismo `3`, porque en este dataset esa combinación es lo que identifica de forma única a una fila (un jugador no puede tener dos apariciones distintas en el mismo partido). En un dataset con más ruido, este número podría ser mayor al de arriba — señal de filas "casi iguales" pero con alguna columna distinta.
+- `pd.read_csv(...)` → carga el dataset completo en `df`, la variable que vamos a usar en todo el checkpoint.
+- `df.head()` → inspección visual: ¿las columnas se ven como esperabas, sin corrimientos ni texto pegado?
+- `df.shape` → volumen de datos: 54.600 filas, 75 columnas.
+- `df.info()` → columna por columna, cuántos valores no nulos tiene y de qué `dtype` es. Acá conviene revisar con ojo crítico: `market_value_eur` es `int64` (correcto, es un número), `match_date` es `object` porque todavía no la convertimos a fecha (eso pasa recién en el Módulo 4) — nada aparece como texto por error, a diferencia de un dataset real donde un símbolo de moneda o una coma de miles puede "ensuciar" una columna numérica y forzarla a `object`.
 
-### Bloque 3 — Análisis de Impacto
+### Perfilado Inicial
 
-**Hallazgos** *(interpretando los números del Bloque 1 y 2, no repitiéndolos)*:
+👉 **En Colab:**
+```python
+nulos_por_columna = df.isnull().sum()
+print(f"Total de valores nulos: {nulos_por_columna.sum()}")
 
-1. **Los 4 nulos simulados no son un problema estadístico** (0,0018% de las filas cada uno), pero **sí importan por lo que representan**: `player_rating` y `pass_accuracy` faltantes en una fila real significarían que esa aparición no se pudo calificar — antes de imputar con la media, valdría la pena confirmar si el jugador realmente jugó ese partido (Módulo 0: `minutes_played > 0`), porque imputar con la media a alguien que no jugó inventaría un rendimiento que nunca existió.
-2. **Los 3 duplicados son un error de carga, no un evento real**: la clave `match_id` + `player_id` los identifica igual de duplicados que la fila completa, lo que confirma que no hay ninguna columna que los distinga (a diferencia del ejemplo de "un cliente comprando el mismo producto dos días distintos", acá no hay una segunda dimensión de tiempo dentro del mismo partido que los vuelva eventos separados).
-3. **Nada de esto se explica solo mirando los números**: el 0,0018% de nulos podría ignorarse tranquilamente en un modelo, pero **no** debería ignorarse en un informe de calidad de datos — es la clase de detalle que un supervisor necesita conocer, aunque no cambie ninguna cuenta.
+display(df.describe())
+```
 
-### Bloque 4 — Creación del Informe
+**Línea por línea:**
+- `df.isnull().sum()` → nulos por columna; `.sum()` sobre eso da el total del dataset — acá da `0`, este archivo viene sin nulos.
+- `df.describe()` → estadísticas (`count`, `mean`, `std`, `min`, percentiles, `max`) de cada columna numérica. Mirando la tabla real: `age` va de 17 a 39 años (rango de jugadores de un Mundial, tiene sentido); `market_value_eur` va de ~529 mil a 200 millones de euros, con una media (~20M) muy por debajo del máximo — señal de que unas pocas estrellas empujan el promedio hacia arriba.
 
-> **Informe de Calidad de Datos — `fifa_world_cup_2026_player_performance.csv`**
+### Saneamiento y Selección
+
+👉 **En Colab:**
+```python
+jugaron = df[df["minutes_played"] > 0]                                              # filtro 1: excluye suplentes que no jugaron
+delanteros_caros = df[(df["position"] == "Forward") & (df["market_value_eur"] > 50_000_000)]  # filtro 2: condición combinada
+fase_eliminatoria = df[df["tournament_stage"] != "Group Stage"]                     # filtro 3: todo lo que no es fase de grupos
+
+df_reducido = df.drop(columns=["jersey_number"])   # eliminamos una columna que no aporta al análisis
+
+print(f"Apariciones con minutos jugados: {len(jugaron)}")
+print(f"Delanteros con valor > 50M€: {len(delanteros_caros)}")
+print(f"Apariciones en fase eliminatoria: {len(fase_eliminatoria)}")
+```
+
+**Línea por línea:**
+- `df["minutes_played"] > 0` → primer filtro: descarta las apariciones de jugadores convocados que no llegaron a jugar (el hallazgo del Módulo 0).
+- `(df["position"] == "Forward") & (df["market_value_eur"] > 50_000_000)` → segundo filtro, con `&` combinando dos condiciones sobre Series (nunca `and` acá).
+- `df["tournament_stage"] != "Group Stage"` → tercer filtro: todo lo que es instancia eliminatoria (Round of 32 en adelante).
+- `df.drop(columns=["jersey_number"])` → elimina una columna irrelevante para un análisis de rendimiento (el número de camiseta no aporta nada analíticamente); devuelve un DataFrame nuevo, por eso se reasigna a `df_reducido` — si no reasignás, el original queda intacto (ver "Errores comunes a evitar").
+
+### Reflexión
+
+> **¿Qué problemas encontré en los datos?** Ninguno grave: `fifa_world_cup_2026_player_performance.csv` viene con los 75 `dtypes` correctos y sin valores nulos — la única transformación pendiente es convertir `match_date` de texto a fecha real, que se resuelve en el Módulo 4. El mayor punto de atención no es de calidad de datos sino de interpretación: cada fila es una *aparición* jugador-partido, no un jugador único, así que cualquier conteo tiene que aclarar sobre qué unidad está parado.
 >
-> El dataset analizado contiene 54.600 registros (apariciones de jugador en partido) y 75 columnas. Sobre la versión con problemas simulados, se detectaron 4 valores faltantes puntuales (0,0018% de las filas cada uno, en `player_rating`, `pass_accuracy`, `distance_covered_km` y `nationality`) y 3 filas duplicadas, confirmadas tanto por comparación de fila completa como por la clave de negocio `match_id` + `player_id`.
->
-> **Recomendación**: los duplicados deben eliminarse sin excepción — no representan eventos reales, sino un error de carga. Los nulos numéricos pueden imputarse con la media de su columna, siempre validando primero que el jugador haya participado del partido (`minutes_played > 0`); el nulo categórico (`nationality`) puede imputarse con la moda o dejarse como `"Desconocido"` si se prioriza no introducir un sesgo. Ninguna de las dos decisiones afecta de forma significativa al análisis agregado, dado el volumen total del dataset.
+> **¿Cuáles van a ser mis variables clave?** `player_rating` y `market_value_eur` para medir rendimiento y valor; `position` y `tournament_stage` para segmentar comparaciones; `minutes_played` como filtro obligatorio antes de calcular cualquier promedio de rendimiento, para no mezclar titulares con suplentes que no jugaron.
 
-**Cerrá con esto**: un informe de calidad de datos no reemplaza al código — lo traduce. El código de los Bloques 1 y 2 es la evidencia; el texto del Bloque 4 es lo que un supervisor sin conocimientos de programación necesita leer para decidir si el dataset está listo para el análisis siguiente.
+### Exportación
+
+En Jupyter: *File → Download as → PDF via HTML* (o imprimir la página como PDF). Nombre del archivo: `Apellido_Nombre_Checkpoint1.pdf`.
