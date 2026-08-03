@@ -43,11 +43,27 @@ Para seguir la clase en paralelo con `Clase09.html` (36 filminas) sin perderte:
 
 ## Módulo 0 — Repaso Express: Aprendizaje Supervisado (puente desde la Clase 08)
 
-**Aprendizaje supervisado, en una frase**: cada dato viene con una respuesta conocida (`y`), y el modelo aprende una función `f(X) → y` para predecir esa respuesta en casos nuevos — clasificación si `y` es una categoría (¿tumor maligno?), regresión si `y` es un número (¿precio de la vivienda?).
+**Por qué este módulo**: la Clase 08 cerró el bloque de aprendizaje supervisado. Antes de arrancar con la Clase 09, conviene un repaso corto — no para volver a enseñarlo, sino para que el contraste con lo de hoy quede bien marcado.
 
-**Repaso relámpago de la Clase 08**: regresión lineal, árboles de decisión y Random Forest; `Pipeline` + `StandardScaler` para evitar Data Leakage; métricas (Accuracy/F1 en clasificación, MAE/RMSE/R² en regresión); y `StratifiedKFold` para cross-validation.
+### ¿Qué es el aprendizaje supervisado?
 
-**Lo que cambia hoy**: sin `y`. El dato no trae una respuesta conocida — el objetivo deja de ser predecir y pasa a ser **descubrir estructura**: qué se parece a qué (clustering), cómo simplificar muchas variables en pocas (reducción de dimensionalidad), o qué patrones se repiten (reglas de asociación).
+Cada dato de entrenamiento viene con una respuesta conocida (`y`): un tumor es maligno o no, una casa vale tanto. El modelo aprende una función `f(X) → y` que mapea las variables de entrada a esa respuesta, con el objetivo de **predecir** `y` en casos nuevos. Se divide en dos familias:
+
+| | Clasificación | Regresión |
+|---|:---:|:---:|
+| **`y` es...** | Una categoría | Un número |
+| **Ejemplo** | ¿Tumor maligno? | ¿Precio de la vivienda? |
+| **Métricas** | Accuracy, F1, AUC-ROC | MAE, RMSE, R² |
+
+### Repaso relámpago de la Clase 08
+
+- **Modelos**: Regresión Lineal, Árbol de Decisión, Random Forest, Regresión Logística, KNN.
+- **Buenas prácticas**: `Pipeline` + `StandardScaler` para evitar *Data Leakage* al escalar o imputar; `train_test_split` con `stratify` para mantener la proporción de clases.
+- **Validación**: `StratifiedKFold` + `cross_val_score` para no confiar en un solo split de datos.
+
+### Lo que cambia hoy
+
+El aprendizaje no supervisado parte de datos **sin `y`** — sin una respuesta correcta conocida de antemano. El objetivo deja de ser predecir y pasa a ser **descubrir estructura**: qué observaciones se parecen entre sí (clustering), cómo simplificar muchas variables en pocas sin perder lo esencial (reducción de dimensionalidad), o qué patrones se repiten con frecuencia (reglas de asociación) — los tres frentes que recorre el resto de esta clase.
 
 ---
 
@@ -110,6 +126,44 @@ Este flujo es la base para las prácticas y análisis de toda la clase — cambi
 
 **Nota clave**: una regla con alto *support* y *confidence* es frecuente y confiable, pero el *lift* es el que dice si la asociación es significativa o simplemente casual. Una regla con alto *support* pero bajo *lift* puede no ser interesante, porque la asociación podría ser casual.
 
+🎯 **Ejemplo**: calcular las tres métricas a mano, sobre una canasta de compras chica — sin librerías especializadas, para ver exactamente qué hay detrás de cada fórmula.
+
+```python
+# 10 transacciones de ejemplo (cada lista es la compra de un cliente)
+transacciones = [
+    ["pan", "leche", "manteca"],
+    ["pan", "leche"],
+    ["leche", "huevos"],
+    ["pan", "manteca", "cafe"],
+    ["pan", "leche", "manteca", "huevos"],
+    ["leche", "cafe"],
+    ["pan", "leche", "manteca"],
+    ["pan", "cafe"],
+    ["leche", "huevos", "cafe"],
+    ["pan", "leche", "huevos"],
+]
+n = len(transacciones)
+
+def support(itemset):
+    itemset = set(itemset)
+    return sum(1 for t in transacciones if itemset.issubset(t)) / n
+
+def regla(a, b):
+    sup_a, sup_b = support([a]), support([b])
+    sup_ab = support([a, b])
+    confidence = sup_ab / sup_a
+    lift = confidence / sup_b
+    print(f"{a} -> {b}: support={sup_ab:.2f}, confidence={confidence:.2f}, lift={lift:.2f}")
+
+regla("pan", "manteca")
+regla("pan", "leche")
+```
+
+**Línea por línea:**
+- `support(itemset)` → `issubset(t)` chequea si **todos** los ítems del conjunto están en la transacción `t`; contar cuántas transacciones cumplen eso, dividido por el total, es exactamente la definición de *support*.
+- `regla(a, b)` → aplica las tres fórmulas de la tabla de arriba en orden: primero los *supports* individuales y conjunto, después *confidence* (`sup_ab / sup_a`), después *lift* (`confidence / sup_b`).
+- **Resultado real**: `pan -> manteca` da `support=0.40, confidence=0.57, lift=1.43` — lift > 1, asociación real. `pan -> leche` da `support=0.50, confidence=0.71, lift=0.89` — a pesar de tener *support* y *confidence* más altos que la regla anterior, el lift menor a 1 revela que la asociación es más débil de lo que parece: `leche` es tan frecuente por sí sola (80% de las transacciones) que aparece junto con casi cualquier cosa, sin que eso signifique una relación real con `pan`.
+
 ### ¿Cuándo usar reglas de asociación en retail? *(Filmina 10)*
 
 - Para descubrir productos que se compran juntos y diseñar promociones cruzadas.
@@ -156,6 +210,48 @@ Para cada punto, compara su **cohesión** (distancia promedio a los demás punto
 - Cerca de **-1**: el punto probablemente está mal asignado, y encajaría mejor en otro cluster.
 
 Se calcula el promedio del coeficiente para todos los puntos, para cada `k` candidato, y se elige el `k` que **maximiza** ese promedio — el que da los clusters más definidos y separados. También sirve para detectar outliers: puntos con coeficiente cercano a -1 son candidatos a estar mal asignados.
+
+🎯 **Ejemplo**: generar datos sintéticos con 4 grupos conocidos de antemano, "olvidarnos" de ese número, y recuperarlo con el método del codo y el silhouette.
+
+```python
+import numpy as np
+from sklearn.datasets import make_blobs
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+# Datos sintéticos con 4 centros conocidos (en la práctica, no lo sabríamos)
+X, _ = make_blobs(n_samples=300, centers=4, cluster_std=1.1, random_state=42)
+X_scaled = StandardScaler().fit_transform(X)
+
+# Método del codo: WCSS para k de 1 a 8
+wcss = []
+for k in range(1, 9):
+    km = KMeans(n_clusters=k, n_init=10, random_state=42)
+    km.fit(X_scaled)
+    wcss.append(km.inertia_)   # inertia_ = WCSS de ese modelo
+
+# Coeficiente silhouette: no se calcula para k=1 (no hay "otro cluster" con quien comparar)
+mejores = []
+for k in range(2, 9):
+    km = KMeans(n_clusters=k, n_init=10, random_state=42)
+    labels = km.fit_predict(X_scaled)
+    mejores.append((k, silhouette_score(X_scaled, labels)))
+
+mejor_k = max(mejores, key=lambda par: par[1])[0]
+print(f"Mejor k según silhouette: {mejor_k}")
+
+# Modelo final con el k elegido
+kmeans_final = KMeans(n_clusters=mejor_k, n_init=10, random_state=42)
+etiquetas = kmeans_final.fit_predict(X_scaled)
+```
+
+**Línea por línea:**
+- `make_blobs(n_samples=300, centers=4, ...)` → genera 300 puntos repartidos en 4 grupos con forma esférica — el escenario "ideal" para K-Means.
+- `km.inertia_` → atributo de scikit-learn que ya trae calculado el WCSS del modelo ajustado; no hace falta calcularlo a mano.
+- `silhouette_score(X_scaled, labels)` → recibe los datos y las etiquetas de cluster que asignó el modelo, y devuelve el promedio del coeficiente silhouette de todos los puntos.
+- `max(mejores, key=lambda par: par[1])` → de la lista de tuplas `(k, silhouette)`, se queda con la que tiene el silhouette más alto.
+- **Resultado real**: el WCSS cae de 600 (`k=1`) a 74.6 (`k=3`) y a 20.9 (`k=4`) — ahí está el "codo", porque de `k=4` en adelante la mejora es marginal (18.7, 16.6, 14.7...). El silhouette confirma lo mismo de otra forma: da su valor más alto (0.778) exactamente en `k=4` — el mismo número de centros que usamos para generar los datos, recuperado sin haberlo usado en ningún momento del cálculo.
 
 ### Aplicación práctica y relevancia en la industria *(Filmina 17)*
 
@@ -315,6 +411,42 @@ Un **eigenvector** es un vector que, al aplicarle una transformación lineal (co
 En PCA:
 - Los **eigenvectores** de la matriz de covarianza son las **Componentes Principales** — las nuevas direcciones ortogonales sobre las que se proyectan los datos.
 - Los **eigenvalores** indican la **varianza** que explica cada componente — un eigenvalor alto significa que esa dirección captura mucha variabilidad de los datos.
+
+🎯 **Ejemplo**: calcular la matriz de covarianza y sus eigenvalores "a mano" con NumPy, y confirmar que da exactamente lo mismo que el `PCA` de scikit-learn — para que quede claro que no es magia, es álgebra lineal.
+
+```python
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+# Dataset sintético: x2 correlacionada con x1 a propósito, x3 independiente (ruido)
+np.random.seed(42)
+n = 200
+x1 = np.random.normal(0, 1, n)
+x2 = x1 * 0.9 + np.random.normal(0, 0.3, n)
+x3 = np.random.normal(0, 1, n)
+datos_escalados = StandardScaler().fit_transform(np.column_stack([x1, x2, x3]))
+
+# Matriz de covarianza "a mano"
+matriz_cov = np.cov(datos_escalados.T)
+print(matriz_cov.round(2))
+
+# Eigenvalores y eigenvectores (eigh: para matrices simétricas, como la de covarianza)
+autovalores, autovectores = np.linalg.eigh(matriz_cov)
+autovalores = np.sort(autovalores)[::-1]                       # orden de mayor a menor
+varianza_explicada = autovalores / autovalores.sum() * 100
+print(f"Varianza explicada (a mano): {varianza_explicada.round(1)}")
+
+# Confirmación con PCA de scikit-learn
+pca = PCA().fit(datos_escalados)
+print(f"Varianza explicada (sklearn): {(pca.explained_variance_ratio_ * 100).round(1)}")
+```
+
+**Línea por línea:**
+- `x2 = x1 * 0.9 + ruido` → construye a propósito una variable fuertemente correlacionada con `x1`, para que el ejemplo tenga una dirección de varianza claramente dominante.
+- `np.cov(datos_escalados.T)` → la matriz de covarianza 3×3; en el resultado real, la covarianza entre `x1` y `x2` da `0.95` (muy alta), mientras que `x3` queda casi en `0` con las otras dos.
+- `np.linalg.eigh(...)` → variante de `eig` pensada para matrices **simétricas** (la de covarianza siempre lo es); a diferencia de `eig`, devuelve los autovalores ya como números reales, sin parte imaginaria residual.
+- **Resultado real**: la varianza explicada da `[66.1%, 32.1%, 1.8%]` calculada a mano, y **exactamente los mismos tres números** con `PCA()` de scikit-learn — el primer componente concentra dos tercios de toda la variabilidad, justamente porque resume la relación compartida entre `x1` y `x2`.
 
 ### Varianza explicada y selección de componentes *(Filmina 28)*
 
