@@ -52,7 +52,7 @@ A partir de esta clase cambiamos de dataset: dejamos `stocks.csv` (Clase 03, ser
   - **Datos del jugador** (no cambian partido a partido): `player_id`, `player_name`, `age`, `nationality`, `team`, `position`, `height_cm`, `market_value_eur`, `club_name`...
   - **Datos del partido**: `match_id`, `match_date`, `stadium`, `opponent_team`, `tournament_stage`, `match_result` (`W`/`D`/`L`)...
   - **Métricas de rendimiento en ese partido**: `goals`, `assists`, `shots`, `pass_accuracy`, `tackles`, `minutes_played`, `player_rating`...
-- **1.248 jugadores únicos**, **48 equipos**, **1.050 partidos únicos**.
+- **1.248 jugadores únicos**, **48 equipos**, **1.050 partidos únicos**. La relación entre estos números no es arbitraria: 1.050 partidos × ~26 convocados por plantel (titulares + banco de ambos equipos) da aproximadamente las 54.600 filas totales — la aritmética que explica por qué el dataset tiene ese tamaño exacto.
 - **`position`** tiene 4 valores: `Defender` (18.900 filas), `Midfielder` (16.800), `Forward` (12.600), `Goalkeeper` (6.300).
 - **0 valores nulos y 0 filas duplicadas** en todo el archivo — a diferencia de `stocks.csv`, acá no hace falta ni siquiera simular problemas para el Módulo 1 de esta clase (duplicados), porque otras columnas sí van a tener inconsistencias que vamos a explotar ahí.
 
@@ -88,10 +88,10 @@ print(f"Percentil 90: {np.percentile(valores_en_millones, 90):.2f}M")
 ```
 
 **Línea por línea:**
-- `df["market_value_eur"].to_numpy()` → toma la Serie (columna) y devuelve el `ndarray` que tiene por dentro, sin las etiquetas de índice de Pandas.
+- `df["market_value_eur"].to_numpy()` → toma la Serie (columna) y devuelve el `ndarray` que tiene por dentro, sin las etiquetas de índice de Pandas. Es casi gratis en tiempo de ejecución: como una Serie de Pandas ya usa un array de NumPy como almacenamiento interno, `to_numpy()` no recalcula nada, solo "destapa" la estructura que ya estaba ahí.
 - `valores_mercado / 1_000_000` → división vectorizada: cada uno de los 54.600 valores se divide por un millón en una sola operación, sin recorrer la lista.
 - `.mean()`, `.max()` → métodos de NumPy sobre el array resultante.
-- `np.percentile(valores_en_millones, 90)` → valor de mercado por debajo del cual está el 90% de las apariciones jugador-partido; el 10% restante son los jugadores más valiosos del torneo.
+- `np.percentile(valores_en_millones, 90)` → valor de mercado por debajo del cual está el 90% de las apariciones jugador-partido; el 10% restante son los jugadores más valiosos del torneo. A diferencia de `.median()` (fijo en el percentil 50), `np.percentile` acepta cualquier corte — útil para definir umbrales de negocio ("el top 10% más caro") sin tener que ordenar el array a mano.
 
 ### 0.2 Pandas — Series y DataFrame: lo esencial (repaso)
 
@@ -115,7 +115,7 @@ print(type(nombres), type(ficha))
 - `df.shape` → tupla `(filas, columnas)`; acá `(54600, 75)`.
 - `df.info()` → lista las 75 columnas con su tipo de dato (`Dtype`) y cuántos valores no nulos tiene cada una.
 - `df["player_name"]` → **un** corchete selecciona una sola columna como Serie (1D, con índice).
-- `df[["player_name", "team", "position"]]` → **doble** corchete (una lista de nombres adentro) selecciona varias columnas como DataFrame (2D).
+- `df[["player_name", "team", "position"]]` → **doble** corchete (una lista de nombres adentro) selecciona varias columnas como DataFrame (2D). El corchete externo es el operador de selección de `df`; el interno es la lista de Python con los nombres — por eso "doble corchete" en realidad son dos cosas distintas, no un capricho de sintaxis.
 
 ### 0.3 Selección con `.loc[]` y `.iloc[]`
 
@@ -135,9 +135,9 @@ print(goleadores)
 ```
 
 **Línea por línea:**
-- `df.iloc[0:5, 0:4]` → `0:5` son las filas con posición 0 a 4 (5 filas), `0:4` las columnas con posición 0 a 3 (4 columnas); ambos por número, no por nombre.
+- `df.iloc[0:5, 0:4]` → `0:5` son las filas con posición 0 a 4 (5 filas), `0:4` las columnas con posición 0 a 3 (4 columnas); ambos por número, no por nombre. A diferencia del slicing de listas de Python, en `.iloc` el límite superior también es exclusivo — `0:5` trae 5 filas, no 6 —, así que en ese punto se comporta igual que una lista común.
 - `df["goals"] > 2` → una Serie de booleanos (`True`/`False`), una por fila, según si esa aparición tuvo más de 2 goles.
-- `df.loc[condición, ["player_name", "team", "goals"]]` → `.loc` recibe **primero** el filtro (qué filas) y **después** la lista de columnas por nombre (qué columnas); el resultado son las filas donde la condición dio `True`, mostrando solo esas tres columnas.
+- `df.loc[condición, ["player_name", "team", "goals"]]` → `.loc` recibe **primero** el filtro (qué filas) y **después** la lista de columnas por nombre (qué columnas); el resultado son las filas donde la condición dio `True`, mostrando solo esas tres columnas. Con `.loc`, a diferencia de `.iloc`, si el segundo argumento fuera un slice de etiquetas (`"col_a":"col_c"`) el límite superior sería **inclusivo** — otra diferencia entre ambos que suele confundir al principio.
 
 ### 0.4 Filtrado booleano con múltiples condiciones
 
@@ -158,8 +158,8 @@ print(f"Apariciones fuera de la Final: {len(no_finales)}")
 
 **Línea por línea:**
 - `df[df["minutes_played"] > 0]` → filtro simple: se queda con las filas donde la condición es `True`.
-- `(df["position"] == "Forward") & (df["market_value_eur"] > 50_000_000)` → dos condiciones combinadas con `&` (Y lógico); cada una entre paréntesis, obligatorio para que Python respete el orden de evaluación.
-- `~(df["tournament_stage"] == "Final")` → `~` niega la condición completa: se queda con todo lo que **no** es la Final (equivalente a `!=`, pero útil cuando la condición ya es compleja).
+- `(df["position"] == "Forward") & (df["market_value_eur"] > 50_000_000)` → dos condiciones combinadas con `&` (Y lógico); cada una entre paréntesis, obligatorio para que Python respete el orden de evaluación. Sin los paréntesis, `&` tiene **mayor precedencia** que `==`/`>`, así que Python intentaría evaluar `market_value_eur > (50_000_000 & df["position"])` primero y el código rompería con un error de tipos.
+- `~(df["tournament_stage"] == "Final")` → `~` niega la condición completa: se queda con todo lo que **no** es la Final (equivalente a `!=`, pero útil cuando la condición ya es compleja). La diferencia real aparece con condiciones combinadas: `~((a) & (b))` no es lo mismo que `(~a) & (~b)` — son las leyes de De Morgan, y en Pandas se aplican igual que en álgebra booleana.
 
 ### 0.5 Explorar categorías y ordenar: `value_counts()`, `unique()`, `nunique()`, `sort_values()`
 
@@ -179,8 +179,8 @@ print(top_valor[["player_name", "team", "market_value_eur"]])
 ```
 
 **Línea por línea:**
-- `df["position"].value_counts()` → tabla de frecuencias: cada posición y cuántas apariciones jugador-partido tiene.
-- `df["team"].nunique()` → cuenta los 48 equipos distintos en la columna `team`, sin listarlos.
+- `df["position"].value_counts()` → tabla de frecuencias: cada posición y cuántas apariciones jugador-partido tiene. Por defecto ordena de mayor a menor y **excluye** los `NaN` de ese conteo; `value_counts(normalize=True)` da directamente proporciones en vez de conteos absolutos, útil cuando se quiere comparar contra un dataset de otro tamaño.
+- `df["team"].nunique()` → cuenta los 48 equipos distintos en la columna `team`, sin listarlos. Por dentro es casi equivalente a `len(df["team"].unique())`, pero `nunique()` no arma la lista completa en memoria, así que es la opción más liviana cuando solo interesa el número.
 - `df.sort_values("market_value_eur", ascending=False)` → reordena **todo** el DataFrame de mayor a menor valor de mercado; `ascending=False` es necesario porque el default es ascendente.
 - `.head(5)` → se queda con las primeras 5 filas del resultado ya ordenado: los 5 jugadores-partido con mayor valor de mercado.
 
@@ -200,7 +200,7 @@ print(df_renombrado.columns[:5].tolist())
 
 **Línea por línea:**
 - `df.isnull().sum().sum()` → el primer `.sum()` cuenta nulos por columna, el segundo suma esos totales en un único número: `0` en este dataset.
-- `df.rename(columns={...})` → recibe un diccionario `{"nombre viejo": "nombre nuevo"}`; devuelve un DataFrame **nuevo** con las columnas renombradas, sin tocar el original — por eso lo guardamos en `df_renombrado` en vez de sobreescribir `df` (los módulos siguientes de esta guía siguen usando los nombres originales `goals`/`assists`).
+- `df.rename(columns={...})` → recibe un diccionario `{"nombre viejo": "nombre nuevo"}`; devuelve un DataFrame **nuevo** con las columnas renombradas, sin tocar el original — por eso lo guardamos en `df_renombrado` en vez de sobreescribir `df` (los módulos siguientes de esta guía siguen usando los nombres originales `goals`/`assists`). El mismo método sirve para renombrar el **índice** en vez de columnas, pasando `index={...}` — o, con `axis=1` en vez del diccionario por `columns=`, aplicar una función a todos los nombres a la vez (por ejemplo, `df.rename(columns=str.lower)` para pasar todo a minúsculas de un saque).
 - `df_renombrado.drop(columns=["jersey_number"])` → `columns=[...]` elimina columnas completas (para eliminar filas se usa `index=[...]`, visto ya en la Clase 03).
 
 ### 0.7 Agregación básica con `groupby` (puente al Módulo 3 de esta clase)
@@ -214,7 +214,7 @@ print((valor_por_posicion / 1_000_000).round(2))
 ```
 
 **Línea por línea:**
-- `df.groupby("position")` → agrupa las 54.600 filas en 4 grupos, uno por posición.
+- `df.groupby("position")` → agrupa las 54.600 filas en 4 grupos, uno por posición. Por sí sola, esta línea todavía no calcula nada: devuelve un objeto `DataFrameGroupBy` que solo guarda "el plan" de agrupamiento; el cálculo real recién ocurre cuando se encadena una agregación como `.mean()`.
 - `["market_value_eur"].mean()` → dentro de cada grupo, calcula el promedio de esa única columna.
 - `.sort_values(ascending=False)` → ordena los 4 resultados de mayor a menor.
 - El resultado real: **Forward** (≈27,2M€) > **Midfielder** (≈23,0M€) > **Defender** (≈15,4M€) > **Goalkeeper** (≈12,2M€) — coincide con la lógica del mercado de pases, donde los puestos ofensivos suelen cotizar más caro.
@@ -230,7 +230,7 @@ print(df["tuvo_gol"].value_counts())
 ```
 
 **Línea por línea:**
-- `np.where(df["goals"] > 0, "Sí", "No")` → evalúa la condición para las 54.600 filas a la vez; donde es `True` pone `"Sí"`, donde es `False` pone `"No"`. Devuelve un `ndarray`, que Pandas acepta directamente como nueva columna.
+- `np.where(df["goals"] > 0, "Sí", "No")` → evalúa la condición para las 54.600 filas a la vez; donde es `True` pone `"Sí"`, donde es `False` pone `"No"`. Devuelve un `ndarray`, que Pandas acepta directamente como nueva columna. `np.where` admite anidarse (`np.where(cond1, valor1, np.where(cond2, valor2, valor3))`) para simular un `if/elif/else` completo sin bucles, aunque para más de 2-3 niveles suele ser más legible `pd.cut()` o una función con `.apply()`.
 - `df["tuvo_gol"] = ...` → crea la columna nueva `tuvo_gol` asignando ese array.
 - `.value_counts()` → confirma cuántas apariciones jugador-partido terminaron con al menos un gol.
 
@@ -250,7 +250,9 @@ Cuatro términos que se usan casi como sinónimos, pero no son lo mismo:
 - **Null**: término genérico de SQL; en Pandas se usa "nulo" y "faltante" casi indistintamente.
 - **Cadena vacía (`""`) ≠ Faltante**: es texto válido sin caracteres — Pandas **no** la trata como nulo.
 
-Un detalle que sorprende la primera vez: `np.nan == np.nan` da **`False`**. Por eso no se puede filtrar nulos con `==`; existen `isna()`/`isnull()`, hechas específicamente para esto.
+Un detalle que sorprende la primera vez: `np.nan == np.nan` da **`False`**. Por eso no se puede filtrar nulos con `==`; existen `isna()`/`isnull()`, hechas específicamente para esto. La razón técnica viene del estándar IEEE 754 para números de punto flotante: `NaN` está definido como "no comparable ni siquiera consigo mismo", precisamente para que cualquier operación que involucre un dato faltante se propague como faltante en vez de devolver silenciosamente un resultado falso.
+
+Otro efecto colateral de que `NaN` sea siempre `float`: una columna de enteros (`int64`) que originalmente no tenía nulos, si en algún momento se le inserta uno, Pandas la **convierte entera a `float64`** — porque el tipo entero clásico de NumPy no tiene forma de representar "faltante". Es una causa frecuente del error "¿por qué mi columna de edades ahora tiene decimales?".
 
 🎯 **Qué mostramos acá:** el comportamiento contraintuitivo de `NaN` contra sí mismo, y cómo `None` se convierte en `NaN` apenas entra a un DataFrame.
 
@@ -285,7 +287,7 @@ Cuatro causas típicas, y por qué importa distinguirlas antes de limpiar:
 
 ### Detección de valores faltantes: `info()`, `isna()`, `isnull()` *(Filmina 05)*
 
-`info()` da el panorama general (columna por columna, cuántos valores "Non-Null" hay); `isna()`/`isnull()` (son alias, hacen lo mismo) devuelven la máscara booleana completa — útil para filtrar, inútil para "mirar" en un dataset de miles de filas.
+`info()` da el panorama general (columna por columna, cuántos valores "Non-Null" hay); `isna()`/`isnull()` (son alias, hacen lo mismo — `isnull()` existe por compatibilidad con la terminología de R/SQL, ninguna es "la versión vieja") devuelven la máscara booleana completa — útil para filtrar, inútil para "mirar" en un dataset de miles de filas.
 
 🎯 **Qué mostramos acá:** simular la falla de captura sobre una copia del dataset real, y confirmarla con `info()`.
 
@@ -303,7 +305,7 @@ df_sucio.info()
 ```
 
 **Línea por línea:**
-- `df.copy()` → trabajamos sobre una copia; nunca se simulan fallas sobre el DataFrame original.
+- `df.copy()` → trabajamos sobre una copia; nunca se simulan fallas sobre el DataFrame original. Sin `.copy()`, `df_sucio = df` no crea una tabla nueva, solo una segunda etiqueta apuntando a los mismos datos en memoria — modificar `df_sucio` modificaría también `df` (el mismo problema de "Copias vs. Vistas" que se retoma en el Módulo 5).
 - `df_sucio.loc[50, "player_rating"] = np.nan` → `.loc[fila, columna]` asigna un valor puntual; acá lo usamos para "romper" una celda a propósito.
 - La fila `120` recibe **dos** nulos en columnas distintas — así después la Filmina 06 (cuantificación) tiene un caso real de "más de un problema en la misma fila".
 - `df_sucio.info()` → confirma la baja: las columnas tocadas ahora muestran menos valores `Non-Null` que el resto.
@@ -318,7 +320,7 @@ Una tabla, no una ciencia exacta, pero sirve como regla de arranque:
 | Entre 5% y 30% | Requiere pensar una estrategia de imputación más sofisticada. |
 | Más del 50% | A veces es mejor descartar la columna entera: más "ruido" que información real. |
 
-Como `True` vale `1` y `False` vale `0`, `df.isna().sum()` cuenta nulos por columna sin necesidad de un `if`. Dividido por `len(df)` y multiplicado por 100, da el porcentaje — la métrica que realmente importa (50 nulos en 60 filas es un desastre; 50 nulos en 54.600, no).
+Como `True` vale `1` y `False` vale `0`, `df.isna().sum()` cuenta nulos por columna sin necesidad de un `if`. Dividido por `len(df)` y multiplicado por 100, da el porcentaje — la métrica que realmente importa (50 nulos en 60 filas es un desastre; 50 nulos en 54.600, no). Ese mismo truco (`True`/`False` tratados como `1`/`0`) es lo que permite usar `.sum()` sobre cualquier máscara booleana para contar cuántos `True` hay — el mecanismo detrás de casi todos los "conteo de filas que cumplen tal condición" que se ven en la práctica.
 
 👉 **En Colab:**
 ```python
@@ -336,9 +338,9 @@ print(porcentaje_nulos[porcentaje_nulos > 0])   # solo las columnas afectadas
 
 ### Identificación de duplicados: `duplicated()` y `drop_duplicates()` *(Filmina 07)*
 
-- **`duplicated()`**: marca `True` las filas que **ya aparecieron antes**; por defecto compara **todos** los valores de la fila.
+- **`duplicated()`**: marca `True` las filas que **ya aparecieron antes**; por defecto compara **todos** los valores de la fila. La primera aparición de cada valor repetido queda marcada `False` — no son "las dos", es solo la copia extra.
 - **`subset=["columna"]`**: busca duplicados mirando solo una columna (por ejemplo, un ID que debería ser único).
-- **`drop_duplicates()`**: limpia el DataFrame; `keep="first"` o `keep="last"` decide cuál copia conservar.
+- **`drop_duplicates()`**: limpia el DataFrame; `keep="first"` o `keep="last"` decide cuál copia conservar. Existe una tercera opción, `keep=False`, que descarta **todas** las copias (incluida la primera) — útil cuando un duplicado es tan sospechoso que ni siquiera se confía en cuál de las dos versiones es la "buena".
 
 🎯 **Qué mostramos acá:** simulamos el error típico de un sistema que registra el mismo partido dos veces (duplicado exacto de fila), lo detectamos y lo eliminamos.
 
@@ -360,8 +362,8 @@ print(f"Filas antes: {len(df_sucio)} | Filas después: {len(df_limpio)}")
 
 ### Criterios de limpieza: ¿eliminar o imputar? *(Filmina 08)*
 
-- **Eliminar (`dropna()`)**: la opción más drástica. Válida cuando sobran datos y perder un 2% no afecta estadísticamente, o cuando falta justo la columna "etiqueta" que se quiere predecir.
-- **Imputar (rellenar)**: **media** si la distribución es normal y sin outliers; **mediana** si hay valores extremos (más robusta); **moda** para columnas categóricas; **valor constante** (`"Desconocido"`, `0`) cuando conviene conservar la fila sin inventar un número.
+- **Eliminar (`dropna()`)**: la opción más drástica. Válida cuando sobran datos y perder un 2% no afecta estadísticamente, o cuando falta justo la columna "etiqueta" que se quiere predecir. Por defecto `dropna()` elimina una fila si tiene **al menos un** `NaN` en cualquier columna; el parámetro `thresh=N` cambia esa regla a "eliminar solo si tiene menos de `N` valores no nulos", útil cuando una fila puede tolerar 1 o 2 huecos sin volverse inútil.
+- **Imputar (rellenar)**: **media** si la distribución es normal y sin outliers; **mediana** si hay valores extremos (más robusta, porque no la mueve un valor absurdo); **moda** para columnas categóricas; **valor constante** (`"Desconocido"`, `0`) cuando conviene conservar la fila sin inventar un número. La mediana es más robusta justamente porque es un estadístico de **orden** (el valor del medio), no de magnitud — un outlier corre la media pero no necesariamente cambia cuál es el valor "del medio".
 
 👉 **En Colab:**
 ```python
@@ -405,7 +407,7 @@ Para la máquina, `"ESP"`, `"esp"` y `"España"` son tres categorías distintas.
 
 ### El método `map()`: la tabla de traducción *(Filmina 12)*
 
-`.map()` se usa sobre una **Series** (una sola columna) y es ideal cuando hay una correspondencia clara, uno a uno — como un diccionario de traducción. **Error común**: si un valor de la columna no está como clave en el diccionario, `map()` lo convierte en `NaN` — hay que cubrir todos los casos posibles.
+`.map()` se usa sobre una **Series** (una sola columna) y es ideal cuando hay una correspondencia clara, uno a uno — como un diccionario de traducción. **Error común**: si un valor de la columna no está como clave en el diccionario, `map()` lo convierte en `NaN` — hay que cubrir todos los casos posibles. `.map()` también acepta una función (no solo un diccionario) o incluso otra Series como argumento — pero en la práctica, el 90% de los usos es con un diccionario chico de traducción, que es además el caso donde `.map()` es más rápido que el equivalente con `.apply()`.
 
 🎯 **Qué mostramos acá:** traducir la columna `preferred_foot` (`"Left"`/`"Right"`) a etiquetas en español, con un diccionario de dos entradas.
 
@@ -425,7 +427,7 @@ print(df["pie_habil"].value_counts())   # Derecho: 40.656 | Izquierdo: 13.944
 ### El método `apply()`: flexibilidad total *(Filmina 13)*
 
 - **Sobre una Series**: transforma una columna con lógica más compleja que un simple mapeo (una función, no solo un diccionario).
-- **Sobre un DataFrame con `axis=1`**: le pasa a la función la **fila completa** — ahí es donde brilla para reglas de negocio que combinan varias columnas a la vez.
+- **Sobre un DataFrame con `axis=1`**: le pasa a la función la **fila completa** — ahí es donde brilla para reglas de negocio que combinan varias columnas a la vez. El default es `axis=0`, que le pasaría a la función **columna por columna completa** (útil para aplicar algo como `.sum()` propio a cada columna) — es fácil olvidarse el `axis=1` y obtener un resultado sin sentido, sin que Pandas avise con un error.
 
 🎯 **Qué mostramos acá:** `.apply()` con una `lambda` sobre una sola columna, y `.apply(axis=1)` con una función `def` que combina dos columnas para una regla de negocio real: identificar apariciones de "riesgo disciplinario" (jugador que además de cometer varias faltas, ya fue amonestado en ese partido).
 
@@ -446,7 +448,7 @@ print(df["riesgo"].value_counts())   # Riesgo disciplinario: 540
 - `df["team"].apply(lambda x: x.upper())` → aplica la función a **cada valor** de la columna; acá una `lambda` de una línea alcanza porque la lógica es simple (pasar a mayúsculas).
 - `def calcular_riesgo(fila):` → una función que recibe una **fila entera** (una especie de diccionario de columna→valor), no un solo valor.
 - `fila["fouls_committed"] >= 2 and fila["yellow_cards"] == 1` → acá sí se usa `and` de Python normal (no `&`), porque `fila["..."]` es un único valor escalar, no una Series completa.
-- `df.apply(calcular_riesgo, axis=1)` → `axis=1` es la clave: le dice a `apply` que le pase **la fila** a la función, no columna por columna (que sería `axis=0`, el default).
+- `df.apply(calcular_riesgo, axis=1)` → `axis=1` es la clave: le dice a `apply` que le pase **la fila** a la función, no columna por columna (que sería `axis=0`, el default). Por dentro, `apply(axis=1)` arma una Serie nueva por cada fila antes de pasarla a la función — por eso suele ser la variante más lenta de `.apply()`: para reglas simples que combinan pocas columnas, muchas veces conviene una condición vectorizada con `&`/`np.where` en vez de esta forma.
 - El resultado real: 540 apariciones jugador-partido caen en "Riesgo disciplinario" sobre 54.600 — una regla que un `.map()` no podría resolver, porque depende de **dos** columnas a la vez.
 
 ### Diferencias clave: `map`, `apply` y `applymap` *(Filmina 14)*
@@ -456,6 +458,8 @@ print(df["riesgo"].value_counts())   # Riesgo disciplinario: 540
 | `map` | Series | Sustitución simple, con un diccionario. |
 | `apply` | Series o DataFrame | Funciones más complejas, o lógica entre varias columnas (`axis=1`). |
 | `applymap` | DataFrame completo | Aplicar una función a **todas** las celdas a la vez (ej. redondear todos los decimales). |
+
+Un detalle de versiones: en Pandas moderno, `applymap` está marcado como *deprecated* a favor de `df.apply(func)` (que, cuando `func` se aplica elemento a elemento, hace exactamente lo mismo) — se lo menciona acá porque todavía aparece en muchísimo código y documentación en producción.
 
 ### Recomendaciones de oro para transformar *(Filmina 15)*
 
@@ -480,9 +484,11 @@ Concepto de **Hadley Wickham**, el modelo mental detrás de cada `groupby`:
 2. **Apply (aplicar)**: dentro de cada caja, se aplica una operación (sumar los goles de los `Forward`, y así con cada posición).
 3. **Combine (combinar)**: Pandas une los resultados de cada caja en una tabla resumen, mucho más chica que la original.
 
+Vale la pena notar que "Apply" acá es el concepto general (aplicar una operación a cada grupo), no necesariamente el método `.apply()` de Pandas del Módulo 2 — con un `groupby`, ese paso casi siempre se resuelve con `.mean()`, `.sum()` o `.agg()`, que son vectorizados y mucho más rápidos que pasarle una función propia con `.apply()` grupo por grupo.
+
 ### Selección de columnas y agregaciones comunes *(Filmina 19)*
 
-**Regla de oro**: seleccioná la columna numérica **antes** de aplicar el resumen (no tiene sentido promediar una columna de texto). `.mean()`, `.sum()`, `.count()`, `.median()`, `.min()`, `.max()` son las agregaciones más usadas.
+**Regla de oro**: seleccioná la columna numérica **antes** de aplicar el resumen (no tiene sentido promediar una columna de texto). `.mean()`, `.sum()`, `.count()`, `.median()`, `.min()`, `.max()` son las agregaciones más usadas. Si se omite la selección de columna (`df.groupby("position").mean()` a secas), Pandas moderno directamente **descarta** las columnas no numéricas del resultado en vez de tirar error — conviene seleccionar explícitamente para no terminar con un resumen de columnas que no se pidieron.
 
 ### Agregaciones múltiples con `agg()` *(Filmina 20)*
 
@@ -498,7 +504,7 @@ print(resumen_goles.round(2))
 
 **Línea por línea:**
 - `df.groupby("position")["goals"]` → agrupa las 54.600 filas en 4 posiciones, y selecciona la columna `goals` dentro de cada grupo.
-- `.agg(["sum", "mean", "count"])` → aplica las tres funciones a la vez; el resultado es una tabla con una columna por cada una.
+- `.agg(["sum", "mean", "count"])` → aplica las tres funciones a la vez; el resultado es una tabla con una columna por cada una. `.agg()` también acepta un diccionario (`{"columna": ["sum", "mean"]}`) para pedir agregaciones distintas por columna cuando se resumen varias a la vez, y permite pasarle nombres propios a cada resultado (`.agg(total=("goals", "sum"))`) en vez de quedarse con `sum`/`mean` como nombre de columna.
 - El resultado real: **Forward** suma 1.805 goles (promedio 0.14 por aparición) sobre 12.600 apariciones; **Defender** suma 353 (0.02) sobre 18.900; **Midfielder** 866 (0.05) sobre 16.800; **Goalkeeper** 0 goles, como es esperable. El `count` es lo que evita una lectura ingenua del promedio: los `Forward` tienen menos apariciones que los `Defender`, pero convierten muchas más veces por aparición.
 
 ### Agrupación por múltiples columnas *(Filmina 21)*
@@ -512,9 +518,9 @@ print(rating_detallado.head(8))
 ```
 
 **Línea por línea:**
-- `df.groupby(["tournament_stage", "position"])` → la lista `[...]` agrupa primero por instancia del torneo, y dentro de cada instancia, por posición — una jerarquía de dos niveles.
+- `df.groupby(["tournament_stage", "position"])` → la lista `[...]` agrupa primero por instancia del torneo, y dentro de cada instancia, por posición — una jerarquía de dos niveles. El orden de la lista importa: agrupar por `["position", "tournament_stage"]` da los mismos números, pero organizados con la jerarquía invertida.
 - `["player_rating"].mean()` → el promedio de rating dentro de cada combinación instancia+posición.
-- El resultado queda con un **índice múltiple** (`MultiIndex`): cada fila combina una instancia y una posición.
+- El resultado queda con un **índice múltiple** (`MultiIndex`): cada fila combina una instancia y una posición. Para acceder a un valor puntual se encadenan las etiquetas de cada nivel — `resultado.loc["Final", "Forward"]` — y `.reset_index()` "aplana" ese índice de vuelta a columnas normales cuando conviene filtrar o graficar.
 
 ### Pivot Tables: el poder de las tablas dinámicas *(Filmina 22)*
 
@@ -523,6 +529,8 @@ Una `pivot_table` es la misma idea que un `groupby` de dos columnas, pero mostra
 - **`columns`**: la columna que va en la parte superior.
 - **`values`**: la columna numérica a resumir.
 - **`aggfunc`**: la operación (por defecto, el promedio).
+
+Una combinación `index`/`columns` que no tiene datos queda como `NaN` en la matriz — a diferencia de un `groupby` de dos columnas, que directamente **no genera esa fila** si esa combinación no existe. Es una diferencia útil: la `pivot_table` deja "a la vista" los huecos de la matriz completa, mientras que el `groupby` los oculta.
 
 🎯 **Qué mostramos acá:** la misma información del punto anterior (rating promedio por instancia y posición), pero en formato cruzado — mucho más fácil de leer de un vistazo.
 
@@ -545,7 +553,7 @@ print(tabla_rating)
 
 | Error | Cómo evitarlo |
 |---|---|
-| **Confundir `count()` con `sum()`** | `count()` dice cuántas filas hay; `sum()` suma sus valores. ¿La pregunta es "cuántos" o "cuánto"? |
+| **Confundir `count()` con `sum()`** | `count()` dice cuántas filas hay; `sum()` suma sus valores. ¿La pregunta es "cuántos" o "cuánto"? `count()`, además, solo cuenta valores **no nulos** — para contar filas sin importar nulos existe `.size()`, que suele confundirse con `count()` por el nombre parecido. |
 | **Olvidar los nulos** | Pandas los ignora por defecto en `mean()`/`sum()` — engañoso si falta gran parte de una columna (por eso el Módulo 1 va **antes** que este). |
 | **No resetear el índice** | La columna agrupada pasa a ser el índice del resultado. `.reset_index()` la devuelve a columna normal, necesario para volver a filtrar o graficar. |
 
@@ -561,7 +569,7 @@ resumen_reseteado = df.groupby("position")["goals"].sum().reset_index()
 
 ### Conversión de texto a Datetime *(Filmina 26)*
 
-Al cargar un CSV, las fechas se leen como texto simple (`object`), no como fechas reales. `pd.to_datetime()` convierte ese texto en objetos de fecha reales, con toda la lógica del calendario adentro (meses con distinta cantidad de días, años bisiestos, etc.) — algo que un `string` no sabe manejar por sí solo.
+Al cargar un CSV, las fechas se leen como texto simple (`object`), no como fechas reales. `pd.to_datetime()` convierte ese texto en objetos de fecha reales, con toda la lógica del calendario adentro (meses con distinta cantidad de días, años bisiestos, etc.) — algo que un `string` no sabe manejar por sí solo. Por defecto, `to_datetime()` infiere el formato fila por fila (lo cual puede ser lento en datasets grandes); si todas las fechas comparten el mismo formato, pasar `format="%Y-%m-%d"` explícito evita la inferencia y acelera bastante la conversión — además de eliminar la ambigüedad clásica entre `"01/02/2026"` como 1 de febrero o 2 de enero.
 
 👉 **En Colab:**
 ```python
@@ -575,7 +583,7 @@ print(df["match_date"].dtype)   # datetime64[...], ya no object
 
 ### El índice temporal: tu mejor aliado *(Filmina 27)*
 
-La mejor práctica es convertir la columna de fechas en el **índice** del DataFrame. Eso habilita acceder a datos por período (`df["2026-06"]` trae todo junio) y es el requisito para poder hacer **Resampling**.
+La mejor práctica es convertir la columna de fechas en el **índice** del DataFrame. Eso habilita acceder a datos por período (`df["2026-06"]` trae todo junio) y es el requisito para poder hacer **Resampling** — internamente, un `DatetimeIndex` sabe ordenar y "binear" fechas en bloques de calendario (semanas, meses) de forma nativa, algo que un índice numérico común no puede hacer.
 
 👉 **En Colab:**
 ```python
@@ -587,7 +595,7 @@ print(f"Apariciones jugador-partido en junio: {len(junio)}")
 
 **Línea por línea:**
 - `df.set_index("match_date")` → la columna de fechas deja de ser una columna y pasa a ser el índice del DataFrame.
-- `.sort_index()` → ordena las filas por fecha; imprescindible antes de cualquier operación temporal (ver "Errores comunes" más abajo).
+- `.sort_index()` → ordena las filas por fecha; imprescindible antes de cualquier operación temporal (ver "Errores comunes" más abajo). Con el índice ordenado, Pandas puede aplicar **búsqueda binaria** para localizar un rango de fechas en vez de recorrer fila por fila — es también una cuestión de performance, no solo de corrección.
 - `df_temporal.loc["2026-06"]` → acceso por período: con un índice de fechas, `.loc["2026-06"]` trae directamente "todo junio de 2026", sin necesidad de armar un filtro booleano con `>=`/`<=`.
 
 ### Resampling: cambiando el "zoom" de tus datos *(Filmina 28)*
@@ -601,7 +609,7 @@ print(f"Apariciones jugador-partido en junio: {len(junio)}")
 | `ME` | Fin de mes (*Month End*) |
 | `YE` | Fin de año (*Year End*) |
 
-**Downsampling**: reducir la frecuencia (diario → semanal), resumiendo con una estadística. **Upsampling**: aumentar la frecuencia (mensual → diario), decidiendo cómo rellenar los huecos nuevos que aparecen.
+**Downsampling**: reducir la frecuencia (diario → semanal), resumiendo con una estadística. **Upsampling**: aumentar la frecuencia (mensual → diario), decidiendo cómo rellenar los huecos nuevos que aparecen (típicamente con `.ffill()` — repetir el último valor conocido — o `.interpolate()` para estimar un valor intermedio).
 
 🎯 **Qué mostramos acá:** downsampling de partido-por-partido a semana-por-semana, contando partidos únicos y sumando goles — dos preguntas de negocio distintas sobre la misma serie temporal.
 
@@ -620,7 +628,7 @@ print(goles_por_semana.head())
 
 **Línea por línea:**
 - `drop_duplicates("match_id")` → antes de contar partidos, sacamos las filas repetidas por jugador (cada partido tiene ~22 filas, una por jugador); sin este paso, "partidos por semana" en realidad contaría apariciones.
-- `.resample("W")` → agrupa el índice temporal en bloques semanales, igual que un `groupby` agruparía por categoría.
+- `.resample("W")` → agrupa el índice temporal en bloques semanales, igual que un `groupby` agruparía por categoría. Por defecto, cada semana se etiqueta con su **domingo** (fin de semana ISO); `resample("W-MON")` cambiaría el corte de semana a los lunes, si el negocio lo necesita.
 - `.size()` → cuenta cuántas filas (partidos únicos) cayeron en cada semana.
 - `df_temporal.resample("W")["goals"].sum()` → misma lógica de agrupación semanal, pero ahora sumando los goles de **todas** las apariciones (no hace falta deduplicar: cada gol de cada jugador debe contarse).
 - La primera semana completa (que arranca el 15/06) tiene 448 goles sobre 153 partidos — casi 3 goles por partido, un dato que solo aparece al agrupar por tiempo.
@@ -645,7 +653,7 @@ Pandas fue creada por **Wes McKinney** en el sector financiero, hacia 2008. Los 
 
 ### Los pilares de Pandas: DataFrame y Series *(Filmina 32)*
 
-- **DataFrame**: estructura bidimensional. Eje 0 (filas) = registros/observaciones; eje 1 (columnas) = variables/atributos.
+- **DataFrame**: estructura bidimensional. Eje 0 (filas) = registros/observaciones; eje 1 (columnas) = variables/atributos. La distinción entre `axis=0` y `axis=1` que aparece en `.drop()`, `.apply()` o `.sum()` es exactamente esta: `axis=0` "recorre hacia abajo" (opera columna por columna, a través de las filas), `axis=1` "recorre hacia el costado" (opera fila por fila, a través de las columnas).
 - **Series**: una sola columna, unidimensional, **con índice**. Error común: pensarla como una simple lista — una lista de valores no sabe a qué fila pertenece cada uno; una Series sí, gracias a sus etiquetas.
 
 ### El flujo de trabajo profesional (pipeline) *(Filmina 33)*
@@ -655,6 +663,8 @@ Las tres fases que ya recorrimos en esta clase, ahora nombradas como proceso:
 2. **Limpieza**: decidir entre `dropna()` (borrar) o `fillna()` (rellenar sin perder información) (Módulo 1).
 3. **Transformación y Vectorización**: `df["precio"] * 0.9` en vez de un `for` — miles de veces más rápido, apoyado en NumPy (Módulo 0, 2 y el "mito del `for`" de la Clase 03).
 
+En la práctica, estas tres fases rara vez son un pasaje único de principio a fin: es normal volver de la Transformación a la Limpieza al descubrir un problema nuevo (una columna transformada que revela outliers, por ejemplo) — el pipeline es más un ciclo iterativo que una línea recta.
+
 ### Agregación: Split-Apply-Combine en la industria *(Filmina 34)*
 
 El mismo flujo del Módulo 3 (separar, aplicar, combinar) es el que usan firmas como **J.P. Morgan** o **Goldman Sachs** para analizar miles de transacciones por segundo y obtener promedios diarios o máximos históricos por activo financiero — la escala cambia, la lógica es exactamente la misma.
@@ -662,7 +672,7 @@ El mismo flujo del Módulo 3 (separar, aplicar, combinar) es el que usan firmas 
 ### Combinación de fuentes: Merge vs. Concat *(Filmina 35)*
 
 - **`merge`**: como el `JOIN` de SQL. Se busca una columna en común y se fusionan las tablas **lateralmente** — agrega columnas nuevas sobre los mismos registros.
-- **`concat`**: como apilar hojas de papel. Se pone una tabla debajo de otra — agrega **filas** nuevas del mismo tipo.
+- **`concat`**: como apilar hojas de papel. Se pone una tabla debajo de otra — agrega **filas** nuevas del mismo tipo. También sirve para apilar **columnas** en vez de filas, con `axis=1` — menos común, pero útil cuando dos tablas ya comparten el mismo índice y solo hace falta pegarlas una al lado de la otra.
 
 🎯 **Qué mostramos acá:** un `merge` real, agregando la confederación de cada equipo a partir de una tabla de referencia chica (a propósito, incompleta — para mostrar qué pasa con los equipos que no aparecen); y un `concat`, dividiendo el dataset en dos mitades cronológicas y volviendo a unirlas.
 
@@ -688,7 +698,7 @@ print(len(df_reunido) == len(df))   # True -> concat no perdió ni duplicó fila
 
 **Línea por línea:**
 - `df_confederaciones` → una tabla de referencia mínima, con solo 10 de los 48 equipos — a propósito, para que el `merge` deje algo sin matchear.
-- `pd.merge(df, df_confederaciones, on="team", how="left")` → `on="team"` es la columna en común; `how="left"` conserva **todas** las filas de `df`, tengan o no confederación asignada.
+- `pd.merge(df, df_confederaciones, on="team", how="left")` → `on="team"` es la columna en común; `how="left"` conserva **todas** las filas de `df`, tengan o no confederación asignada. Existen también `how="right"` (prioriza la tabla de la derecha), `how="inner"` (solo lo que matchea en ambas — el default) y `how="outer"` (todo, de las dos tablas, con `NaN` donde falte); la elección depende de qué DataFrame es "la base" que no se puede perder.
 - `df_con_confederacion["confederacion"].isna().sum()` → cuenta cuántas apariciones quedaron con `NaN` en `confederacion`: son las de los 38 equipos que no estaban en la tabla chica — el mismo patrón de `how="left"` que se vio con `merge` en la Clase 03.
 - `primera_mitad` / `segunda_mitad` → dos recortes del mismo DataFrame por fecha, sin superposición.
 - `pd.concat([primera_mitad, segunda_mitad])` → apila una tabla debajo de la otra; como no hay filas repetidas ni perdidas, el total coincide exactamente con el original.
@@ -700,7 +710,7 @@ print(len(df_reunido) == len(df))   # True -> concat no perdió ni duplicó fila
 | **La trampa del índice** | No es una columna normal, es el sistema de direcciones de las filas. Decidí si conservarlo al hacer `.reset_index()`. |
 | **Copias vs. Vistas** | Filtrar a veces da una "ventana" a la tabla original, no una copia independiente (Pandas avisa con `SettingWithCopyWarning`). Usá `.copy()` explícito si vas a modificar el resultado de un filtro. |
 | **No tratar nulos al inicio** | Sin gestionar los `NaN` (Módulo 1), los cálculos estadísticos pueden salir sesgados o directamente fallar. |
-| **Alineación automática** | Al sumar dos Series, Pandas alinea por **etiqueta** de índice, no por posición física — una ventaja una vez que se entiende, pero confunde a quien viene de listas de Python. |
+| **Alineación automática** | Al sumar dos Series, Pandas alinea por **etiqueta** de índice, no por posición física — una ventaja una vez que se entiende, pero confunde a quien viene de listas de Python. Si dos Series tienen índices que no coinciden del todo, el resultado trae `NaN` en las etiquetas que no matchean en ambas — Pandas nunca "adivina" alineando por posición como haría una lista. |
 
 ```python
 # Patrón seguro: .copy() explícito antes de modificar un recorte
@@ -765,8 +775,8 @@ df.info()
 
 **Línea por línea:**
 - `pd.read_csv(...)` → carga el dataset completo en `df`, la variable que vamos a usar en todo el checkpoint.
-- `df.head()` → inspección visual: ¿las columnas se ven como esperabas, sin corrimientos ni texto pegado?
-- `df.shape` → volumen de datos: 54.600 filas, 75 columnas.
+- `df.head()` → inspección visual: ¿las columnas se ven como esperabas, sin corrimientos ni texto pegado? Un problema típico que `.head()` deja ver de inmediato es un CSV mal delimitado — si el separador real es `;` y se cargó como `,`, todo el contenido aparece amontonado en una sola columna.
+- `df.shape` → volumen de datos: 54.600 filas, 75 columnas. Es una **tupla**, no una función — por eso se escribe `df.shape` sin paréntesis, a diferencia de `df.info()`.
 - `df.info()` → columna por columna, cuántos valores no nulos tiene y de qué `dtype` es. Acá conviene revisar con ojo crítico: `market_value_eur` es `int64` (correcto, es un número), `match_date` es `object` porque todavía no la convertimos a fecha (eso pasa recién en el Módulo 4) — nada aparece como texto por error, a diferencia de un dataset real donde un símbolo de moneda o una coma de miles puede "ensuciar" una columna numérica y forzarla a `object`.
 
 ### Perfilado Inicial
@@ -781,7 +791,7 @@ display(df.describe())
 
 **Línea por línea:**
 - `df.isnull().sum()` → nulos por columna; `.sum()` sobre eso da el total del dataset — acá da `0`, este archivo viene sin nulos.
-- `df.describe()` → estadísticas (`count`, `mean`, `std`, `min`, percentiles, `max`) de cada columna numérica. Mirando la tabla real: `age` va de 17 a 39 años (rango de jugadores de un Mundial, tiene sentido); `market_value_eur` va de ~529 mil a 200 millones de euros, con una media (~20M) muy por debajo del máximo — señal de que unas pocas estrellas empujan el promedio hacia arriba.
+- `df.describe()` → estadísticas (`count`, `mean`, `std`, `min`, percentiles, `max`) de cada columna numérica. Por defecto **ignora** las columnas de texto/categóricas; para incluirlas (con `count`, `unique`, `top`, `freq` en vez de las estadísticas numéricas) hace falta `df.describe(include="all")`. Mirando la tabla real: `age` va de 17 a 39 años (rango de jugadores de un Mundial, tiene sentido); `market_value_eur` va de ~529 mil a 200 millones de euros, con una media (~20M) muy por debajo del máximo — señal de que unas pocas estrellas empujan el promedio hacia arriba.
 
 ### Saneamiento y Selección
 
@@ -801,7 +811,7 @@ print(f"Apariciones en fase eliminatoria: {len(fase_eliminatoria)}")
 **Línea por línea:**
 - `df["minutes_played"] > 0` → primer filtro: descarta las apariciones de jugadores convocados que no llegaron a jugar (el hallazgo del Módulo 0).
 - `(df["position"] == "Forward") & (df["market_value_eur"] > 50_000_000)` → segundo filtro, con `&` combinando dos condiciones sobre Series (nunca `and` acá).
-- `df["tournament_stage"] != "Group Stage"` → tercer filtro: todo lo que es instancia eliminatoria (Round of 32 en adelante).
+- `df["tournament_stage"] != "Group Stage"` → tercer filtro: todo lo que es instancia eliminatoria (Round of 32 en adelante). Sería equivalente escribirlo como `~(df["tournament_stage"] == "Group Stage")`, pero `!=` es más directo cuando la condición es una sola comparación, sin necesidad de negar un paréntesis.
 - `df.drop(columns=["jersey_number"])` → elimina una columna irrelevante para un análisis de rendimiento (el número de camiseta no aporta nada analíticamente); devuelve un DataFrame nuevo, por eso se reasigna a `df_reducido` — si no reasignás, el original queda intacto (ver "Errores comunes a evitar").
 
 ### Reflexión
