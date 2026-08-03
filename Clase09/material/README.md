@@ -41,30 +41,13 @@ Para seguir la clase en paralelo con `Clase09.html` (36 filminas) sin perderte:
 
 ---
 
-## Módulo 0 — Repaso: Aprendizaje Supervisado (puente desde la Clase 08)
+## Módulo 0 — Repaso Express: Aprendizaje Supervisado (puente desde la Clase 08)
 
-**Por qué existe este módulo**: la Clase 08 ("Aprendizaje Supervisado en Práctica") cubrió el flujo completo de modelos que aprenden a partir de datos **etiquetados** — regresión lineal, árboles de decisión, Random Forest, pipelines, métricas, cross-validation. Antes de arrancar con la Clase 09, conviene un contraste explícito: hoy cambia la pregunta de fondo, y ese cambio explica por qué todos los algoritmos de esta clase son distintos a los que ya conocés.
+**Aprendizaje supervisado, en una frase**: cada dato viene con una respuesta conocida (`y`), y el modelo aprende una función `f(X) → y` para predecir esa respuesta en casos nuevos — clasificación si `y` es una categoría (¿tumor maligno?), regresión si `y` es un número (¿precio de la vivienda?).
 
-### Lo que ya sabés hacer: `f(X) → y`
+**Repaso relámpago de la Clase 08**: regresión lineal, árboles de decisión y Random Forest; `Pipeline` + `StandardScaler` para evitar Data Leakage; métricas (Accuracy/F1 en clasificación, MAE/RMSE/R² en regresión); y `StratifiedKFold` para cross-validation.
 
-En aprendizaje supervisado, cada observación viene con una respuesta conocida (`y`): un tumor es maligno o no, una casa vale tanto. El modelo aprende la función `f` que mapea las variables de entrada (`X`) a esa respuesta, y el objetivo es **predecir** `y` para casos nuevos.
-
-| | Clasificación | Regresión |
-|---|:---:|:---:|
-| **Variable objetivo** | Categórica discreta | Numérica continua |
-| **Ejemplo** | ¿Tumor maligno? | ¿Precio de la vivienda? |
-| **Métricas** | Accuracy, F1, AUC-ROC | MAE, RMSE, R² |
-| **Modelos vistos** | Regresión Logística, Árbol de Decisión, Random Forest, KNN | Regresión Lineal |
-
-Herramientas que ya usaste y van a seguir apareciendo: `Pipeline` de scikit-learn (para evitar Data Leakage al escalar/imputar), `StandardScaler`, `train_test_split`, y `StratifiedKFold` para cross-validation.
-
-### Lo que cambia hoy: no hay `y`
-
-El aprendizaje no supervisado parte de datos **sin etiquetas** — no hay una respuesta correcta conocida de antemano. En vez de predecir, el objetivo es **descubrir estructura**: qué observaciones se parecen entre sí (clustering), cómo simplificar muchas variables en pocas sin perder lo esencial (reducción de dimensionalidad), o qué patrones se repiten con frecuencia (reglas de asociación).
-
-**La pregunta que cambia**: en Clase 08 preguntábamos "¿puedo predecir `y` a partir de `X`?". Desde hoy la pregunta es "¿qué grupos, direcciones o patrones existen dentro de `X`, sin que nadie me diga cuáles son?".
-
-Algunas piezas sí se reutilizan tal cual: `StandardScaler` (escalar antes de medir distancias o calcular varianza sigue siendo obligatorio), y la lógica general de "explorar → aplicar → evaluar → interpretar" del flujo de trabajo de Data Science.
+**Lo que cambia hoy**: sin `y`. El dato no trae una respuesta conocida — el objetivo deja de ser predecir y pasa a ser **descubrir estructura**: qué se parece a qué (clustering), cómo simplificar muchas variables en pocas (reducción de dimensionalidad), o qué patrones se repiten (reglas de asociación).
 
 ---
 
