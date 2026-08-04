@@ -846,13 +846,74 @@ print(f"Accuracy CON PCA: {acc_con_pca:.4f}")
 
 Esta sección documenta un notebook **aparte**, ya armado y con código funcionando (`Clase_9.ipynb`, en la raíz de la carpeta), que resuelve las cinco técnicas de la clase con un **dataset real de fútbol** en vez de datos sintéticos — 48 selecciones de un torneo, con estadísticas de Ataque, Distribución, Defensa, Portería, Movimiento y Físico. Es un apunte de referencia por si decidís dar la clase directamente desde ese notebook en vez de (o además de) las filminas.
 
-⚠️ **Dos cosas para revisar antes de correrlo en vivo:**
-1. El código espera el archivo como `'Data Set Fifa.xlsx'` (con espacios), pero el archivo real en la carpeta se llama `Data-Set-Fifa.xlsx` (con guiones) — va a tirar `FileNotFoundError` si no se corrige el nombre en el código o se renombra el archivo.
-2. En el bloque de DBSCAN hay un error de sintaxis: `DBSCAN(eps=0.5, +=3)` no es Python válido — por el contexto, seguramente debía ser `min_samples=3`.
+⚠️ **Una cosa para revisar antes de correrlo en vivo**: en el bloque de DBSCAN hay un error de sintaxis: `DBSCAN(eps=0.5, +=3)` no es Python válido — por el contexto, seguramente debía ser `min_samples=3`. (El otro problema, el nombre del archivo Excel, ya está corregido en el notebook: `'Data-Set-Fifa.xlsx'`, con guiones.)
 
 ### Preparación de los datos (celda de inicio)
 
-El Excel viene con una particularidad: cada equipo ocupa **dos filas** (una con los datos numéricos, la fila siguiente con el nombre real del equipo) — rastro de celdas combinadas en el archivo original. La función `procesar_hoja_con_glosario` resuelve esto tomando los datos de la fila `i` pero el nombre de equipo de la fila `i+1`. También corrige nombres con problemas de encoding (`Espa帽a` → `España`, etc.), cruza las 6 hojas del Excel por `Equipo` con `merge(..., how="outer")`, fuerza la lista final a los 48 equipos exactos de la hoja "Ataque", e imputa con la media cualquier hueco que haya quedado de un cruce imperfecto entre hojas.
+El Excel viene con una particularidad: cada equipo ocupa **dos filas** (una con los datos numéricos, la fila siguiente con el nombre real del equipo) — rastro de celdas combinadas en el archivo original.
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+
+archivo_excel = 'Data-Set-Fifa.xlsx'
+xls = pd.ExcelFile(archivo_excel)
+
+def limpiar_nombre_equipo(nombre):
+    if pd.isna(nombre): return nombre
+    s = str(nombre).strip()
+    s = s.replace('Espa帽a', 'España').replace('EspaÃ±a', 'España')
+    # ...más reemplazos de encoding roto, uno por cada país afectado
+    return s
+
+def procesar_hoja_con_glosario(xls_file, nombre_hoja):
+    df_raw = pd.read_excel(xls_file, nombre_hoja)
+    indices_datos = df_raw[df_raw['Puesto'].notna()].index
+
+    registros = []
+    for idx in indices_datos:
+        datos_fila = df_raw.iloc[idx].copy()
+        nombre_real = df_raw.iloc[idx + 1]['Equipo']
+        datos_fila['Equipo'] = limpiar_nombre_equipo(nombre_real)
+        registros.append(datos_fila)
+
+    df_limpio = pd.DataFrame(registros).reset_index(drop=True)
+    cols_validas = [c for c in df_limpio.columns if 'Unnamed' not in str(c) and 'glosario' not in str(c).lower() and c != 'Puesto']
+    return df_limpio[cols_validas]
+
+# 1. Lista maestra basada estrictamente en la primera hoja (Ataque)
+df_maestro = procesar_hoja_con_glosario(xls, 'Ataque')
+lista_48_equipos = df_maestro['Equipo'].dropna().unique()
+
+# 2. DataFrame final arranca con la estructura maestra
+df_final = df_maestro.copy()
+
+# 3. Cruzamos el resto de las hojas de forma relacional permisiva
+for hoja in xls.sheet_names[1:]:
+    df_hoja_limpia = procesar_hoja_con_glosario(xls, hoja)
+    df_final = pd.merge(df_final, df_hoja_limpia, on='Equipo', how='outer')
+
+# 4. Índice provisorio
+df_final = df_final.dropna(subset=['Equipo']).set_index('Equipo')
+
+# 5. Recorte a los 48 equipos oficiales + imputación de huecos
+df_final = df_final.reindex(lista_48_equipos)
+df_final = df_final.fillna(df_final.mean(numeric_only=True))
+
+scaler = StandardScaler()
+```
+
+**Línea por línea, qué hace y por qué:**
+- `pd.ExcelFile(archivo_excel)` → abre el Excel una sola vez y permite leer sus 6 hojas (Ataque, Distribución, Defensa, Portería, Movimiento, Físico) sin reabrir el archivo en cada lectura — más eficiente que `pd.read_excel()` suelto por cada hoja.
+- `limpiar_nombre_equipo` → el Excel original tiene nombres de país con **encoding roto** (`Espa帽a` en vez de `España`) — típico de un archivo guardado con una codificación de caracteres distinta a la que se usa para leerlo. La función hace un `.replace()` manual por cada caso conocido, uno por uno, porque no hay una forma automática de "adivinar" qué encoding se usó originalmente una vez que el texto ya se rompió.
+- `df_raw[df_raw['Puesto'].notna()].index` → el truco central de todo el bloque: en el Excel, la fila con los **datos numéricos** de un equipo tiene algo en la columna `Puesto`, pero el **nombre del equipo** está vacío ahí y aparece recién en la fila siguiente (por las celdas combinadas). Esta línea encuentra los índices de las filas "con datos", para después ir a buscar el nombre a la fila de al lado.
+- `df_raw.iloc[idx + 1]['Equipo']` → acá está la clave: agarra el nombre del equipo de la fila **siguiente** (`idx + 1`) a la de los datos — es la corrección concreta del problema de celdas combinadas.
+- `cols_validas = [...]` → descarta tres tipos de columnas basura que trae el Excel original: las que Pandas nombró automáticamente `Unnamed: N` (columnas vacías sin encabezado), la columna `glosario` (texto explicativo pegado en la misma hoja, no es un dato) y `Puesto` (ya cumplió su función de "marcador de fila con datos", no aporta nada al análisis).
+- `lista_48_equipos = df_maestro['Equipo'].dropna().unique()` → la hoja "Ataque" se toma como la **hoja de referencia**: los 48 equipos que aparecen ahí son "la verdad" sobre cuáles son los 48 equipos del torneo, para usar como base al cruzar el resto de las hojas.
+- El `for hoja in xls.sheet_names[1:]` con `merge(..., how="outer")` → cruza cada una de las otras 5 hojas contra el DataFrame acumulado, usando `Equipo` como clave. `how="outer"` es "permisivo": conserva equipos aunque no crucen perfectamente en alguna hoja (por ejemplo, si un nombre quedó escrito distinto en una hoja puntual), en vez de perderlos silenciosamente con un `how="inner"`.
+- `df_final.reindex(lista_48_equipos)` → fuerza al DataFrame final a tener **exactamente** esos 48 equipos, ni uno más ni uno menos, ordenados según la lista maestra — corrige cualquier duplicado o "sobrante" que se haya colado en los merges.
+- `df_final.fillna(df_final.mean(numeric_only=True))` → si algún equipo quedó con un hueco puntual en alguna columna (por un cruce imperfecto entre hojas), lo rellena con el promedio de esa columna — la misma técnica de imputación por media que se vio en el Módulo 1 de esta clase, aplicada acá para no perder ningún equipo por un problema menor de cruce.
 
 ### Bloque 1 — Intro al Aprendizaje No Supervisado (sin código, solo teoría)
 
@@ -860,32 +921,149 @@ Mismo concepto que el Módulo 1 de esta guía, con la analogía puntual del note
 
 ### Bloque 2 — Reglas de Asociación (Apriori con `mlxtend`)
 
-Convierte 4 métricas de ataque (`Goles`, `Asistencias`, `Remates`, `Posecion del balon %`) en categorías binarias Alto/Bajo (por encima o debajo de la mediana), y corre `apriori` + `association_rules` de la librería `mlxtend` (con `min_support=0.3`, `min_threshold=0.7` de confidence).
+```python
+import warnings
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+from mlxtend.frequent_patterns import apriori, association_rules
 
-**Resultado real del notebook**: las 3 reglas con mayor lift combinan siempre `{Remates, Asistencias}` con `{Goles, Posecion del balon %}` — todas con lift entre 2.49 y 2.65, y support 0.3125 (15 de los 48 equipos cumplen la regla completa). Conclusión del notebook: *"en el fútbol moderno el éxito ofensivo es un ecosistema interconectado"* — no se puede aislar la posesión del gol, ni los remates de las asistencias.
+# 1. Transacciones booleanas (True/False), para evitar el Warning
+features_rules = ['Goles', 'Asistencias', 'Remates', 'Posecion del balon %']
+df_binario = df_final[features_rules].apply(lambda x: x > x.median()).astype(bool)
+
+# 2. Apriori
+frequent_itemsets = apriori(df_binario, min_support=0.3, use_colnames=True)
+
+# 3. Reglas de asociación
+reglas = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.7)
+
+# Top 3 ordenado por Lift
+print(reglas[['antecedents', 'consequents', 'support', 'confidence', 'lift']].sort_values(by='lift', ascending=False).head(3))
+```
+
+**Línea por línea:**
+- `warnings.filterwarnings('ignore', category=DeprecationWarning)` → silencia un aviso conocido de la librería `mlxtend` sobre un cambio de tipo de dato pendiente en una versión futura — no afecta el resultado, solo evita que se imprima una advertencia irrelevante en medio de la clase.
+- `df_final[features_rules].apply(lambda x: x > x.median())` → convierte cada una de las 4 columnas numéricas en una columna de `True`/`False`, comparando cada valor contra la **mediana de esa misma columna**. Esto es necesario porque Apriori (el algoritmo del Módulo 2 de esta guía) trabaja con **transacciones de ítems presentes/ausentes**, no con números continuos — "Alto" (por encima de la mediana) es el equivalente acá a "el ítem está en la transacción".
+- `.astype(bool)` → fuerza el tipo de dato a booleano explícito; algunas versiones de `mlxtend` piden este tipo puntual para evitar el warning que se silenció arriba.
+- `apriori(df_binario, min_support=0.3, use_colnames=True)` → encuentra todos los conjuntos de columnas "Altas" que aparecen juntas en al menos el 30% de los equipos (`min_support=0.3`); `use_colnames=True` hace que el resultado muestre los nombres reales de las columnas en vez de números de índice.
+- `association_rules(frequent_itemsets, metric="confidence", min_threshold=0.7)` → a partir de esos conjuntos frecuentes, arma las reglas `A → B` y descarta las que tengan menos de 70% de confidence — el umbral de "qué tan seguido se cumple B, dado que se cumplió A" definido en el Módulo 2.
+- `.sort_values(by='lift', ascending=False).head(3)` → de todas las reglas que pasaron el filtro de confidence, se queda con las 3 de mayor lift — la métrica que, como se explicó en el Módulo 2, distingue una asociación real de una coincidencia estadística.
+- **Resultado real del notebook**: las 3 reglas con mayor lift combinan siempre `{Remates, Asistencias}` con `{Goles, Posecion del balon %}` — todas con lift entre 2,49 y 2,65, y support 0,3125 (15 de los 48 equipos cumplen la regla completa). Conclusión del notebook: *"en el fútbol moderno el éxito ofensivo es un ecosistema interconectado"* — no se puede aislar la posesión del gol, ni los remates de las asistencias.
 
 ### Bloque 3 — K-Means (Posesión vs. Efectividad en los remates)
 
-Escala `Posecion del balon %` y `Efectividad en los remates %`, corre el método del codo de `k=1` a `k=7`, y fija el modelo final en `k=3`.
+```python
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
 
-**Los 3 clusters resultantes, con nombre puesto en el notebook**:
-- 🟢 **"Los Contundentes / Efectividad Máxima"**: posesión ~49,72% (media), efectividad 19,44% (muy alta) — juego directo o de contraataque letal.
-- 🔴 **"Bloque Bajo / Juego Reactivo"**: posesión 35,11% (muy baja), efectividad 7,67% (baja) — ceden el control casi por completo, se resguardan.
-- 🔵 **"Posesión Inofensiva"**: posesión 54,33% (alta), efectividad 7,42% (la más baja del torneo) — dominan el balón pero "se les apaga la luz" cerca del área.
+# 1. Selección y escalado
+X_kmeans = df_final[['Posecion del balon %', 'Efectividad en los remates %']].dropna()
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X_kmeans)
 
-**El hallazgo para remarcar en clase**: el Cluster 0 tiene *menos* posesión que el Cluster 2, pero casi triplica su efectividad — la posesión alta no garantiza efectividad de cara al arco.
+# 2. Método del codo
+inercias = []
+for k in range(1, 8):
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+    kmeans.fit(X_scaled)
+    inercias.append(kmeans.inertia_)
+
+plt.plot(range(1, 8), inercias, marker='o')
+plt.show()
+
+# Modelo final con 3 clusters
+kmeans_opt = KMeans(n_clusters=3, random_state=42, n_init=10)
+X_kmeans['Cluster'] = kmeans_opt.fit_predict(X_scaled)
+
+print(X_kmeans.groupby('Cluster').mean())
+
+# Equipos por cluster
+equipos_por_cluster = X_kmeans.groupby('Cluster').apply(lambda df: list(df.index), include_groups=False)
+for num_cluster, lista_paises in equipos_por_cluster.items():
+    print(f"CLUSTER {num_cluster}: ({len(lista_paises)} equipos)")
+    print(", ".join(lista_paises))
+```
+
+**Línea por línea:**
+- `df_final[[...]].dropna()` → selecciona solo las 2 columnas que interesan para este análisis puntual (`Posecion del balon %` y `Efectividad en los remates %`) y descarta cualquier equipo con hueco en esas dos — K-Means no puede calcular distancias con valores faltantes.
+- `StandardScaler().fit_transform(X_kmeans)` → escala las dos columnas a media 0 y desvío 1 — imprescindible porque K-Means usa distancia Euclidiana (Módulo 3), y "posesión" y "efectividad" están en escalas distintas.
+- El `for k in range(1, 8)` con `.inertia_` → calcula el WCSS (Módulo 3, Filmina 18) para cada valor de `k` de 1 a 7, guardando cada resultado en la lista `inercias` para después graficar el método del codo.
+- `random_state=42` → fija la semilla aleatoria de la inicialización de centroides, para que el resultado sea **reproducible**: correr la celda dos veces da exactamente los mismos clusters, en vez de resultados ligeramente distintos cada vez.
+- `n_init=10` → corre el algoritmo completo 10 veces con inicializaciones distintas (Módulo 3, k-means++) y se queda con la mejor — reduce el riesgo de quedar atrapado en un mínimo local malo.
+- `kmeans_opt = KMeans(n_clusters=3, ...)` → el modelo final ya con el `k` decidido tras mirar el gráfico del codo.
+- `X_kmeans['Cluster'] = kmeans_opt.fit_predict(X_scaled)` → ajusta el modelo **con los datos escalados** (`X_scaled`), pero guarda el resultado en el DataFrame **sin escalar** (`X_kmeans`) — para poder leer los promedios de cada cluster en las unidades originales (porcentajes reales), no en unidades de desvío estándar.
+- `X_kmeans.groupby('Cluster').mean()` → el mismo patrón de `groupby` de las clases de Pandas: agrupa por el número de cluster asignado y promedia las columnas originales dentro de cada grupo — así se arma el "perfil promedio" de cada cluster.
+- `.groupby('Cluster').apply(lambda df: list(df.index), include_groups=False)` → para cada cluster, arma la lista de nombres de equipo (que viven en el índice del DataFrame, por el `set_index('Equipo')` de la celda de inicio); `include_groups=False` evita un warning de versiones nuevas de Pandas al usar `apply` sobre un `groupby`.
+- **Resultado real** (ya resumido más arriba en esta guía): 3 clusters — "Los Contundentes" (efectividad 19,44%, posesión media), "Bloque Bajo" (posesión y efectividad bajas), "Posesión Inofensiva" (posesión alta, efectividad la más baja del torneo).
 
 ### Bloque 4 — Clustering Jerárquico y DBSCAN (Goles recibidos vs. Pérdidas de balón provocadas)
 
-Arma un dendrograma (linkage `ward`) sobre dos variables defensivas, y corre DBSCAN para detectar equipos con comportamiento defensivo atípico.
+```python
+import scipy.cluster.hierarchy as sch
+from sklearn.cluster import DBSCAN
 
-**Resultado real**: cortando el dendrograma a una altura ~5,5 aparecen 3 macro-clusters (un grupo chico y particular, un subgrupo cohesionado, y el bloque mayoritario con comportamiento defensivo "estándar"). DBSCAN marcó **11 equipos como outliers/ruido** — el notebook aclara que esos equipos no son necesariamente "malos", sino que sus estadísticas se ubican en zonas de muy baja densidad de datos (los extremos del torneo).
+# 1. Dendrograma
+X_defensa = scaler.fit_transform(df_final[['Goles recibidos', 'Pérdidas de balon provocadas']].dropna())
+dendrograma = sch.dendrogram(sch.linkage(X_defensa, method='ward'))
+plt.show()
+
+# 2. DBSCAN
+dbscan = DBSCAN(eps=0.5, min_samples=3)   # corregido: el original tenía "+=3", un error de sintaxis
+clusters_db = dbscan.fit_predict(X_defensa)
+print(f"Equipos catalogados como Outliers/Ruido (-1): {np.sum(clusters_db == -1)}")
+
+df_final['DBSCAN_Cluster'] = clusters_db
+outliers = df_final[df_final['DBSCAN_Cluster'] == -1]
+print(outliers[['Goles recibidos', 'Pérdidas de balon provocadas']])
+```
+
+**Línea por línea:**
+- `scaler.fit_transform(df_final[[...]].dropna())` → reutiliza el mismo `scaler` creado en la celda de inicio (no crea uno nuevo); escala las 2 variables defensivas antes de medir cualquier distancia o similitud, la misma regla de siempre.
+- `sch.linkage(X_defensa, method='ward')` → calcula la estructura completa del árbol de fusiones con el criterio Ward (Módulo 4: minimiza el incremento de varianza en cada fusión); el resultado es la matriz `Z` que describe todo el dendrograma.
+- `sch.dendrogram(...)` → dibuja el árbol a partir de esa matriz.
+- `DBSCAN(eps=0.5, min_samples=3)` → los dos parámetros del Módulo 4: `eps` es el radio de vecindad, `min_samples` la cantidad mínima de vecinos para considerar una zona "densa". Acá se usaron directamente sin pasar por el `k-distance plot` que se vio en la teoría — una simplificación válida para una demo rápida, aunque en un análisis más riguroso convendría estimar `eps` con esa técnica.
+- `dbscan.fit_predict(X_defensa)` → ajusta el modelo y devuelve, para cada equipo, el número de cluster asignado o `-1` si quedó como ruido.
+- `np.sum(clusters_db == -1)` → cuenta cuántos equipos quedaron marcados como ruido — el mismo truco de "sumar una máscara booleana" que se usó en Pandas para contar nulos, aplicado acá a un array de NumPy.
+- `df_final[df_final['DBSCAN_Cluster'] == -1]` → filtro booleano estándar: se queda solo con las filas de los equipos marcados como outliers, para poder inspeccionar sus valores puntuales.
+- **Resultado real**: el dendrograma muestra 3 macro-clusters al cortar a la altura ~5,5; DBSCAN marcó **11 equipos** como outliers — estadísticas defensivas en los extremos del torneo, no necesariamente "peores".
 
 ### Bloque 5 — PCA (bloque de variables físicas)
 
-Reduce 4 variables de rendimiento físico (`Velocidad Media (Km/h)`, `Esprint a gran velocidad`, `Esprints`, `Distancia recorrida (m)`) a 2 componentes principales, y grafica el resultado con Plotly (scatter interactivo, con el nombre del equipo al pasar el mouse).
+```python
+from sklearn.decomposition import PCA
+import plotly.express as px
 
-**Resultado real**: PC1 explica **80,60%** de la varianza (interpretado en el notebook como "Intensidad de carrera") y PC2 explica **16,69%** ("Velocidad pura") — entre los dos, **97,29%** de varianza acumulada. Reducir de 4 variables a 2 casi no pierde información. Los cuadrantes del gráfico se interpretan como: derecha = alto volumen físico (la mayoría de los equipos), izquierda-arriba = velocidad puntual sin resistencia (poca distancia recorrida, juego más estático), abajo = déficit físico general del torneo.
+# Seleccionar bloque Físico
+cols_fisico = ['Velocidad Media (Km/h)', 'Esprint a gran velocidad', 'Esprints', 'Distancia recorrida (m)']
+X_fisico = scaler.fit_transform(df_final[cols_fisico].dropna())
+
+# PCA
+pca = PCA(n_components=2)
+componentes = pca.fit_transform(X_fisico)
+
+print(f"Varianza explicada por componente: {pca.explained_variance_ratio_}")
+print(f"Varianza explicada acumulada: {np.sum(pca.explained_variance_ratio_):.2%}")
+
+df_pca_plot = pd.DataFrame({
+    'PC1_Intensidad': componentes[:, 0],
+    'PC2_Velocidad': componentes[:, 1],
+    'Equipo': df_final.index
+})
+
+fig = px.scatter(df_pca_plot, x='PC1_Intensidad', y='PC2_Velocidad', hover_name='Equipo')
+fig.show()
+```
+
+**Línea por línea:**
+- `cols_fisico = [...]` → las 4 variables físicas que se van a comprimir: velocidad media, esprint a gran velocidad, cantidad de esprints, distancia recorrida.
+- `scaler.fit_transform(...)` → escalado obligatorio antes de PCA (Módulo 5): sin esto, `Distancia recorrida (m)` (números grandes) dominaría por completo la varianza frente a `Velocidad Media (Km/h)` (números chicos).
+- `PCA(n_components=2)` → pide quedarse con las 2 primeras componentes principales — la reducción de 4 variables a 2, elegida acá para poder graficar en un plano 2D.
+- `pca.fit_transform(X_fisico)` → calcula las componentes principales (Módulo 5: los eigenvectores de la matriz de covarianza) y proyecta cada equipo sobre esas 2 nuevas direcciones; el resultado `componentes` es una matriz de 48 filas × 2 columnas.
+- `pca.explained_variance_ratio_` → el atributo de scikit-learn que ya trae calculado qué porcentaje de la varianza total explica cada componente — no hace falta calcularlo a mano con eigenvalores, como sí se hizo en el ejemplo teórico del Módulo 5.
+- `componentes[:, 0]` y `componentes[:, 1]` → las columnas 0 y 1 de la matriz de componentes — PC1 y PC2 para cada equipo, respectivamente.
+- `'Equipo': df_final.index` → como el índice del DataFrame son los nombres de los equipos (desde la celda de inicio), esto arma la columna de nombres alineada fila a fila con sus componentes.
+- `px.scatter(..., hover_name='Equipo')` → gráfico interactivo de Plotly; `hover_name` hace que, al pasar el mouse sobre un punto, se muestre el nombre del equipo en vez de solo las coordenadas numéricas.
+- **Resultado real**: PC1 explica **80,60%** de la varianza (interpretado como "Intensidad de carrera") y PC2 explica **16,69%** ("Velocidad pura") — 97,29% acumulado entre las dos. Reducir de 4 variables a 2 casi no pierde información.
 
 ### Bloque 6 — Panorama de Métodos y Cierre
 
