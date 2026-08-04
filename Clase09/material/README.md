@@ -173,8 +173,20 @@ Estas tres categorías se exploran en detalle en los Módulos 2 a 5 de esta clas
 **Material para desarrollar cada punto en clase, antes de pasar a la Filmina 08:**
 
 - **Clustering** responde a la pregunta *"¿quién se parece a quién?"*. No hay un número de grupos predefinido de antemano (salvo que el algoritmo lo pida como parámetro, como K-Means) — el propio proceso de agrupar es el resultado que se busca. Vale la pena anticipar acá que en esta clase se van a ver **tres** algoritmos distintos de clustering (K-Means, Jerárquico, DBSCAN), y que ninguno es "el mejor" en términos absolutos: cada uno asume cosas distintas sobre la forma de los grupos, y esa es la razón por la que hace falta conocer más de uno.
+  - Segmentar clientes de un e-commerce por comportamiento de compra (frecuencia, monto, categorías) para armar campañas distintas por perfil.
+  - Agrupar canciones de una plataforma de streaming por "sonido" (tempo, energía, instrumentación) para armar playlists automáticas sin que nadie las arme a mano.
+  - Agrupar pacientes de un hospital por perfil de síntomas, para descubrir subtipos de una enfermedad que la clasificación clínica tradicional no distinguía.
+  - Agrupar barrios de una ciudad por patrones de tráfico y movilidad, para decidir dónde priorizar inversión en transporte público.
 - **Reducción de dimensionalidad** responde a *"¿puedo decir lo mismo con menos variables?"*. Es fácil de subestimar si nunca se trabajó con un dataset de verdad ancho — pero es común encontrar tablas con cientos de columnas (encuestas, datos genómicos, sensores IoT), donde ni siquiera es posible graficar todas las relaciones a la vez. PCA, que se ve en el Módulo 5, es la técnica de referencia acá — pero el concepto general ("comprimir información sin perder lo esencial") es más amplio que un solo algoritmo.
+  - Comprimir una encuesta de 50 preguntas de satisfacción a 3 o 4 "factores" de fondo (ej. "satisfacción con el producto", "satisfacción con la atención"), en vez de mirar las 50 por separado.
+  - En un estudio genómico, reducir miles de genes medidos a un puñado de componentes que expliquen la mayor parte de la variabilidad entre pacientes.
+  - Simplificar decenas de indicadores financieros de una empresa a 2 o 3 ejes, para poder graficarla y compararla visualmente contra sus competidores.
+  - Comprimir las variables de sensores de una máquina industrial (temperatura, vibración, presión, decenas de mediciones) a pocos indicadores que resuman su "estado de salud" general.
 - **Reglas de asociación** responde a *"¿qué suele pasar junto con qué?"*. A diferencia de las otras dos, no trabaja con "puntos en un espacio" sino con **transacciones** (listas de ítems que ocurrieron juntos) — es la técnica más ligada al mundo del retail y el e-commerce de las tres, y la única que no requiere que los datos sean numéricos para funcionar.
+  - El clásico de supermercado: pañales y cerveza los viernes por la tarde — dos productos sin relación obvia, que aparecen juntos con más frecuencia de la esperada.
+  - "Los usuarios que vieron esta serie también vieron..." en una plataforma de streaming — reglas de asociación calculadas sobre millones de historiales de reproducción.
+  - Combos de comida rápida: si "papas" y "gaseosa" se piden juntas con muchísima frecuencia, tiene sentido armar un combo y no vender cada una por separado.
+  - En una historia clínica, qué síntomas o diagnósticos co-ocurren con frecuencia — una alerta útil para que un médico revise una comorbilidad que no estaba buscando activamente.
 
 Un ejercicio útil para la clase: para cada uno de los tres tipos, pedirle al grupo un ejemplo propio (no el que ya está en la filmina) de un problema de su día a día que encajaría en esa categoría — ayuda a consolidar la diferencia antes de entrar en el detalle técnico de cada algoritmo.
 
@@ -218,6 +230,12 @@ Este flujo es la base para las prácticas y análisis de toda la clase — cambi
 
 **Contexto**: ¿alguna vez te preguntaste cómo las tiendas en línea saben qué productos recomendarte juntos? Las reglas de asociación son la técnica detrás de eso — descubrir patrones frecuentes en grandes conjuntos de transacciones.
 
+Otros disparadores para abrir el módulo, si el ejemplo de la tienda en línea no engancha al grupo:
+- ¿Por qué Spotify arma una playlist automática que "tiene sentido", combinando canciones que nunca elegirías vos mismo en ese orden?
+- ¿Por qué el supermercado pone las papas fritas cerca de las gaseosas, o el pan cerca de la manteca?
+- ¿Por qué una farmacia podría querer saber qué medicamentos se recetan juntos con frecuencia, más allá de lo que dice el manual?
+- ¿Por qué una tarjeta de crédito detecta como sospechosa una compra que, aislada, parece normal, pero combinada con otra reciente no encaja con el patrón habitual del cliente?
+
 ### Apertura del módulo *(Filmina 10)*
 
 Esta filmina divisoria anuncia el segundo bloque temático de la clase, con el subtítulo "Apriori, FP-Growth y las métricas support, confidence y lift". A diferencia del Módulo 1 (que fue conceptual, sin algoritmos concretos), acá arranca el primero de los cinco algoritmos específicos que se recorren hoy.
@@ -237,6 +255,10 @@ El nombre "Apriori" viene de un principio muy intuitivo, conocido como la **prop
 
 FP-Growth ataca el mismo problema desde otro ángulo: en vez de generar y descartar candidatos (el paso más costoso de Apriori), comprime **todas** las transacciones en una única estructura de árbol (el árbol FP), donde los caminos compartidos entre transacciones parecidas se superponen. Una vez construido el árbol, extraer los conjuntos frecuentes es un recorrido sobre esa estructura, sin volver a generar combinaciones desde cero. Es el motivo por el que FP-Growth es el algoritmo preferido en la industria cuando el catálogo de productos es grande (miles o decenas de miles de ítems) — Apriori sigue siendo el más usado en contextos educativos y en catálogos chicos, precisamente porque su lógica es mucho más fácil de explicar y depurar paso a paso.
 
+**Ejemplos concretos de cuándo usar cada uno:**
+- **Apriori** — un almacén de barrio con 200 productos, una farmacia chica analizando qué medicamentos se venden juntos, o cualquier ejercicio de clase como el de esta guía (48 equipos, 4 métricas): catálogos chicos, donde la claridad de la lógica pesa más que la velocidad.
+- **FP-Growth** — un marketplace como Mercado Libre o Amazon con millones de productos y millones de transacciones diarias; una telco analizando patrones de consumo sobre millones de líneas; una plataforma de streaming buscando combinaciones de contenido entre un catálogo de decenas de miles de títulos. En estos casos, Apriori directamente no terminaría de correr en un tiempo razonable.
+
 ### Métricas clave: support, confidence y lift *(Filmina 12)*
 
 | Métrica | Definición | Interpretación |
@@ -252,6 +274,11 @@ FP-Growth ataca el mismo problema desde otro ángulo: en vez de generar y descar
 - **Support** responde "¿qué tan común es esta combinación en general?". Es la métrica más básica de las tres, y también la que se usa como filtro inicial: antes de calcular *confidence* o *lift* de nada, Apriori descarta directamente los conjuntos con *support* por debajo de un umbral mínimo (`min_support`), porque una regla que ocurre en el 0,001% de las transacciones rara vez es útil para una decisión de negocio, sea cual sea su fuerza de asociación.
 - **Confidence** responde "dado que ya pasó A, ¿qué tan seguido pasa B también?". Es una probabilidad condicional — matemáticamente idéntica a `P(B|A)` en estadística — y por eso **no es simétrica**: `confidence(pan → manteca)` y `confidence(manteca → pan)` casi nunca dan el mismo número, porque dependen de qué tan frecuente es cada ítem por separado. Es un error común de quien recién empieza con reglas de asociación asumir que la flecha "no importa" — sí importa, y mucho.
 - **Lift** responde la pregunta más sutil de las tres: "¿A y B aparecen juntos más de lo que aparecerían si fueran totalmente independientes entre sí?". Un lift de exactamente 1 significa que no hay ninguna relación — A y B ocurrirían juntos esa misma cantidad de veces aunque no tuvieran nada que ver el uno con el otro, solo por pura probabilidad de que ambos son frecuentes por separado. Por eso el lift es la métrica que de verdad filtra el ruido estadístico: *support* y *confidence* pueden estar altos simplemente porque uno de los dos ítems es muy popular (como se ve en el ejemplo de código de abajo, con `leche`), y solo el lift lo deja en evidencia.
+
+**Más ejemplos rápidos para ilustrar cada métrica en otros dominios, sin hacer la cuenta completa:**
+- **Support bajo, pero igual interesante**: en una farmacia, la combinación "antibiótico X + protector gástrico Y" puede tener support bajo (pocas transacciones totales la incluyen, porque no todos compran antibióticos), pero seguir siendo clínicamente relevante — un caso donde el umbral de `min_support` hay que fijarlo con criterio de negocio, no solo matemático.
+- **Confidence asimétrica en la práctica**: en Netflix, `confidence(ver "Serie A" → ver "Serie B")` puede ser alta (quien ve A casi siempre termina viendo B), pero `confidence(ver "Serie B" → ver "Serie A")` puede ser baja si B es mucho más popular en general y la mayoría de su audiencia nunca vio A — la misma asimetría que "pan → manteca" vs. "manteca → pan".
+- **Lift altísimo con support bajísimo**: dos productos muy nicho (por ejemplo, un accesorio específico para un modelo de bicicleta poco común) pueden tener un lift enorme entre sí, pero un support tan bajo que la regla, aunque estadísticamente "fortísima", afecte a muy pocos clientes como para justificar una campaña — hay que mirar las tres métricas juntas, nunca una sola aislada.
 
 🎯 **Ejemplo**: calcular las tres métricas a mano, sobre una canasta de compras chica — sin librerías especializadas, para ver exactamente qué hay detrás de cada fórmula.
 
@@ -305,6 +332,12 @@ regla("pan", "leche")
 - **Disposición de productos**: en supermercados físicos, productos con alto *lift* a veces se colocan **lejos** uno del otro a propósito, no cerca — para que el cliente tenga que recorrer más pasillos (y estar expuesto a más productos) en el trayecto entre uno y otro. Es la misma lógica de las reglas de asociación puesta al servicio de un objetivo distinto (maximizar exposición) en vez de la comodidad de compra.
 - **Recomendaciones en e-commerce**: los sistemas de "quienes compraron esto también compraron..." de sitios como Amazon o Mercado Libre son, en su forma más simple, reglas de asociación calculadas sobre millones de transacciones — aunque en producción suelen combinarse con técnicas más sofisticadas de sistemas de recomendación (filtrado colaborativo, embeddings) para mejorar la personalización.
 
+**Más allá del retail — la misma técnica en otros rubros:**
+- **Banca y fintech**: qué productos financieros contratan juntos los clientes (tarjeta de crédito + seguro, caja de ahorro + plazo fijo), para armar paquetes u ofertas cruzadas sin tener que adivinar qué combinar.
+- **Streaming y contenidos**: qué géneros o títulos se consumen juntos dentro de una misma cuenta, para decidir qué producir o licenciar a continuación.
+- **Salud**: qué síntomas, diagnósticos o medicamentos aparecen juntos con frecuencia en las historias clínicas — un insumo para protocolos de atención, no un diagnóstico automático.
+- **Telecomunicaciones**: qué servicios adicionales (streaming, roaming, minutos extra) suelen contratar juntos los clientes de un mismo plan, para diseñar combos que de verdad se ajusten a un uso real.
+
 **El punto de cierre más importante para remarcar**: co-ocurrencia no es causalidad. Que `pan` y `manteca` tengan un lift alto no prueba que comprar pan **cause** comprar manteca — podría haber una tercera variable en común (ambos se compran más los fines de semana, por ejemplo) que explique la asociación sin que exista una relación causal directa entre los dos productos. Es el mismo principio de "correlación no implica causalidad" que aparece en estadística general, aplicado al mundo de las transacciones.
 
 ---
@@ -351,7 +384,9 @@ Sobre la Inicialización: la opción "al azar" simplemente elige `k` puntos cual
 
 - **Mínimo local vs. global**: como el resultado final depende de dónde arrancaron los centroides, correr K-Means dos veces con inicializaciones distintas puede dar dos particiones **distintas**, ambas "válidas" en el sentido de que el algoritmo convergió correctamente en las dos, pero una puede ser mejor que la otra. La solución práctica que usa scikit-learn (y que aparece en el ejemplo de código de la Filmina 19, con el parámetro `n_init=10`) es correr el algoritmo completo varias veces con distintas inicializaciones al azar, y quedarse con el resultado que dio el WCSS más bajo de todos los intentos.
 - **Sensibilidad a outliers**: como el centroide es un **promedio**, un solo punto muy alejado del resto puede "arrastrar" el centroide entero hacia él, distorsionando la posición de todo el cluster — el mismo fenómeno por el que la media aritmética es sensible a valores extremos (visto en clases anteriores de estadística descriptiva). Es una de las razones por las que suele convenir revisar y tratar outliers **antes** de correr K-Means, no después.
+  - *Ejemplo concreto*: segmentando clientes por gasto mensual, un solo cliente corporativo que gasta 100 veces más que el resto puede correr el centroide de "clientes premium" tan lejos que termine agrupando mal a los clientes premium "reales" — conviene revisar outliers (Módulo 1) antes de clusterizar, no después.
 - **Formas no esféricas**: como K-Means asigna cada punto según distancia al centroide más cercano, la "frontera" natural entre dos clusters siempre termina siendo una línea recta (o un plano, en más dimensiones) — geométricamente, solo puede separar bien grupos que tengan forma redondeada y tamaño parecido. Con clusters alargados, en forma de luna, o de tamaños muy distintos entre sí, K-Means directamente separa mal — y ese es exactamente el problema que resuelve DBSCAN, que se ve en el Módulo 4.
+  - *Ejemplo concreto*: agrupar comercios por ubicación geográfica a lo largo de una costa o de un río da un cluster alargado y curvo — K-Means tiende a "cortarlo" en pedazos artificiales con fronteras rectas, en vez de respetar la forma real alargada de la zona.
 
 ### Elegir k: método del codo (Elbow Method) *(Filmina 18)*
 
@@ -432,6 +467,12 @@ La correcta elección de `k` evita tanto la **sobresegmentación** (demasiados c
 - **Finanzas**: además de detección de fraude, K-Means se usa en gestión de portafolios para agrupar activos financieros con comportamientos de precio similares (una forma de diversificación basada en datos, en vez de en la clasificación tradicional por sector o industria).
 - **Imágenes**: un uso muy visual para mostrar en clase es la **cuantización de color** — aplicar K-Means sobre los píxeles de una imagen (donde cada píxel es un punto en un espacio de 3 dimensiones: rojo, verde, azul) reduce la imagen a solo `k` colores distintos, el color de cada centroide. Es una forma concreta y visual de "ver" cómo trabaja el algoritmo, sin necesitar imaginar puntos abstractos en un gráfico.
 
+**Más sectores, para tener variedad al elegir el ejemplo según el grupo:**
+- **Salud**: agrupar pacientes por perfil de riesgo (edad, comorbilidades, hábitos) para priorizar seguimiento médico en los grupos de mayor riesgo, sin depender de una única regla clínica fija.
+- **Educación**: agrupar estudiantes por patrón de desempeño (tiempo dedicado, ejercicios resueltos, tipo de errores) para detectar perfiles que necesitan un refuerzo distinto, en vez de un mismo plan para todos.
+- **Logística**: agrupar puntos de entrega por ubicación geográfica para diseñar zonas de reparto eficientes — el mismo problema que resuelve, con matices, cualquier app de delivery.
+- **Recursos Humanos**: agrupar empleados por perfil de desempeño y compromiso (encuestas de clima, antigüedad, ausentismo) para detectar patrones de rotación antes de que se conviertan en renuncias.
+
 **Sobre la sobresegmentación y subsegmentación**: en términos de negocio, la sobresegmentación tiene un costo operativo real — si marketing tiene que diseñar 15 campañas distintas para 15 microsegmentos de clientes, el costo de gestionar esa complejidad puede superar el beneficio de la personalización. La subsegmentación, en cambio, tiene un costo de oportunidad: agrupar en pocos clusters muy amplios puede esconder un segmento pequeño pero muy rentable dentro de un grupo más grande y menos interesante. No existe una regla matemática que resuelva esta tensión — el método del codo y el silhouette dan candidatos razonables de `k`, pero la decisión final casi siempre involucra also una restricción práctica del negocio (cuántos segmentos puede gestionar realmente el equipo de marketing, por ejemplo).
 
 ---
@@ -460,6 +501,12 @@ El resultado se visualiza en un **dendrograma**: un diagrama en forma de árbol 
 El enfoque **aglomerativo** ("bottom-up", de abajo hacia arriba) es, con mucha diferencia, el más usado en la práctica frente al divisivo ("top-down") — la razón es principalmente de costo computacional: en cada paso, el aglomerativo solo necesita encontrar el par de clusters más parecido entre los que ya existen y fusionarlos, mientras que el divisivo necesitaría evaluar **todas** las formas posibles de partir un cluster grande en dos, un problema combinatorio mucho más costoso. Por eso, cuando en la práctica se habla de "clustering jerárquico" sin más aclaración, casi siempre se refiere al aglomerativo.
 
 La gran ventaja pedagógica del dendrograma es que muestra **toda la estructura de agrupamiento posible** en una sola imagen — desde `k=1` (todo en la raíz del árbol) hasta `k = cantidad de puntos` (cada hoja individual). Elegir el número de clusters se convierte, visualmente, en elegir a qué altura "cortar" el árbol con una línea horizontal: cuantos más nodos verticales cruce esa línea, más clusters resultan. Es una diferencia de fondo respecto a K-Means, donde `k` hay que decidirlo **antes** de correr el algoritmo (con el codo o el silhouette del Módulo 3) — acá se puede correr el algoritmo una sola vez y decidir `k` **después**, mirando el árbol completo.
+
+**¿Para qué usarías esto en la práctica, y en qué casos conviene más que K-Means?**
+- **Taxonomías biológicas**: el uso histórico del método — agrupar especies por similitud genética, mostrando no solo los grupos finales sino **cómo se relacionan entre sí** en distintos niveles (géneros dentro de familias, familias dentro de órdenes).
+- **Estructura organizacional de un mercado**: agrupar empresas de un sector por similitud financiera, donde interesa ver tanto los grandes bloques (industria) como las subdivisiones dentro de cada uno (sub-industria, nicho) — algo que K-Means, al dar un único nivel de `k` grupos, no puede mostrar de una sola vez.
+- **Análisis exploratorio inicial**: cuando todavía no se tiene ninguna intuición de cuántos segmentos de clientes existen en un dataset nuevo, correr un dendrograma es una forma barata de "mirar la estructura completa" antes de comprometerse con un `k` fijo para K-Means.
+- **Sistemas de recomendación jerárquicos**: agrupar productos de un catálogo en categorías y subcategorías automáticas, en vez de depender de que alguien las arme a mano.
 
 🎯 **Ejemplo del PDF**: construir un dendrograma sobre un dataset sintético de clientes (Ingresos, Gasto Mensual, Edad), usando el método de linkage `ward` (minimiza la varianza dentro de los clusters).
 
@@ -539,6 +586,12 @@ El nombre completo, *Density-Based Spatial Clustering of Applications with Noise
 Los dos parámetros son las dos preguntas que hay que responder para definir "denso": `eps` responde *"¿qué tan cerca hay que estar para contar como vecino?"*, y `min_samples` responde *"¿cuántos vecinos hacen falta para considerar la zona densa?"*. Ajustar estos dos números cambia radicalmente el resultado: un `eps` muy chico deja casi todo como ruido (porque casi nada tiene suficientes vecinos tan cerca); un `eps` muy grande termina fusionando clusters que deberían quedar separados (porque "casi todo" pasa a ser vecino de "casi todo"). Por eso la Filmina 25 trae la técnica del **k-distance plot** (que se ve en el ejemplo de código): una forma sistemática de estimar un buen valor de `eps` a partir de los propios datos, en vez de adivinarlo a prueba y error.
 
 Sobre los tres tipos de punto: la distinción entre **core** y **border** es sutil pero importante — un border point sí forma parte de un cluster (queda "adentro" de la región densa por estar cerca de un core point), pero no tiene la densidad suficiente **por sí mismo** como para ser considerado el corazón de esa densidad. Es la diferencia entre "vivir en un barrio poblado" (border) y "ser, vos mismo, uno de los puntos que hace que el barrio esté poblado" (core). Solo el **noise point** queda completamente afuera de cualquier cluster — y a diferencia de K-Means, donde **todo** punto es forzado a pertenecer a algún cluster (incluso un outlier extremo), en DBSCAN el ruido es un resultado legítimo y esperado, no un error.
+
+**¿Para qué usarías DBSCAN en la práctica, y en qué casos conviene más que los otros dos?**
+- **Detección de fraude**: transacciones o comportamientos que no encajan en ningún patrón habitual son exactamente lo que DBSCAN marca como ruido — a diferencia de K-Means, que forzaría esa transacción rara a pertenecer al cluster más cercano aunque no se parezca en nada.
+- **Análisis geoespacial**: identificar "zonas calientes" de actividad (pedidos de una app de delivery, denuncias en un mapa de una ciudad, brotes de una enfermedad) sin saber de antemano cuántas zonas hay ni su forma — las zonas reales casi nunca son círculos perfectos.
+- **Astronomía**: agrupar estrellas o galaxias por densidad espacial para identificar cúmulos reales, dejando afuera como "ruido" a los objetos aislados que no pertenecen a ningún cúmulo.
+- **Redes sociales**: detectar comunidades de usuarios muy conectados entre sí, identificando al mismo tiempo a los usuarios aislados (bots, cuentas inactivas) que no encajan en ninguna comunidad real.
 
 🎯 **Ejemplo del PDF**: generar un dataset sintético con formas no convexas ("lunas"), blobs densos y ruido disperso, usar un **k-distance plot** para estimar `eps`, y correr DBSCAN.
 
@@ -715,6 +768,12 @@ Por ejemplo, un analista puede usar PCA para transformar variables de comportami
 - **Preprocesamiento**: además de mejorar rendimiento (como se ve en el Módulo 6, con la demo de PCA + KNN), reducir dimensionalidad antes de clustering también ayuda a esquivar la llamada **"maldición de la dimensionalidad"** — un fenómeno donde, en espacios de muchísimas dimensiones, la noción misma de "distancia" empieza a perder sentido (todos los puntos terminan pareciendo casi igual de lejos unos de otros), lo que degrada la calidad de algoritmos como K-Means o DBSCAN que dependen exactamente de medir distancias.
 - Un tercer uso, no mencionado explícitamente en la filmina pero común en la industria: la **compresión de datos** — guardar solo las primeras componentes principales de un dataset (en vez de todas las variables originales) para ahorrar espacio de almacenamiento, aceptando una pérdida controlada de información a cambio.
 
+**Más sectores donde PCA es la técnica de referencia:**
+- **Reconocimiento facial y de imágenes**: cada píxel de una foto es una variable — una imagen de 100×100 píxeles ya tiene 10.000 variables. PCA (en su variante clásica "Eigenfaces") comprime eso a un puñado de componentes que capturan los rasgos que más varían entre caras distintas.
+- **Genómica**: estudios con miles de genes medidos por paciente; PCA reduce esa dimensión gigante a un puñado de componentes que después se usan para agrupar pacientes o buscar asociaciones con una enfermedad.
+- **Finanzas cuantitativas**: reducir decenas de acciones o bonos correlacionados entre sí a un puñado de "factores de riesgo" comunes (el mercado en general, el sector, la tasa de interés) — la base de muchos modelos de gestión de portafolios.
+- **Encuestas y estudios de mercado**: comprimir decenas de preguntas de una encuesta de satisfacción a 2 o 3 "ejes" interpretables (por ejemplo, "satisfacción con el precio" y "satisfacción con el servicio"), más fáciles de presentar a un directorio que 50 respuestas sueltas.
+
 ---
 
 ## Módulo 6 — Panorama de Métodos (Síntesis)
@@ -848,7 +907,49 @@ Esta sección documenta un notebook **aparte**, ya armado y con código funciona
 
 ✅ **Los dos problemas que tenía el notebook ya están corregidos**: el nombre del archivo Excel (`'Data-Set-Fifa.xlsx'`, con guiones) y el error de sintaxis en DBSCAN (`DBSCAN(eps=0.5, min_samples=3)`, antes tenía `+=3`, que no es Python válido). El código de abajo ya refleja ambas correcciones.
 
+### Sobre el dataset: `Data-Set-Fifa.xlsx`
+
+Es una planilla de estadísticas de un torneo de fútbol (48 selecciones), organizada en **6 hojas**, una por familia de métricas — cada hoja tiene una fila por equipo:
+
+| Hoja | Qué mide | Algunas columnas |
+|---|---|---|
+| **Ataque** | Producción ofensiva | `Goles`, `Asistencias`, `Remates`, `Efectividad en los remates %`, `Posesión del balón %` |
+| **Distribución** | Circulación de pelota | `Pase`, `Precisión en los pases %`, `Centro`, `Cambios de orientación intentados` |
+| **Defensa** | Solidez defensiva | `Goles recibidos`, `Pérdidas de balón provocadas`, `Presiones ofensivas/defensivas` |
+| **Portería** | En rigor, disciplina (ver nota) | `Faltas recibidas/cometidas`, `Tarjetas Amarillas/Rojas`, `Fueras de juego` |
+| **Movimiento** | Desmarques y recepciones | `Desmarques para recibir`, `Recepciones bajo presión` |
+| **Físico** | Rendimiento físico | `Velocidad Media (Km/h)`, `Esprints`, `Distancia recorrida (m)` |
+
+**Un detalle real para comentar en clase**: la hoja se llama "Portería" pero sus columnas son de **disciplina** (faltas, tarjetas), no de arqueros — un desajuste entre el nombre de la hoja y lo que realmente contiene. Es un buen ejemplo real de por qué nunca hay que confiar en el nombre de una hoja o columna sin abrir los datos y confirmar qué hay adentro (la misma idea que `.info()` y `.head()` en Pandas, Clase 03).
+
+Cada fila es un **equipo del torneo** (no un jugador ni un partido) — a diferencia del dataset de la Clase 04 (FIFA World Cup, jugador-partido), acá el nivel de análisis es "selección completa", lo que lo hace ideal para comparar estilos de juego entre países.
+
+**¿Para qué se puede usar este dataset, más allá de lo que ya hace el notebook?** El notebook actual solo usa un puñado de columnas a la vez (2 para K-Means, 2 para el dendrograma/DBSCAN, 4 para PCA, 4 para Apriori) — pero con 6 hojas completas hay mucho más para explorar:
+
+**Ejemplos de no supervisado (lo que se ve en esta clase) que todavía no están en el notebook:**
+- **Clustering con todas las variables a la vez** (no de a 2): correr K-Means o Jerárquico sobre las ~40 columnas numéricas combinadas (previa reducción con PCA, para evitar la maldición de la dimensionalidad del Módulo 5) — daría un "estilo de juego integral" en vez de un perfil parcial por bloque.
+- **PCA sobre "Distribución"**: reducir `Pase`, `Centro`, `Rupturas de líneas`, `Cambios de orientación` a 2 ejes que resuman el estilo de construcción de juego de cada selección (¿juego directo o de posesión?).
+- **Reglas de asociación sobre "Defensa"**: qué comportamientos defensivos (`Presiones altas`, `Pérdidas provocadas`, `Recuperación rápida`) tienden a darse juntos — el mismo análisis que se hizo con Ataque, aplicado a la otra mitad de la cancha.
+- **DBSCAN sobre el dataset completo**: después de un PCA a 2-3 componentes sobre todas las hojas combinadas, buscar equipos "atípicos" en un sentido más amplio que solo lo defensivo (bloque 4 del notebook).
+
+**Ejemplos de supervisado (lo que se vio en la Clase 08) que se podrían construir con este mismo archivo:**
+- **Clasificación**: predecir si un equipo llega a cuartos de final o más, usando como `X` sus métricas de Ataque/Defensa/Físico y como `y` una etiqueta "avanzó / no avanzó" (habría que conseguir ese dato de resultados, que no está en este Excel).
+- **Regresión**: predecir la cantidad de goles que un equipo va a convertir en el torneo (`y` numérico) a partir de sus métricas de creación de juego (`Remates`, `Asistencias`, `Posesión`) como `X` — un caso de uso análogo al de "precio de una casa" de la Clase 08, pero en fútbol.
+- **Árbol de Decisión o Random Forest**: combinando variables de las 6 hojas para predecir la posición final en la tabla, y de paso ver con `feature_importances_` qué familia de métricas (ataque, defensa, físico) pesa más en el resultado.
+
+La diferencia clave entre estos dos grupos de ejemplos: los de no supervisado se pueden hacer **hoy mismo**, con el archivo tal cual está — los de supervisado necesitarían agregarle una columna con el resultado real de cada equipo en el torneo (`y`), que hoy no está en el dataset.
+
 ### Preparación de los datos (celda de inicio)
+
+**🧭 Por qué absolutamente todo proyecto de Machine Learning arranca así**: no importa si el modelo final es supervisado o no supervisado, ni si es un árbol de decisión o K-Means — **ningún algoritmo puede compensar datos mal cargados**. Si una columna numérica quedó como texto, si un mismo equipo aparece con dos nombres distintos por un typo, o si faltan valores sin que nadie lo note, el algoritmo no "se da cuenta" del error: simplemente calcula sobre datos incorrectos y devuelve un resultado que **parece** válido pero no lo es. Por eso la limpieza siempre es el primer paso del flujo de trabajo (Módulo 1, Filmina 09: *Recolección y preparación → Selección del método → Aplicación → Evaluación → Interpretación*) — es la base de la que dependen los otros cuatro.
+
+En términos generales, cualquier proceso de limpieza (no solo este notebook) sigue la misma secuencia lógica, la misma que ya se practicó con Pandas en las Clases 03 y 04:
+1. **Detectar el problema**: ¿hay nulos? ¿tipos de dato incorrectos? ¿nombres duplicados con distinta escritura? ¿encoding roto?
+2. **Decidir una estrategia**: ¿se corrige, se elimina, se imputa? (acá: corregir nombres, imputar con la media los huecos de cruce entre hojas)
+3. **Aplicar la corrección** de forma sistemática — nunca a mano, fila por fila, porque no escala y no es reproducible.
+4. **Verificar el resultado** con un chequeo concreto — acá, que el conteo final dé exactamente 48 equipos, ni uno más ni uno menos.
+
+Este ejemplo puntual es un caso más desprolijo que el promedio (celdas combinadas, encoding roto, columnas basura) precisamente porque así viene un archivo Excel armado a mano por una persona, sin pensar en que después lo iba a leer un programa — el escenario más realista posible, mucho más parecido a lo que se encuentra en un trabajo real que un dataset ya limpio bajado de Kaggle.
 
 🎯 **Para qué usamos este código**: no es un análisis en sí — es el paso obligatorio de "ingesta y saneamiento" (Módulo 1 de esta guía, aplicado ahora a un archivo real y desprolijo) que hay que correr **una sola vez, al principio**, para que las 5 técnicas de los bloques siguientes tengan un solo DataFrame limpio (`df_final`) del cual partir. Lo que queremos ver al final es la confirmación `"¡Exactamente 48!"` — si ese número no cierra, algo en el cruce de las 6 hojas salió mal y no tiene sentido seguir a los bloques de abajo.
 
@@ -927,7 +1028,9 @@ Mismo concepto que el Módulo 1 de esta guía, con la analogía puntual del note
 
 ### Bloque 2 — Reglas de Asociación (Apriori con `mlxtend`)
 
-🎯 **Qué queremos ver y para qué sirve**: la pregunta de negocio es *"¿qué estilos de juego suelen ir juntos?"* — este código la responde de forma automática, sin tener que cruzar manualmente 4 métricas de a pares. Lo que buscamos al final no es la tabla completa de reglas (pueden salir decenas), sino **las 2-3 reglas con mayor lift**: esas son las que valen la pena comentar en clase, porque son las que muestran una asociación real y no una coincidencia estadística (Módulo 2 de esta guía).
+**🧭 Por qué este es el segundo paso, y no el primero**: con los datos ya limpios (bloque anterior), este es el primer bloque que corresponde a la fase "Selección del método" y "Aplicación del algoritmo" del flujo general (Módulo 1, Filmina 09). Un patrón que se repite en **cualquier** proyecto de reglas de asociación, no solo en este: los datos casi nunca vienen ya en formato de "transacciones" — hay que **transformarlos** primero (acá, convertir 4 métricas numéricas continuas en categorías Alto/Bajo), porque Apriori no entiende números continuos, entiende presencia/ausencia de un ítem. Ese paso de "traducir tus datos al formato que pide el algoritmo" es previo a cualquier algoritmo de esta clase, y cambia según la técnica: acá son categorías binarias, en K-Means van a ser variables numéricas escaladas, en PCA también.
+
+🎯 **Qué queremos ver y para qué sirve**: la pregunta de negocio es *"¿qué métricas ofensivas suelen destacarse juntas en un mismo equipo?"* — este código la responde de forma automática, cruzando `Goles`, `Asistencias`, `Remates` y `Posesión del balón %` sin tener que compararlas manualmente de a pares. Importante: acá **no** aparecen "estilos" distintos que se asocian entre sí (como si un estilo A implicara un estilo B) — lo que el resultado real muestra es que estas 4 métricas ofensivas tienden a aparecer **todas juntas, como un solo paquete**, en los mismos equipos. Lo que buscamos al final no es la tabla completa de reglas (pueden salir decenas), sino **las 2-3 reglas con mayor lift**: esas son las que valen la pena comentar en clase, porque muestran una asociación real y no una coincidencia estadística (Módulo 2 de esta guía).
 
 ```python
 import warnings
@@ -958,6 +1061,8 @@ print(reglas[['antecedents', 'consequents', 'support', 'confidence', 'lift']].so
 - **Resultado real del notebook**: las 3 reglas con mayor lift combinan siempre `{Remates, Asistencias}` con `{Goles, Posesión del balón %}` — todas con lift entre 2,49 y 2,65, y support 0,3125 (15 de los 48 equipos cumplen la regla completa). Conclusión del notebook: *"en el fútbol moderno el éxito ofensivo es un ecosistema interconectado"* — no se puede aislar la posesión del gol, ni los remates de las asistencias.
 
 ### Bloque 3 — K-Means (Posesión vs. Efectividad en los remates)
+
+**🧭 Los pasos generales de cualquier clustering con K-Means, no solo este**: (1) elegir qué variables numéricas describen mejor el fenómeno que se quiere agrupar — acá dos, pero podrían ser veinte; (2) escalarlas siempre, sin excepción; (3) probar varios valores de `k` y elegir uno con un criterio objetivo (el codo, y si hace falta el silhouette del Módulo 3 de la teoría); (4) entrenar el modelo final con ese `k`; (5) el paso que ningún algoritmo hace por vos: **interpretar** cada cluster y ponerle un nombre que tenga sentido para quien va a usar el resultado — acá "Los Contundentes", "Bloque Bajo", "Posesión Inofensiva". Ese último paso es el que separa un ejercicio técnico de un análisis útil para un cuerpo técnico real.
 
 🎯 **Qué queremos ver y para qué sirve**: primero, el **gráfico del codo** — para decidir, con criterio y no a ojo, cuántos perfiles tácticos distintos tiene sentido buscar (acá da `k=3`). Después, con el modelo ya entrenado, lo que realmente importa mostrar en clase es el **perfil promedio de cada cluster** y la lista de equipos que cayó en cada uno — es la forma de convertir "3 grupos numéricos" en "3 estilos de juego con nombre y sentido futbolístico", que es en definitiva lo que un cuerpo técnico o analista se llevaría de este análisis.
 
@@ -1008,6 +1113,10 @@ for num_cluster, lista_paises in equipos_por_cluster.items():
 
 ### Bloque 4 — Clustering Jerárquico y DBSCAN (Goles recibidos vs. Pérdidas de balón provocadas)
 
+**🧭 Por qué este bloque usa dos algoritmos y no solo K-Means**: en cualquier proyecto real, K-Means no siempre es la herramienta correcta — este bloque existe para mostrar en vivo **cuándo conviene cambiar de algoritmo**. La secuencia general (no específica de este notebook) es: si no sabés cuántos grupos hay, o si te interesa ver la estructura completa antes de decidir, recurrís a jerárquico; si sospechás que hay "ruido" real en los datos (casos que no deberían forzarse a ningún grupo), recurrís a DBSCAN. Ninguno de los dos pide `k` de antemano — esa es la diferencia de fondo con el bloque anterior, y el motivo por el que en la práctica conviene tener más de un algoritmo de clustering en la caja de herramientas, no solo el más popular.
+
+**¿Qué es un dendrograma?** (repaso rápido, ya desarrollado en el Módulo 4 de esta guía) Es un diagrama en forma de árbol que muestra **todo el proceso de agrupamiento a la vez**, no un único resultado. Cada "hoja" del árbol (en la punta) es un equipo individual; a medida que subís, las hojas se van fusionando de a pares en ramas más grandes, hasta terminar todas juntas en una sola raíz. La **altura** a la que dos ramas se unen indica qué tan distintas son entre sí: cuanto más abajo se fusionan, más se parecen; cuanto más arriba, más diferentes son. No hace falta elegir un número de clusters de antemano (a diferencia de K-Means) — se elige **después**, mirando el árbol completo y decidiendo a qué altura "cortarlo" con una línea imaginaria: cuantas más ramas cruce esa línea, más clusters resultan.
+
 🎯 **Qué queremos ver y para qué sirve**: acá se usan **dos algoritmos con objetivos distintos sobre las mismas variables defensivas**, a propósito, para que se note la diferencia en vivo. Del dendrograma queremos ver la **altura a la que se separan las ramas principales** (a qué distancia dejan de parecerse los grupos de equipos). De DBSCAN queremos ver algo totalmente distinto: no clusters, sino la **lista de equipos que quedaron como ruido** — los que tienen un comportamiento defensivo tan atípico que no encajan bien en ningún grupo denso.
 
 ```python
@@ -1040,6 +1149,8 @@ print(outliers[['Goles recibidos', 'Pérdidas de balon provocadas']])
 - **Resultado real**: el dendrograma muestra 3 macro-clusters al cortar a la altura ~5,5; DBSCAN marcó **11 equipos** como outliers — estadísticas defensivas en los extremos del torneo, no necesariamente "peores".
 
 ### Bloque 5 — PCA (bloque de variables físicas)
+
+**🧭 Por qué PCA suele ser el último paso, no el primero**: a diferencia de los bloques 2 a 4 (que agrupan o buscan reglas), PCA no agrupa nada — **simplifica** para que otro paso (un gráfico, un clustering, un modelo supervisado) funcione mejor o sea posible de mostrar. Es, en general, una herramienta de **preprocesamiento**, no de análisis final: se aplica cuando el problema real (agrupar, predecir, visualizar) tiene demasiadas variables como para resolverse de forma directa. La secuencia general que se repite en cualquier uso de PCA: identificar el grupo de variables relacionadas que se quiere simplificar → escalarlas → decidir cuántas componentes conservar (mirando la varianza explicada) → aplicar → e **interpretar** qué representa cada componente en términos del problema original (acá, "intensidad de carrera" y "velocidad pura"), no solo mirar los números sueltos.
 
 🎯 **Qué queremos ver y para qué sirve**: no podemos graficar 4 variables físicas a la vez en un plano — PCA las comprime a 2 sin perder casi nada (eso es lo primero que hay que mirar: el % de varianza acumulada, para justificar que la simplificación vale la pena). Con esas 2 componentes ya calculadas, lo que realmente queremos ver es el **mapa interactivo**: dónde cae cada uno de los 48 equipos, para detectar a simple vista quiénes corren mucho volumen, quiénes priorizan la velocidad puntual y quiénes rinden poco en lo físico — una lectura visual que sería imposible con las 4 variables originales por separado.
 
