@@ -3,7 +3,7 @@
 Esta guía es el **libreto de apoyo para dictar la Clase 09**. Reúne, en un solo lugar y con más profundidad de la que entra en una diapositiva, toda la teoría que aparece en:
 
 - **`Clase 09_teoria.pdf`** — el material teórico oficial de la unidad (6 secciones: de la introducción al aprendizaje no supervisado hasta el panorama comparativo de métodos).
-- **`Clase09.html`** — las diapositivas que se proyectan en clase (36 filminas).
+- **`Clase09.html`** — las diapositivas que se proyectan en clase (39 filminas).
 
 > **Estado de esta guía**: por ahora cubre teoría (PDF + filminas) y el repaso de aprendizaje supervisado como puente desde la Clase 08. Todavía no incorpora el notebook de la clase ni un dataset real propio — eso queda para una próxima iteración.
 
@@ -24,20 +24,20 @@ Esta guía es el **libreto de apoyo para dictar la Clase 09**. Reúne, en un sol
 
 ## Mapa rápido de la clase
 
-Para seguir la clase en paralelo con `Clase09.html` (36 filminas) sin perderte:
+Para seguir la clase en paralelo con `Clase09.html` (39 filminas) sin perderte:
 
 | # | Módulo | Slides | Idea central |
 |---|---|---|---|
-| 0 | Repaso: Aprendizaje Supervisado | *(sin slides — repaso previo, puente desde Clase 08)* | Contraste con lo que ya sabés: datos etiquetados, `f(X) → y`, para entender por qué hoy no hay `y` |
 | — | Portada | 01 | Presentación de la clase |
-| 1 | ¿Qué es el Aprendizaje No Supervisado? | 02–06 | Sin etiquetas: clustering, reducción de dimensionalidad, reglas de asociación |
-| 2 | Reglas de Asociación | 07–10 | Apriori, FP-Growth, y las métricas support/confidence/lift |
-| 3 | K-Means y la Elección de k | 11–17 | El algoritmo de clustering más usado, y cómo elegir bien su parámetro clave |
-| — | Break del Coder | 18 | Corte de ~10 minutos |
-| 4 | Clustering Jerárquico y DBSCAN | 19–24 | Dendrogramas, linkage, densidad, ruido |
-| 5 | PCA: Reducción de Dimensionalidad | 25–30 | Covarianza, eigenvectores/eigenvalores, varianza explicada |
-| 6 | Panorama de Métodos (Síntesis) | 31–35 | Comparación de las 5 técnicas + demo real de PCA mejorando un modelo |
-| — | ¿Dudas? | 36 | Cierre y preguntas |
+| 0 | Repaso: Aprendizaje Supervisado | 02–04 | Solo los nombres — la explicación completa vive en esta guía, no en la filmina |
+| 1 | ¿Qué es el Aprendizaje No Supervisado? | 05–09 | Sin etiquetas: clustering, reducción de dimensionalidad, reglas de asociación |
+| 2 | Reglas de Asociación | 10–13 | Apriori, FP-Growth, y las métricas support/confidence/lift |
+| 3 | K-Means y la Elección de k | 14–20 | El algoritmo de clustering más usado, y cómo elegir bien su parámetro clave |
+| — | Break del Coder | 21 | Corte de ~10 minutos |
+| 4 | Clustering Jerárquico y DBSCAN | 22–27 | Dendrogramas, linkage, densidad, ruido |
+| 5 | PCA: Reducción de Dimensionalidad | 28–33 | Covarianza, eigenvectores/eigenvalores, varianza explicada |
+| 6 | Panorama de Métodos (Síntesis) | 34–38 | Comparación de las 5 técnicas + demo real de PCA mejorando un modelo |
+| — | ¿Dudas? | 39 | Cierre y preguntas |
 
 ---
 
@@ -45,7 +45,7 @@ Para seguir la clase en paralelo con `Clase09.html` (36 filminas) sin perderte:
 
 **Por qué este módulo**: la Clase 08 cerró el bloque de aprendizaje supervisado. Antes de arrancar con la Clase 09, conviene un repaso corto — no para volver a enseñarlo, sino para que el contraste con lo de hoy quede bien marcado.
 
-### ¿Qué es Machine Learning, en general?
+### ¿Qué es Machine Learning, en general? *(Filmina 02)*
 
 Antes de meternos en "supervisado" puntualmente, vale la pena bajar un escalón más y aclarar la idea más general en la que se apoya toda esta clase. Programar una computadora "a la vieja usanza" significa escribirle instrucciones explícitas para cada caso: "si pasa esto, hacé esto otro". El problema es que hay tareas donde armar esas reglas a mano es imposible — nadie puede escribir manualmente todas las reglas que distinguen una foto de un gato de una foto de un perro, o que dicen exactamente cuándo un mail es spam.
 
@@ -53,45 +53,57 @@ Antes de meternos en "supervisado" puntualmente, vale la pena bajar un escalón 
 
 Dentro de Machine Learning hay distintas formas de "dejar que la máquina aprenda sola", según qué tipo de datos y qué tipo de ayuda se le da durante ese aprendizaje. La que ya se vio en la Clase 08 —y la que se repasa a continuación— es el **aprendizaje supervisado**; la que arranca hoy es el **aprendizaje no supervisado**, con una diferencia central que se explica más abajo.
 
-### ¿Qué es el aprendizaje supervisado?
+### ¿Qué es el aprendizaje supervisado? *(Filmina 02)*
 
 La idea de fondo es muy parecida a cómo aprende una persona con ejemplos resueltos: si querés aprender a distinguir mails de spam, lo más fácil es que alguien te muestre miles de mails **ya marcados** como "spam" o "no spam", y con el tiempo empezás a notar patrones (ciertas palabras, remitentes raros, exceso de mayúsculas) que te ayudan a clasificar un mail nuevo que nunca viste. Eso es exactamente lo que hace un modelo de aprendizaje supervisado: se le muestran muchos ejemplos donde la respuesta correcta **ya se conoce**, y el modelo va ajustando sus parámetros internos hasta encontrar una regla (una función matemática) que relacione los datos de entrada con esa respuesta. Una vez entrenado, se usa esa regla para predecir la respuesta de casos **nuevos**, donde no se conoce de antemano.
 
-En la notación que se usa en la jerga de Machine Learning: a las variables de entrada (edad, ingresos, tamaño de un tumor, cantidad de habitaciones de una casa...) se las llama `X`; a la respuesta que se quiere predecir (spam o no, precio de la casa) se la llama `y`. Entrenar un modelo supervisado es, ni más ni menos, buscar una función `f` tal que `f(X)` se parezca lo más posible a `y`, usando los ejemplos históricos donde ambas cosas ya se conocen.
+En la notación que se usa en la jerga de Machine Learning: a las variables de entrada (edad, ingresos, antigüedad laboral, cantidad de habitaciones de una casa...) se las llama `X`; a la respuesta que se quiere predecir (spam o no, precio de la casa) se la llama `y`. Entrenar un modelo supervisado es, ni más ni menos, buscar una función `f` tal que `f(X)` se parezca lo más posible a `y`, usando los ejemplos históricos donde ambas cosas ya se conocen.
 
 Existen dos grandes familias, según qué tipo de dato es `y`:
 
 | | Clasificación | Regresión |
 |---|:---:|:---:|
 | **`y` es...** | Una categoría | Un número |
-| **Ejemplo** | ¿Tumor maligno? | ¿Precio de la vivienda? |
+| **Ejemplo** | ¿El cliente paga el préstamo? | ¿Precio de la vivienda? |
 | **Métricas** | Accuracy, F1, AUC-ROC | MAE, RMSE, R² |
 
-- **Clasificación**: la respuesta que se quiere predecir es una **etiqueta**, elegida entre un grupo cerrado de opciones — "maligno" o "benigno", "spam" o "no spam". No hay término medio: la predicción es una de esas categorías, no un número.
+- **Clasificación**: la respuesta que se quiere predecir es una **etiqueta**, elegida entre un grupo cerrado de opciones — "paga" o "no paga", "spam" o "no spam". No hay término medio: la predicción es una de esas categorías, no un número.
 - **Regresión**: la respuesta que se quiere predecir es un **número** que puede tomar cualquier valor — el precio de una casa (podría ser $150.234 o $150.987, cualquier cifra), la temperatura de mañana. Acá sí hay término medio: el modelo puede acertar "más o menos", no es todo o nada.
 
-**Cómo se mide si un modelo de clasificación es bueno** — con un ejemplo concreto: supongamos que se evalúa el modelo sobre 100 tumores donde ya se sabe la respuesta real (90 benignos, 10 malignos).
-- **Accuracy** es lo más simple de entender: de esos 100 casos, ¿en cuántos acertó el modelo (dijo "maligno" cuando era maligno, o "benigno" cuando era benigno)? Si acertó en 92, el Accuracy es 92%.
-- El problema de quedarse solo con Accuracy: si el modelo fuera tan vago que dijera **siempre** "benigno", sin analizar nada, igual acertaría en los 90 casos benignos y solo fallaría en los 10 malignos — un Accuracy del 90%, que suena bien pero es un modelo completamente inútil (nunca detecta un tumor maligno, que es justo el caso grave que importa detectar).
-- Por eso existe **F1**: en vez de mirar el total de aciertos, mira específicamente qué tan bien detecta los casos positivos (los malignos, en este ejemplo) sin ni inventar demasiados falsos positivos ni dejar pasar demasiados casos reales. Un modelo que siempre dice "benigno" tendría un F1 muy bajo, aunque su Accuracy sea alto — por eso F1 es la métrica preferida cuando hay pocos casos de la categoría que más importa detectar (como suele pasar con enfermedades, fraude, etc.).
-- Una tercera métrica que se mencionó en la Clase 08 es **AUC-ROC**: la mayoría de los modelos de clasificación en realidad no dicen "sí" o "no" en seco, sino que calculan una **probabilidad** (75% de probabilidad de ser maligno) y después esa probabilidad se convierte en "sí"/"no" según algún umbral (por ejemplo, "sí" si supera 50%). AUC-ROC mide qué tan bien el modelo **ordena** los casos por esa probabilidad — si comparás un caso maligno real contra uno benigno real, tomados al azar, ¿qué tan seguido el modelo le puso mayor probabilidad de "maligno" al que realmente lo era? Un valor de 1 sería un modelo perfecto ordenando casos; un valor de 0,5 sería lo mismo que tirar una moneda al aire, sin ningún poder de discriminación real.
+**Cómo se mide si un modelo de clasificación es bueno** — con un ejemplo concreto: un banco evalúa el modelo sobre 100 clientes a los que ya les prestó dinero en el pasado, así que ya se sabe qué pasó realmente con cada uno (90 pagaron a tiempo, 10 no pagaron / entraron en mora).
+- **Accuracy** es lo más simple de entender: de esos 100 casos, ¿en cuántos acertó el modelo (predijo "no paga" cuando efectivamente no pagó, o "paga" cuando efectivamente pagó)? Si acertó en 92, el Accuracy es 92%.
+- El problema de quedarse solo con Accuracy: si el modelo fuera tan vago que dijera **siempre** "va a pagar", sin analizar nada, igual acertaría en los 90 clientes que sí pagaron y solo fallaría en los 10 que no — un Accuracy del 90%, que suena bien pero es un modelo completamente inútil para el banco (nunca detecta a un cliente riesgoso, que es justo el caso que importa detectar antes de prestarle plata).
+- Por eso existe **F1**, que en realidad combina dos métricas más chicas y específicas. Sigamos con el ejemplo: supongamos que el modelo marca a **12 clientes** como "riesgosos" (predijo que no van a pagar). De esos 12, después se descubre que **8 realmente no pagaron** y **4 sí pagaron** (el modelo se equivocó con ellos). Y de los 10 clientes que en la realidad no pagaron, el modelo solo llegó a detectar a 8 de ellos (se le escaparon 2).
+  - **Precision** ("precisión"): de los que el modelo marcó como riesgosos, ¿cuántos realmente lo eran? → 8 de 12 = **67%**. Si la Precision es baja, el modelo está siendo "alarmista": marca a mucha gente como riesgosa sin serlo (eso tiene un costo — por ejemplo, rechazarle el préstamo a un buen cliente).
+  - **Recall** ("exhaustividad" o "sensibilidad"): de los que realmente no iban a pagar, ¿a cuántos detectó el modelo? → 8 de 10 = **80%**. Si el Recall es bajo, el modelo está siendo "distraído": deja pasar casos riesgosos de verdad sin detectarlos (ese es el error más caro para el banco — prestarle plata a alguien que no va a pagar).
+  - **F1** es un promedio especial entre Precision y Recall (técnicamente se llama "media armónica", pero para la intuición alcanza con pensarlo como un promedio) que tiene una propiedad importante: si **cualquiera** de las dos (Precision o Recall) es mala, el F1 también sale malo — no alcanza con que una de las dos sea excelente para "tapar" a la otra. En este ejemplo, con Precision 67% y Recall 80%, el F1 da aproximadamente **73%**.
+  - Comparado con el modelo "vago" de antes (el que siempre dice "va a pagar", sin marcar a nadie como riesgoso): ese modelo tiene Recall = 0% (no detecta ni un solo caso riesgoso real) — y ahí el F1 se derrumba a 0%, aunque su Accuracy fuera 90%. Ese es justamente el contraste que hace útil a F1: expone a los modelos que "hacen trampa" con Accuracy sin detectar nada de lo que realmente importa.
+  - Nota sobre el nombre: a diferencia de AUC-ROC (que sí es una sigla con significado, ver abajo), "F1" no es la abreviatura de ninguna frase — es simplemente el nombre técnico de esta fórmula puntual (también se la llama "F1-score" o "F-measure"). No hace falta buscarle un significado oculto al nombre, solo recordar que combina Precision y Recall.
+
+- Una tercera métrica que se mencionó en la Clase 08 es **AUC-ROC** — acá sí conviene desglosar la sigla completa: **AUC** es *Area Under the Curve* (Área Bajo la Curva) de la **ROC**, que es *Receiver Operating Characteristic* (algo así como "Característica Operativa del Receptor" — un nombre que viene de la ingeniería de radares de mediados del siglo XX y que hoy no aporta ninguna intuición; no hace falta memorizar por qué se llama así, solo entender qué mide).
+
+  Para entenderlo hay que retomar algo mencionado arriba: el modelo no dice "sí" o "no" directamente, calcula una **probabilidad** (por ejemplo, "este cliente tiene 75% de probabilidad de no pagar") y recién después esa probabilidad se convierte en una decisión final usando un **umbral** — por ejemplo, "lo marco como riesgoso si su probabilidad supera 50%". Pero ese umbral (el 50%) es una elección arbitraria: se podría usar 30% (el banco se vuelve más desconfiado, marca a más gente como riesgosa) o 70% (el banco se vuelve más permisivo, marca a menos gente).
+
+  La **curva ROC** se construye probando **todos los umbrales posibles**, del 0% al 100%, y graficando en cada uno dos números uno contra el otro: cuántos clientes riesgosos de verdad logra detectar el modelo (el Recall de antes) contra cuántos clientes buenos termina marcando por error (la contracara de la Precision). El **AUC** es, literalmente, el área que queda debajo de esa curva — un único número que resume qué tan bien el modelo separa a los dos grupos (los que pagan de los que no), sin depender de qué umbral puntual se termine usando.
+
+  Los dos valores de referencia para interpretarlo: **AUC = 1** sería un modelo perfecto — existe un umbral donde separa completamente a un grupo del otro, sin ningún error. **AUC = 0,5** es lo mismo que decidir tirando una moneda al aire — el modelo no tiene ninguna capacidad real de distinguir un cliente riesgoso de uno confiable, por más ajustes de umbral que se prueben. En la práctica, un AUC de 0,8-0,9 ya se considera bastante bueno para la mayoría de los problemas reales.
 
 **Cómo se mide si un modelo de regresión es bueno** — con otro ejemplo: un modelo que predice precios de casas.
 - **MAE** (Error Absoluto Medio): agarra la diferencia entre lo que predijo el modelo y el precio real de cada casa, y promedia esas diferencias (sin importar si se equivocó "de más" o "de menos"). Si el MAE da $10.000, quiere decir que, en promedio, el modelo se equivoca por $10.000 en cada predicción — un número fácil de interpretar porque está en la misma unidad (dólares) que lo que se está prediciendo.
 - **RMSE**: muy parecido al MAE, pero antes de promediar los errores los eleva al cuadrado (y al final saca la raíz cuadrada del resultado). El efecto práctico: un error grande pesa mucho más que varios errores chicos — un modelo que casi siempre acierta bien pero se equivoca feo en un par de casas raras va a tener un RMSE bastante peor que su MAE, mientras que un modelo con errores parejos y moderados va a tener MAE y RMSE parecidos entre sí.
 - **R²**: en vez de dar un error en dólares, da un número entre 0 y 1 (a veces se explica como porcentaje) que responde "¿qué tan bien el modelo explica por qué el precio de cada casa es el que es?". Un R² de 1 sería un modelo perfecto (acierta el precio exacto siempre); un R² de 0 significa que el modelo no es mejor que simplemente decir siempre "el precio promedio de todas las casas", sin mirar ninguna variable en particular.
 
-### Los modelos que se vieron en la Clase 08
+### Los modelos que se vieron en la Clase 08 *(Filmina 03)*
 
 Estos cinco modelos son las herramientas concretas con las que se resuelven los problemas de clasificación y regresión. Repasarlos uno por uno, con una idea intuitiva de cómo funciona cada uno:
 
 - **Regresión Lineal**: el modelo más simple de todos — busca la "mejor línea recta" (o, con más de una variable de entrada, el mejor plano) que pase lo más cerca posible de todos los puntos de entrenamiento. Ejemplo: predecir el precio de una casa a partir de sus metros cuadrados — a más metros cuadrados, más precio, y la Regresión Lineal encuentra la relación numérica exacta ("cada metro cuadrado extra suma, en promedio, tantos dólares"). Es un modelo de **regresión** (predice un número), muy fácil de interpretar, pero limitado cuando la relación entre las variables no es una línea recta.
 - **Árbol de Decisión**: funciona como un juego de "20 preguntas" — va haciendo preguntas de sí/no sobre los datos ("¿el ingreso es mayor a $50.000?", "¿tiene más de 30 años?"), y según las respuestas va bajando por ramas del árbol hasta llegar a una predicción final en una "hoja". Se puede usar tanto para clasificación ("¿el cliente paga el préstamo o no?") como para regresión ("¿cuánto va a gastar este cliente?"). Su gran ventaja es que es muy fácil de visualizar y explicar — literalmente se puede dibujar el árbol de preguntas y mostrárselo a alguien sin conocimientos técnicos.
 - **Random Forest**: en vez de confiar en un único Árbol de Decisión (que puede memorizar demasiado los datos de entrenamiento y funcionar mal con datos nuevos), Random Forest entrena **muchos** árboles distintos — cada uno viendo una porción distinta, al azar, de los datos y de las variables — y después promedia (en regresión) o vota por mayoría (en clasificación) las predicciones de todos ellos. La idea es la misma que "preguntarle a un grupo de expertos en vez de a uno solo": el resultado grupal suele ser más confiable que el de un único árbol, porque los errores individuales de cada árbol tienden a cancelarse entre sí.
-- **Regresión Logística**: a pesar del nombre (que confunde a todo el mundo la primera vez), **no es un modelo de regresión sino de clasificación**. Se usa para predecir la probabilidad de que algo pertenezca a una categoría — por ejemplo, la probabilidad de que un tumor sea maligno, entre 0% y 100% — y después esa probabilidad se convierte en una predicción final ("maligno" si la probabilidad supera 50%, por ejemplo). El nombre viene de que matemáticamente usa una función llamada "logística" para convertir un cálculo interno en un número entre 0 y 1.
+- **Regresión Logística**: a pesar del nombre (que confunde a todo el mundo la primera vez), **no es un modelo de regresión sino de clasificación**. Se usa para predecir la probabilidad de que algo pertenezca a una categoría — por ejemplo, la probabilidad de que un cliente no pague un préstamo, entre 0% y 100% — y después esa probabilidad se convierte en una predicción final ("riesgoso" si la probabilidad supera 50%, por ejemplo). El nombre viene de que matemáticamente usa una función llamada "logística" para convertir un cálculo interno en un número entre 0 y 1.
 - **KNN (K-Nearest Neighbors, "K vecinos más cercanos")**: la idea más intuitiva de las cinco — para predecir la categoría (o el valor) de un caso nuevo, mira cuáles son los `K` casos **ya conocidos** más parecidos a él (los "vecinos más cercanos", midiendo distancia entre sus variables), y les copia la respuesta mayoritaria. Ejemplo: para adivinar si a alguien le va a gustar una película, KNN mira a los `K` usuarios con gustos más parecidos a los suyos, y se fija qué opinaron ellos de esa película. No necesita "entrenarse" en el sentido tradicional — simplemente guarda todos los datos y compara en el momento de predecir.
 
-### Buenas prácticas: evitar el Data Leakage
+### Buenas prácticas: evitar el Data Leakage *(Filmina 04)*
 
 Uno de los errores más peligrosos (porque no siempre se nota) en Machine Learning es el ***Data Leakage*** ("fuga de datos"): que información del conjunto de **test** (los datos que se supone el modelo nunca vio, usados solo para evaluar qué tan bien predice) se "filtre" de alguna forma hacia el proceso de entrenamiento. Cuando eso pasa, el modelo parece funcionar excelente durante la evaluación, pero en la vida real (con datos genuinamente nuevos) rinde mucho peor — porque en el fondo "hizo trampa" viendo pistas que no debería haber visto.
 
@@ -100,9 +112,9 @@ Un ejemplo concreto de cómo ocurre sin querer: si se calcula el promedio y el d
 - **`StandardScaler`**: la herramienta que reescala las variables numéricas para que todas queden en una escala comparable (en general, restando el promedio y dividiendo por el desvío estándar, de forma que la variable termine con promedio 0 y desvío 1). Es necesario porque muchos modelos (KNN es el caso más claro, ya que mide distancias) se ven distorsionados si una variable está en una escala mucho más grande que otra — por ejemplo, "ingresos" en miles de dólares vs. "edad" en años: sin escalar, la variable "ingresos" dominaría por completo cualquier cálculo de distancia o similitud, aunque "edad" fuera igual de importante para el problema.
 - **`Pipeline`**: en vez de escalar los datos como un paso "suelto" antes de entrenar, un `Pipeline` de scikit-learn encadena todos los pasos (escalado, y después el modelo) en un único objeto. La ventaja concreta: cuando se usa `Pipeline` correctamente (ajustando el escalador **solo** con los datos de entrenamiento, nunca con los de test), es mucho más difícil cometer el error de fuga de datos por accidente — el `Pipeline` fuerza a que cada paso se aplique en el orden correcto, sin mezclar información de test dentro del entrenamiento.
 
-**`train_test_split` con `stratify`**: antes de entrenar cualquier modelo, se separa el dataset en dos partes — una porción (típicamente 70-80%) para **entrenar** el modelo, y el resto para **evaluarlo** con datos que no vio durante el entrenamiento (simulando qué tan bien funcionaría con casos reales nuevos). El parámetro `stratify` es importante cuando se trabaja con clasificación y las categorías están desbalanceadas — por ejemplo, si solo el 5% de los tumores del dataset son malignos, un split al azar podría (por mala suerte) dejar casi ningún caso maligno en el conjunto de test, haciendo que la evaluación no sea representativa. `stratify=y` le asegura al split que mantenga la misma proporción de cada categoría (5% maligno / 95% benigno) tanto en entrenamiento como en test.
+**`train_test_split` con `stratify`**: antes de entrenar cualquier modelo, se separa el dataset en dos partes — una porción (típicamente 70-80%) para **entrenar** el modelo, y el resto para **evaluarlo** con datos que no vio durante el entrenamiento (simulando qué tan bien funcionaría con casos reales nuevos). El parámetro `stratify` es importante cuando se trabaja con clasificación y las categorías están desbalanceadas — por ejemplo, si solo el 5% de los clientes del dataset no pagaron su préstamo, un split al azar podría (por mala suerte) dejar casi ningún caso de impago en el conjunto de test, haciendo que la evaluación no sea representativa. `stratify=y` le asegura al split que mantenga la misma proporción de cada categoría (5% no paga / 95% paga) tanto en entrenamiento como en test.
 
-### Validación: por qué un solo split no alcanza
+### Validación: por qué un solo split no alcanza *(Filmina 04)*
 
 Confiar en un único `train_test_split` tiene un problema: el resultado de la evaluación depende, en parte, de **qué** casos cayeron por azar en el conjunto de test — con otro split distinto (otros casos al azar), la métrica final podría salir un poco distinta, mejor o peor, sin que el modelo en sí haya cambiado. Para tener una medida más confiable y menos dependiente de la suerte del split, se usa la **validación cruzada** (*cross-validation*):
 
@@ -117,22 +129,22 @@ El aprendizaje no supervisado parte de datos **sin `y`** — sin una respuesta c
 
 ## Módulo 1 — ¿Qué es el Aprendizaje No Supervisado?
 
-### Apertura del módulo *(Filmina 02)*
+### Apertura del módulo *(Filmina 05)*
 
-Esta filmina es la divisoria que abre el Módulo 1 — el título en pantalla ("¿Qué es el Aprendizaje No Supervisado? — Definición, tipos de problemas, ejemplos industriales y flujo típico de trabajo") funciona como el "índice hablado" de los próximos 15-20 minutos de clase. Antes de avanzar a la Filmina 03, es el momento de instalar oralmente, en una frase cada una y sin apoyarte todavía en la próxima diapositiva, las dos definiciones generales que van a servir de ancla durante el resto de la clase:
+Esta filmina es la divisoria que abre el Módulo 1 — el título en pantalla ("¿Qué es el Aprendizaje No Supervisado? — Definición, tipos de problemas, ejemplos industriales y flujo típico de trabajo") funciona como el "índice hablado" de los próximos 15-20 minutos de clase. Antes de avanzar a la Filmina 06, es el momento de instalar oralmente, en una frase cada una y sin apoyarte todavía en la próxima diapositiva, las dos definiciones generales que van a servir de ancla durante el resto de la clase:
 
 - **Aprendizaje supervisado** (lo que se cerró en la Clase 08): a partir de datos históricos donde **cada** ejemplo trae una respuesta ya conocida (una etiqueta), el modelo aprende una función que relaciona las variables de entrada con esa respuesta, con el objetivo de predecir la respuesta de casos nuevos donde todavía no se conoce. Es aprender "con la solución del libro al lado".
 - **Aprendizaje no supervisado** (lo que arranca ahora): a partir de datos donde **ningún** ejemplo trae una respuesta conocida, el modelo busca regularidades, agrupamientos o estructuras internas — no para predecir un valor puntual, sino para describir cómo están organizados los datos por sí mismos. Es aprender "sin la solución del libro", encontrando el patrón a fuerza de mirar los datos.
 
 Una forma de presentar el contraste en clase, con un ejemplo cotidiano: un supervisado es como aprender a distinguir perros de gatos porque alguien te mostró miles de fotos ya etiquetadas "perro"/"gato"; un no supervisado es como que te den una pila de miles de fotos de animales sin ningún cartel, y tengas que agruparlas vos mismo por similitud, sin que nadie te haya dicho de antemano cuántos grupos hay ni cómo se llaman. El resultado del segundo ejercicio puede coincidir con "perros" y "gatos" — pero el algoritmo llegó ahí solo por semejanza visual, no porque alguien le haya enseñado esas categorías.
 
-Conviene remarcar en voz alta, antes de pasar a la Filmina 03, los cuatro bloques que anuncia esta diapositiva y que se van a recorrer en orden: (1) una definición formal de qué es el aprendizaje no supervisado, (2) los tres tipos de problemas que lo componen, (3) ejemplos concretos de la industria, y (4) el flujo de trabajo típico que se va a repetir, con variaciones, en cada módulo siguiente de la clase.
+Conviene remarcar en voz alta, antes de pasar a la Filmina 06, los cuatro bloques que anuncia esta diapositiva y que se van a recorrer en orden: (1) una definición formal de qué es el aprendizaje no supervisado, (2) los tres tipos de problemas que lo componen, (3) ejemplos concretos de la industria, y (4) el flujo de trabajo típico que se va a repetir, con variaciones, en cada módulo siguiente de la clase.
 
-### Definición y diferencias con el aprendizaje supervisado *(Filmina 03)*
+### Definición y diferencias con el aprendizaje supervisado *(Filmina 06)*
 
 El aprendizaje no supervisado es un conjunto de técnicas de Machine Learning que buscan identificar estructuras, patrones o relaciones en datos que **no cuentan con etiquetas o respuestas conocidas**. A diferencia del aprendizaje supervisado (Módulo 0), donde el modelo aprende a partir de ejemplos con etiquetas, acá el objetivo es descubrir información oculta sin guía explícita.
 
-**Para desarrollar antes de mostrar la tabla comparativa**: en la Clase 08 el flujo siempre fue el mismo — separar `X` (variables) de `y` (la respuesta a predecir), entrenar un modelo que aprenda esa relación, y medir qué tan bien predice sobre datos nuevos. Ese flujo depende por completo de que `y` exista y esté bien etiquetada — conseguir ese etiquetado en la vida real casi siempre implica un costo (alguien tuvo que revisar cada transacción y marcarla "fraude"/"no fraude", cada imagen y marcarla "tumor"/"no tumor"). El aprendizaje no supervisado nace, en parte, como respuesta a ese costo: la enorme mayoría de los datos que genera cualquier empresa **no tienen etiqueta**, y etiquetarlos a mano no siempre es viable en tiempo o presupuesto. Estas técnicas permiten extraer valor de esos datos "tal como vienen", sin la etapa previa de etiquetado.
+**Para desarrollar antes de mostrar la tabla comparativa**: en la Clase 08 el flujo siempre fue el mismo — separar `X` (variables) de `y` (la respuesta a predecir), entrenar un modelo que aprenda esa relación, y medir qué tan bien predice sobre datos nuevos. Ese flujo depende por completo de que `y` exista y esté bien etiquetada — conseguir ese etiquetado en la vida real casi siempre implica un costo (alguien tuvo que revisar cada transacción y marcarla "fraude"/"no fraude", cada imagen y marcarla "gato"/"no gato"). El aprendizaje no supervisado nace, en parte, como respuesta a ese costo: la enorme mayoría de los datos que genera cualquier empresa **no tienen etiqueta**, y etiquetarlos a mano no siempre es viable en tiempo o presupuesto. Estas técnicas permiten extraer valor de esos datos "tal como vienen", sin la etapa previa de etiquetado.
 
 Otra forma de plantear la diferencia, útil para la clase: en el aprendizaje supervisado el científico de datos sabe de antemano **qué pregunta** está respondiendo el modelo ("¿es spam?", "¿cuánto va a costar?"). En el no supervisado, muchas veces ni siquiera se sabe con precisión qué se va a encontrar — el algoritmo puede revelar una segmentación de clientes que nadie había considerado, o una relación entre productos que el equipo de marketing no había notado. Por eso al aprendizaje no supervisado también se lo asocia con el **análisis exploratorio**: se usa tanto para resolver un problema puntual como para "conocer" un dataset nuevo antes de decidir qué hacer con él.
 
@@ -144,7 +156,7 @@ Otra forma de plantear la diferencia, útil para la clase: en el aprendizaje sup
 
 **Un matiz que vale la pena mencionar en clase** (aunque se profundiza en cursos más avanzados): la frontera entre ambos mundos no siempre es absoluta. Existen enfoques intermedios — el aprendizaje **semi-supervisado** (una pequeña porción de datos etiquetados, mucha data sin etiquetar) y el aprendizaje **autosupervisado** (el propio dataset genera sus etiquetas, por ejemplo tapando parte de una imagen y pidiéndole al modelo que la reconstruya). No forman parte del temario de hoy, pero saber que existen ayuda a entender que "supervisado vs. no supervisado" es más un espectro que una dicotomía cerrada.
 
-### Tres grandes tipos de problemas *(Filmina 04)*
+### Tres grandes tipos de problemas *(Filmina 07)*
 
 1. **Clustering (agrupamiento)**: agrupa datos similares en clusters. Ejemplo: segmentar clientes según comportamiento de compra.
 2. **Reducción de dimensionalidad**: simplifica datos complejos con muchas variables a representaciones más manejables. Ejemplo: usar PCA para visualizar datos en 2D o 3D.
@@ -152,7 +164,7 @@ Otra forma de plantear la diferencia, útil para la clase: en el aprendizaje sup
 
 Estas tres categorías se exploran en detalle en los Módulos 2 a 5 de esta clase, cada una con sus algoritmos y métricas propias.
 
-**Material para desarrollar cada punto en clase, antes de pasar a la Filmina 05:**
+**Material para desarrollar cada punto en clase, antes de pasar a la Filmina 08:**
 
 - **Clustering** responde a la pregunta *"¿quién se parece a quién?"*. No hay un número de grupos predefinido de antemano (salvo que el algoritmo lo pida como parámetro, como K-Means) — el propio proceso de agrupar es el resultado que se busca. Vale la pena anticipar acá que en esta clase se van a ver **tres** algoritmos distintos de clustering (K-Means, Jerárquico, DBSCAN), y que ninguno es "el mejor" en términos absolutos: cada uno asume cosas distintas sobre la forma de los grupos, y esa es la razón por la que hace falta conocer más de uno.
 - **Reducción de dimensionalidad** responde a *"¿puedo decir lo mismo con menos variables?"*. Es fácil de subestimar si nunca se trabajó con un dataset de verdad ancho — pero es común encontrar tablas con cientos de columnas (encuestas, datos genómicos, sensores IoT), donde ni siquiera es posible graficar todas las relaciones a la vez. PCA, que se ve en el Módulo 5, es la técnica de referencia acá — pero el concepto general ("comprimir información sin perder lo esencial") es más amplio que un solo algoritmo.
@@ -160,7 +172,7 @@ Estas tres categorías se exploran en detalle en los Módulos 2 a 5 de esta clas
 
 Un ejercicio útil para la clase: para cada uno de los tres tipos, pedirle al grupo un ejemplo propio (no el que ya está en la filmina) de un problema de su día a día que encajaría en esa categoría — ayuda a consolidar la diferencia antes de entrar en el detalle técnico de cada algoritmo.
 
-### Ejemplos de aplicación en la industria *(Filmina 05)*
+### Ejemplos de aplicación en la industria *(Filmina 08)*
 
 - **Retail y E-commerce**: segmentación de clientes para campañas personalizadas, análisis de cesta de la compra con reglas de asociación.
 - **Tecnología y Big Data**: detección de anomalías en redes, agrupamiento de documentos o imágenes.
@@ -176,7 +188,7 @@ Estos ejemplos muestran cómo el aprendizaje no supervisado ayuda a extraer valo
 
 Un cuarto sector que vale la pena mencionar aunque no esté explícito en la filmina: **salud**, donde el clustering se usa para descubrir subtipos de una enfermedad (pacientes que responden de forma distinta a un mismo tratamiento) sin que existiera antes una clasificación clínica formal para esos subgrupos.
 
-### Flujo típico de trabajo *(Filmina 06)*
+### Flujo típico de trabajo *(Filmina 09)*
 
 1. **Recolección y preparación de datos**: limpieza, selección y escalado de variables.
 2. **Selección del método adecuado**: según el problema y el tipo de datos.
@@ -200,15 +212,15 @@ Este flujo es la base para las prácticas y análisis de toda la clase — cambi
 
 **Contexto**: ¿alguna vez te preguntaste cómo las tiendas en línea saben qué productos recomendarte juntos? Las reglas de asociación son la técnica detrás de eso — descubrir patrones frecuentes en grandes conjuntos de transacciones.
 
-### Apertura del módulo *(Filmina 07)*
+### Apertura del módulo *(Filmina 10)*
 
 Esta filmina divisoria anuncia el segundo bloque temático de la clase, con el subtítulo "Apriori, FP-Growth y las métricas support, confidence y lift". A diferencia del Módulo 1 (que fue conceptual, sin algoritmos concretos), acá arranca el primero de los cinco algoritmos específicos que se recorren hoy.
 
 **Contexto para presentar antes de entrar al contenido**: las reglas de asociación son, históricamente, una de las aplicaciones de Machine Learning más ligadas al negocio de retail — nacieron en los años 90 a partir del llamado *"market basket analysis"* (análisis de la canasta de mercado), motivado por una pregunta muy concreta de las cadenas de supermercados: "si un cliente ya puso tal producto en el carrito, ¿qué otro producto tiene sentido sugerirle?". El caso más citado (aunque parcialmente mítico y discutido en su veracidad exacta) es el de "pañales y cerveza": un análisis de canasta habría encontrado que los viernes por la tarde, los clientes que compraban pañales también compraban cerveza con mayor frecuencia de la esperada — la hipótesis de negocio fue que padres jóvenes, encargados de comprar pañales para el fin de semana, aprovechaban la salida para comprarse también una cerveza. Se use o no ese ejemplo puntual, ilustra bien la idea central del módulo: encontrar relaciones **que nadie pidió explícitamente buscar**, pero que aparecen solas al mirar el volumen de transacciones.
 
-Antes de pasar a la Filmina 08, conviene aclarar que este módulo trabaja con un tipo de dato distinto al resto de la clase: no son "puntos en un espacio" con coordenadas numéricas (como sí lo van a ser en K-Means, Jerárquico, DBSCAN o PCA), sino **listas de ítems por transacción** — un formato de datos categórico y desordenado, más parecido a una lista de compras que a una tabla de números.
+Antes de pasar a la Filmina 11, conviene aclarar que este módulo trabaja con un tipo de dato distinto al resto de la clase: no son "puntos en un espacio" con coordenadas numéricas (como sí lo van a ser en K-Means, Jerárquico, DBSCAN o PCA), sino **listas de ítems por transacción** — un formato de datos categórico y desordenado, más parecido a una lista de compras que a una tabla de números.
 
-### Apriori y FP-Growth *(Filmina 08)*
+### Apriori y FP-Growth *(Filmina 11)*
 
 - **Apriori**: método clásico para encontrar conjuntos frecuentes de ítems. Genera candidatos de conjuntos y evalúa su frecuencia, descartando los que no cumplen un umbral mínimo (*support*). Intuitivo y fácil de implementar, pero computacionalmente costoso en bases grandes por la generación masiva de candidatos.
 - **FP-Growth** (*Frequent Pattern Growth*): más eficiente, evita generar candidatos explícitos. Construye una estructura llamada **árbol FP** que compacta la información de las transacciones y extrae patrones frecuentes directamente. Más rápido y escalable que Apriori, aunque su implementación es más compleja.
@@ -219,7 +231,7 @@ El nombre "Apriori" viene de un principio muy intuitivo, conocido como la **prop
 
 FP-Growth ataca el mismo problema desde otro ángulo: en vez de generar y descartar candidatos (el paso más costoso de Apriori), comprime **todas** las transacciones en una única estructura de árbol (el árbol FP), donde los caminos compartidos entre transacciones parecidas se superponen. Una vez construido el árbol, extraer los conjuntos frecuentes es un recorrido sobre esa estructura, sin volver a generar combinaciones desde cero. Es el motivo por el que FP-Growth es el algoritmo preferido en la industria cuando el catálogo de productos es grande (miles o decenas de miles de ítems) — Apriori sigue siendo el más usado en contextos educativos y en catálogos chicos, precisamente porque su lógica es mucho más fácil de explicar y depurar paso a paso.
 
-### Métricas clave: support, confidence y lift *(Filmina 09)*
+### Métricas clave: support, confidence y lift *(Filmina 12)*
 
 | Métrica | Definición | Interpretación |
 |---|---|---|
@@ -273,7 +285,7 @@ regla("pan", "leche")
 - `regla(a, b)` → aplica las tres fórmulas de la tabla de arriba en orden: primero los *supports* individuales y conjunto, después *confidence* (`sup_ab / sup_a`), después *lift* (`confidence / sup_b`).
 - **Resultado real**: `pan -> manteca` da `support=0.40, confidence=0.57, lift=1.43` — lift > 1, asociación real. `pan -> leche` da `support=0.50, confidence=0.71, lift=0.89` — a pesar de tener *support* y *confidence* más altos que la regla anterior, el lift menor a 1 revela que la asociación es más débil de lo que parece: `leche` es tan frecuente por sí sola (80% de las transacciones) que aparece junto con casi cualquier cosa, sin que eso signifique una relación real con `pan`.
 
-### ¿Cuándo usar reglas de asociación en retail? *(Filmina 10)*
+### ¿Cuándo usar reglas de asociación en retail? *(Filmina 13)*
 
 - Para descubrir productos que se compran juntos y diseñar promociones cruzadas.
 - Para optimizar la disposición de productos en tiendas físicas o virtuales.
@@ -295,21 +307,21 @@ regla("pan", "leche")
 
 **Contexto**: ¿cómo agrupar datos sin etiquetas? K-Means es el algoritmo más usado de clustering — divide un conjunto de datos en grupos naturales basándose en similitud.
 
-### Apertura del módulo *(Filmina 11)*
+### Apertura del módulo *(Filmina 14)*
 
 La divisoria de este módulo trae el subtítulo "El algoritmo de clustering más usado, y cómo elegir bien su parámetro clave" — y es, en términos de duración, el módulo más largo de la clase (7 filminas), lo cual tiene sentido: K-Means es probablemente el algoritmo de aprendizaje no supervisado más usado en la industria, por su simplicidad conceptual y su bajo costo computacional.
 
-**Para presentar antes del contenido técnico**: conviene retomar acá, en voz alta, la definición general de clustering del Módulo 1 ("agrupar datos similares en clusters") y anticipar que K-Means la resuelve con una idea muy visual: imaginar que cada cluster tiene un "centro de gravedad" (el centroide), y que cada punto del dataset "cae" naturalmente hacia el centro más cercano. Es una buena metáfora para instalar antes de entrar en el detalle algorítmico de la Filmina 12, porque todo el resto del módulo (los 4 pasos, los problemas de convergencia, la elección de k) gira alrededor de esa única idea: minimizar qué tan lejos está, en promedio, cada punto de su centro asignado.
+**Para presentar antes del contenido técnico**: conviene retomar acá, en voz alta, la definición general de clustering del Módulo 1 ("agrupar datos similares en clusters") y anticipar que K-Means la resuelve con una idea muy visual: imaginar que cada cluster tiene un "centro de gravedad" (el centroide), y que cada punto del dataset "cae" naturalmente hacia el centro más cercano. Es una buena metáfora para instalar antes de entrar en el detalle algorítmico de la Filmina 15, porque todo el resto del módulo (los 4 pasos, los problemas de convergencia, la elección de k) gira alrededor de esa única idea: minimizar qué tan lejos está, en promedio, cada punto de su centro asignado.
 
-### Qué es y cómo funciona *(Filmina 12)*
+### Qué es y cómo funciona *(Filmina 15)*
 
 K-Means es un **algoritmo de partición**: divide un conjunto de datos en `k` grupos (clusters) según la similitud de sus características. El objetivo es minimizar la suma de las distancias entre cada punto y el **centroide** (promedio) de su cluster asignado. Se apoya en las métricas de distancia (Euclidiana, Manhattan, Coseno) que ya se usaron en clases anteriores para definir "similitud".
 
-**Para ampliar antes de mostrar la filmina**: el nombre completo del algoritmo, "K-Means" (K-Medias), ya describe su mecánica — la "K" es la cantidad de grupos a formar, y "Means" (medias) es literalmente cómo se calcula cada centroide: el promedio de todos los puntos que pertenecen a ese cluster en un momento dado. Formalmente, el algoritmo minimiza una función llamada **inercia** o **WCSS** (que se retoma en la Filmina 15): la suma, sobre todos los puntos, de la distancia al cuadrado entre cada punto y el centroide de su cluster. Elevar al cuadrado la distancia (en vez de usarla directa) tiene una razón matemática concreta: penaliza mucho más fuerte a los puntos lejanos que a los cercanos, lo que empuja al algoritmo a formar grupos compactos en vez de tolerar unos pocos puntos muy alejados de su centro.
+**Para ampliar antes de mostrar la filmina**: el nombre completo del algoritmo, "K-Means" (K-Medias), ya describe su mecánica — la "K" es la cantidad de grupos a formar, y "Means" (medias) es literalmente cómo se calcula cada centroide: el promedio de todos los puntos que pertenecen a ese cluster en un momento dado. Formalmente, el algoritmo minimiza una función llamada **inercia** o **WCSS** (que se retoma en la Filmina 18): la suma, sobre todos los puntos, de la distancia al cuadrado entre cada punto y el centroide de su cluster. Elevar al cuadrado la distancia (en vez de usarla directa) tiene una razón matemática concreta: penaliza mucho más fuerte a los puntos lejanos que a los cercanos, lo que empuja al algoritmo a formar grupos compactos en vez de tolerar unos pocos puntos muy alejados de su centro.
 
 Sobre las métricas de distancia: K-Means usa por defecto la distancia **Euclidiana** (la "línea recta" entre dos puntos, el teorema de Pitágoras aplicado a más de dos dimensiones) — es la que mejor encaja con la definición de centroide como promedio aritmético. Usar Manhattan (la suma de diferencias absolutas, como moverse en cuadras de una ciudad) o Coseno (el ángulo entre dos vectores, típico en texto) requeriría, estrictamente, variantes del algoritmo (K-Medoids es la alternativa más conocida cuando se necesita otra métrica de distancia).
 
-### Los 4 pasos del algoritmo *(Filmina 13)*
+### Los 4 pasos del algoritmo *(Filmina 16)*
 
 1. **Inicialización**: se eligen `k` centroides iniciales — al azar o con **k-means++** para mejorar la convergencia.
 2. **Asignación**: cada punto se asigna al cluster cuyo centroide esté más cerca (distancia Euclidiana, típicamente).
@@ -318,11 +330,11 @@ Sobre las métricas de distancia: K-Means usa por defecto la distancia **Euclidi
 
 **Desarrollo paso a paso, para acompañar la animación de la filmina en vivo:**
 
-Este algoritmo también se conoce como **"Lloyd's algorithm"** en la literatura técnica, y es un buen ejemplo de un procedimiento **iterativo**: no calcula la respuesta de una vez, sino que la va refinando en rondas sucesivas, cada una un poco mejor que la anterior. Vale la pena remarcar en clase que los pasos 2 y 3 son, en esencia, un ciclo de "adivinar y corregir": el paso 2 (Asignación) responde "con los centroides que tengo ahora, ¿cuál es la mejor partición posible?"; el paso 3 (Actualización) responde "con esta partición, ¿cuáles son los mejores centroides posibles?". Cada ronda del ciclo garantiza matemáticamente que el WCSS total **nunca aumenta** — por eso el algoritmo siempre termina convergiendo (ver Filmina 14), aunque no siempre al mejor resultado posible.
+Este algoritmo también se conoce como **"Lloyd's algorithm"** en la literatura técnica, y es un buen ejemplo de un procedimiento **iterativo**: no calcula la respuesta de una vez, sino que la va refinando en rondas sucesivas, cada una un poco mejor que la anterior. Vale la pena remarcar en clase que los pasos 2 y 3 son, en esencia, un ciclo de "adivinar y corregir": el paso 2 (Asignación) responde "con los centroides que tengo ahora, ¿cuál es la mejor partición posible?"; el paso 3 (Actualización) responde "con esta partición, ¿cuáles son los mejores centroides posibles?". Cada ronda del ciclo garantiza matemáticamente que el WCSS total **nunca aumenta** — por eso el algoritmo siempre termina convergiendo (ver Filmina 17), aunque no siempre al mejor resultado posible.
 
 Sobre la Inicialización: la opción "al azar" simplemente elige `k` puntos cualquiera del dataset como primeros centroides — es simple pero puede arrancar en una posición muy mala. **k-means++** (el default en la implementación de scikit-learn) es más inteligente: elige el primer centroide al azar, y cada centroide siguiente lo elige con una probabilidad proporcional a qué tan lejos está de los centroides ya elegidos — favoreciendo que los `k` puntos de arranque queden bien repartidos por el espacio de datos, en vez de agrupados por casualidad en una sola zona.
 
-### Convergencia, inicialización y problemas comunes *(Filmina 14)*
+### Convergencia, inicialización y problemas comunes *(Filmina 17)*
 
 - K-Means **siempre converge**, pero a un **mínimo local**, no necesariamente al óptimo global.
 - La inicialización de los centroides afecta la calidad y velocidad de convergencia; **k-means++** ayuda a elegir centroides iniciales más representativos, reduciendo la probabilidad de resultados pobres.
@@ -331,19 +343,19 @@ Sobre la Inicialización: la opción "al azar" simplemente elige `k` puntos cual
 
 **Para desarrollar cada punto con más profundidad:**
 
-- **Mínimo local vs. global**: como el resultado final depende de dónde arrancaron los centroides, correr K-Means dos veces con inicializaciones distintas puede dar dos particiones **distintas**, ambas "válidas" en el sentido de que el algoritmo convergió correctamente en las dos, pero una puede ser mejor que la otra. La solución práctica que usa scikit-learn (y que aparece en el ejemplo de código de la Filmina 16, con el parámetro `n_init=10`) es correr el algoritmo completo varias veces con distintas inicializaciones al azar, y quedarse con el resultado que dio el WCSS más bajo de todos los intentos.
+- **Mínimo local vs. global**: como el resultado final depende de dónde arrancaron los centroides, correr K-Means dos veces con inicializaciones distintas puede dar dos particiones **distintas**, ambas "válidas" en el sentido de que el algoritmo convergió correctamente en las dos, pero una puede ser mejor que la otra. La solución práctica que usa scikit-learn (y que aparece en el ejemplo de código de la Filmina 19, con el parámetro `n_init=10`) es correr el algoritmo completo varias veces con distintas inicializaciones al azar, y quedarse con el resultado que dio el WCSS más bajo de todos los intentos.
 - **Sensibilidad a outliers**: como el centroide es un **promedio**, un solo punto muy alejado del resto puede "arrastrar" el centroide entero hacia él, distorsionando la posición de todo el cluster — el mismo fenómeno por el que la media aritmética es sensible a valores extremos (visto en clases anteriores de estadística descriptiva). Es una de las razones por las que suele convenir revisar y tratar outliers **antes** de correr K-Means, no después.
 - **Formas no esféricas**: como K-Means asigna cada punto según distancia al centroide más cercano, la "frontera" natural entre dos clusters siempre termina siendo una línea recta (o un plano, en más dimensiones) — geométricamente, solo puede separar bien grupos que tengan forma redondeada y tamaño parecido. Con clusters alargados, en forma de luna, o de tamaños muy distintos entre sí, K-Means directamente separa mal — y ese es exactamente el problema que resuelve DBSCAN, que se ve en el Módulo 4.
 
-### Elegir k: método del codo (Elbow Method) *(Filmina 15)*
+### Elegir k: método del codo (Elbow Method) *(Filmina 18)*
 
 Para cada valor de `k` se calcula el **WCSS** (*Within-Cluster Sum of Squares*): la suma de las distancias al cuadrado entre cada punto y el centroide de su cluster. Un WCSS más bajo indica clusters más compactos.
 
 Se grafica WCSS en función de `k` — la curva baja a medida que `k` crece, porque agrupar en más clusters siempre reduce la distancia interna. El objetivo es identificar el punto donde la tasa de disminución se frena notablemente, formando un **"codo"**: a partir de ahí, agregar más clusters no mejora significativamente la calidad de la agrupación. Balancea complejidad del modelo (muchos clusters) contra calidad de la agrupación (pocos clusters, cada uno con sentido) — evitando tanto el subajuste como el sobreajuste.
 
-**Para ampliar antes de mostrar el gráfico**: vale la pena mencionar el caso extremo para que la lógica quede clara — si `k` fuera igual a la cantidad total de puntos del dataset, cada punto sería su propio cluster, y el WCSS daría exactamente `0` (cada punto coincide con su propio centroide). Ese extremo es matemáticamente "perfecto" pero completamente inútil para el negocio: no agrupa nada. El método del codo es, en el fondo, una forma visual de encontrar el compromiso entre ese extremo inútil (`k` = cantidad de puntos, WCSS = 0) y el otro extremo igual de inútil (`k` = 1, todo en un solo grupo, WCSS máximo). Conviene aclarar también que la ubicación del "codo" no siempre es tan clara como en el ejemplo de esta clase — en datasets reales, la curva a veces baja de forma más gradual, sin un quiebre visualmente obvio, y ahí es donde el coeficiente silhouette (Filmina 16) aporta una segunda opinión más cuantitativa.
+**Para ampliar antes de mostrar el gráfico**: vale la pena mencionar el caso extremo para que la lógica quede clara — si `k` fuera igual a la cantidad total de puntos del dataset, cada punto sería su propio cluster, y el WCSS daría exactamente `0` (cada punto coincide con su propio centroide). Ese extremo es matemáticamente "perfecto" pero completamente inútil para el negocio: no agrupa nada. El método del codo es, en el fondo, una forma visual de encontrar el compromiso entre ese extremo inútil (`k` = cantidad de puntos, WCSS = 0) y el otro extremo igual de inútil (`k` = 1, todo en un solo grupo, WCSS máximo). Conviene aclarar también que la ubicación del "codo" no siempre es tan clara como en el ejemplo de esta clase — en datasets reales, la curva a veces baja de forma más gradual, sin un quiebre visualmente obvio, y ahí es donde el coeficiente silhouette (Filmina 19) aporta una segunda opinión más cuantitativa.
 
-### Elegir k: coeficiente silhouette *(Filmina 16)*
+### Elegir k: coeficiente silhouette *(Filmina 19)*
 
 Para cada punto, compara su **cohesión** (distancia promedio a los demás puntos de su propio cluster) contra su **separación** (distancia promedio al cluster más cercano al que no pertenece). El resultado es un valor entre **-1 y 1**:
 
@@ -400,7 +412,7 @@ etiquetas = kmeans_final.fit_predict(X_scaled)
 - `max(mejores, key=lambda par: par[1])` → de la lista de tuplas `(k, silhouette)`, se queda con la que tiene el silhouette más alto.
 - **Resultado real**: el WCSS cae de 600 (`k=1`) a 74.6 (`k=3`) y a 20.9 (`k=4`) — ahí está el "codo", porque de `k=4` en adelante la mejora es marginal (18.7, 16.6, 14.7...). El silhouette confirma lo mismo de otra forma: da su valor más alto (0.778) exactamente en `k=4` — el mismo número de centros que usamos para generar los datos, recuperado sin haberlo usado en ningún momento del cálculo.
 
-### Aplicación práctica y relevancia en la industria *(Filmina 17)*
+### Aplicación práctica y relevancia en la industria *(Filmina 20)*
 
 - **Retail**: segmentar clientes por frecuencia de compra, monto gastado y preferencia de categorías, para diseñar campañas de marketing personalizadas.
 - **Finanzas**: identificar grupos de clientes con perfiles de riesgo similares, mejorando la gestión de cartera y la detección de fraudes.
@@ -422,13 +434,13 @@ La correcta elección de `k` evita tanto la **sobresegmentación** (demasiados c
 
 **Contexto**: dos alternativas a K-Means, para cuando no querés (o no podés) definir `k` de antemano, o cuando tus datos tienen ruido y formas irregulares.
 
-### Apertura del módulo, después del Break *(Filmina 19)*
+### Apertura del módulo, después del Break *(Filmina 22)*
 
-Esta divisoria llega justo después del corte de 10 minutos (Filmina 18) — conviene arrancar retomando brevemente dónde había quedado la clase antes del break: K-Means resuelve bien el clustering cuando los grupos son razonablemente esféricos, de tamaño parecido, y se conoce (o se puede estimar) el número `k` de antemano. Este módulo presenta **dos alternativas** que relajan, cada una a su manera, esas mismas condiciones.
+Esta divisoria llega justo después del corte de 10 minutos (Filmina 21) — conviene arrancar retomando brevemente dónde había quedado la clase antes del break: K-Means resuelve bien el clustering cuando los grupos son razonablemente esféricos, de tamaño parecido, y se conoce (o se puede estimar) el número `k` de antemano. Este módulo presenta **dos alternativas** que relajan, cada una a su manera, esas mismas condiciones.
 
 **Para presentar antes de entrar al contenido**: es útil anticipar la pregunta que motiva a ambos algoritmos, aunque la resuelven de formas completamente distintas: *"¿qué hago cuando no sé cuántos grupos hay, o cuando mis grupos no tienen forma de círculo?"*. El clustering **jerárquico** responde con una idea de "no elegir un solo k, sino construir todas las particiones posibles a la vez, y decidir después". **DBSCAN** responde con una idea distinta: en vez de definir clusters por cercanía a un centro (como K-Means) o por una jerarquía de fusiones (como el jerárquico), los define por **densidad** — dónde hay muchos puntos juntos versus dónde hay pocos. Instalar esta distinción de entrada ayuda a que el resto del módulo se entienda como "dos soluciones a problemas parecidos, con lógicas de fondo distintas" y no como una lista de algoritmos sueltos.
 
-### Clustering jerárquico: aglomerativo y divisivo *(Filmina 20)*
+### Clustering jerárquico: aglomerativo y divisivo *(Filmina 23)*
 
 El clustering jerárquico construye una jerarquía de clusters, sin necesidad de definir el número de clusters de antemano:
 
@@ -479,7 +491,7 @@ plt.show()
 - `linkage(data_scaled, method="ward")` → calcula, paso a paso, qué par de clusters fusionar en cada nivel; el resultado `Z` es la estructura que describe todo el árbol de fusiones.
 - `dendrogram(Z, ...)` → dibuja el árbol; `leaf_rotation=90` rota las etiquetas del eje X para que no se superpongan.
 
-### Parámetro clave: el linkage *(Filmina 21)*
+### Parámetro clave: el linkage *(Filmina 24)*
 
 El método de linkage determina cómo se mide la distancia entre dos clusters para decidir si conviene fusionarlos:
 
@@ -499,7 +511,7 @@ Cada criterio afecta la forma y el tamaño de los clusters resultantes — no ha
 
 El ejemplo de código de la filmina anterior usó un cuarto criterio, **Ward**, que no aparece en esta tabla del PDF pero es el más usado en la práctica con datos numéricos: en vez de basarse directamente en distancias entre puntos, fusiona en cada paso el par de clusters que produce el **menor incremento posible en la varianza interna total** — conceptualmente, es el mismo objetivo que minimiza K-Means (WCSS), pero aplicado paso a paso dentro de la lógica jerárquica.
 
-### DBSCAN: clustering basado en densidad *(Filminas 22–23)*
+### DBSCAN: clustering basado en densidad *(Filminas 25–26)*
 
 **DBSCAN** (*Density-Based Spatial Clustering of Applications with Noise*) identifica clusters como regiones **densas** separadas por regiones de baja densidad, y detecta puntos aislados como **ruido** en vez de forzarlos a pertenecer a algún cluster.
 
@@ -518,7 +530,7 @@ DBSCAN es especialmente útil para detectar clusters de **forma arbitraria** (no
 
 El nombre completo, *Density-Based Spatial Clustering of Applications with Noise*, ya resume la idea central: en vez de preguntarse "¿a qué centro está más cerca este punto?" (la pregunta de K-Means), DBSCAN se pregunta **"¿este punto está en una zona densamente poblada?"**. Un cluster, para DBSCAN, no es más que una región conectada de puntos densos: si el punto A es vecino denso del punto B, y B es vecino denso de C, entonces A y C terminan en el mismo cluster aunque A y C no sean vecinos directos entre sí — es un criterio de conectividad "en cadena" (transitivo), muy distinto a la idea de "cercanía a un centro único" de K-Means.
 
-Los dos parámetros son las dos preguntas que hay que responder para definir "denso": `eps` responde *"¿qué tan cerca hay que estar para contar como vecino?"*, y `min_samples` responde *"¿cuántos vecinos hacen falta para considerar la zona densa?"*. Ajustar estos dos números cambia radicalmente el resultado: un `eps` muy chico deja casi todo como ruido (porque casi nada tiene suficientes vecinos tan cerca); un `eps` muy grande termina fusionando clusters que deberían quedar separados (porque "casi todo" pasa a ser vecino de "casi todo"). Por eso la Filmina 22 trae la técnica del **k-distance plot** (que se ve en el ejemplo de código): una forma sistemática de estimar un buen valor de `eps` a partir de los propios datos, en vez de adivinarlo a prueba y error.
+Los dos parámetros son las dos preguntas que hay que responder para definir "denso": `eps` responde *"¿qué tan cerca hay que estar para contar como vecino?"*, y `min_samples` responde *"¿cuántos vecinos hacen falta para considerar la zona densa?"*. Ajustar estos dos números cambia radicalmente el resultado: un `eps` muy chico deja casi todo como ruido (porque casi nada tiene suficientes vecinos tan cerca); un `eps` muy grande termina fusionando clusters que deberían quedar separados (porque "casi todo" pasa a ser vecino de "casi todo"). Por eso la Filmina 25 trae la técnica del **k-distance plot** (que se ve en el ejemplo de código): una forma sistemática de estimar un buen valor de `eps` a partir de los propios datos, en vez de adivinarlo a prueba y error.
 
 Sobre los tres tipos de punto: la distinción entre **core** y **border** es sutil pero importante — un border point sí forma parte de un cluster (queda "adentro" de la región densa por estar cerca de un core point), pero no tiene la densidad suficiente **por sí mismo** como para ser considerado el corazón de esa densidad. Es la diferencia entre "vivir en un barrio poblado" (border) y "ser, vos mismo, uno de los puntos que hace que el barrio esté poblado" (core). Solo el **noise point** queda completamente afuera de cualquier cluster — y a diferencia de K-Means, donde **todo** punto es forzado a pertenecer a algún cluster (incluso un outlier extremo), en DBSCAN el ruido es un resultado legítimo y esperado, no un error.
 
@@ -562,7 +574,7 @@ print(f"Clusters encontrados: {n_clusters} | Puntos de ruido: {n_ruido}")
 - `DBSCAN(eps=0.20, min_samples=4).fit_predict(X_scaled)` → corre el algoritmo; devuelve un array de etiquetas, una por punto, donde `-1` es ruido.
 - Corriendo este ejemplo en la práctica: **4 clusters** detectados (las dos lunas y los dos blobs) y **60 puntos** marcados como ruido — exactamente los que se generaron como ruido disperso a propósito.
 
-### Comparación: Jerárquico vs. Particional vs. DBSCAN *(Filmina 24)*
+### Comparación: Jerárquico vs. Particional vs. DBSCAN *(Filmina 27)*
 
 | Característica | Jerárquico | Particional (K-Means) | DBSCAN |
 |---|---|---|---|
@@ -588,13 +600,13 @@ Un caso de uso muy citado en clase para DBSCAN es el análisis geoespacial: agru
 
 **Contexto**: ¿cómo simplificar un dataset con decenas o cientos de variables sin perder lo esencial? El Análisis de Componentes Principales (PCA) es la técnica fundamental para reducir dimensionalidad, facilitando la visualización y el análisis.
 
-### Apertura del módulo *(Filmina 25)*
+### Apertura del módulo *(Filmina 28)*
 
 Esta divisoria trae el subtítulo "Covarianza, eigenvectores/eigenvalores, varianza explicada" — y anuncia el módulo más matemático de la clase. A diferencia de los tres módulos de clustering (donde la matemática de fondo se puede dejar bastante implícita y trabajar con la intuición geométrica de "puntos que se agrupan"), PCA requiere presentar un mínimo de álgebra lineal para que las filminas siguientes tengan sentido.
 
-**Para presentar antes del contenido técnico**: conviene arrancar retomando la Filmina 04 (Módulo 1), donde la reducción de dimensionalidad se definió como "simplificar datos complejos con muchas variables a representaciones más manejables". PCA es la técnica de referencia para resolver ese problema, y su lógica se puede resumir en una sola idea, sin fórmulas todavía: encontrar las direcciones **nuevas** (no necesariamente las variables originales) a lo largo de las cuales los datos varían más — porque ahí es donde vive la mayor parte de la información. Es una buena analogía para instalar acá: sacarle una foto a una escultura 3D desde el ángulo que muestra más detalle en una sola imagen 2D, en vez de desde un ángulo que la aplana y esconde su forma. PCA busca, matemáticamente, ese "mejor ángulo" para los datos.
+**Para presentar antes del contenido técnico**: conviene arrancar retomando la Filmina 07 (Módulo 1), donde la reducción de dimensionalidad se definió como "simplificar datos complejos con muchas variables a representaciones más manejables". PCA es la técnica de referencia para resolver ese problema, y su lógica se puede resumir en una sola idea, sin fórmulas todavía: encontrar las direcciones **nuevas** (no necesariamente las variables originales) a lo largo de las cuales los datos varían más — porque ahí es donde vive la mayor parte de la información. Es una buena analogía para instalar acá: sacarle una foto a una escultura 3D desde el ángulo que muestra más detalle en una sola imagen 2D, en vez de desde un ángulo que la aplana y esconde su forma. PCA busca, matemáticamente, ese "mejor ángulo" para los datos.
 
-### Covarianza: la relación entre variables *(Filmina 26)*
+### Covarianza: la relación entre variables *(Filmina 29)*
 
 La covarianza mide cómo varían **juntas** dos variables: si ambas tienden a subir o bajar a la vez, es positiva; si una sube mientras la otra baja, es negativa.
 
@@ -608,7 +620,7 @@ Vale la pena recordar primero qué es la **varianza** (el caso particular de cov
 
 La razón por la que PCA construye una **matriz** de covarianza (y no solo un número) es que un dataset real casi nunca tiene 2 variables, sino muchas — la matriz de covarianza es simplemente la tabla que junta, en una sola estructura, la covarianza de **cada par posible** de variables (más la varianza de cada una consigo misma, en la diagonal). Para 3 variables, es una matriz de 3×3; para 75 variables (como el dataset de la Clase 04), sería una matriz de 75×75. Esa matriz completa es el punto de partida matemático de todo lo que sigue en el módulo: PCA busca, dentro de esa matriz, las direcciones donde la variabilidad conjunta es máxima.
 
-### Eigenvectores y eigenvalores: direcciones y magnitudes *(Filmina 27)*
+### Eigenvectores y eigenvalores: direcciones y magnitudes *(Filmina 30)*
 
 Un **eigenvector** es un vector que, al aplicarle una transformación lineal (como la matriz de covarianza), solo cambia en magnitud, no en dirección. El factor por el que cambia esa magnitud es el **eigenvalor** correspondiente.
 
@@ -658,7 +670,7 @@ print(f"Varianza explicada (sklearn): {(pca.explained_variance_ratio_ * 100).rou
 - `np.linalg.eigh(...)` → variante de `eig` pensada para matrices **simétricas** (la de covarianza siempre lo es); a diferencia de `eig`, devuelve los autovalores ya como números reales, sin parte imaginaria residual.
 - **Resultado real**: la varianza explicada da `[66.1%, 32.1%, 1.8%]` calculada a mano, y **exactamente los mismos tres números** con `PCA()` de scikit-learn — el primer componente concentra dos tercios de toda la variabilidad, justamente porque resume la relación compartida entre `x1` y `x2`.
 
-### Varianza explicada y selección de componentes *(Filmina 28)*
+### Varianza explicada y selección de componentes *(Filmina 31)*
 
 La suma de todos los eigenvalores es la varianza total de los datos. La varianza explicada por cada componente es el porcentaje que representa su eigenvalor respecto a esa suma total. Esto ayuda a decidir cuántos componentes conservar:
 
@@ -668,11 +680,11 @@ La suma de todos los eigenvalores es la varianza total de los datos. La varianza
 
 **Para desarrollar antes de la filmina:**
 
-Vale la pena remarcar el paralelismo explícito con el método del codo de K-Means (Módulo 3, Filmina 15): en los dos casos se grafica una curva (WCSS en un caso, varianza explicada acumulada en el otro) en función de un número entero que hay que elegir (`k` clusters, o cantidad de componentes), y en los dos casos se busca el punto donde agregar "una unidad más" deja de aportar una mejora proporcional. Es el mismo patrón de decisión — "¿cuánta complejidad adicional se justifica por la mejora que trae?" — aplicado a dos problemas distintos.
+Vale la pena remarcar el paralelismo explícito con el método del codo de K-Means (Módulo 3, Filmina 18): en los dos casos se grafica una curva (WCSS en un caso, varianza explicada acumulada en el otro) en función de un número entero que hay que elegir (`k` clusters, o cantidad de componentes), y en los dos casos se busca el punto donde agregar "una unidad más" deja de aportar una mejora proporcional. Es el mismo patrón de decisión — "¿cuánta complejidad adicional se justifica por la mejora que trae?" — aplicado a dos problemas distintos.
 
 Un umbral común en la práctica profesional es conservar los componentes que expliquen el **95%** de la varianza acumulada (a veces 90%, según qué tan crítico sea no perder información) — pero ese número no es una ley matemática, es una convención razonable. Si el objetivo final es solo **visualizar** los datos, casi siempre se usan exactamente 2 o 3 componentes, sin importar qué porcentaje de varianza expliquen — porque el límite ahí no es estadístico, es que un gráfico no puede tener más de 3 ejes.
 
-### Limitaciones de PCA *(Filmina 29)*
+### Limitaciones de PCA *(Filmina 32)*
 
 - **Linealidad**: PCA solo captura relaciones **lineales** entre variables; con estructuras no lineales complejas, puede no ser suficiente.
 - **Escalado**: es sensible a la escala de las variables — por eso es común normalizar o estandarizar los datos antes de aplicarlo (igual que en clustering).
@@ -684,7 +696,7 @@ Un umbral común en la práctica profesional es conservar los componentes que ex
 - **Escalado**: si no se estandariza antes, una variable con valores en millones (como `market_value_eur` del dataset de la Clase 04) tendría una varianza numéricamente gigantesca comparada con una variable en unidades chicas (como `age`) — y como PCA busca **maximizar varianza**, terminaría armando la primera componente casi exclusivamente a partir de esa única variable de escala grande, ignorando de hecho a todas las demás. Es la misma razón por la que el escalado es obligatorio en K-Means y DBSCAN, aplicada acá a un problema distinto (varianza en vez de distancia).
 - **Interpretabilidad**: cuando la primera componente principal resulta ser, por ejemplo, `0.6 × ingresos + 0.5 × gasto_mensual - 0.3 × edad + ...`, explicarle a un directorio "qué es" esa componente en términos de negocio no es trivial — a diferencia de una variable original como "edad", que se entiende sin esfuerzo. Por eso, en contextos donde la explicabilidad ante un público no técnico es prioritaria, a veces se prefiere sacrificar algo de la reducción de dimensionalidad y quedarse con un subconjunto de variables originales, más fáciles de comunicar aunque menos eficientes matemáticamente.
 
-### Aplicación práctica y relevancia en la industria *(Filmina 30)*
+### Aplicación práctica y relevancia en la industria *(Filmina 33)*
 
 - **Visualización**: reducir dimensiones a 2 o 3 para graficar y detectar patrones o segmentos de clientes a simple vista.
 - **Preprocesamiento**: simplificar datos antes de aplicar clustering o clasificación, mejorando el rendimiento y reduciendo ruido.
@@ -703,13 +715,13 @@ Por ejemplo, un analista puede usar PCA para transformar variables de comportami
 
 **Contexto**: cierre conceptual de la clase — comparar las cinco técnicas vistas, entender sus límites, y ver PCA mejorando el rendimiento de un modelo real, no solo en teoría.
 
-### Apertura del módulo de cierre *(Filmina 31)*
+### Apertura del módulo de cierre *(Filmina 34)*
 
 La última divisoria de la clase trae el subtítulo "Tu superpoder analítico: consolidando el flujo de trabajo profesional completo" — y funciona como el cierre conceptual de las casi dos horas de clase. A esta altura ya se recorrieron cinco algoritmos concretos (Apriori/FP-Growth, K-Means, Jerárquico, DBSCAN, PCA); este módulo no agrega un sexto algoritmo, sino que da un paso atrás para mirarlos **a todos juntos**.
 
-**Para presentar antes del contenido**: es un buen momento para pedirle al grupo, antes de mostrar ninguna tabla, que intente recordar de memoria los cinco algoritmos vistos y a qué familia pertenece cada uno (clustering: K-Means, Jerárquico, DBSCAN; reducción de dimensionalidad: PCA; reglas de asociación: Apriori/FP-Growth) — es un buen chequeo rápido de qué quedó instalado de la clase antes de pasar al repaso formal de las Filminas 32 a 35. También es el momento de anticipar que el módulo cierra con algo distinto a las clases anteriores: una demostración con números reales de que la elección de técnica (PCA en este caso) no es solo una cuestión teórica, sino que **cambia el resultado de un modelo posterior** de forma medible.
+**Para presentar antes del contenido**: es un buen momento para pedirle al grupo, antes de mostrar ninguna tabla, que intente recordar de memoria los cinco algoritmos vistos y a qué familia pertenece cada uno (clustering: K-Means, Jerárquico, DBSCAN; reducción de dimensionalidad: PCA; reglas de asociación: Apriori/FP-Growth) — es un buen chequeo rápido de qué quedó instalado de la clase antes de pasar al repaso formal de las Filminas 35 a 35. También es el momento de anticipar que el módulo cierra con algo distinto a las clases anteriores: una demostración con números reales de que la elección de técnica (PCA en este caso) no es solo una cuestión teórica, sino que **cambia el resultado de un modelo posterior** de forma medible.
 
-### Decisiones de diseño y parámetros clave *(Filmina 32)*
+### Decisiones de diseño y parámetros clave *(Filmina 35)*
 
 | Técnica | Parámetros clave | Consideración principal |
 |---|---|---|
@@ -723,9 +735,9 @@ La última divisoria de la clase trae el subtítulo "Tu superpoder analítico: c
 
 Vale la pena remarcar un patrón que atraviesa las cinco filas: **todas** las técnicas de hoy tienen al menos un hiperparámetro que hay que decidir a mano antes de correr el algoritmo, y en **ninguno** de los cinco casos existe una fórmula única que lo calcule automáticamente — solo heurísticas (el codo, el silhouette, el k-distance plot, el umbral de varianza explicada) que ayudan a acercarse a un buen valor. Es una diferencia de fondo respecto al aprendizaje supervisado de la Clase 08, donde muchos hiperparámetros se pueden ajustar de forma más sistemática con `GridSearchCV` comparando contra una métrica objetiva como Accuracy — acá, al no existir una `y` contra la cual medir "qué tan bien salió", la elección de parámetros conserva siempre un componente de criterio humano.
 
-También vale la pena conectar la columna "Consideración principal" con lo ya visto: la sensibilidad de K-Means a valores atípicos (Filmina 14), la escalabilidad limitada del jerárquico con datasets grandes (Filmina 20), la capacidad de DBSCAN de manejar formas arbitrarias (Filmina 22-23), el balance de PCA entre reducción y pérdida de información (Filmina 28), y el control de calidad de reglas de Apriori vía soporte/confianza (Filmina 09) — esta tabla es, en esencia, un resumen de una idea clave por módulo, y sirve como buena guía de repaso rápido antes de un examen o de aplicar estas técnicas en un proyecto real.
+También vale la pena conectar la columna "Consideración principal" con lo ya visto: la sensibilidad de K-Means a valores atípicos (Filmina 17), la escalabilidad limitada del jerárquico con datasets grandes (Filmina 23), la capacidad de DBSCAN de manejar formas arbitrarias (Filmina 25-23), el balance de PCA entre reducción y pérdida de información (Filmina 31), y el control de calidad de reglas de Apriori vía soporte/confianza (Filmina 12) — esta tabla es, en esencia, un resumen de una idea clave por módulo, y sirve como buena guía de repaso rápido antes de un examen o de aplicar estas técnicas en un proyecto real.
 
-### Limitaciones y supuestos básicos *(Filmina 33)*
+### Limitaciones y supuestos básicos *(Filmina 36)*
 
 - El **clustering** asume que la similitud/diferencia entre puntos es significativa y que los datos pueden agruparse con claridad.
 - **PCA** asume relaciones lineales y que la varianza es una medida adecuada de "información".
@@ -737,11 +749,11 @@ También vale la pena conectar la columna "Consideración principal" con lo ya v
 
 El hilo conductor de esta filmina es que **ninguna técnica de hoy funciona "a ciegas"** — cada una parte de un supuesto sobre cómo son los datos, y cuando ese supuesto no se cumple, el resultado puede ser engañoso sin que el algoritmo avise del error. El clustering, por ejemplo, siempre va a devolver **algún** agrupamiento, incluso si se le pasan datos generados completamente al azar sin ninguna estructura real — el algoritmo no tiene forma de "darse cuenta" de que no había nada que agrupar, y es responsabilidad de quien lo usa evaluar (con silhouette, por ejemplo) si el resultado tiene sentido real o es ruido estadístico disfrazado de grupos.
 
-Sobre PCA: además de asumir linealidad (ya visto en la Filmina 29), asume que **más varianza significa más información relevante** — un supuesto razonable en la mayoría de los casos, pero que puede fallar si, por ejemplo, una variable tiene mucha varianza justamente por errores de medición (ruido de sensor) y no por señal real; en ese escenario, PCA podría terminar priorizando una dirección que en realidad es puro ruido.
+Sobre PCA: además de asumir linealidad (ya visto en la Filmina 32), asume que **más varianza significa más información relevante** — un supuesto razonable en la mayoría de los casos, pero que puede fallar si, por ejemplo, una variable tiene mucha varianza justamente por errores de medición (ruido de sensor) y no por señal real; en ese escenario, PCA podría terminar priorizando una dirección que en realidad es puro ruido.
 
 Sobre reglas de asociación: generar reglas sin ningún filtro de soporte/confianza mínimos en un catálogo grande puede producir literalmente millones de reglas técnicamente válidas pero comercialmente inútiles (asociaciones triviales, coincidencias estadísticas) — el criterio de negocio para decidir los umbrales mínimos es tan importante como el algoritmo en sí.
 
-### Aplicaciones prácticas por escenario *(Filmina 34)*
+### Aplicaciones prácticas por escenario *(Filmina 37)*
 
 - **Clustering**: segmentación de clientes, detección de fraude agrupando comportamientos atípicos, análisis de patrones en sensores industriales.
 - **PCA**: visualización de datos complejos, reducción de ruido antes de un modelo supervisado, compresión de datos para almacenamiento eficiente.
@@ -753,7 +765,7 @@ En la práctica, la elección depende del contexto de negocio: en un e-commerce 
 
 Un flujo de trabajo realista en una empresa de e-commerce podría combinar **las tres familias en una sola cadena de análisis**: primero, PCA para reducir docenas de variables de comportamiento de cada cliente (frecuencia de compra, categorías preferidas, monto gastado, dispositivo usado, horario de navegación...) a un puñado de componentes principales que resuman lo esencial; segundo, K-Means o DBSCAN sobre esas componentes reducidas para segmentar a los clientes en grupos con comportamientos similares (más rápido y con mejores resultados que clusterizar sobre las variables originales sin reducir, por la maldición de la dimensionalidad mencionada en el Módulo 5); y tercero, reglas de asociación aplicadas **dentro de cada segmento** por separado, para encontrar patrones de compra específicos de cada grupo de clientes, en vez de patrones genéricos que mezclan comportamientos muy distintos entre sí. Es un buen ejemplo para cerrar la clase mostrando que estas técnicas no compiten entre sí — se combinan.
 
-### Demostración: PCA mejorando un modelo real *(Filmina 35)*
+### Demostración: PCA mejorando un modelo real *(Filmina 38)*
 
 El PDF cierra con un ejemplo didáctico controlado que demuestra, con números, que PCA puede **mejorar** el rendimiento de un modelo — no solo "comprimir" datos:
 
