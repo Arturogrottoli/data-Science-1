@@ -163,7 +163,7 @@ Otra forma de plantear la diferencia, útil para la clase: en el aprendizaje sup
 **Un matiz que vale la pena mencionar en clase** (aunque se profundiza en cursos más avanzados): la frontera entre ambos mundos no siempre es absoluta. Existen enfoques intermedios — el aprendizaje **semi-supervisado** (una pequeña porción de datos etiquetados, mucha data sin etiquetar) y el aprendizaje **autosupervisado** (el propio dataset genera sus etiquetas, por ejemplo tapando parte de una imagen y pidiéndole al modelo que la reconstruya). No forman parte del temario de hoy, pero saber que existen ayuda a entender que "supervisado vs. no supervisado" es más un espectro que una dicotomía cerrada.
 
 ### Tres grandes tipos de problemas *(Filmina 07)*
-
+resumen
 1. **Clustering (agrupamiento)**: agrupa datos similares en clusters. Ejemplo: segmentar clientes según comportamiento de compra.
 2. **Reducción de dimensionalidad**: simplifica datos complejos con muchas variables a representaciones más manejables. Ejemplo: usar PCA para visualizar datos en 2D o 3D.
 3. **Reglas de asociación**: encuentra relaciones frecuentes entre variables. Ejemplo: identificar productos que se compran juntos en retail.
@@ -839,3 +839,60 @@ print(f"Accuracy CON PCA: {acc_con_pca:.4f}")
 - **Resultado real, corriendo este código**: `Accuracy SIN PCA: 0.8531` vs. `Accuracy CON PCA: 0.9161` — una mejora de más de 6 puntos porcentuales. La razón: KNN mide distancias, y con 300 columnas de ruido esas distancias quedan "contaminadas"; PCA concentra la señal real en pocas componentes y descarta gran parte del ruido, mejorando la relación señal/ruido que ve el clasificador.
 
 > **Con esto cierra la clase.** El panorama completo: cinco técnicas (K-Means, Jerárquico, DBSCAN, PCA, Apriori), cada una con su caso de uso, sus parámetros y sus límites — y una prueba concreta de que elegir bien la técnica de preprocesamiento (PCA) puede ser la diferencia entre un modelo mediocre y uno bueno, incluso antes de tocar el algoritmo de predicción en sí.
+
+---
+
+## Anexo — Apunte del Notebook Práctico (`Clase_9.ipynb`)
+
+Esta sección documenta un notebook **aparte**, ya armado y con código funcionando (`Clase_9.ipynb`, en la raíz de la carpeta), que resuelve las cinco técnicas de la clase con un **dataset real de fútbol** en vez de datos sintéticos — 48 selecciones de un torneo, con estadísticas de Ataque, Distribución, Defensa, Portería, Movimiento y Físico. Es un apunte de referencia por si decidís dar la clase directamente desde ese notebook en vez de (o además de) las filminas.
+
+⚠️ **Dos cosas para revisar antes de correrlo en vivo:**
+1. El código espera el archivo como `'Data Set Fifa.xlsx'` (con espacios), pero el archivo real en la carpeta se llama `Data-Set-Fifa.xlsx` (con guiones) — va a tirar `FileNotFoundError` si no se corrige el nombre en el código o se renombra el archivo.
+2. En el bloque de DBSCAN hay un error de sintaxis: `DBSCAN(eps=0.5, +=3)` no es Python válido — por el contexto, seguramente debía ser `min_samples=3`.
+
+### Preparación de los datos (celda de inicio)
+
+El Excel viene con una particularidad: cada equipo ocupa **dos filas** (una con los datos numéricos, la fila siguiente con el nombre real del equipo) — rastro de celdas combinadas en el archivo original. La función `procesar_hoja_con_glosario` resuelve esto tomando los datos de la fila `i` pero el nombre de equipo de la fila `i+1`. También corrige nombres con problemas de encoding (`Espa帽a` → `España`, etc.), cruza las 6 hojas del Excel por `Equipo` con `merge(..., how="outer")`, fuerza la lista final a los 48 equipos exactos de la hoja "Ataque", e imputa con la media cualquier hueco que haya quedado de un cruce imperfecto entre hojas.
+
+### Bloque 1 — Intro al Aprendizaje No Supervisado (sin código, solo teoría)
+
+Mismo concepto que el Módulo 1 de esta guía, con la analogía puntual del notebook: *"No sabemos quién ganó el torneo, ni qué táctica es la correcta; queremos que los datos nos digan de forma natural cómo se agrupan o se comportan los equipos de fútbol por sí solos."*
+
+### Bloque 2 — Reglas de Asociación (Apriori con `mlxtend`)
+
+Convierte 4 métricas de ataque (`Goles`, `Asistencias`, `Remates`, `Posecion del balon %`) en categorías binarias Alto/Bajo (por encima o debajo de la mediana), y corre `apriori` + `association_rules` de la librería `mlxtend` (con `min_support=0.3`, `min_threshold=0.7` de confidence).
+
+**Resultado real del notebook**: las 3 reglas con mayor lift combinan siempre `{Remates, Asistencias}` con `{Goles, Posecion del balon %}` — todas con lift entre 2.49 y 2.65, y support 0.3125 (15 de los 48 equipos cumplen la regla completa). Conclusión del notebook: *"en el fútbol moderno el éxito ofensivo es un ecosistema interconectado"* — no se puede aislar la posesión del gol, ni los remates de las asistencias.
+
+### Bloque 3 — K-Means (Posesión vs. Efectividad en los remates)
+
+Escala `Posecion del balon %` y `Efectividad en los remates %`, corre el método del codo de `k=1` a `k=7`, y fija el modelo final en `k=3`.
+
+**Los 3 clusters resultantes, con nombre puesto en el notebook**:
+- 🟢 **"Los Contundentes / Efectividad Máxima"**: posesión ~49,72% (media), efectividad 19,44% (muy alta) — juego directo o de contraataque letal.
+- 🔴 **"Bloque Bajo / Juego Reactivo"**: posesión 35,11% (muy baja), efectividad 7,67% (baja) — ceden el control casi por completo, se resguardan.
+- 🔵 **"Posesión Inofensiva"**: posesión 54,33% (alta), efectividad 7,42% (la más baja del torneo) — dominan el balón pero "se les apaga la luz" cerca del área.
+
+**El hallazgo para remarcar en clase**: el Cluster 0 tiene *menos* posesión que el Cluster 2, pero casi triplica su efectividad — la posesión alta no garantiza efectividad de cara al arco.
+
+### Bloque 4 — Clustering Jerárquico y DBSCAN (Goles recibidos vs. Pérdidas de balón provocadas)
+
+Arma un dendrograma (linkage `ward`) sobre dos variables defensivas, y corre DBSCAN para detectar equipos con comportamiento defensivo atípico.
+
+**Resultado real**: cortando el dendrograma a una altura ~5,5 aparecen 3 macro-clusters (un grupo chico y particular, un subgrupo cohesionado, y el bloque mayoritario con comportamiento defensivo "estándar"). DBSCAN marcó **11 equipos como outliers/ruido** — el notebook aclara que esos equipos no son necesariamente "malos", sino que sus estadísticas se ubican en zonas de muy baja densidad de datos (los extremos del torneo).
+
+### Bloque 5 — PCA (bloque de variables físicas)
+
+Reduce 4 variables de rendimiento físico (`Velocidad Media (Km/h)`, `Esprint a gran velocidad`, `Esprints`, `Distancia recorrida (m)`) a 2 componentes principales, y grafica el resultado con Plotly (scatter interactivo, con el nombre del equipo al pasar el mouse).
+
+**Resultado real**: PC1 explica **80,60%** de la varianza (interpretado en el notebook como "Intensidad de carrera") y PC2 explica **16,69%** ("Velocidad pura") — entre los dos, **97,29%** de varianza acumulada. Reducir de 4 variables a 2 casi no pierde información. Los cuadrantes del gráfico se interpretan como: derecha = alto volumen físico (la mayoría de los equipos), izquierda-arriba = velocidad puntual sin resistencia (poca distancia recorrida, juego más estático), abajo = déficit físico general del torneo.
+
+### Bloque 6 — Panorama de Métodos y Cierre
+
+La regla rápida que resume el notebook, útil como diapositiva mental de cierre:
+
+- **Reglas de Asociación**: patrones lógicos de coocurrencia (canastas de compra, sinergias de eventos).
+- **K-Means**: grupos claros y circulares, cuando ya tenés una idea de cuántos querés.
+- **Jerárquico**: cuando importa entender la taxonomía/árbol de relación entre los datos, no solo el grupo final.
+- **DBSCAN**: datos con formas complejas, o necesidad de aislar ruido/anomalías con precisión.
+- **PCA**: antes de modelar o graficar, para sacar la redundancia (correlación) y simplificar el problema.
