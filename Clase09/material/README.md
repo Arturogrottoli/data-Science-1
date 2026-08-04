@@ -901,6 +901,9 @@ df_final = df_final.dropna(subset=['Equipo']).set_index('Equipo')
 df_final = df_final.reindex(lista_48_equipos)
 df_final = df_final.fillna(df_final.mean(numeric_only=True))
 
+# 6. Corregimos el nombre mal escrito que trae el Excel original
+df_final = df_final.rename(columns={'Posecion del balon %': 'Posesión del balón %'})
+
 scaler = StandardScaler()
 ```
 
@@ -914,6 +917,7 @@ scaler = StandardScaler()
 - El `for hoja in xls.sheet_names[1:]` con `merge(..., how="outer")` → cruza cada una de las otras 5 hojas contra el DataFrame acumulado, usando `Equipo` como clave. `how="outer"` es "permisivo": conserva equipos aunque no crucen perfectamente en alguna hoja (por ejemplo, si un nombre quedó escrito distinto en una hoja puntual), en vez de perderlos silenciosamente con un `how="inner"`.
 - `df_final.reindex(lista_48_equipos)` → fuerza al DataFrame final a tener **exactamente** esos 48 equipos, ni uno más ni uno menos, ordenados según la lista maestra — corrige cualquier duplicado o "sobrante" que se haya colado en los merges.
 - `df_final.fillna(df_final.mean(numeric_only=True))` → si algún equipo quedó con un hueco puntual en alguna columna (por un cruce imperfecto entre hojas), lo rellena con el promedio de esa columna — la misma técnica de imputación por media que se vio en el Módulo 1 de esta clase, aplicada acá para no perder ningún equipo por un problema menor de cruce.
+- `df_final.rename(columns={'Posecion del balon %': 'Posesión del balón %'})` → el Excel original trae ese nombre de columna mal escrito (sin la "s" de "Posesión" y sin el acento de "balón") — se corrige acá, **una sola vez**, para que el resto del notebook (Bloques 2 y 3) ya trabaje con el nombre correcto en vez de arrastrar el error en cada referencia.
 
 ### Bloque 1 — Intro al Aprendizaje No Supervisado (sin código, solo teoría)
 
@@ -927,7 +931,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 from mlxtend.frequent_patterns import apriori, association_rules
 
 # 1. Transacciones booleanas (True/False), para evitar el Warning
-features_rules = ['Goles', 'Asistencias', 'Remates', 'Posecion del balon %']
+features_rules = ['Goles', 'Asistencias', 'Remates', 'Posesión del balón %']
 df_binario = df_final[features_rules].apply(lambda x: x > x.median()).astype(bool)
 
 # 2. Apriori
@@ -947,7 +951,7 @@ print(reglas[['antecedents', 'consequents', 'support', 'confidence', 'lift']].so
 - `apriori(df_binario, min_support=0.3, use_colnames=True)` → encuentra todos los conjuntos de columnas "Altas" que aparecen juntas en al menos el 30% de los equipos (`min_support=0.3`); `use_colnames=True` hace que el resultado muestre los nombres reales de las columnas en vez de números de índice.
 - `association_rules(frequent_itemsets, metric="confidence", min_threshold=0.7)` → a partir de esos conjuntos frecuentes, arma las reglas `A → B` y descarta las que tengan menos de 70% de confidence — el umbral de "qué tan seguido se cumple B, dado que se cumplió A" definido en el Módulo 2.
 - `.sort_values(by='lift', ascending=False).head(3)` → de todas las reglas que pasaron el filtro de confidence, se queda con las 3 de mayor lift — la métrica que, como se explicó en el Módulo 2, distingue una asociación real de una coincidencia estadística.
-- **Resultado real del notebook**: las 3 reglas con mayor lift combinan siempre `{Remates, Asistencias}` con `{Goles, Posecion del balon %}` — todas con lift entre 2,49 y 2,65, y support 0,3125 (15 de los 48 equipos cumplen la regla completa). Conclusión del notebook: *"en el fútbol moderno el éxito ofensivo es un ecosistema interconectado"* — no se puede aislar la posesión del gol, ni los remates de las asistencias.
+- **Resultado real del notebook**: las 3 reglas con mayor lift combinan siempre `{Remates, Asistencias}` con `{Goles, Posesión del balón %}` — todas con lift entre 2,49 y 2,65, y support 0,3125 (15 de los 48 equipos cumplen la regla completa). Conclusión del notebook: *"en el fútbol moderno el éxito ofensivo es un ecosistema interconectado"* — no se puede aislar la posesión del gol, ni los remates de las asistencias.
 
 ### Bloque 3 — K-Means (Posesión vs. Efectividad en los remates)
 
@@ -957,7 +961,7 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
 # 1. Selección y escalado
-X_kmeans = df_final[['Posecion del balon %', 'Efectividad en los remates %']].dropna()
+X_kmeans = df_final[['Posesión del balón %', 'Efectividad en los remates %']].dropna()
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X_kmeans)
 
@@ -985,7 +989,7 @@ for num_cluster, lista_paises in equipos_por_cluster.items():
 ```
 
 **Línea por línea:**
-- `df_final[[...]].dropna()` → selecciona solo las 2 columnas que interesan para este análisis puntual (`Posecion del balon %` y `Efectividad en los remates %`) y descarta cualquier equipo con hueco en esas dos — K-Means no puede calcular distancias con valores faltantes.
+- `df_final[[...]].dropna()` → selecciona solo las 2 columnas que interesan para este análisis puntual (`Posesión del balón %` y `Efectividad en los remates %`) y descarta cualquier equipo con hueco en esas dos — K-Means no puede calcular distancias con valores faltantes.
 - `StandardScaler().fit_transform(X_kmeans)` → escala las dos columnas a media 0 y desvío 1 — imprescindible porque K-Means usa distancia Euclidiana (Módulo 3), y "posesión" y "efectividad" están en escalas distintas.
 - El `for k in range(1, 8)` con `.inertia_` → calcula el WCSS (Módulo 3, Filmina 18) para cada valor de `k` de 1 a 7, guardando cada resultado en la lista `inercias` para después graficar el método del codo.
 - `random_state=42` → fija la semilla aleatoria de la inicialización de centroides, para que el resultado sea **reproducible**: correr la celda dos veces da exactamente los mismos clusters, en vez de resultados ligeramente distintos cada vez.
