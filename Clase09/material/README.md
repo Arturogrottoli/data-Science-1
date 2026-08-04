@@ -846,9 +846,11 @@ print(f"Accuracy CON PCA: {acc_con_pca:.4f}")
 
 Esta sección documenta un notebook **aparte**, ya armado y con código funcionando (`Clase_9.ipynb`, en la raíz de la carpeta), que resuelve las cinco técnicas de la clase con un **dataset real de fútbol** en vez de datos sintéticos — 48 selecciones de un torneo, con estadísticas de Ataque, Distribución, Defensa, Portería, Movimiento y Físico. Es un apunte de referencia por si decidís dar la clase directamente desde ese notebook en vez de (o además de) las filminas.
 
-⚠️ **Una cosa para revisar antes de correrlo en vivo**: en el bloque de DBSCAN hay un error de sintaxis: `DBSCAN(eps=0.5, +=3)` no es Python válido — por el contexto, seguramente debía ser `min_samples=3`. (El otro problema, el nombre del archivo Excel, ya está corregido en el notebook: `'Data-Set-Fifa.xlsx'`, con guiones.)
+✅ **Los dos problemas que tenía el notebook ya están corregidos**: el nombre del archivo Excel (`'Data-Set-Fifa.xlsx'`, con guiones) y el error de sintaxis en DBSCAN (`DBSCAN(eps=0.5, min_samples=3)`, antes tenía `+=3`, que no es Python válido). El código de abajo ya refleja ambas correcciones.
 
 ### Preparación de los datos (celda de inicio)
+
+🎯 **Para qué usamos este código**: no es un análisis en sí — es el paso obligatorio de "ingesta y saneamiento" (Módulo 1 de esta guía, aplicado ahora a un archivo real y desprolijo) que hay que correr **una sola vez, al principio**, para que las 5 técnicas de los bloques siguientes tengan un solo DataFrame limpio (`df_final`) del cual partir. Lo que queremos ver al final es la confirmación `"¡Exactamente 48!"` — si ese número no cierra, algo en el cruce de las 6 hojas salió mal y no tiene sentido seguir a los bloques de abajo.
 
 El Excel viene con una particularidad: cada equipo ocupa **dos filas** (una con los datos numéricos, la fila siguiente con el nombre real del equipo) — rastro de celdas combinadas en el archivo original.
 
@@ -925,6 +927,8 @@ Mismo concepto que el Módulo 1 de esta guía, con la analogía puntual del note
 
 ### Bloque 2 — Reglas de Asociación (Apriori con `mlxtend`)
 
+🎯 **Qué queremos ver y para qué sirve**: la pregunta de negocio es *"¿qué estilos de juego suelen ir juntos?"* — este código la responde de forma automática, sin tener que cruzar manualmente 4 métricas de a pares. Lo que buscamos al final no es la tabla completa de reglas (pueden salir decenas), sino **las 2-3 reglas con mayor lift**: esas son las que valen la pena comentar en clase, porque son las que muestran una asociación real y no una coincidencia estadística (Módulo 2 de esta guía).
+
 ```python
 import warnings
 warnings.filterwarnings('ignore', category=DeprecationWarning)
@@ -954,6 +958,8 @@ print(reglas[['antecedents', 'consequents', 'support', 'confidence', 'lift']].so
 - **Resultado real del notebook**: las 3 reglas con mayor lift combinan siempre `{Remates, Asistencias}` con `{Goles, Posesión del balón %}` — todas con lift entre 2,49 y 2,65, y support 0,3125 (15 de los 48 equipos cumplen la regla completa). Conclusión del notebook: *"en el fútbol moderno el éxito ofensivo es un ecosistema interconectado"* — no se puede aislar la posesión del gol, ni los remates de las asistencias.
 
 ### Bloque 3 — K-Means (Posesión vs. Efectividad en los remates)
+
+🎯 **Qué queremos ver y para qué sirve**: primero, el **gráfico del codo** — para decidir, con criterio y no a ojo, cuántos perfiles tácticos distintos tiene sentido buscar (acá da `k=3`). Después, con el modelo ya entrenado, lo que realmente importa mostrar en clase es el **perfil promedio de cada cluster** y la lista de equipos que cayó en cada uno — es la forma de convertir "3 grupos numéricos" en "3 estilos de juego con nombre y sentido futbolístico", que es en definitiva lo que un cuerpo técnico o analista se llevaría de este análisis.
 
 ```python
 from sklearn.cluster import KMeans
@@ -1002,6 +1008,8 @@ for num_cluster, lista_paises in equipos_por_cluster.items():
 
 ### Bloque 4 — Clustering Jerárquico y DBSCAN (Goles recibidos vs. Pérdidas de balón provocadas)
 
+🎯 **Qué queremos ver y para qué sirve**: acá se usan **dos algoritmos con objetivos distintos sobre las mismas variables defensivas**, a propósito, para que se note la diferencia en vivo. Del dendrograma queremos ver la **altura a la que se separan las ramas principales** (a qué distancia dejan de parecerse los grupos de equipos). De DBSCAN queremos ver algo totalmente distinto: no clusters, sino la **lista de equipos que quedaron como ruido** — los que tienen un comportamiento defensivo tan atípico que no encajan bien en ningún grupo denso.
+
 ```python
 import scipy.cluster.hierarchy as sch
 from sklearn.cluster import DBSCAN
@@ -1032,6 +1040,8 @@ print(outliers[['Goles recibidos', 'Pérdidas de balon provocadas']])
 - **Resultado real**: el dendrograma muestra 3 macro-clusters al cortar a la altura ~5,5; DBSCAN marcó **11 equipos** como outliers — estadísticas defensivas en los extremos del torneo, no necesariamente "peores".
 
 ### Bloque 5 — PCA (bloque de variables físicas)
+
+🎯 **Qué queremos ver y para qué sirve**: no podemos graficar 4 variables físicas a la vez en un plano — PCA las comprime a 2 sin perder casi nada (eso es lo primero que hay que mirar: el % de varianza acumulada, para justificar que la simplificación vale la pena). Con esas 2 componentes ya calculadas, lo que realmente queremos ver es el **mapa interactivo**: dónde cae cada uno de los 48 equipos, para detectar a simple vista quiénes corren mucho volumen, quiénes priorizan la velocidad puntual y quiénes rinden poco en lo físico — una lectura visual que sería imposible con las 4 variables originales por separado.
 
 ```python
 from sklearn.decomposition import PCA
