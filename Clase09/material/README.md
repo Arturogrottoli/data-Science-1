@@ -956,6 +956,9 @@ Este ejemplo puntual es un caso más desprolijo que el promedio (celdas combinad
 El Excel viene con una particularidad: cada equipo ocupa **dos filas** (una con los datos numéricos, la fila siguiente con el nombre real del equipo) — rastro de celdas combinadas en el archivo original.
 
 ```python
+import warnings
+warnings.filterwarnings('ignore', category=DeprecationWarning)   # silencia warnings de la infraestructura de Jupyter, no de este código
+
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
@@ -1011,6 +1014,7 @@ scaler = StandardScaler()
 ```
 
 **Línea por línea, qué hace y por qué:**
+- `warnings.filterwarnings('ignore', category=DeprecationWarning)` → puesto **al principio de todo**, antes que cualquier otra cosa. Suprime, para el resto de la ejecución del notebook, una tanda larga de `DeprecationWarning` que tira `jupyter_client` (la infraestructura de mensajería de Jupyter, no código de este notebook) sobre `datetime.utcnow()` — inofensivos, pero ensucian mucho la salida si no se filtran desde el arranque. Antes esta línea estaba recién en el Bloque 2, así que no alcanzaba a cubrir la celda de inicio ni el resto de bloques anteriores a ese.
 - `pd.ExcelFile(archivo_excel)` → abre el Excel una sola vez y permite leer sus 6 hojas (Ataque, Distribución, Defensa, Portería, Movimiento, Físico) sin reabrir el archivo en cada lectura — más eficiente que `pd.read_excel()` suelto por cada hoja.
 - `limpiar_nombre_equipo` → el Excel original tiene nombres de país con **encoding roto** (`Espa帽a` en vez de `España`) — típico de un archivo guardado con una codificación de caracteres distinta a la que se usa para leerlo. La función hace un `.replace()` manual por cada caso conocido, uno por uno, porque no hay una forma automática de "adivinar" qué encoding se usó originalmente una vez que el texto ya se rompió.
 - `df_raw[df_raw['Puesto'].notna()].index` → el truco central de todo el bloque: en el Excel, la fila con los **datos numéricos** de un equipo tiene algo en la columna `Puesto`, pero el **nombre del equipo** está vacío ahí y aparece recién en la fila siguiente (por las celdas combinadas). Esta línea encuentra los índices de las filas "con datos", para después ir a buscar el nombre a la fila de al lado.
