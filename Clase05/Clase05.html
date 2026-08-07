@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 04 - Manipulación de Datos con Pandas | Coderhouse</title>
+    <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==========================================================================
+           CODER 4.0 DESIGN SYSTEM & VARS
+           ========================================================================== */
+        :root {
+            --blanco-lienzo: #F8F2E8;
+            --negro-coder: #171717;
+            --naranja-oscuro: #260700;
+            --naranja-horizonte: #FF632B;
+            --amarillo-solar: #FE872D;
+            --rosa-energia: #FE64A3;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #dcd6cd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: var(--font-main);
+            overflow: hidden;
+        }
+
+        /* Slide Viewer (Absolute 1280x720 No-Scale-Shift) */
+        .presentation-viewport {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: var(--blanco-lienzo);
+        }
+
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            color: var(--negro-coder);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 70px 40px 70px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out, visibility var(--transition-speed) ease-in-out;
+            z-index: 1;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Abstract Brand Accents: Subtly warm gradients connecting to Coder 4.0 */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -150px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(255,99,43,0.06) 0%, rgba(248,242,232,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .slide-container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography & Hierarchy */
+        h1 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+        }
+
+        .slide-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slide-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 2px;
+            background-color: rgba(38, 7, 0, 0.1);
+            margin-left: 15px;
+        }
+
+        p, li {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #3d3430;
+            font-weight: 400;
+        }
+
+        /* Content Area Layout Wrapper */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Grid & Column Definitions */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 45px;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Coder 4.0 Split Card layouts */
+        .two-column.tiled > div {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            padding: 35px;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .two-column.tiled h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--naranja-horizonte);
+            margin-bottom: 12px;
+        }
+
+        /* Warm Retro Photography Frame */
+        .image-wrapper {
+            border-radius: 16px;
+            height: 340px;
+            overflow: hidden;
+            width: 100%;
+            border: 4px solid #ffffff;
+            box-shadow: 0 10px 25px rgba(38, 7, 0, 0.08);
+        }
+
+        .image-wrapper img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* Custom 2D Filled Icons & Tiles */
+        .tiled-content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .tile {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .tile .icon-box {
+            background-color: rgba(255, 99, 43, 0.1);
+            color: var(--naranja-horizonte);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .tile h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--naranja-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .tile p {
+            font-size: 14px;
+        }
+
+        /* Bullet List styling */
+        .bullet-list ul {
+            list-style: none;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .bullet-list li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--naranja-horizonte);
+            font-size: 16px;
+        }
+
+        /* Footer & Brand Branding Mark */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(38, 7, 0, 0.06);
+            padding-top: 15px;
+            width: 100%;
+        }
+
+        .slide-footer .brand-logo {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--naranja-oscuro);
+            letter-spacing: -0.5px;
+        }
+
+        .slide-footer .brand-logo span {
+            color: var(--naranja-horizonte);
+        }
+
+        .slide-footer .slide-index {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(38, 7, 0, 0.4);
+        }
+
+        /* Slide Type Banners ("Momentos de la Clase") */
+        .moment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+
+        .moment-badge.live {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .moment-badge.bug {
+            background-color: var(--rosa-energia);
+        }
+
+        .moment-badge.tip {
+            background-color: var(--amarillo-solar);
+            color: var(--naranja-oscuro);
+        }
+
+        /* Slido Interactive layout */
+        .slido-box {
+            background-color: #ffffff;
+            border: 2px dashed var(--naranja-horizonte);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 99, 43, 0.05);
+        }
+
+        .slido-box h3 {
+            font-size: 26px;
+            color: var(--naranja-oscuro);
+            margin-bottom: 10px;
+        }
+
+        .slido-code {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--naranja-horizonte);
+            margin: 15px 0;
+            letter-spacing: -1px;
+        }
+
+        /* Transition slide */
+        .transition-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .transition-layout h2 {
+            font-size: 60px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.1;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+        }
+
+        .transition-layout hr {
+            width: 80px;
+            height: 5px;
+            background-color: var(--naranja-horizonte);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        /* Clean retro table */
+        .table-layout {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+            width: 100%;
+        }
+
+        .table-layout table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-layout th, .table-layout td {
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(38, 7, 0, 0.06);
+            font-size: 14px;
+        }
+
+        .table-layout th {
+            background-color: rgba(38, 7, 0, 0.03);
+            color: var(--naranja-oscuro);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .table-layout tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Break Slide Design */
+        .break-slide {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+        }
+
+        .break-slide::before {
+            display: none;
+        }
+
+        .break-slide h2 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--blanco-lienzo);
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        .break-slide p {
+            color: rgba(248, 242, 232, 0.75);
+            font-size: 22px;
+        }
+
+        .break-logo {
+            font-size: 80px;
+            color: var(--naranja-horizonte);
+            margin-bottom: 30px;
+        }
+
+        /* Q&A / Legal section */
+        .legal-notice {
+            font-size: 10px;
+            line-height: 1.4;
+            color: rgba(38, 7, 0, 0.4);
+            text-align: justify;
+            margin-top: 20px;
+        }
+
+        /* Presentation controls toolbar */
+        .controls-toolbar {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(38, 7, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dot.active {
+            background-color: var(--naranja-horizonte);
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        /* Code Block Container */
+        .code-block {
+            background-color: #ffffff;
+            border-left: 4px solid var(--naranja-horizonte);
+            padding: 15px 20px;
+            font-family: monospace;
+            font-size: 13px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        /* Small note under tables */
+        .note-text {
+            margin-top: 18px;
+            font-size: 14px;
+            font-style: italic;
+            color: rgba(38, 7, 0, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-viewport">
+
+    <!-- SLIDE 1: Portada General -->
+    <div class="slide-container active" id="slide1">
+        <div></div>
+        <div class="transition-layout" style="margin-bottom: 30px;">
+            <span class="moment-badge">CODER 4.0 • CLASE 04</span>
+            <h1 style="font-size: 54px;">Manipulación de Datos con Pandas: Limpieza, Transformación y Agregación</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                De datos crudos y sucios a información lista para decidir
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">01 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: División Módulo 1 -->
+    <div class="slide-container" id="slide2">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 01</span>
+            <h2>Valores Faltantes y Duplicados</h2>
+            <p style="font-size: 20px;">Decidir qué limpiar y qué conservar: el lenguaje de la ausencia, la detección y los criterios de limpieza.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">02 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: El lenguaje de la ausencia -->
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title">El Lenguaje de la Ausencia: NaN, Null, None y Vacío</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Matices técnicos que hay que conocer</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-circle-question"></i> <strong>NaN:</strong> el estándar técnico en Pandas/NumPy para faltantes numéricos. Para la computadora, es un objeto de tipo <em>float</em>.</li>
+                            <li><i class="fa-solid fa-code"></i> <strong>None:</strong> el "vacío" nativo de Python. Pandas suele convertirlo en NaN al cargar un DataFrame.</li>
+                            <li><i class="fa-solid fa-database"></i> <strong>Null:</strong> término genérico de SQL; en Pandas usamos "nulo" y "faltante" casi como sinónimos.</li>
+                            <li><i class="fa-solid fa-quote-left"></i> <strong>Cadena vacía ("") ≠ Faltante:</strong> es texto válido sin caracteres, no un nulo para Pandas.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+import pandas as pd
+import numpy as np
+
+<span style="color: #6a737d;"># NaN == NaN da False: por eso</span>
+<span style="color: #6a737d;"># existen funciones especiales</span>
+print(np.nan == np.nan)
+<span style="color: #6a737d;"># False</span>
+
+data = {<span style="color: #032f62;">'Edad'</span>: [25, np.nan, 30],
+        <span style="color: #032f62;">'Ciudad'</span>: [<span style="color: #032f62;">'Madrid'</span>, <span style="color: #032f62;">'Bogotá'</span>, None]}
+df = pd.DataFrame(data)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">03 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: Por qué aparecen valores faltantes -->
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title">¿Por Qué Aparecen los Valores Faltantes?</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-satellite-dish"></i></div>
+                    <h3>Captura incompleta</h3>
+                    <p>El sensor falló por un segundo, o el encuestado prefirió no decir su salario.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-object-ungroup"></i></div>
+                    <h3>Errores de integración</h3>
+                    <p>Al unir Clientes y Compras, un cliente sin compras deja "monto" vacío — ¡es información valiosa!</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-paw"></i></div>
+                    <h3>Datos no aplicables</h3>
+                    <p>"Nombre de la mascota" vacío en alguien sin animales: vacío por lógica, no por error.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-pen-ruler"></i></div>
+                    <h3>Diseño intencional</h3>
+                    <p>El proceso de recolección cambió y antes no se pedía esa información.</p>
+                </div>
+            </div>
+            <p class="note-text">Principio de oro: nunca limpies sin entender el contexto. Borrar todos los nulos de "descuento aplicado" podría borrar a todos los clientes que pagaron el precio completo.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">04 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Detección de valores faltantes -->
+    <div class="slide-container" id="slide5">
+        <h2 class="slide-title">Detección de Valores Faltantes</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-magnifying-glass"></i> El vistazo y la lupa quirúrgica</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-eye"></i> <strong>info():</strong> muestra cuántos valores "Non-Null" hay por columna — el vistazo general.</li>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> <strong>isna() / isnull():</strong> hacen exactamente lo mismo — devuelven una máscara de True/False.</li>
+                            <li><i class="fa-solid fa-table-cells"></i> Ver una tabla de True/False no ayuda mucho con un millón de filas: necesitamos cuantificar.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+<span style="color: #6a737d;"># Si tu dataset tiene 1,000 filas y una</span>
+<span style="color: #6a737d;"># columna solo tiene 800 Non-Null,</span>
+<span style="color: #6a737d;"># ya sabes que tenés 200 problemas</span>
+df.info()
+
+<span style="color: #6a737d;"># Máscara booleana de nulos</span>
+print(df.isna())
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">05 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Cuantificación -->
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title">Cuantificación: ¿Qué Tan Grave es el Problema?</h2>
+        <div class="content-area">
+            <span class="moment-badge">Regla empírica (pero no universal)</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>% de Nulos</th><th>Estrategia sugerida</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Menos del 5%</strong></td><td>Suele ser seguro eliminar las filas o imputar con métodos sencillos.</td></tr>
+                        <tr><td><strong>Entre 5% y 30%</strong></td><td>Requiere pensar una estrategia de imputación más sofisticada.</td></tr>
+                        <tr><td><strong>Más de 50%</strong></td><td>A veces es mejor descartar la columna entera: más "ruido" que información real.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Recuerda: True vale 1 y False vale 0. nulos_totales = df.isna().sum() cuenta por columna; porcentaje_nulos = (df.isna().sum() / len(df)) * 100 lo expresa en %. 50 nulos en 60 filas es un desastre; 50 nulos en 50.000 filas, no.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">06 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Identificación de duplicados -->
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title">Identificación de Duplicados: duplicated() y drop_duplicates()</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-clone"></i> Una posible distorsión de la realidad</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-copy"></i> <strong>duplicated():</strong> marca True las filas que ya aparecieron antes.</li>
+                            <li><i class="fa-solid fa-list-check"></i> Por defecto, compara <strong>todos</strong> los valores de la fila.</li>
+                            <li><i class="fa-solid fa-key"></i> <strong>subset=['columna_id']:</strong> busca duplicados solo por una columna (DNI, ID de transacción).</li>
+                            <li><i class="fa-solid fa-broom"></i> <strong>drop_duplicates():</strong> limpia el DataFrame; keep='first' o keep='last'.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;"># Si un sistema registró dos veces</span>
+<span style="color: #6a737d;"># la misma venta de 2000, es falso</span>
+
+df.duplicated().sum()
+
+<span style="color: #6a737d;"># Elimina duplicados según el ID</span>
+<span style="color: #6a737d;"># de usuario, conservando el primero</span>
+df_limpio = df.drop_duplicates(
+    subset=<span style="color: #032f62;">'user_id'</span>, keep=<span style="color: #032f62;">'first'</span>
+)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">07 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Criterios de limpieza -->
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title">Criterios de Limpieza: ¿Eliminar o Imputar?</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Estrategia A: Eliminar (dropna)</h3>
+                    <p>La opción más drástica. Válida cuando: (1) te sobran datos y perder un 2% no afecta estadísticamente, o (2) falta justo la "etiqueta" que querés predecir.</p>
+                </div>
+                <div>
+                    <h3>Estrategia B: Imputar (Rellenar)</h3>
+                    <p><strong>Media:</strong> distribución normal, sin outliers. <strong>Mediana:</strong> más robusta con valores extremos. <strong>Moda:</strong> ideal para categóricas. <strong>Valor constante:</strong> "Desconocido" o "0" para conservar la fila.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">08 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: El dilema de los duplicados + Síntesis -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">El Dilema de los Duplicados y tu Flujo de Limpieza</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-scale-balanced"></i> No todos los duplicados se borran</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-user-xmark"></i> <strong>Identidad:</strong> misma persona, mismo producto, mismo segundo exacto → error del sistema: BORRAR.</li>
+                            <li><i class="fa-solid fa-calendar-check"></i> <strong>Eventos:</strong> mismo cliente comprando el mismo artículo dos días seguidos → dos eventos reales: CONSERVAR.</li>
+                            <li><i class="fa-solid fa-stopwatch"></i> Revisá si tenés un Timestamp o un ID único de transacción antes de borrar.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="bullet-list">
+                        <span class="moment-badge">Mapa mental de la unidad</span>
+                        <ul>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Explora:</strong> info() e isna().sum().</li>
+                            <li><i class="fa-solid fa-lightbulb"></i> <strong>Contextualiza:</strong> ¿error o realidad del negocio?</li>
+                            <li><i class="fa-solid fa-percent"></i> <strong>Mide:</strong> calculá porcentajes, no absolutos.</li>
+                            <li><i class="fa-solid fa-code-branch"></i> <strong>Decide:</strong> dropna(), imputar, o descartar la columna.</li>
+                            <li><i class="fa-solid fa-copy"></i> <strong>Deduplica:</strong> cada evento único según claves de negocio.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">09 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: División Módulo 2 -->
+    <div class="slide-container" id="slide10">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 02</span>
+            <h2>Transformaciones con map y apply</h2>
+            <p style="font-size: 20px;">Traducir etiquetas inconsistentes y calcular nuevos indicadores sin un solo bucle.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Por qué transformar datos -->
+    <div class="slide-container" id="slide11">
+        <h2 class="slide-title">¿Por Qué Transformar Datos?</h2>
+        <div class="content-area">
+            <span class="moment-badge">"ESP", "esp" y "España" son 3 categorías distintas para la máquina</span>
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-ruler"></i></div>
+                    <h3>Estandarizar</h3>
+                    <p>Unificar criterios — todos los países pasan a "España".</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>Enriquecer</h3>
+                    <p>Crear columnas derivadas — calcular el IVA a partir del precio.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-tags"></i></div>
+                    <h3>Categorizar</h3>
+                    <p>Traducir números a etiquetas de negocio — "Gasto Alto", "Gasto Bajo".</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">11 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: El método map -->
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title">El Método map(): la Tabla de Traducción</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-right-left"></i> Correspondencia uno a uno</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-table-list"></i> <strong>.map():</strong> se usa sobre una Series (una columna).</li>
+                            <li><i class="fa-solid fa-check"></i> Ideal cuando hay una correspondencia clara, uno a uno.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Error común:</strong> si un valor no está en el diccionario, map lo convierte en NaN. ¡Cubrí todos los casos!</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+<span style="color: #6a737d;"># Convertir códigos en nombres legibles</span>
+diccionario_genero = {
+    <span style="color: #032f62;">'M'</span>: <span style="color: #032f62;">'Masculino'</span>,
+    <span style="color: #032f62;">'F'</span>: <span style="color: #032f62;">'Femenino'</span>
+}
+df[<span style="color: #032f62;">'genero_completo'</span>] = df[<span style="color: #032f62;">'genero'</span>].map(
+    diccionario_genero
+)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">12 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: El método apply -->
+    <div class="slide-container" id="slide13">
+        <h2 class="slide-title">El Método apply(): Flexibilidad Total</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-screwdriver-wrench"></i> La navaja suiza de Pandas</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-align-left"></i> <strong>Sobre una Series:</strong> transforma una columna con lógica más compleja que un mapeo.</li>
+                            <li><i class="fa-solid fa-table-cells"></i> <strong>Sobre un DataFrame (axis=1):</strong> le pasa a tu función la <strong>fila completa</strong>.</li>
+                            <li><i class="fa-solid fa-briefcase"></i> Ahí es donde brilla para reglas de negocio con varias columnas a la vez.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+df[<span style="color: #032f62;">'nombre_mayuscula'</span>] = df[<span style="color: #032f62;">'nombre'</span>].apply(
+    lambda x: x.upper()
+)
+
+def calcular_riesgo(fila):
+    if fila[<span style="color: #032f62;">'deuda'</span>] &gt; 1000 and \
+       fila[<span style="color: #032f62;">'score_crediticio'</span>] &lt; 500:
+        return <span style="color: #032f62;">'Alto'</span>
+    return <span style="color: #032f62;">'Bajo'</span>
+
+df[<span style="color: #032f62;">'riesgo'</span>] = df.apply(calcular_riesgo, axis=1)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">13 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Diferencias clave -->
+    <div class="slide-container" id="slide14">
+        <h2 class="slide-title">Diferencias Clave: map, apply y applymap</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Método</th><th>Aplicación</th><th>Uso principal</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>map</strong></td><td>Series</td><td>Sustitución simple (diccionarios).</td></tr>
+                        <tr><td><strong>apply</strong></td><td>Series / DataFrame</td><td>Funciones complejas o lógica entre varias columnas.</td></tr>
+                        <tr><td><strong>applymap</strong></td><td>DataFrame completo</td><td>Aplicar una función a todas las celdas (ej. redondear decimales).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Recomendaciones de oro -->
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title">Recomendaciones de Oro para Transformar</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>Prioriza Vectorización</h3>
+                    <p>Si podés hacer df['A'] + df['B'], no uses apply. Las operaciones directas son mucho más rápidas.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-clipboard-check"></i></div>
+                    <h3>Valida tras transformar</h3>
+                    <p>Usá siempre df.head() y df['col'].value_counts() para verificar que hizo lo esperado.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h3>Cuidado con los Nulos</h3>
+                    <p>Las funciones personalizadas a veces fallan con un NaN. Considerá limpiar antes de transformar.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: División Módulo 3 -->
+    <div class="slide-container" id="slide16">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 03</span>
+            <h2>Agrupar, Resumir y Comparar</h2>
+            <p style="font-size: 20px;">De lo micro a lo macro: GroupBy y tablas dinámicas, el corazón del análisis descriptivo.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">16 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: Concepto de agrupación -->
+    <div class="slide-container" id="slide17">
+        <h2 class="slide-title">El Concepto de Agrupación y Resumen Estadístico</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>De lo Micro...</h3>
+                    <p>Una cadena de 50 cafeterías vende miles de cafés hoy. La venta de un latte a las 10:15 AM en la Sucursal Norte es un dato micro, aislado.</p>
+                </div>
+                <div>
+                    <h3>...a lo Macro</h3>
+                    <p>Agrupar responde "¿cuál sucursal vendió más?" con Suma, Promedio, Conteo o Máximo/Mínimo. Sin agrupación, los datos son solo ruido; con ella, son información de negocio.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">17 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: Split-Apply-Combine -->
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title">El Flujo Split-Apply-Combine</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-scissors"></i></div>
+                    <h3>Split (Dividir)</h3>
+                    <p>Pandas separa el DataFrame en "cajas", una por cada valor de la columna agrupadora (ej. cada sucursal).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-calculator"></i></div>
+                    <h3>Apply (Aplicar)</h3>
+                    <p>Dentro de cada caja, aplicás una operación — sumar los precios de la Sucursal Norte, y así con cada una.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>Combine (Combinar)</h3>
+                    <p>Pandas une los resultados de cada caja en una tabla resumen, mucho más pequeña que la original.</p>
+                </div>
+            </div>
+            <p class="note-text">Concepto desarrollado por Hadley Wickham — es el modelo mental detrás de cada groupby que escribas.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">18 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Selección de columnas y agregaciones comunes -->
+    <div class="slide-container" id="slide19">
+        <h2 class="slide-title">Selección de Columnas y Agregaciones Comunes</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> ¿Cómo promediás un email?</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-hashtag"></i> <strong>Regla de oro:</strong> seleccioná la columna numérica antes de aplicar el resumen.</li>
+                            <li><i class="fa-solid fa-chart-line"></i> <strong>.mean():</strong> promedio — ticket promedio de venta.</li>
+                            <li><i class="fa-solid fa-sack-dollar"></i> <strong>.sum():</strong> ingresos totales.</li>
+                            <li><i class="fa-solid fa-list-ol"></i> <strong>.count():</strong> volumen de pedidos.</li>
+                            <li><i class="fa-solid fa-arrows-up-down"></i> <strong>.median(), .min(), .max():</strong> robustez ante outliers y extremos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;"># Sintaxis básica</span>
+df.groupby(<span style="color: #032f62;">'columna_agrupadora'</span>)\
+  [<span style="color: #032f62;">'columna_a_resumir'</span>].metodo()
+
+<span style="color: #6a737d;"># Promedio de ventas por categoría</span>
+ventas_por_categoria = df.groupby(
+    <span style="color: #032f62;">'Categoria'</span>
+)[<span style="color: #032f62;">'Precio'</span>].mean()
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: Agregaciones múltiples con agg -->
+    <div class="slide-container" id="slide20">
+        <h2 class="slide-title">Agregaciones Múltiples con agg()</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-list-check"></i> Varias preguntas, una sola línea</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-scale-unbalanced"></i> A veces necesitás el total <strong>y</strong> el promedio a la vez, para comparar volumen contra rentabilidad.</li>
+                            <li><i class="fa-solid fa-list"></i> <strong>.agg():</strong> recibe una lista de funciones a aplicar de una vez.</li>
+                            <li><i class="fa-solid fa-table"></i> El resultado es una tabla con una columna nueva por cada función pedida.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+resumen = df.groupby(<span style="color: #032f62;">'Sucursal'</span>)[<span style="color: #032f62;">'Venta'</span>]\
+    .agg([<span style="color: #032f62;">'sum'</span>, <span style="color: #032f62;">'mean'</span>, <span style="color: #032f62;">'count'</span>])
+
+<span style="color: #6a737d;"># Una sola línea responde tres</span>
+<span style="color: #6a737d;"># preguntas de negocio distintas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">20 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: Agrupación por múltiples columnas -->
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title">Agrupación por Múltiples Columnas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Más nivel de detalle</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-sitemap"></i> Pasás una <strong>lista</strong> de columnas al groupby para crear una jerarquía.</li>
+                            <li><i class="fa-solid fa-magnifying-glass-chart"></i> Ej: total de ventas por Sucursal <strong>y</strong> por Tipo de Bebida.</li>
+                            <li><i class="fa-solid fa-lightbulb"></i> Útil para detectar perfiles de cliente distintos — una sucursal cerca de un gimnasio vs. una en un centro financiero.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+detalle = df.groupby(
+    [<span style="color: #032f62;">'Sucursal'</span>, <span style="color: #032f62;">'Tipo_Bebida'</span>]
+)[<span style="color: #032f62;">'Venta'</span>].sum()
+
+<span style="color: #6a737d;"># Sucursal A</span>
+<span style="color: #6a737d;">#   Café    ...</span>
+<span style="color: #6a737d;">#   Té      ...</span>
+<span style="color: #6a737d;">#   Jugo    ...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">21 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Pivot Tables -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">Pivot Tables: el Poder de las Tablas Dinámicas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-table-cells-large"></i> Vertical vs. matriz 2D</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrows-up-down"></i> <strong>Index:</strong> la columna que va en las filas.</li>
+                            <li><i class="fa-solid fa-arrows-left-right"></i> <strong>Columns:</strong> la columna que va en la parte superior.</li>
+                            <li><i class="fa-solid fa-hashtag"></i> <strong>Values:</strong> la columna numérica a resumir.</li>
+                            <li><i class="fa-solid fa-calculator"></i> <strong>Aggfunc:</strong> la operación — por defecto, el promedio.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;"># Ventas cruzando Región y Año</span>
+tabla = df.pivot_table(
+    index=<span style="color: #032f62;">'Region'</span>,
+    columns=<span style="color: #032f62;">'Anio'</span>,
+    values=<span style="color: #032f62;">'Venta'</span>,
+    aggfunc=<span style="color: #032f62;">'sum'</span>
+)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: Errores comunes de GroupBy -->
+    <div class="slide-container" id="slide23">
+        <h2 class="slide-title">Errores Comunes y Mejores Prácticas de GroupBy</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Los tres clásicos</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Error</th><th>Cómo evitarlo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Confundir count() con sum()</strong></td><td>count() dice cuántas filas hay; sum() suma sus valores. ¿Contar clientes o sumar dinero?</td></tr>
+                        <tr><td><strong>Olvidar los nulos</strong></td><td>Pandas los ignora por defecto en mean/sum — engañoso si falta el 90% de una columna.</td></tr>
+                        <tr><td><strong>No resetear el índice</strong></td><td>La columna agrupada pasa a ser el índice. Usá .reset_index() para volver a filtrar o graficar.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">resumen = df.groupby('Sucursal')['Venta'].sum().reset_index()</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: Break de Coder ("Recreo") -->
+    <div class="slide-container break-slide" id="slide24">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
+            <h2>Break del Coder</h2>
+            <p>Andá por un cafecito o mate, ¡y en 10 minutos volvemos!</p>
+        </div>
+        <div class="slide-footer" style="border-top: 1px solid rgba(248, 242, 232, 0.2);">
+            <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span style="color: var(--naranja-horizonte);">HOUSE</span></div>
+            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">24 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: División Módulo 4 -->
+    <div class="slide-container" id="slide25">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 04</span>
+            <h2>Fechas, Series Temporales y Resampling</h2>
+            <p style="font-size: 20px;">El tiempo como dimensión fundamental: que el calendario trabaje a tu favor.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">25 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 26: Conversión de texto a Datetime -->
+    <div class="slide-container" id="slide26">
+        <h2 class="slide-title">Conversión de Texto a Datetime</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">"01/12/2023" vs. "2023-12-01"</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-file-csv"></i> Al cargar un CSV, las fechas suelen leerse como texto simple (string/object).</li>
+                            <li><i class="fa-solid fa-calendar-days"></i> <strong>pd.to_datetime():</strong> convierte ese texto en objetos de fecha reales, con toda la lógica del calendario.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> Formatos distintos, meses con distinta cantidad de días, años bisiestos: todo lo resuelve esta conversión.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+<span style="color: #6a737d;"># Convierte texto a fechas reales</span>
+df[<span style="color: #032f62;">'fecha'</span>] = pd.to_datetime(
+    df[<span style="color: #032f62;">'fecha'</span>]
+)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">26 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 27: El índice temporal -->
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title">El Índice Temporal: tu Mejor Aliado</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-clock"></i> De columna a índice</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrow-right"></i> La mejor práctica: convertir la columna de fechas en el <strong>índice</strong> del DataFrame.</li>
+                            <li><i class="fa-solid fa-calendar-week"></i> Habilita acceder a datos por periodo — df['2023-01'] trae todo enero.</li>
+                            <li><i class="fa-solid fa-arrows-rotate"></i> Es el requisito para hacer <strong>Resampling</strong> (cambio de frecuencia).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+df = df.set_index(<span style="color: #032f62;">'fecha'</span>)
+
+<span style="color: #6a737d;"># Todas las filas de enero de 2023</span>
+enero = df[<span style="color: #032f62;">'2023-01'</span>]
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">27 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 28: Resampling -->
+    <div class="slide-container" id="slide28">
+        <h2 class="slide-title">Resampling: Cambiando el "Zoom" de tus Datos</h2>
+        <div class="content-area">
+            <span class="moment-badge">resample() es un groupby especializado en tiempo</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Código</th><th>Frecuencia</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>D</strong></td><td>Diario</td></tr>
+                        <tr><td><strong>W</strong></td><td>Semanal</td></tr>
+                        <tr><td><strong>ME</strong></td><td>Fin de mes (Month End)</td></tr>
+                        <tr><td><strong>YE</strong></td><td>Fin de año (Year End)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Downsampling: reducir frecuencia (diario → mensual), resumiendo con una estadística. Upsampling: aumentar frecuencia (anual → mensual), decidiendo cómo rellenar los huecos nuevos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">28 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 29: Errores comunes de fechas -->
+    <div class="slide-container" id="slide29">
+        <h2 class="slide-title">Errores Comunes al Trabajar con Fechas</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Antes de remuestrear</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Error</th><th>Cómo evitarlo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>No ordenar los datos</strong></td><td>Usá df.sort_index() antes de remuestrear; un índice desordenado da resultados impredecibles.</td></tr>
+                        <tr><td><strong>Operar con texto</strong></td><td>Sumar o promediar fechas sin convertir a datetime lanza un error de tipos.</td></tr>
+                        <tr><td><strong>Confundir sumas con promedios</strong></td><td>¿Venta total (.sum()) o venta promedio por día (.mean())? Elegí según la pregunta de negocio.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">29 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: División Módulo 5 -->
+    <div class="slide-container" id="slide30">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 05</span>
+            <h2>Manipulación de Datos: Pandas</h2>
+            <p style="font-size: 20px;">Tu superpoder analítico: consolidando el flujo de trabajo profesional completo.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">30 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 31: Por qué existe Pandas -->
+    <div class="slide-container" id="slide31">
+        <h2 class="slide-title">¿Por Qué Existe Pandas? De la Hoja de Cálculo a la Programación</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Origen: Panel Data</h3>
+                    <p>Creada por <strong>Wes McKinney</strong> en el sector financiero hacia 2008. Los analistas necesitaban la flexibilidad de Python con la estructura de una base de datos. Su nombre viene de "Panel Data", término de econometría.</p>
+                </div>
+                <div>
+                    <h3>Escala y Repetibilidad</h3>
+                    <p>Excel te obliga a repetir clics y fórmulas con cada archivo nuevo. En Pandas escribís el "recetario" una vez: funciona igual con 100 filas o con 1.000.000, sin errores humanos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">31 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 32: Los pilares de Pandas -->
+    <div class="slide-container" id="slide32">
+        <h2 class="slide-title">Los Pilares de Pandas: DataFrame y Series</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>DataFrame: tu tabla de comando</h3>
+                    <p>Estructura bidimensional. <strong>Eje 0 (filas):</strong> registros u observaciones. <strong>Eje 1 (columnas):</strong> variables o atributos.</p>
+                </div>
+                <div>
+                    <h3>Series: el ADN de los datos</h3>
+                    <p>Una sola columna, unidimensional, con <strong>Índice</strong>. Error común: pensar que es solo una lista — una lista de precios no sabe a qué producto pertenece cada uno; una Series sí, gracias a sus etiquetas.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">32 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 33: El flujo de trabajo profesional -->
+    <div class="slide-container" id="slide33">
+        <h2 class="slide-title">El Flujo de Trabajo Profesional (Pipeline)</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-download"></i></div>
+                    <h3>Fase 1: Ingesta e Inspección</h3>
+                    <p>head()/tail() dan una probada. info() es vital: nulos y tipos de dato por columna.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-broom"></i></div>
+                    <h3>Fase 2: Limpieza</h3>
+                    <p>Decidir entre dropna() (borrar filas con nulos) o fillna() (rellenar sin perder información).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>Fase 3: Transformación y Vectorización</h3>
+                    <p>df['precio'] * 0.9 en vez de un for: miles de veces más rápido, apoyado en NumPy.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">33 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 34: Agregación en la industria financiera -->
+    <div class="slide-container" id="slide34">
+        <h2 class="slide-title">Agregación: Split-Apply-Combine en la Industria</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Separar, Aplicar, Combinar</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-scissors"></i> <strong>Separar:</strong> dividir por una columna (ej. "País").</li>
+                            <li><i class="fa-solid fa-calculator"></i> <strong>Aplicar:</strong> calcular algo por grupo, independiente.</li>
+                            <li><i class="fa-solid fa-layer-group"></i> <strong>Combinar:</strong> unir todo en una tabla resumen.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="slido-box" style="padding: 25px;">
+                        <h3 style="font-size: 20px;">En la industria real</h3>
+                        <p style="font-size: 15px;">Este proceso permite a firmas como <strong>J.P. Morgan</strong> o <strong>Goldman Sachs</strong> analizar miles de transacciones por segundo para obtener promedios diarios o máximos históricos por activo financiero.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">34 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 35: Merge vs Concat -->
+    <div class="slide-container" id="slide35">
+        <h2 class="slide-title">Combinación de Fuentes: Merge vs. Concat</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Merge</h3>
+                    <p>Como el JOIN de SQL. Buscás una columna común (ej. ID_Cliente) y fusionás las tablas <strong>lateralmente</strong> — añade columnas nuevas sobre los mismos registros.</p>
+                </div>
+                <div>
+                    <h3>Concat</h3>
+                    <p>Como apilar hojas de papel. Ponés una tabla debajo de otra (ventas de Enero debajo de Febrero) — añade <strong>filas</strong> nuevas del mismo tipo.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">35 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 36: Errores comunes y mejores prácticas -->
+    <div class="slide-container" id="slide36">
+        <h2 class="slide-title">Errores Comunes y Mejores Prácticas</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Hasta los expertos caen acá</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Error</th><th>Detalle</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>La trampa del índice</strong></td><td>No es una columna normal, es el sistema de direcciones. Decidí si conservarlo al resetear.</td></tr>
+                        <tr><td><strong>Copias vs. Vistas</strong></td><td>Filtrar a veces da una "ventana" a la tabla original (SettingWithCopyWarning). Usá .copy() si querés independencia.</td></tr>
+                        <tr><td><strong>No tratar nulos al inicio</strong></td><td>Sin gestionar los NaN, los cálculos estadísticos pueden salir sesgados o directamente fallar.</td></tr>
+                        <tr><td><strong>Alineación automática</strong></td><td>Al sumar dos Series, Pandas alinea por etiqueta, no por posición física — ventaja, pero confunde a quien viene de listas.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">36 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 37: Aplicaciones en la industria real -->
+    <div class="slide-container" id="slide37">
+        <h2 class="slide-title">Aplicaciones en la Industria Real</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-cart-shopping"></i></div>
+                    <h3>Comercio Electrónico</h3>
+                    <p>Detectar valores atípicos (outliers) en precios que podrían indicar errores en la carga de productos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-truck"></i></div>
+                    <h3>Logística</h3>
+                    <p>Calcular tiempos de entrega promedio uniendo tablas de rutas, tráfico y conductores.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-notes-medical"></i></div>
+                    <h3>Salud</h3>
+                    <p>Limpiar registros de pacientes: unificar formatos de fechas y manejar datos clínicos faltantes en ensayos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">37 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 38: División Módulo 6 -->
+    <div class="slide-container" id="slide38">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 06</span>
+            <h2>Pre-Entrega: Limpieza y Análisis Exploratorio</h2>
+            <p style="font-size: 20px;">Poné a prueba tu criterio analítico sobre un dataset real, con nulos, duplicados y tipos incorrectos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">38 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 39: Pre-Entrega: consigna -->
+    <div class="slide-container" id="slide39">
+        <h2 class="slide-title">Pre-Entrega: ¿Qué Debés Entregar?</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Bloque</th><th>Contenido</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>1. Carga y Medición Inicial</strong></td><td>Total de valores faltantes por columna y qué % de las filas representa cada ausencia.</td></tr>
+                        <tr><td><strong>2. Detección de Duplicados</strong></td><td>Filas exactamente iguales, y duplicados en columnas que deberían ser únicas (IDs, facturas).</td></tr>
+                        <tr><td><strong>3. Análisis de Impacto</strong></td><td>Para cada columna con nulos: ¿qué significa que falte? ¿Los duplicados son error o dato válido?</td></tr>
+                        <tr><td><strong>4. Creación del Informe</strong></td><td>Documento legible por un supervisor que no sabe programar (Word, Docs o Markdown).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">39 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 40: Pre-Entrega: errores a evitar + entregable -->
+    <div class="slide-container" id="slide40">
+        <h2 class="slide-title">Pre-Entrega: Errores Comunes a Evitar</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-percent"></i> <strong>Confundir porcentajes:</strong> dividí el total de nulos entre el total de <strong>filas</strong>, no de columnas.</li>
+                    <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Imputar sin pensar:</strong> no rellenes "edad" con 0 sin una razón válida — distorsiona el promedio mucho más que un nulo.</li>
+                    <li><i class="fa-solid fa-file-code"></i> <strong>Entregar código sin más:</strong> este checkpoint evalúa tu <strong>criterio analítico</strong>. Las tablas pueden ser capturas del notebook, pero lo central es explicar el porqué de cada decisión.</li>
+                </ul>
+            </div>
+            <p class="note-text">Entregable: Pre-entrega — Limpieza y Análisis Exploratorio con Pandas (evaluable, suma al proyecto final). Consigna y rúbrica completas en la unidad de pre-entrega.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">40 / 41</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 41: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide41">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 90px; color: var(--naranja-horizonte);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 60px; color: var(--rosa-energia);"></i>
+            </div>
+            <h1 style="font-size: 64px;">¿Dudas? ¿Consultas?</h1>
+            <p style="font-size: 22px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Este es el momento de preguntar todo lo que necesites
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">41 / 41</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Presentation navigation controls toolbar -->
+<div class="controls-toolbar">
+    <button class="control-btn" id="prev-slide"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+    <div class="slide-dots" id="slide-dots"></div>
+    <button class="control-btn" id="next-slide">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<script>
+    // Slider Presentation Logic
+    const slides = document.querySelectorAll('.slide-container');
+    const prevBtn = document.getElementById('prev-slide');
+    const nextBtn = document.getElementById('next-slide');
+    const dotsContainer = document.getElementById('slide-dots');
+
+    let currentSlideIndex = 0;
+
+    // Create Navigation Indicators Dynamically
+    slides.forEach((slide, idx) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (idx === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToSlide(idx);
+        });
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateControls() {
+        dots.forEach((dot, idx) => {
+            if (idx === currentSlideIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+
+        slides[currentSlideIndex].classList.remove('active');
+        currentSlideIndex = index;
+        slides[currentSlideIndex].classList.add('active');
+
+        updateControls();
+    }
+
+    // Keyboard Navigation Handlers
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+            goToSlide(currentSlideIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+            goToSlide(currentSlideIndex - 1);
+        }
+    });
+
+    // Button Click Event Listeners
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex + 1);
+    });
+</script>
+
+</body>
+</html>
