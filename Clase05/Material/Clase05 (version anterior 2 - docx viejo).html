@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 05 - Visualización Avanzada de Datos | Coderhouse</title>
+    <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==========================================================================
+           CODER 4.0 DESIGN SYSTEM & VARS
+           ========================================================================== */
+        :root {
+            --blanco-lienzo: #F8F2E8;
+            --negro-coder: #171717;
+            --naranja-oscuro: #260700;
+            --naranja-horizonte: #FF632B;
+            --amarillo-solar: #FE872D;
+            --rosa-energia: #FE64A3;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #dcd6cd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: var(--font-main);
+            overflow: hidden;
+        }
+
+        /* Slide Viewer (Absolute 1280x720 No-Scale-Shift) */
+        .presentation-viewport {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: var(--blanco-lienzo);
+        }
+
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            color: var(--negro-coder);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 70px 40px 70px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out, visibility var(--transition-speed) ease-in-out;
+            z-index: 1;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Abstract Brand Accents: Subtly warm gradients connecting to Coder 4.0 */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -150px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(255,99,43,0.06) 0%, rgba(248,242,232,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .slide-container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography & Hierarchy */
+        h1 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+        }
+
+        .slide-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slide-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 2px;
+            background-color: rgba(38, 7, 0, 0.1);
+            margin-left: 15px;
+        }
+
+        p, li {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #3d3430;
+            font-weight: 400;
+        }
+
+        /* Content Area Layout Wrapper */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Grid & Column Definitions */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 45px;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Coder 4.0 Split Card layouts */
+        .two-column.tiled > div {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            padding: 35px;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .two-column.tiled h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--naranja-horizonte);
+            margin-bottom: 12px;
+        }
+
+        /* Warm Retro Photography Frame */
+        .image-wrapper {
+            border-radius: 16px;
+            height: 340px;
+            overflow: hidden;
+            width: 100%;
+            border: 4px solid #ffffff;
+            box-shadow: 0 10px 25px rgba(38, 7, 0, 0.08);
+        }
+
+        .image-wrapper img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* Custom 2D Filled Icons & Tiles */
+        .tiled-content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .tile {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .tile .icon-box {
+            background-color: rgba(255, 99, 43, 0.1);
+            color: var(--naranja-horizonte);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .tile h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--naranja-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .tile p {
+            font-size: 14px;
+        }
+
+        /* Bullet List styling */
+        .bullet-list ul {
+            list-style: none;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .bullet-list li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--naranja-horizonte);
+            font-size: 16px;
+        }
+
+        /* Footer & Brand Branding Mark */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(38, 7, 0, 0.06);
+            padding-top: 15px;
+            width: 100%;
+        }
+
+        .slide-footer .brand-logo {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--naranja-oscuro);
+            letter-spacing: -0.5px;
+        }
+
+        .slide-footer .brand-logo span {
+            color: var(--naranja-horizonte);
+        }
+
+        .slide-footer .slide-index {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(38, 7, 0, 0.4);
+        }
+
+        /* Slide Type Banners ("Momentos de la Clase") */
+        .moment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+
+        .moment-badge.live {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .moment-badge.bug {
+            background-color: var(--rosa-energia);
+        }
+
+        .moment-badge.tip {
+            background-color: var(--amarillo-solar);
+            color: var(--naranja-oscuro);
+        }
+
+        /* Slido Interactive layout */
+        .slido-box {
+            background-color: #ffffff;
+            border: 2px dashed var(--naranja-horizonte);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 99, 43, 0.05);
+        }
+
+        .slido-box h3 {
+            font-size: 26px;
+            color: var(--naranja-oscuro);
+            margin-bottom: 10px;
+        }
+
+        .slido-code {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--naranja-horizonte);
+            margin: 15px 0;
+            letter-spacing: -1px;
+        }
+
+        /* Transition slide */
+        .transition-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .transition-layout h2 {
+            font-size: 60px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.1;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+        }
+
+        .transition-layout hr {
+            width: 80px;
+            height: 5px;
+            background-color: var(--naranja-horizonte);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        /* Clean retro table */
+        .table-layout {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+            width: 100%;
+        }
+
+        .table-layout table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-layout th, .table-layout td {
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(38, 7, 0, 0.06);
+            font-size: 14px;
+        }
+
+        .table-layout th {
+            background-color: rgba(38, 7, 0, 0.03);
+            color: var(--naranja-oscuro);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .table-layout tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Break Slide Design */
+        .break-slide {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+        }
+
+        .break-slide::before {
+            display: none;
+        }
+
+        .break-slide h2 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--blanco-lienzo);
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        .break-slide p {
+            color: rgba(248, 242, 232, 0.75);
+            font-size: 22px;
+        }
+
+        .break-logo {
+            font-size: 80px;
+            color: var(--naranja-horizonte);
+            margin-bottom: 30px;
+        }
+
+        /* Q&A / Legal section */
+        .legal-notice {
+            font-size: 10px;
+            line-height: 1.4;
+            color: rgba(38, 7, 0, 0.4);
+            text-align: justify;
+            margin-top: 20px;
+        }
+
+        /* Presentation controls toolbar */
+        .controls-toolbar {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(38, 7, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dot.active {
+            background-color: var(--naranja-horizonte);
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        /* Code Block Container */
+        .code-block {
+            background-color: #ffffff;
+            border-left: 4px solid var(--naranja-horizonte);
+            padding: 15px 20px;
+            font-family: monospace;
+            font-size: 13px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        /* Small note under tables */
+        .note-text {
+            margin-top: 18px;
+            font-size: 14px;
+            font-style: italic;
+            color: rgba(38, 7, 0, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-viewport">
+
+    <!-- SLIDE 1: Portada General -->
+    <div class="slide-container active" id="slide1">
+        <div></div>
+        <div class="transition-layout" style="margin-bottom: 30px;">
+            <span class="moment-badge">CODER 4.0 • CLASE 05</span>
+            <h1 style="font-size: 48px;">Visualización Avanzada de Datos: Diseño, Matplotlib, Seaborn y Plotly</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                De un gráfico correcto a un gráfico que comunica: principios, herramientas y reproducibilidad
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">01 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: División Módulo 01 -->
+    <div class="slide-container" id="slide2">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 01</span>
+            <h2>Principios de Diseño y Elección de Gráficos</h2>
+            <p style="font-size: 20px;">Encuadre, jerarquía visual, anotaciones, ética y percepción — antes de tocar código.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">02 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Encuadre y jerarquía visual -->
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title">Encuadre y Jerarquía Visual</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-brain"></i> Percepción visual humana (C. Ware)</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-crop-simple"></i> <strong>Encuadre (framing):</strong> definir el espacio visual donde se presenta la información, evitando elementos distractores y enfocando la atención en lo relevante.</li>
+                            <li><i class="fa-solid fa-layer-group"></i> <strong>Jerarquía visual:</strong> organizar los elementos gráficos con tamaño, color, contraste y posición para guiar la mirada hacia lo más importante.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-chart-column"></i></div>
+                        <h3>Ejemplo del texto</h3>
+                        <p>En un gráfico de barras, la barra con el dato más relevante puede resaltarse con un color más intenso para atraer la atención — el resto queda en un tono neutro que no compite por la mirada.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">03 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: Anotaciones y elección del tipo de gráfico -->
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title">Anotaciones y Elección del Tipo de Gráfico</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-tag"></i> Uso de anotaciones</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrow-pointer"></i> Etiquetas, líneas y flechas ayudan a clarificar puntos clave y evitar ambigüedades.</li>
+                            <li><i class="fa-solid fa-ban"></i> Deben ser claras, concisas y <strong>no saturar</strong> el gráfico.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="table-layout">
+                        <table>
+                            <thead>
+                                <tr><th>Mensaje</th><th>Gráfico sugerido</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Evolución en el tiempo</td><td>Línea</td></tr>
+                                <tr><td>Comparar categorías</td><td>Barras</td></tr>
+                                <tr><td>Parte de un todo</td><td>Torta / Barras apiladas</td></tr>
+                                <tr><td>Relación entre variables</td><td>Dispersión (scatter)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">Seleccionar el tipo de gráfico adecuado depende del mensaje que se quiere comunicar y de la naturaleza de los datos — no de cuál gráfico "se ve mejor".</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">04 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Ética y percepción visual -->
+    <div class="slide-container" id="slide5">
+        <h2 class="slide-title">Ética y Percepción Visual: Sesgos y Distorsiones</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-triangle-exclamation"></i> Cómo se engaña con un gráfico</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-ruler-vertical"></i> <strong>Manipular ejes o escalas</strong> puede alterar por completo la interpretación (ej: no empezar el eje Y en cero).</li>
+                            <li><i class="fa-solid fa-eye-slash"></i> <strong>Omitir datos relevantes</strong> o usar colores engañosos afecta la honestidad del mensaje.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-chart-pie"></i></div>
+                        <h3>Ejercicio de la clase</h3>
+                        <p>Vamos a construir un gráfico de torta con Plotly sobre cuota de mercado tecnológico, y luego lo compararemos con la misma información representada de forma correcta y honesta.</p>
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">Un buen diseño visual no solo facilita la comprensión, sino que también construye confianza en la información presentada.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">05 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Accesibilidad y presentación honesta -->
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title">Accesibilidad y Presentación Honesta</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-eye-low-vision"></i></div>
+                    <h3>Accesibilidad</h3>
+                    <p>Considerar el daltonismo y otras discapacidades visuales usando paletas de colores adecuadas, como las paletas <code>colorblind-friendly</code> de Seaborn.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-scale-balanced"></i></div>
+                    <h3>Presentación honesta</h3>
+                    <p>La visualización debe reflejar fielmente los datos, evitando exageraciones o minimizaciones que puedan inducir a error.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-briefcase"></i></div>
+                    <h3>En la práctica profesional</h3>
+                    <p>La ética visual es clave al comunicar hallazgos a stakeholders: un gráfico distorsionado puede llevar a decisiones basadas en información equivocada.</p>
+                </div>
+            </div>
+            <p class="note-text">En las unidades siguientes aplicamos estos principios al construir composiciones avanzadas con Matplotlib y Seaborn.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">06 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Código - gráfico honesto vs deshonesto con Plotly -->
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title">De un Gráfico Manipulado a uno Honesto (Plotly)</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-code"></i> px.pie con personalización</span>
+                    <div class="code-block" style="font-size: 11px;">
+import plotly.express as px
+import pandas as pd
+
+data = {'Compañía': ['Apple', 'Google', 'Microsoft', 'Otras'],
+        'Cuota de Mercado (%)': [35, 15, 10, 40]}
+df = pd.DataFrame(data)
+
+fig = px.pie(df, values='Cuota de Mercado (%)', names='Compañía',
+    hole=0.4, color_discrete_sequence=px.colors.qualitative.Pastel)
+
+fig.update_traces(textinfo='percent+label', pull=[0.05, 0, 0, 0])
+fig.show()
+                    </div>
+                </div>
+                <div>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-flask"></i> Los datos de ambos gráficos (el manipulado y el corregido) son <strong>simulados</strong>, pensados para mostrar el contraste.</li>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> <code>hole</code>, <code>pull</code> y <code>color_discrete_sequence</code> mejoran la estética sin alterar el dato — la manipulación está en la escala/ejes, no en el estilo.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">07 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: División Módulo 02 -->
+    <div class="slide-container" id="slide8">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 02</span>
+            <h2>Series Temporales: Trazado y Transformación</h2>
+            <p style="font-size: 20px;">Resampling, ventanas móviles (rolling) y anotación de eventos sobre datos financieros reales.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">08 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Resampling y rolling windows -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">Resampling Semanal y Media Móvil (Rolling)</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-calendar-week"></i> Dos transformaciones clave</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-compress"></i> <strong>Resampling semanal:</strong> agrupar los valores diarios en semanas (que arrancan el lunes) y calcular la media de cada semana.</li>
+                            <li><i class="fa-solid fa-wave-square"></i> <strong>Rolling de 3 semanas:</strong> media móvil sobre la serie ya resampleada, usando <code>window=3</code> y <code>min_periods=3</code> (solo se muestra cuando la ventana está completa).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-chart-line"></i></div>
+                        <h3>Por qué importa</h3>
+                        <p>El resampling reduce ruido diario y el rolling suaviza aún más la tendencia — ambas son técnicas base para leer series temporales de negocio o financieras sin perderse en la variación día a día.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">09 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Ejercicio aplicado GOOGL.csv -->
+    <div class="slide-container" id="slide10">
+        <h2 class="slide-title">Ejercicio Aplicado: Acción GOOGL</h2>
+        <div class="content-area">
+            <span class="moment-badge tip"><i class="fa-solid fa-vial"></i> GOOGL.csv — Date, Open, High, Low, Close, Adj Close, Volume</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-list-ol"></i> Trabajamos con dos series: <strong>Close</strong> (precio de cierre) y <strong>Volume</strong> (volumen negociado).</li>
+                    <li><i class="fa-solid fa-terminal"></i> Salida esperada por consola, en este orden: <code>Resampled Weekly A/B</code>, <code>Rolling 3-Week A/B</code>, <code>Eventos</code>.</li>
+                    <li><i class="fa-solid fa-chart-area"></i> Gráficos: serie diaria con eventos anotados, semanal + rolling superpuestos, y barras de volumen semanal.</li>
+                </ul>
+            </div>
+            <p class="note-text">Dataset de práctica: kaggle.com/datasets/varpit94/google-stock-data</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: División Módulo 03 -->
+    <div class="slide-container" id="slide11">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 03</span>
+            <h2>Preparación de Datos con Pandas y NumPy</h2>
+            <p style="font-size: 20px;">Reproducibilidad: que el notebook produzca siempre el mismo resultado, para cualquiera.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">11 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Qué es reproducibilidad -->
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title">¿Qué Significa que un Notebook sea Reproducible?</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-arrows-rotate"></i></div>
+                    <h3>Siempre el mismo resultado</h3>
+                    <p>Hoy, mañana, en otra computadora o en Colab: los valores deben coincidir. Se logra fijando semillas y sin depender del orden de ejecución manual.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-arrow-down-up-across-line"></i></div>
+                    <h3>Ejecuta de arriba a abajo</h3>
+                    <p>Debe funcionar con <code>Runtime → Run all</code>: nada de celdas ejecutadas "a mano" ni variables sueltas fuera del flujo.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-user-slash"></i></div>
+                    <h3>No depende del usuario</h3>
+                    <p>Sin <code>input()</code>, sin leer de <code>stdin</code>: los datos de ejemplo se construyen directamente en el código.</p>
+                </div>
+            </div>
+            <p class="note-text">Escribir código que funcione no es suficiente — un análisis profesional debe ser reproducible por cualquier persona, desde cero.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">12 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Semillas y función pura -->
+    <div class="slide-container" id="slide13">
+        <h2 class="slide-title">Semillas Aleatorias y Funciones Puras</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block">
+np.random.seed(42)
+random.seed(42)
+
+<span style="color: #6a737d;"># Problema base: sumar múltiplos</span>
+<span style="color: #6a737d;"># de 3 o de 5 en una colección</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-dice"></i> ¿Por qué una semilla fija?</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-code-branch"></i> <code>np.random</code>, <code>random</code> y la generación de fechas/precios producen resultados distintos en cada corrida si no se controlan.</li>
+                            <li><i class="fa-solid fa-lock"></i> Una <strong>función pura</strong> recibe datos y produce un resultado, sin modificar variables externas ni depender del entorno.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">La función recorre la colección una sola vez (eficiencia), convierte a enteros, verifica la condición y acumula — escalable incluso a 100.000 elementos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">13 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Estructura del ejercicio -->
+    <div class="slide-container" id="slide14">
+        <h2 class="slide-title">Estructura del Ejercicio: Dataset, Tests y main()</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-database"></i> <strong>Dataset simulado de e-commerce:</strong> fecha de compra, segmento de cliente, región, categoría, precio, cantidad, descuento y ventas netas — construido desde cero, sin archivos externos, para que el notebook sea autocontenido.</li>
+                    <li><i class="fa-solid fa-vial-circle-check"></i> <strong>Tests locales:</strong> validan la función con lista vacía, sin múltiplos, con valores conocidos y con el caso clásico 1..10 — sin librerías externas de testing.</li>
+                    <li><i class="fa-solid fa-diagram-project"></i> <strong><code>main()</code> como orquestador:</strong> imprime versiones, genera el dataset, explora, resuelve el problema, aplica el algoritmo, visualiza y corre los tests — todo en un único flujo ordenado.</li>
+                </ul>
+            </div>
+            <p class="note-text">El bloque final <code>if __name__ == "__main__": main()</code> garantiza que el código corra en notebook o script sin ejecutarse solo al importar funciones.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: División Módulo 04 -->
+    <div class="slide-container" id="slide15">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 04</span>
+            <h2>Análisis Multivariado y Visualizaciones Multidimensionales</h2>
+            <p style="font-size: 20px;">Pairplots, scatter matrix y heatmaps de correlación para entender muchas variables a la vez.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Pairplots y Scatter Matrix -->
+    <div class="slide-container" id="slide16">
+        <h2 class="slide-title">Pairplots y Scatter Matrix</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Todas las combinaciones de a pares</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-table-cells"></i> <strong>Pairplot:</strong> matriz de gráficos con un scatter plot por cada par de variables numéricas, y un histograma o densidad en la diagonal.</li>
+                            <li><i class="fa-solid fa-braille"></i> <strong>Scatter Matrix:</strong> equivalente, para observar correlaciones y distribuciones conjuntas visualmente.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-building-columns"></i></div>
+                        <h3>Ejemplo en la industria</h3>
+                        <p>En análisis financiero, un pairplot puede mostrar cómo se relacionan indicadores económicos como PIB, inflación y tasa de interés, para detectar patrones o anomalías.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">16 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: Heatmaps de correlación -->
+    <div class="slide-container" id="slide17">
+        <h2 class="slide-title">Heatmaps de Correlación</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-fire"></i> Coeficiente de Pearson: -1 a 1</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-square"></i> Colores <strong>cálidos (rojos)</strong>: correlaciones positivas fuertes.</li>
+                            <li><i class="fa-solid fa-square"></i> Colores <strong>fríos (azules)</strong>: correlaciones negativas.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                        <h3>Uso en ciencia de datos</h3>
+                        <p>Un heatmap ayuda a seleccionar variables relevantes para modelos predictivos, evitando <strong>multicolinealidad</strong> (variables tan correlacionadas entre sí que aportan la misma información).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">17 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: Reducir complejidad visual -->
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title">Técnicas para Reducir la Complejidad Visual</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-filter"></i> <strong>Selección de variables clave:</strong> elegir solo las más relevantes para el análisis.</li>
+                    <li><i class="fa-solid fa-object-ungroup"></i> <strong>Agrupación o segmentación:</strong> dividir el dataset en subgrupos para análisis más focalizados.</li>
+                    <li><i class="fa-solid fa-palette"></i> <strong>Paletas y estilos consistentes:</strong> facilitan la distinción visual sin sobrecargar.</li>
+                    <li><i class="fa-solid fa-hand-pointer"></i> <strong>Interactividad (vista previa):</strong> preparar visualizaciones interactivas ayuda a explorar dimensiones sin saturar la vista — lo vemos en el módulo de Plotly.</li>
+                </ul>
+            </div>
+            <p class="note-text">Ejemplo real: un científico de datos en salud pública puede usar un pairplot para explorar cómo edad, presión arterial, colesterol y actividad física se relacionan entre sí y con la incidencia de enfermedades.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">18 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: División Módulo 05 -->
+    <div class="slide-container" id="slide19">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 05</span>
+            <h2>Estilos, Paletas y Accesibilidad Cromática</h2>
+            <p style="font-size: 20px;">rcParams, tipos de paletas y por qué el color también es una decisión ética.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: rcParams y estilos -->
+    <div class="slide-container" id="slide20">
+        <h2 class="slide-title">Estilos y Configuración con rcParams</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block">
+import matplotlib.pyplot as plt
+plt.style.use('seaborn-darkgrid')
+
+<span style="color: #6a737d;"># Seaborn: 'darkgrid', 'whitegrid', 'ticks'...</span>
+import seaborn as sns
+sns.set_theme(style='whitegrid')
+                    </div>
+                </div>
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-sliders"></i> Un diccionario global de estilo</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-gear"></i> <code>rcParams</code> controla parámetros globales: colores, tamaños de fuente, estilos de línea y más.</li>
+                            <li><i class="fa-solid fa-layer-group"></i> Seaborn está construido sobre Matplotlib y ofrece estilos predefinidos para gráficos coherentes.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">20 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: Paletas de color -->
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title">Tres Familias de Paletas de Color</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-shapes"></i></div>
+                    <h3>Cualitativas</h3>
+                    <p>Para variables categóricas sin orden inherente. Ej: tipos de frutas, regiones, categorías de producto.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-temperature-three-quarters"></i></div>
+                    <h3>Secuenciales</h3>
+                    <p>Para variables numéricas ordenadas, donde el color indica magnitud. Ej: temperatura, densidad de población.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-left-right"></i></div>
+                    <h3>Divergentes</h3>
+                    <p>Para variables con un punto medio crítico, mostrando desviaciones en dos direcciones. Ej: diferencias respecto a un valor base.</p>
+                </div>
+            </div>
+            <p class="note-text">Seaborn facilita la selección con <code>color_palette()</code> y <code>cubehelix_palette()</code>, con opciones accesibles y profesionales ya definidas.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">21 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Accesibilidad cromática -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">Accesibilidad Cromática: Daltonismo y Escala de Grises</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-eye-low-vision"></i> ~8% de hombres, ~0.5% de mujeres</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-ban"></i> El daltonismo afecta la lectura de combinaciones problemáticas como <strong>rojo-verde</strong> — hay que evitarlas.</li>
+                            <li><i class="fa-solid fa-print"></i> Al imprimir en escala de grises, los colores deben seguir siendo distinguibles por su tono, no solo por su matiz.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block">
+import seaborn as sns
+sns.color_palette('colorblind')
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">Siempre conviene verificar los gráficos con simuladores de daltonismo y probar la impresión en escala de grises antes de entregar un reporte.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: Ciclo de colores -->
+    <div class="slide-container" id="slide23">
+        <h2 class="slide-title">Ciclo de Colores y Consideraciones Prácticas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block">
+from cycler import cycler
+plt.rcParams['axes.prop_cycle'] = cycler(
+    color=['#1f77b4', '#ff7f0e', '#2ca02c'])
+                    </div>
+                </div>
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-repeat"></i> Coherencia entre series</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-shuffle"></i> El ciclo de colores determina cómo se asignan colores a múltiples elementos de un mismo gráfico.</li>
+                            <li><i class="fa-solid fa-check"></i> Personalizarlo evita confusiones en gráficos con muchas series o categorías.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">La correcta elección de estilos y paletas impacta directamente en la efectividad de la comunicación visual frente a los stakeholders.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: Break de Coder -->
+    <div class="slide-container break-slide" id="slide24">
+        <div></div>
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
+            <h2>Break</h2>
+            <p>¡10 minutos y volvemos!</p>
+        </div>
+        <div class="slide-footer" style="border-top-color: rgba(248, 242, 232, 0.15);">
+            <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span>HOUSE</span></div>
+            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">24 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: División Módulo 06 -->
+    <div class="slide-container" id="slide25">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 06</span>
+            <h2>Matplotlib: Primeros Pasos y Estructura de Figuras</h2>
+            <p style="font-size: 20px;">Figuras, ejes, plot, scatter, leyendas, guardado de archivos y subplots.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">25 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 26: Conceptos clave de Matplotlib -->
+    <div class="slide-container" id="slide26">
+        <h2 class="slide-title">Conceptos Clave de Matplotlib</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-image"></i></div>
+                    <h3>Figure y Axes</h3>
+                    <p><strong>Figura:</strong> el contenedor principal. <strong>Ejes (axes):</strong> el área donde efectivamente se dibuja el gráfico.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>plot y scatter</h3>
+                    <p><code>plot</code> traza líneas; <code>scatter</code> traza puntos de dispersión. Ambos aceptan color, etiqueta y estilo.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-floppy-disk"></i></div>
+                    <h3>Guardar y componer</h3>
+                    <p><code>savefig</code> exporta con DPI y formato. <strong>Subplots</strong> y <strong>GridSpec</strong> organizan varios gráficos en una figura.</p>
+                </div>
+            </div>
+            <p class="note-text">Matplotlib es la biblioteca base de la visualización en Python: desde una línea simple hasta composiciones complejas con múltiples paneles.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">26 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 27: Ejemplo básico -->
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title">Ejemplo Básico: Figura, Línea, Dispersión y Leyenda</h2>
+        <div class="content-area">
+            <div class="code-block" style="font-size: 12px;">
+fig, ax = plt.subplots()
+
+x = [1, 2, 3, 4, 5]
+y = [2, 3, 5, 7, 11]
+
+ax.plot(x, y, label='Serie 1', color='blue')
+ax.scatter(x, y, color='red', label='Puntos')
+
+ax.set_xlabel('Eje X'); ax.set_ylabel('Eje Y')
+ax.set_title('Ejemplo básico de Matplotlib')
+ax.legend()
+
+fig.savefig('grafico.png', dpi=300, format='png')
+plt.show()
+            </div>
+            <p class="note-text">Un mismo eje (<code>ax</code>) puede combinar <code>plot</code> y <code>scatter</code> — cada llamada agrega una capa nueva sobre el mismo gráfico.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">27 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 28: Subplots -->
+    <div class="slide-container" id="slide28">
+        <h2 class="slide-title">Subplots: Comparar Varias Vistas a la Vez</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block" style="font-size: 11px;">
+fig, axs = plt.subplots(1, 2, figsize=(18, 8))
+
+axs[0].plot(x, y, color='blue')
+axs[0].set_title('Gráfico de línea')
+
+axs[1].scatter(x, y, color='green')
+axs[1].set_title('Gráfico de dispersión')
+
+plt.tight_layout()
+plt.show()
+                    </div>
+                </div>
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-table-columns"></i> Una grilla de ejes</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-list-ol"></i> <code>plt.subplots(1, 2, ...)</code> devuelve un arreglo de ejes (<code>axs[0]</code>, <code>axs[1]</code>), cada uno independiente.</li>
+                            <li><i class="fa-solid fa-arrows-left-right-to-line"></i> <code>tight_layout()</code> ajusta los espacios para que no se superpongan etiquetas.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">GridSpec permite un control más fino de la disposición — lo vemos en detalle en el Módulo 10, aplicado a un dashboard completo.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">28 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 29: División Módulo 07 -->
+    <div class="slide-container" id="slide29">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 07</span>
+            <h2>Seaborn: Visualizaciones Relacionales y Categóricas</h2>
+            <p style="font-size: 20px;">Scatterplot, lineplot, boxplot y FacetGrid, sobre un dataset simulado tipo "propinas".</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">29 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: Reproducibilidad y dataset simulado -->
+    <div class="slide-container" id="slide30">
+        <h2 class="slide-title">Reproducibilidad y Dataset Simulado tipo "Tips"</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-seedling"></i> _SEED + sns.set_theme</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-lock"></i> Semilla fija: cualquier generación aleatoria es determinista entre corridas.</li>
+                            <li><i class="fa-solid fa-palette"></i> <code>sns.set_theme</code> define un estilo global coherente para todas las celdas.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="table-layout">
+                        <table>
+                            <thead>
+                                <tr><th>Variable</th><th>Cómo se simula</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>total_bill</code></td><td><code>np.random.gamma</code> (positiva, sesgada)</td></tr>
+                                <tr><td><code>tip</code></td><td><code>np.random.normal</code>, correlacionada con total_bill</td></tr>
+                                <tr><td><code>day</code>, <code>time</code></td><td><code>np.random.choice</code></td></tr>
+                                <tr><td><code>size</code></td><td><code>np.random.poisson</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">30 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 31: Gráficos con Seaborn -->
+    <div class="slide-container" id="slide31">
+        <h2 class="slide-title">Cuatro Gráficos con Seaborn</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-braille"></i></div>
+                    <h3>Scatterplot</h3>
+                    <p>Relación entre <code>total_bill</code> y <code>tip</code>, coloreado por categoría (Lunch vs Dinner).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>Lineplot</h3>
+                    <p>Media de <code>tip</code> por bins de <code>total_bill</code>, para suavizar la dispersión y ver la tendencia.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-square"></i></div>
+                    <h3>Boxplot</h3>
+                    <p>Distribución de <code>tip</code> por categoría: medianas, cuartiles y outliers entre Lunch y Dinner.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-table-cells-large"></i></div>
+                    <h3>FacetGrid</h3>
+                    <p>Rejilla de scatterplots, uno por día de la semana (<code>group</code>), para comparar subgrupos sin mezclarlos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">31 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 32: Buenas prácticas y flujo -->
+    <div class="slide-container" id="slide32">
+        <h2 class="slide-title">Buenas Prácticas de Código y Flujo Recomendado</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-code"></i> Modularidad</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-cube"></i> Cada paso (simular, transformar, cada gráfico) vive en su propia función — testable y reutilizable.</li>
+                            <li><i class="fa-solid fa-file-export"></i> Exportar a PNG con <code>bbox_inches="tight"</code> evita que se recorten etiquetas.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="font-size: 12px;">
+simulate_tips_dataset()
+transform_dataset()
+plot_scatter(); plot_line()
+plot_box(); plot_facetgrid()
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">32 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 33: División Módulo 08 -->
+    <div class="slide-container" id="slide33">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 08</span>
+            <h2>Distribuciones: Histograma, KDE, Boxplot y Violin</h2>
+            <p style="font-size: 20px;">Cómo leer la forma de una distribución y elegir el gráfico correcto según sus estadísticas.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">33 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 34: Estadísticas descriptivas y outliers -->
+    <div class="slide-container" id="slide34">
+        <h2 class="slide-title">Cuartiles, IQR y Detección de Outliers</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block" style="font-size: 12px;">
+IQR = Q3 - Q1
+
+lower = Q1 - 1.5 * IQR
+upper = Q3 + 1.5 * IQR
+
+<span style="color: #6a737d;"># fuera de [lower, upper] -> outlier</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-ruler-combined"></i> La regla del boxplot</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-percent"></i> <strong>Q1 (25%)</strong> y <strong>Q3 (75%)</strong> delimitan el rango intercuartílico.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> Cualquier valor fuera de <code>[Q1 - 1.5·IQR, Q3 + 1.5·IQR]</code> se considera <strong>outlier</strong>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">Dataset de práctica: ventas de e-commerce (<code>OrderAmount</code>), combinando Gamma (compras normales), log-normal (compras grandes, "heavy tail") y uniforme (promociones puntuales).</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">34 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 35: Multimodalidad y skewness -->
+    <div class="slide-container" id="slide35">
+        <h2 class="slide-title">Multimodalidad y Skewness (Asimetría)</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-mountain-sun"></i> Multimodalidad</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-chart-simple"></i> Se suaviza el histograma con una media móvil y se cuentan los picos locales (valores mayores que sus vecinos).</li>
+                            <li><i class="fa-solid fa-water"></i> Más de un pico → conviene un <strong>KDE</strong>, que muestra la forma continua y suavizada.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="font-size: 11px;">
+<span style="color: #6a737d;"># skewness: tercer momento</span>
+<span style="color: #6a737d;"># central normalizado</span>
+skew = mean((x - x̄)³) / σ³
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">Si la distribución es muy sesgada (skewness alto), un histograma puede ocultar información — ahí el violinplot muestra forma y dispersión de manera más completa.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">35 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 36: Lógica de recomendación de gráfico -->
+    <div class="slide-container" id="slide36">
+        <h2 class="slide-title">Lógica de Recomendación: Qué Gráfico Usar</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Condición</th><th>Gráfico recomendado</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Hay outliers (> 0)</td><td><strong>BOXPLOT</strong></td></tr>
+                        <tr><td>Más de un pico</td><td><strong>KDE</strong></td></tr>
+                        <tr><td>Unimodal, sin outliers, skewness &gt; 1</td><td><strong>VIOLIN</strong></td></tr>
+                        <tr><td>Unimodal, simétrica</td><td><strong>HISTOGRAMA</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Esta lógica traduce estadística descriptiva en una decisión visual concreta — el ejercicio pide imprimir el gráfico recomendado, la cantidad de outliers, y mediana + IQR con 2 decimales.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">36 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 37: División Módulo 09 -->
+    <div class="slide-container" id="slide37">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 09</span>
+            <h2>Plotly: Crear Visualizaciones Interactivas</h2>
+            <p style="font-size: 20px;">Tooltips enriquecidos, filtros con dropdown y exportación a HTML.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">37 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 38: Scatter interactivo con Plotly -->
+    <div class="slide-container" id="slide38">
+        <h2 class="slide-title">Scatter Plot Interactivo con Múltiples Dimensiones</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-arrows-to-dot"></i> x, y, color, tamaño y metadatos</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-fill-drip"></i> <strong>Color</strong> por <code>label</code>, <strong>tamaño</strong> de punto por <code>size</code>.</li>
+                            <li><i class="fa-solid fa-comment"></i> <strong>Tooltip</strong> que muestra múltiples campos: label, x, y, otras features.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-filter"></i> <strong>Dropdown</strong> para filtrar por etiqueta ("All" o una etiqueta puntual).</li>
+                            <li><i class="fa-solid fa-file-export"></i> Exportación final a <code>grafico_interactivo.html</code>, para compartir sin depender del notebook.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">38 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 39: División Módulo 10 -->
+    <div class="slide-container" id="slide39">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 10</span>
+            <h2>Diseño Avanzado de Subplots con GridSpec</h2>
+            <p style="font-size: 20px;">De gráficos individuales a un dashboard: layouts flexibles, validación y coverage.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">39 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 40: Por qué GridSpec -->
+    <div class="slide-container" id="slide40">
+        <h2 class="slide-title">¿Por Qué GridSpec y no plt.subplot()?</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-table-cells"></i> Grillas rígidas vs. flexibles</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-lock"></i> <code>plt.subplot(2, 2, 1)</code> limita a una grilla pareja y rígida.</li>
+                            <li><i class="fa-solid fa-arrows-up-down-left-right"></i> <strong>GridSpec</strong> permite que un subplot ocupe varias filas o columnas — paneles principales y secundarios, como en un dashboard real.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="font-size: 10px;">
++-------------------+-----------+
+|                   |           |
+|   gráfico grande  | gráfico   |
+|                   |           |
++---------+---------+-----------+
+| gráfico |    gráfico ancho    |
++---------+----------------------+
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">Escenario de negocio: un e-commerce necesita un dashboard que analice ventas por categoría, evolución temporal, segmentos de clientes y desempeño regional — todo en una sola figura.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">40 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 41: Validación del layout -->
+    <div class="slide-container" id="slide41">
+        <h2 class="slide-title">Validar el Layout antes de Dibujar</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Un layout inválido no debe construirse</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-check"></i> Tipos correctos (enteros), <code>r, c ≥ 0</code>, <code>h, w &gt; 0</code>.</li>
+                            <li><i class="fa-solid fa-border-none"></i> Límites del grid: <code>r + h ≤ R</code> y <code>c + w ≤ C</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="font-size: 11px;">
+grid = np.zeros((R, C))
+
+<span style="color: #6a737d;"># marcar celdas ocupadas;</span>
+<span style="color: #6a737d;"># si ya estaba ocupada -> ERROR</span>
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">Detectar solapamientos es equivalente a una detección de colisiones espaciales — clara, determinística y fácil de depurar.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">41 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 42: Coverage y construcción final -->
+    <div class="slide-container" id="slide42">
+        <h2 class="slide-title">Coverage y Construcción Final del Dashboard</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block" style="font-size: 11px;">
+coverage = celdas_ocupadas / celdas_totales
+
+gs = GridSpec(R, C)
+ax = fig.add_subplot(
+    gs[r:r+h, c:c+w])
+                    </div>
+                </div>
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-ruler"></i> ¿El diseño aprovecha el espacio?</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-percent"></i> <code>coverage</code> compara celdas ocupadas contra el total — ayuda a evaluar si el layout es compacto o disperso.</li>
+                            <li><i class="fa-solid fa-diagram-project"></i> Cada subplot final puede contener barras, series temporales, boxplots o heatmaps.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">42 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 43: División Módulo 11 -->
+    <div class="slide-container" id="slide43">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 11</span>
+            <h2>Exportación y Ajuste Final para Reportes</h2>
+            <p style="font-size: 20px;">Formatos, resolución, tipografías: que el gráfico se vea igual de bien fuera del notebook.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">43 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 44: Formatos de exportación -->
+    <div class="slide-container" id="slide44">
+        <h2 class="slide-title">PNG, SVG o PDF: ¿Cuál Elegir?</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Formato</th><th>Cuándo usarlo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>PNG</strong></td><td>Rasterizado, ideal para pantalla. Soporta transparencia; calidad depende del DPI.</td></tr>
+                        <tr><td><strong>SVG</strong></td><td>Vectorial, escalable sin pérdida — ideal si el gráfico se va a redimensionar o editar después.</td></tr>
+                        <tr><td><strong>PDF</strong></td><td>Vectorial para impresión y documentos formales, ampliamente compatible.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">La elección depende del uso final: pantalla (PNG), edición o escalabilidad (SVG), impresión o documentos formales (PDF).</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">44 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 45: DPI, tipografías y ajustes -->
+    <div class="slide-container" id="slide45">
+        <h2 class="slide-title">DPI, Tipografías y Ajustes para Diapositivas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block" style="font-size: 11px;">
+plt.savefig('grafico.png', dpi=300)
+
+plt.rcParams['font.family'] = 'Arial'
+plt.rcParams['font.size'] = 12
+                    </div>
+                </div>
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-magnifying-glass"></i> Reglas prácticas</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-desktop"></i> Pantalla: 72-100 DPI suele alcanzar.</li>
+                            <li><i class="fa-solid fa-print"></i> Impresión: 300 DPI o más, para evitar pixelación.</li>
+                            <li><i class="fa-solid fa-crop"></i> Ajustar <code>figsize</code> para que encaje en la diapositiva o página, sin cortar etiquetas.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">Antes de exportar, conviene visualizar el gráfico en su tamaño final para detectar problemas de legibilidad.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">45 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 46: División Módulo 12 -->
+    <div class="slide-container" id="slide46">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 12</span>
+            <h2>Integración en Jupyter/Colab y Reproducibilidad</h2>
+            <p style="font-size: 20px;">Cerrando el círculo: cómo llevar todo lo visto a un notebook limpio, ejecutable de punta a punta.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">46 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 47: Checklist final de reproducibilidad -->
+    <div class="slide-container" id="slide47">
+        <h2 class="slide-title">Checklist Final: Notebook Listo para Compartir</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-play"></i> Corre completo con <code>Runtime → Run all</code>, sin celdas ejecutadas "a mano" fuera de orden.</li>
+                    <li><i class="fa-solid fa-user-slash"></i> Sin <code>input()</code> ni lectura de <code>stdin</code> — nada que dependa de una persona presente.</li>
+                    <li><i class="fa-solid fa-diagram-project"></i> Lógica encapsulada en funciones, orquestadas desde un único <code>main()</code>.</li>
+                    <li><i class="fa-solid fa-code-branch"></i> Este patrón permite migrar el notebook a scripts o pipelines de producción sin reescribir la lógica.</li>
+                </ul>
+            </div>
+            <p class="note-text">Es una práctica estándar en Python profesional: el mismo criterio que usamos en el Módulo 03 para preparar datos, ahora cierra la clase aplicado al notebook completo, en Jupyter o en Google Colab.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">47 / 48</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 48: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide48">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 90px; color: var(--naranja-horizonte);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 60px; color: var(--rosa-energia);"></i>
+            </div>
+            <h1 style="font-size: 64px;">¿Dudas? ¿Consultas?</h1>
+            <p style="font-size: 22px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Este es el momento de preguntar todo lo que necesites
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">48 / 48</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Presentation navigation controls toolbar -->
+<div class="controls-toolbar">
+    <button class="control-btn" id="prev-slide"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+    <div class="slide-dots" id="slide-dots"></div>
+    <button class="control-btn" id="next-slide">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<script>
+    // Slider Presentation Logic
+    const slides = document.querySelectorAll('.slide-container');
+    const prevBtn = document.getElementById('prev-slide');
+    const nextBtn = document.getElementById('next-slide');
+    const dotsContainer = document.getElementById('slide-dots');
+
+    let currentSlideIndex = 0;
+
+    // Create Navigation Indicators Dynamically
+    slides.forEach((slide, idx) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (idx === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToSlide(idx);
+        });
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateControls() {
+        dots.forEach((dot, idx) => {
+            if (idx === currentSlideIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+
+        slides[currentSlideIndex].classList.remove('active');
+        currentSlideIndex = index;
+        slides[currentSlideIndex].classList.add('active');
+
+        updateControls();
+    }
+
+    // Keyboard Navigation Handlers
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+            goToSlide(currentSlideIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+            goToSlide(currentSlideIndex - 1);
+        }
+    });
+
+    // Button Click Event Listeners
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex + 1);
+    });
+</script>
+
+</body>
+</html>

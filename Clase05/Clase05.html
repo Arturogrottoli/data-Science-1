@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clase 05 - Visualización Avanzada de Datos | Coderhouse</title>
+    <title>Clase 05 - Visualización de Datos: Fundamentos, Storytelling y Dashboards | Coderhouse</title>
     <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -502,14 +502,14 @@
         <div></div>
         <div class="transition-layout" style="margin-bottom: 30px;">
             <span class="moment-badge">CODER 4.0 • CLASE 05</span>
-            <h1 style="font-size: 48px;">Visualización Avanzada de Datos: Diseño, Matplotlib, Seaborn y Plotly</h1>
+            <h1 style="font-size: 46px;">Visualización de Datos: Fundamentos, Storytelling y Dashboards</h1>
             <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
-                De un gráfico correcto a un gráfico que comunica: principios, herramientas y reproducibilidad
+                De Figure y Axes en Matplotlib a un dashboard que se entiende en los primeros 3 segundos
             </p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">01 / 48</div>
+            <div class="slide-index">01 / 37</div>
         </div>
     </div>
 
@@ -519,240 +519,235 @@
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 01</span>
-            <h2>Principios de Diseño y Elección de Gráficos</h2>
-            <p style="font-size: 20px;">Encuadre, jerarquía visual, anotaciones, ética y percepción — antes de tocar código.</p>
+            <h2>Fundamentos de Matplotlib</h2>
+            <p style="font-size: 20px;">Figure, Axes y Axis, los dos estilos de trabajo, subplots y personalización.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">02 / 48</div>
+            <div class="slide-index">02 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 3: Encuadre y jerarquía visual -->
+    <!-- SLIDE 3: Figure vs Axes vs Axis -->
     <div class="slide-container" id="slide3">
-        <h2 class="slide-title">Encuadre y Jerarquía Visual</h2>
+        <h2 class="slide-title">El Modelo de Objetos: Figure, Axes y Axis</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-brain"></i> Percepción visual humana (C. Ware)</span>
+                    <span class="moment-badge tip"><i class="fa-solid fa-image"></i> El lienzo y el dibujo</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-crop-simple"></i> <strong>Encuadre (framing):</strong> definir el espacio visual donde se presenta la información, evitando elementos distractores y enfocando la atención en lo relevante.</li>
-                            <li><i class="fa-solid fa-layer-group"></i> <strong>Jerarquía visual:</strong> organizar los elementos gráficos con tamaño, color, contraste y posición para guiar la mirada hacia lo más importante.</li>
+                            <li><i class="fa-solid fa-file"></i> <strong>Figure:</strong> el contenedor de nivel superior. Gestiona el espacio total y el color de fondo — no dibuja datos.</li>
+                            <li><i class="fa-solid fa-chart-simple"></i> <strong>Axes:</strong> el área donde ocurre la magia — lo que solemos llamar "un gráfico" (título, leyendas, ejes).</li>
+                            <li><i class="fa-solid fa-ruler"></i> <strong>Axis:</strong> la línea graduada (X o Y) que pone las marcas (ticks) y los números.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-chart-column"></i></div>
-                        <h3>Ejemplo del texto</h3>
-                        <p>En un gráfico de barras, la barra con el dato más relevante puede resaltarse con un color más intenso para atraer la atención — el resto queda en un tono neutro que no compite por la mirada.</p>
+                        <div class="icon-box"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <h3>Cuidado con los nombres</h3>
+                        <p><strong>Axes</strong> (el objeto gráfico completo) no es lo mismo que <strong>Axis</strong> (el eje). Una Figure puede tener un solo Axes o diez — un panel de control complejo.</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">03 / 48</div>
+            <div class="slide-index">03 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 4: Anotaciones y elección del tipo de gráfico -->
+    <!-- SLIDE 4: Pyplot vs Orientado a Objetos -->
     <div class="slide-container" id="slide4">
-        <h2 class="slide-title">Anotaciones y Elección del Tipo de Gráfico</h2>
+        <h2 class="slide-title">Dos Estilos: Pyplot vs. Orientado a Objetos</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge"><i class="fa-solid fa-tag"></i> Uso de anotaciones</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-arrow-pointer"></i> Etiquetas, líneas y flechas ayudan a clarificar puntos clave y evitar ambigüedades.</li>
-                            <li><i class="fa-solid fa-ban"></i> Deben ser claras, concisas y <strong>no saturar</strong> el gráfico.</li>
-                        </ul>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bolt"></i> Estilo Pyplot (implícito)</span>
+                    <div class="code-block" style="font-size: 12px;">
+import matplotlib.pyplot as plt
+plt.plot([1, 2, 3], [4, 5, 6])
+plt.title("Gráfico Rápido")
+plt.show()
                     </div>
+                    <p class="note-text" style="margin-top: 10px;">Problema: con varios gráficos a la vez, se confunde a cuál le estás hablando.</p>
                 </div>
                 <div>
-                    <div class="table-layout">
-                        <table>
-                            <thead>
-                                <tr><th>Mensaje</th><th>Gráfico sugerido</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>Evolución en el tiempo</td><td>Línea</td></tr>
-                                <tr><td>Comparar categorías</td><td>Barras</td></tr>
-                                <tr><td>Parte de un todo</td><td>Torta / Barras apiladas</td></tr>
-                                <tr><td>Relación entre variables</td><td>Dispersión (scatter)</td></tr>
-                            </tbody>
-                        </table>
+                    <span class="moment-badge live"><i class="fa-solid fa-code"></i> Estilo Orientado a Objetos (recomendado)</span>
+                    <div class="code-block" style="font-size: 12px;">
+fig, ax = plt.subplots()
+ax.plot([1, 2, 3], [4, 5, 6])
+ax.set_title("Gráfico Profesional")
+plt.show()
                     </div>
+                    <p class="note-text" style="margin-top: 10px;">Creamos objetos para fig y ax: siempre sabemos qué estamos modificando.</p>
                 </div>
             </div>
-            <p class="note-text">Seleccionar el tipo de gráfico adecuado depende del mensaje que se quiere comunicar y de la naturaleza de los datos — no de cuál gráfico "se ve mejor".</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">04 / 48</div>
+            <div class="slide-index">04 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 5: Ética y percepción visual -->
+    <!-- SLIDE 5: Subplots -->
     <div class="slide-container" id="slide5">
-        <h2 class="slide-title">Ética y Percepción Visual: Sesgos y Distorsiones</h2>
+        <h2 class="slide-title">Subplots: Varias Vistas en una Sola Figura</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge bug"><i class="fa-solid fa-triangle-exclamation"></i> Cómo se engaña con un gráfico</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-ruler-vertical"></i> <strong>Manipular ejes o escalas</strong> puede alterar por completo la interpretación (ej: no empezar el eje Y en cero).</li>
-                            <li><i class="fa-solid fa-eye-slash"></i> <strong>Omitir datos relevantes</strong> o usar colores engañosos afecta la honestidad del mensaje.</li>
-                        </ul>
+                    <div class="code-block" style="font-size: 11px;">
+<span style="color: #6a737d;"># 1 fila, 2 columnas</span>
+fig, axes = plt.subplots(
+    nrows=1, ncols=2, figsize=(10, 4))
+
+<span style="color: #6a737d;"># axes es un array de Axes</span>
+axes[0].plot(datos_x, datos_y)
+axes[1].hist(datos_z)
                     </div>
                 </div>
                 <div>
-                    <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-chart-pie"></i></div>
-                        <h3>Ejercicio de la clase</h3>
-                        <p>Vamos a construir un gráfico de torta con Plotly sobre cuota de mercado tecnológico, y luego lo compararemos con la misma información representada de forma correcta y honesta.</p>
+                    <span class="moment-badge"><i class="fa-solid fa-table-columns"></i> plt.subplots(): la navaja suiza</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-magnifying-glass-chart"></i> Esencial para el <strong>Análisis Exploratorio de Datos (EDA)</strong>: organizar múltiples vistas en una sola hoja.</li>
+                            <li><i class="fa-solid fa-house"></i> Ejemplo: en un proyecto inmobiliario, un histograma de precios al lado del scatter metros²-precio.</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <p class="note-text">Un buen diseño visual no solo facilita la comprensión, sino que también construye confianza en la información presentada.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">05 / 48</div>
+            <div class="slide-index">05 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 6: Accesibilidad y presentación honesta -->
+    <!-- SLIDE 6: Personalización y estética -->
     <div class="slide-container" id="slide6">
-        <h2 class="slide-title">Accesibilidad y Presentación Honesta</h2>
+        <h2 class="slide-title">Personalización: de Dibujo a Hallazgo Analítico</h2>
         <div class="content-area">
             <div class="tiled-content">
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-eye-low-vision"></i></div>
-                    <h3>Accesibilidad</h3>
-                    <p>Considerar el daltonismo y otras discapacidades visuales usando paletas de colores adecuadas, como las paletas <code>colorblind-friendly</code> de Seaborn.</p>
+                    <div class="icon-box"><i class="fa-solid fa-heading"></i></div>
+                    <h3>Títulos y etiquetas</h3>
+                    <p><code>set_title()</code>, <code>set_xlabel()</code>, <code>set_ylabel()</code>: qué miden los ejes y en qué unidades.</p>
                 </div>
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-scale-balanced"></i></div>
-                    <h3>Presentación honesta</h3>
-                    <p>La visualización debe reflejar fielmente los datos, evitando exageraciones o minimizaciones que puedan inducir a error.</p>
+                    <div class="icon-box"><i class="fa-solid fa-list"></i></div>
+                    <h3>Leyendas y límites</h3>
+                    <p><code>ax.legend()</code> distingue series; <code>set_xlim()</code>/<code>set_ylim()</code> evitan que se pierda perspectiva.</p>
                 </div>
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-briefcase"></i></div>
-                    <h3>En la práctica profesional</h3>
-                    <p>La ética visual es clave al comunicar hallazgos a stakeholders: un gráfico distorsionado puede llevar a decisiones basadas en información equivocada.</p>
+                    <div class="icon-box"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <h3>Ajustes finales</h3>
+                    <p><code>figsize</code>, <code>plt.style.use('ggplot')</code> y <code>fig.tight_layout()</code> para que nada se solape.</p>
                 </div>
             </div>
-            <p class="note-text">En las unidades siguientes aplicamos estos principios al construir composiciones avanzadas con Matplotlib y Seaborn.</p>
+            <p class="note-text">Errores comunes: confundir Axes con Axis, no guardar la referencia a <code>fig, ax</code>, el "gráfico de espagueti" (10 líneas en un solo Axes) y olvidar las unidades de los ejes.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">06 / 48</div>
+            <div class="slide-index">06 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 7: Código - gráfico honesto vs deshonesto con Plotly -->
+    <!-- SLIDE 7: División Módulo 02 -->
     <div class="slide-container" id="slide7">
-        <h2 class="slide-title">De un Gráfico Manipulado a uno Honesto (Plotly)</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge live"><i class="fa-solid fa-code"></i> px.pie con personalización</span>
-                    <div class="code-block" style="font-size: 11px;">
-import plotly.express as px
-import pandas as pd
-
-data = {'Compañía': ['Apple', 'Google', 'Microsoft', 'Otras'],
-        'Cuota de Mercado (%)': [35, 15, 10, 40]}
-df = pd.DataFrame(data)
-
-fig = px.pie(df, values='Cuota de Mercado (%)', names='Compañía',
-    hole=0.4, color_discrete_sequence=px.colors.qualitative.Pastel)
-
-fig.update_traces(textinfo='percent+label', pull=[0.05, 0, 0, 0])
-fig.show()
-                    </div>
-                </div>
-                <div>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-flask"></i> Los datos de ambos gráficos (el manipulado y el corregido) son <strong>simulados</strong>, pensados para mostrar el contraste.</li>
-                            <li><i class="fa-solid fa-magnifying-glass"></i> <code>hole</code>, <code>pull</code> y <code>color_discrete_sequence</code> mejoran la estética sin alterar el dato — la manipulación está en la escala/ejes, no en el estilo.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">07 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 8: División Módulo 02 -->
-    <div class="slide-container" id="slide8">
         <div></div>
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 02</span>
-            <h2>Series Temporales: Trazado y Transformación</h2>
-            <p style="font-size: 20px;">Resampling, ventanas móviles (rolling) y anotación de eventos sobre datos financieros reales.</p>
+            <h2>Análisis Univariado: Histogramas y KDE</h2>
+            <p style="font-size: 20px;">El primer paso de todo análisis: mirar cada variable por separado, antes de buscar relaciones.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">08 / 48</div>
+            <div class="slide-index">07 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 9: Resampling y rolling windows -->
-    <div class="slide-container" id="slide9">
-        <h2 class="slide-title">Resampling Semanal y Media Móvil (Rolling)</h2>
+    <!-- SLIDE 8: El histograma -->
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title">El Histograma: Contando por "Baldes" (Bins)</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge"><i class="fa-solid fa-calendar-week"></i> Dos transformaciones clave</span>
+                    <span class="moment-badge tip"><i class="fa-solid fa-chart-column"></i> Eje X = intervalos, Eje Y = frecuencia</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-compress"></i> <strong>Resampling semanal:</strong> agrupar los valores diarios en semanas (que arrancan el lunes) y calcular la media de cada semana.</li>
-                            <li><i class="fa-solid fa-wave-square"></i> <strong>Rolling de 3 semanas:</strong> media móvil sobre la serie ya resampleada, usando <code>window=3</code> y <code>min_periods=3</code> (solo se muestra cuando la ventana está completa).</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Pocos bins:</strong> la imagen es demasiado general — puede ocultar una distribución con dos picos.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Demasiados bins:</strong> el gráfico se vuelve ruidoso, como picos aislados.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-chart-line"></i></div>
-                        <h3>Por qué importa</h3>
-                        <p>El resampling reduce ruido diario y el rolling suaviza aún más la tendencia — ambas son técnicas base para leer series temporales de negocio o financieras sin perderse en la variación día a día.</p>
+                        <div class="icon-box"><i class="fa-solid fa-circle-question"></i></div>
+                        <h3>Las 4 preguntas del análisis univariado</h3>
+                        <p>¿Cuál es el valor más común? ¿Están dispersos o concentrados? ¿Hay outliers? ¿Es simétrica o tiene cola hacia un lado?</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">09 / 48</div>
+            <div class="slide-index">08 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 10: Ejercicio aplicado GOOGL.csv -->
-    <div class="slide-container" id="slide10">
-        <h2 class="slide-title">Ejercicio Aplicado: Acción GOOGL</h2>
+    <!-- SLIDE 9: KDE -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">KDE: la Curva Suave (Kernel Density Estimation)</h2>
         <div class="content-area">
-            <span class="moment-badge tip"><i class="fa-solid fa-vial"></i> GOOGL.csv — Date, Open, High, Low, Close, Adj Close, Volume</span>
-            <div class="bullet-list">
-                <ul>
-                    <li><i class="fa-solid fa-list-ol"></i> Trabajamos con dos series: <strong>Close</strong> (precio de cierre) y <strong>Volume</strong> (volumen negociado).</li>
-                    <li><i class="fa-solid fa-terminal"></i> Salida esperada por consola, en este orden: <code>Resampled Weekly A/B</code>, <code>Rolling 3-Week A/B</code>, <code>Eventos</code>.</li>
-                    <li><i class="fa-solid fa-chart-area"></i> Gráficos: serie diaria con eventos anotados, semanal + rolling superpuestos, y barras de volumen semanal.</li>
-                </ul>
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-water"></i> Colinas en vez de bloques</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-mound"></i> En lugar de bloques rectangulares, el KDE coloca pequeñas "colinas" suaves sobre cada observación y las suma.</li>
+                            <li><i class="fa-solid fa-eye"></i> El resultado es una línea continua que muestra la forma subyacente, sin depender de dónde cortamos los bins.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-bars-staggered"></i></div>
+                        <h3>¿Por qué complementa al histograma?</h3>
+                        <p>Las barras del histograma son bruscas; el KDE suaviza la estimación de la función de densidad de probabilidad para ver la "forma" real de la población.</p>
+                    </div>
+                </div>
             </div>
-            <p class="note-text">Dataset de práctica: kaggle.com/datasets/varpit94/google-stock-data</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">10 / 48</div>
+            <div class="slide-index">09 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Leyendo la forma -->
+    <div class="slide-container" id="slide10">
+        <h2 class="slide-title">Leyendo la Forma: Simetría, Sesgo y Multimodalidad</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Patrón</th><th>Qué significa</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Simetría</strong></td><td>La izquierda es espejo de la derecha (Campana de Gauss).</td></tr>
+                        <tr><td><strong>Sesgo a la derecha</strong></td><td>Cola larga hacia valores altos (ej. salarios, precios de casas).</td></tr>
+                        <tr><td><strong>Sesgo a la izquierda</strong></td><td>Cola larga hacia valores bajos.</td></tr>
+                        <tr><td><strong>Multimodalidad</strong></td><td>Dos o más "jorobas" → subgrupos mezclados (ej. alturas de hombres y mujeres juntas).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Errores comunes: confundir con un gráfico de barras (el histograma es para numéricas continuas, sin huecos entre barras) e ignorar la escala del eje X — un outlier lejano puede comprimir todo el resto en una sola barra.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 37</div>
         </div>
     </div>
 
@@ -762,325 +757,145 @@ fig.show()
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 03</span>
-            <h2>Preparación de Datos con Pandas y NumPy</h2>
-            <p style="font-size: 20px;">Reproducibilidad: que el notebook produzca siempre el mismo resultado, para cualquiera.</p>
+            <h2>Seaborn: Distribución y Comparación entre Grupos</h2>
+            <p style="font-size: 20px;">Boxplots, violinplots y heatmaps — de ver una variable a comparar grupos enteros.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">11 / 48</div>
+            <div class="slide-index">11 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 12: Qué es reproducibilidad -->
+    <!-- SLIDE 12: Por qué Seaborn -->
     <div class="slide-container" id="slide12">
-        <h2 class="slide-title">¿Qué Significa que un Notebook sea Reproducible?</h2>
+        <h2 class="slide-title">¿Por Qué Seaborn? Una Capa Estadística sobre Matplotlib</h2>
         <div class="content-area">
             <div class="tiled-content">
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-arrows-rotate"></i></div>
-                    <h3>Siempre el mismo resultado</h3>
-                    <p>Hoy, mañana, en otra computadora o en Colab: los valores deben coincidir. Se logra fijando semillas y sin depender del orden de ejecución manual.</p>
+                    <div class="icon-box"><i class="fa-solid fa-table"></i></div>
+                    <h3>Integración con Pandas</h3>
+                    <p>Le pasás un DataFrame y le decís qué columna va en X y cuál en Y.</p>
                 </div>
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-arrow-down-up-across-line"></i></div>
-                    <h3>Ejecuta de arriba a abajo</h3>
-                    <p>Debe funcionar con <code>Runtime → Run all</code>: nada de celdas ejecutadas "a mano" ni variables sueltas fuera del flujo.</p>
+                    <div class="icon-box"><i class="fa-solid fa-square-root-variable"></i></div>
+                    <h3>Orientación estadística</h3>
+                    <p>Calcula automáticamente promedios, medianas, intervalos de confianza y densidades mientras dibuja.</p>
                 </div>
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-user-slash"></i></div>
-                    <h3>No depende del usuario</h3>
-                    <p>Sin <code>input()</code>, sin leer de <code>stdin</code>: los datos de ejemplo se construyen directamente en el código.</p>
+                    <div class="icon-box"><i class="fa-solid fa-palette"></i></div>
+                    <h3>Estética por defecto</h3>
+                    <p><code>sns.set_theme()</code> transforma un reporte técnico de los 90 en una visualización ejecutiva moderna.</p>
                 </div>
             </div>
-            <p class="note-text">Escribir código que funcione no es suficiente — un análisis profesional debe ser reproducible por cualquier persona, desde cero.</p>
+            <p class="note-text">Dato clave: Seaborn está construido sobre Matplotlib — podés dibujar con Seaborn y afinar detalles finales con <code>plt.title()</code> o <code>plt.xlabel()</code>.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">12 / 48</div>
+            <div class="slide-index">12 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 13: Semillas y función pura -->
+    <!-- SLIDE 13: Boxplot -->
     <div class="slide-container" id="slide13">
-        <h2 class="slide-title">Semillas Aleatorias y Funciones Puras</h2>
+        <h2 class="slide-title">Boxplot: los 5 Números Clave</h2>
         <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <div class="code-block">
-np.random.seed(42)
-random.seed(42)
-
-<span style="color: #6a737d;"># Problema base: sumar múltiplos</span>
-<span style="color: #6a737d;"># de 3 o de 5 en una colección</span>
-                    </div>
-                </div>
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-dice"></i> ¿Por qué una semilla fija?</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-code-branch"></i> <code>np.random</code>, <code>random</code> y la generación de fechas/precios producen resultados distintos en cada corrida si no se controlan.</li>
-                            <li><i class="fa-solid fa-lock"></i> Una <strong>función pura</strong> recibe datos y produce un resultado, sin modificar variables externas ni depender del entorno.</li>
-                        </ul>
-                    </div>
-                </div>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Elemento</th><th>Qué representa</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Mínimo</strong></td><td>El valor más bajo (excluyendo atípicos).</td></tr>
+                        <tr><td><strong>Q1 (25%)</strong></td><td>Por debajo está el 25% de los datos.</td></tr>
+                        <tr><td><strong>Mediana (Q2)</strong></td><td>El centro exacto — divide la muestra en dos mitades.</td></tr>
+                        <tr><td><strong>Q3 (75%)</strong></td><td>Por debajo está el 75% de los datos.</td></tr>
+                        <tr><td><strong>Máximo</strong></td><td>El valor más alto (excluyendo atípicos).</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <p class="note-text">La función recorre la colección una sola vez (eficiencia), convierte a enteros, verifica la condición y acumula — escalable incluso a 100.000 elementos.</p>
+            <p class="note-text">La caja es el IQR (50% central). Mediana descentrada = distribución sesgada. Los puntos fuera de los bigotes son outliers — cuidado: no siempre son un error de carga, pueden ser tu cliente más valioso.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">13 / 48</div>
+            <div class="slide-index">13 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 14: Estructura del ejercicio -->
+    <!-- SLIDE 14: Violinplot -->
     <div class="slide-container" id="slide14">
-        <h2 class="slide-title">Estructura del Ejercicio: Dataset, Tests y main()</h2>
+        <h2 class="slide-title">Violinplot: la Silueta Completa de la Distribución</h2>
         <div class="content-area">
-            <div class="bullet-list">
-                <ul>
-                    <li><i class="fa-solid fa-database"></i> <strong>Dataset simulado de e-commerce:</strong> fecha de compra, segmento de cliente, región, categoría, precio, cantidad, descuento y ventas netas — construido desde cero, sin archivos externos, para que el notebook sea autocontenido.</li>
-                    <li><i class="fa-solid fa-vial-circle-check"></i> <strong>Tests locales:</strong> validan la función con lista vacía, sin múltiplos, con valores conocidos y con el caso clásico 1..10 — sin librerías externas de testing.</li>
-                    <li><i class="fa-solid fa-diagram-project"></i> <strong><code>main()</code> como orquestador:</strong> imprime versiones, genera el dataset, explora, resuelve el problema, aplica el algoritmo, visualiza y corre los tests — todo en un único flujo ordenado.</li>
-                </ul>
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge live"><i class="fa-solid fa-chart-area"></i> Boxplot + KDE</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrows-left-right"></i> El <strong>ancho del violín</strong> representa la frecuencia — más ancho, más datos concentrados.</li>
+                            <li><i class="fa-solid fa-layer-group"></i> Excelente para detectar <strong>subgrupos (multimodalidad)</strong> que un boxplot con la misma mediana podría ocultar.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="table-layout">
+                        <table>
+                            <thead>
+                                <tr><th>Usá...</th><th>Cuando...</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>Boxplot</strong></td><td>Audiencia no técnica, o solo importa variabilidad y extremos.</td></tr>
+                                <tr><td><strong>Violinplot</strong></td><td>Necesitás la forma precisa y hay suficientes registros.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <p class="note-text">El bloque final <code>if __name__ == "__main__": main()</code> garantiza que el código corra en notebook o script sin ejecutarse solo al importar funciones.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">14 / 48</div>
+            <div class="slide-index">14 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 15: División Módulo 04 -->
+    <!-- SLIDE 15: Heatmap y estrategia de elección -->
     <div class="slide-container" id="slide15">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 04</span>
-            <h2>Análisis Multivariado y Visualizaciones Multidimensionales</h2>
-            <p style="font-size: 20px;">Pairplots, scatter matrix y heatmaps de correlación para entender muchas variables a la vez.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">15 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 16: Pairplots y Scatter Matrix -->
-    <div class="slide-container" id="slide16">
-        <h2 class="slide-title">Pairplots y Scatter Matrix</h2>
+        <h2 class="slide-title">Heatmap de Correlación y Estrategia de Elección</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge">Todas las combinaciones de a pares</span>
+                    <span class="moment-badge"><i class="fa-solid fa-fire"></i> Matriz de correlación como cuadrícula de colores</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-table-cells"></i> <strong>Pairplot:</strong> matriz de gráficos con un scatter plot por cada par de variables numéricas, y un histograma o densidad en la diagonal.</li>
-                            <li><i class="fa-solid fa-braille"></i> <strong>Scatter Matrix:</strong> equivalente, para observar correlaciones y distribuciones conjuntas visualmente.</li>
+                            <li><i class="fa-solid fa-arrow-up"></i> <strong>Cerca de 1:</strong> se mueven juntas (metros² y precio).</li>
+                            <li><i class="fa-solid fa-arrow-down"></i> <strong>Cerca de -1:</strong> direcciones opuestas (peso del auto y eficiencia).</li>
+                            <li><i class="fa-solid fa-minus"></i> <strong>Cerca de 0:</strong> sin relación clara.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
-                    <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-building-columns"></i></div>
-                        <h3>Ejemplo en la industria</h3>
-                        <p>En análisis financiero, un pairplot puede mostrar cómo se relacionan indicadores económicos como PIB, inflación y tasa de interés, para detectar patrones o anomalías.</p>
+                    <div class="table-layout">
+                        <table>
+                            <thead>
+                                <tr><th>Pregunta</th><th>Gráfico</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>¿Outliers o dispersión en un grupo?</td><td>Boxplot</td></tr>
+                                <tr><td>¿Forma y densidad de la distribución?</td><td>Violinplot</td></tr>
+                                <tr><td>¿Qué variables están relacionadas?</td><td>Heatmap</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+            <p class="note-text">Errores comunes: saturar el heatmap con 50 variables (filtrá primero), violinplots sobre grupos de 5 datos (engañoso), y no ordenar las categorías del boxplot de mayor a menor mediana.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">16 / 48</div>
+            <div class="slide-index">15 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 17: Heatmaps de correlación -->
-    <div class="slide-container" id="slide17">
-        <h2 class="slide-title">Heatmaps de Correlación</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge live"><i class="fa-solid fa-fire"></i> Coeficiente de Pearson: -1 a 1</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-square"></i> Colores <strong>cálidos (rojos)</strong>: correlaciones positivas fuertes.</li>
-                            <li><i class="fa-solid fa-square"></i> Colores <strong>fríos (azules)</strong>: correlaciones negativas.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
-                        <h3>Uso en ciencia de datos</h3>
-                        <p>Un heatmap ayuda a seleccionar variables relevantes para modelos predictivos, evitando <strong>multicolinealidad</strong> (variables tan correlacionadas entre sí que aportan la misma información).</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">17 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 18: Reducir complejidad visual -->
-    <div class="slide-container" id="slide18">
-        <h2 class="slide-title">Técnicas para Reducir la Complejidad Visual</h2>
-        <div class="content-area">
-            <div class="bullet-list">
-                <ul>
-                    <li><i class="fa-solid fa-filter"></i> <strong>Selección de variables clave:</strong> elegir solo las más relevantes para el análisis.</li>
-                    <li><i class="fa-solid fa-object-ungroup"></i> <strong>Agrupación o segmentación:</strong> dividir el dataset en subgrupos para análisis más focalizados.</li>
-                    <li><i class="fa-solid fa-palette"></i> <strong>Paletas y estilos consistentes:</strong> facilitan la distinción visual sin sobrecargar.</li>
-                    <li><i class="fa-solid fa-hand-pointer"></i> <strong>Interactividad (vista previa):</strong> preparar visualizaciones interactivas ayuda a explorar dimensiones sin saturar la vista — lo vemos en el módulo de Plotly.</li>
-                </ul>
-            </div>
-            <p class="note-text">Ejemplo real: un científico de datos en salud pública puede usar un pairplot para explorar cómo edad, presión arterial, colesterol y actividad física se relacionan entre sí y con la incidencia de enfermedades.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">18 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 19: División Módulo 05 -->
-    <div class="slide-container" id="slide19">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 05</span>
-            <h2>Estilos, Paletas y Accesibilidad Cromática</h2>
-            <p style="font-size: 20px;">rcParams, tipos de paletas y por qué el color también es una decisión ética.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">19 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 20: rcParams y estilos -->
-    <div class="slide-container" id="slide20">
-        <h2 class="slide-title">Estilos y Configuración con rcParams</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <div class="code-block">
-import matplotlib.pyplot as plt
-plt.style.use('seaborn-darkgrid')
-
-<span style="color: #6a737d;"># Seaborn: 'darkgrid', 'whitegrid', 'ticks'...</span>
-import seaborn as sns
-sns.set_theme(style='whitegrid')
-                    </div>
-                </div>
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-sliders"></i> Un diccionario global de estilo</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-gear"></i> <code>rcParams</code> controla parámetros globales: colores, tamaños de fuente, estilos de línea y más.</li>
-                            <li><i class="fa-solid fa-layer-group"></i> Seaborn está construido sobre Matplotlib y ofrece estilos predefinidos para gráficos coherentes.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">20 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 21: Paletas de color -->
-    <div class="slide-container" id="slide21">
-        <h2 class="slide-title">Tres Familias de Paletas de Color</h2>
-        <div class="content-area">
-            <div class="tiled-content">
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-shapes"></i></div>
-                    <h3>Cualitativas</h3>
-                    <p>Para variables categóricas sin orden inherente. Ej: tipos de frutas, regiones, categorías de producto.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-temperature-three-quarters"></i></div>
-                    <h3>Secuenciales</h3>
-                    <p>Para variables numéricas ordenadas, donde el color indica magnitud. Ej: temperatura, densidad de población.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-left-right"></i></div>
-                    <h3>Divergentes</h3>
-                    <p>Para variables con un punto medio crítico, mostrando desviaciones en dos direcciones. Ej: diferencias respecto a un valor base.</p>
-                </div>
-            </div>
-            <p class="note-text">Seaborn facilita la selección con <code>color_palette()</code> y <code>cubehelix_palette()</code>, con opciones accesibles y profesionales ya definidas.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">21 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 22: Accesibilidad cromática -->
-    <div class="slide-container" id="slide22">
-        <h2 class="slide-title">Accesibilidad Cromática: Daltonismo y Escala de Grises</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge bug"><i class="fa-solid fa-eye-low-vision"></i> ~8% de hombres, ~0.5% de mujeres</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-ban"></i> El daltonismo afecta la lectura de combinaciones problemáticas como <strong>rojo-verde</strong> — hay que evitarlas.</li>
-                            <li><i class="fa-solid fa-print"></i> Al imprimir en escala de grises, los colores deben seguir siendo distinguibles por su tono, no solo por su matiz.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block">
-import seaborn as sns
-sns.color_palette('colorblind')
-                    </div>
-                </div>
-            </div>
-            <p class="note-text">Siempre conviene verificar los gráficos con simuladores de daltonismo y probar la impresión en escala de grises antes de entregar un reporte.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">22 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 23: Ciclo de colores -->
-    <div class="slide-container" id="slide23">
-        <h2 class="slide-title">Ciclo de Colores y Consideraciones Prácticas</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <div class="code-block">
-from cycler import cycler
-plt.rcParams['axes.prop_cycle'] = cycler(
-    color=['#1f77b4', '#ff7f0e', '#2ca02c'])
-                    </div>
-                </div>
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-repeat"></i> Coherencia entre series</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-shuffle"></i> El ciclo de colores determina cómo se asignan colores a múltiples elementos de un mismo gráfico.</li>
-                            <li><i class="fa-solid fa-check"></i> Personalizarlo evita confusiones en gráficos con muchas series o categorías.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <p class="note-text">La correcta elección de estilos y paletas impacta directamente en la efectividad de la comunicación visual frente a los stakeholders.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">23 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 24: Break de Coder -->
-    <div class="slide-container break-slide" id="slide24">
+    <!-- SLIDE 16: Break de Coder -->
+    <div class="slide-container break-slide" id="slide16">
         <div></div>
         <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
             <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
@@ -1089,7 +904,217 @@ plt.rcParams['axes.prop_cycle'] = cycler(
         </div>
         <div class="slide-footer" style="border-top-color: rgba(248, 242, 232, 0.15);">
             <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span>HOUSE</span></div>
-            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">24 / 48</div>
+            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">16 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: División Módulo 04 -->
+    <div class="slide-container" id="slide17">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 04</span>
+            <h2>Visualización Avanzada: del Dato a la Narrativa</h2>
+            <p style="font-size: 20px;">Por qué existe la visualización, cómo se cuenta una historia con datos y qué hace bueno a un dashboard.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">17 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: El porqué de la visualización -->
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title">El Porqué: la Visualización como Herramienta para Pensar</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-map"></i> El mapa vs. la lista de direcciones</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-list"></i> Una lista de direcciones es precisa pero sin contexto — como una tabla de datos.</li>
+                            <li><i class="fa-solid fa-compass"></i> Un mapa te muestra qué hay alrededor y cuán lejos estás — como una buena visualización.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
+                        <h3>Función cognitiva</h3>
+                        <p>Leer una tabla es secuencial (fila por fila). Un gráfico permite que la percepción detecte patrones en milisegundos: en 1.000 transacciones bancarias, un punto disparado del resto se ve al instante.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">18 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Pilares del análisis visual + narrativa -->
+    <div class="slide-container" id="slide19">
+        <h2 class="slide-title">Los Pilares del Análisis Visual</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-chart-column"></i></div>
+                    <h3>Distribución</h3>
+                    <p>¿Cómo se reparten mis datos? Densidad y outliers.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-braille"></i></div>
+                    <h3>Relación</h3>
+                    <p>¿Depende X de Y? Nos permite predecir comportamientos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <h3>Evolución temporal</h3>
+                    <p>No solo el valor de hoy: ¿crecemos, decrecemos o estancamos?</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-chart-pie"></i></div>
+                    <h3>Composición</h3>
+                    <p>¿Qué porcentaje viene de cada parte del total?</p>
+                </div>
+            </div>
+            <p class="note-text">Data Storytelling: como todo relato, un análisis visual tiene <strong>Inicio</strong> (contexto: "las ventas fluctuaron"), <strong>Nudo</strong> (el problema: "cae fuerte en la región norte") y <strong>Desenlace</strong> (la acción: "investigar al nuevo competidor").</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: De gráficos a dashboards -->
+    <div class="slide-container" id="slide20">
+        <h2 class="slide-title">De Gráficos Sueltos a Dashboards</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-gauge-high"></i> El tablero de un auto</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-gauge"></i> Velocímetro, combustible, temperatura: indicadores críticos combinados para que el conductor actúe rápido.</li>
+                            <li><i class="fa-solid fa-list-ol"></i> Principios: jerarquía visual (lo importante arriba-izquierda), coherencia de color, e interactividad (filtrar, hacer zoom).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="table-layout">
+                        <table>
+                            <thead>
+                                <tr><th>Atributo pre-atentivo</th><th>Ideal para</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>Longitud</strong></td><td>Comparar cantidades (barras)</td></tr>
+                                <tr><td><strong>Posición</strong></td><td>Ver relaciones (dispersión)</td></tr>
+                                <tr><td><strong>Color/Intensidad</strong></td><td>Resaltar alertas o categorías</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <p class="note-text">Regla de oro: un dashboard efectivo se limita a un máximo de 5 visualizaciones principales — más que eso genera ruido visual y confunde en vez de aclarar.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">20 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: Semáforo de color y casos reales -->
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title">El Color como Información: Casos del Mundo Real</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-traffic-light"></i> El "semáforo cognitivo"</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-square"></i> <strong>Secuenciales:</strong> variables numéricas (azul claro→oscuro para ingresos bajos→altos).</li>
+                            <li><i class="fa-solid fa-square"></i> <strong>Divergentes:</strong> punto medio crítico (rojo/blanco/azul para temperatura bajo/en/sobre cero).</li>
+                            <li><i class="fa-solid fa-square"></i> <strong>Categóricos:</strong> grupos sin orden — pero respetá las convenciones (rojo=pérdida, no al revés).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-cart-shopping"></i></div>
+                        <h3>Casos reales</h3>
+                        <p><strong>Retail:</strong> heatmaps de recorrido de clientes (+15% ventas moviendo productos). <strong>Salud pública:</strong> áreas apiladas para capacidad hospitalaria. <strong>Amazon:</strong> caída súbita en "añadir al carrito" detecta bugs en segundos. <strong>Finanzas personales:</strong> donuts de gastos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">21 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Errores y trampas visuales -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">Errores Comunes y "Trampas" Visuales</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Trampa</th><th>Por qué engaña</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Eje Y truncado</strong></td><td>Un crecimiento del 1% puede parecer del 50%. Mantené el cero como base.</td></tr>
+                        <tr><td><strong>Pie chart con muchas categorías</strong></td><td>El ojo humano compara mal los ángulos. Usá barras ordenadas.</td></tr>
+                        <tr><td><strong>Exceso de "Data-Ink"</strong></td><td>Bordes, sombras 3D y grillas gruesas son ruido (Edward Tufte). Si no ayuda a leer el valor, borralo.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Pregunta primero, gráfico después. Menos es más. El contexto (títulos, ejes, leyendas) es lo que convierte un dibujo en una herramienta de ciencia de datos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: División Módulo 05 -->
+    <div class="slide-container" id="slide23">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 05</span>
+            <h2>Arquitectura Visual y la Regla de Lectura en "Z"</h2>
+            <p style="font-size: 20px;">El dashboard como interfaz de usuario: insights críticos en los primeros 3 segundos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: El patrón de lectura en Z -->
+    <div class="slide-container" id="slide24">
+        <h2 class="slide-title">El Patrón de Lectura en "Z": Guiando el Ojo</h2>
+        <div class="content-area">
+            <span class="moment-badge tip"><i class="fa-solid fa-arrows-turn-right"></i> Occidente lee de izquierda a derecha, arriba hacia abajo</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Posición</th><th>Qué colocar ahí</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>1. Arriba-Izquierda</strong> (Ancla visual)</td><td>KPIs principales: Ventas Totales, Margen, ROI.</td></tr>
+                        <tr><td><strong>2. Arriba-Derecha</strong> (Contexto y control)</td><td>Slicers horizontales, línea de tiempo (Timeline).</td></tr>
+                        <tr><td><strong>3. Abajo-Izquierda</strong> (Profundidad analítica)</td><td>Tendencias en el tiempo, comparativas clave.</td></tr>
+                        <tr><td><strong>4. Abajo-Derecha</strong> (Punto de salida)</td><td>Tablas de detalle, top 10, formato condicional.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Recorrido recomendado: KPIs → Controles/Slicers → Gráficos de Tendencia → Tablas de Detalle. Oculta las líneas de cuadrícula y usá el tamaño de las celdas como sistema de grillas.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">24 / 37</div>
         </div>
     </div>
 
@@ -1099,221 +1124,183 @@ plt.rcParams['axes.prop_cycle'] = cycler(
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 06</span>
-            <h2>Matplotlib: Primeros Pasos y Estructura de Figuras</h2>
-            <p style="font-size: 20px;">Figuras, ejes, plot, scatter, leyendas, guardado de archivos y subplots.</p>
+            <h2>Principios de UI/UX y Jerarquía Visual en Dashboards</h2>
+            <p style="font-size: 20px;">De arquitecto de datos a diseñador de información.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">25 / 48</div>
+            <div class="slide-index">25 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 26: Conceptos clave de Matplotlib -->
+    <!-- SLIDE 26: Qué es la jerarquía visual -->
     <div class="slide-container" id="slide26">
-        <h2 class="slide-title">Conceptos Clave de Matplotlib</h2>
-        <div class="content-area">
-            <div class="tiled-content">
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-image"></i></div>
-                    <h3>Figure y Axes</h3>
-                    <p><strong>Figura:</strong> el contenedor principal. <strong>Ejes (axes):</strong> el área donde efectivamente se dibuja el gráfico.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-chart-line"></i></div>
-                    <h3>plot y scatter</h3>
-                    <p><code>plot</code> traza líneas; <code>scatter</code> traza puntos de dispersión. Ambos aceptan color, etiqueta y estilo.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-floppy-disk"></i></div>
-                    <h3>Guardar y componer</h3>
-                    <p><code>savefig</code> exporta con DPI y formato. <strong>Subplots</strong> y <strong>GridSpec</strong> organizan varios gráficos en una figura.</p>
-                </div>
-            </div>
-            <p class="note-text">Matplotlib es la biblioteca base de la visualización en Python: desde una línea simple hasta composiciones complejas con múltiples paneles.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">26 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 27: Ejemplo básico -->
-    <div class="slide-container" id="slide27">
-        <h2 class="slide-title">Ejemplo Básico: Figura, Línea, Dispersión y Leyenda</h2>
-        <div class="content-area">
-            <div class="code-block" style="font-size: 12px;">
-fig, ax = plt.subplots()
-
-x = [1, 2, 3, 4, 5]
-y = [2, 3, 5, 7, 11]
-
-ax.plot(x, y, label='Serie 1', color='blue')
-ax.scatter(x, y, color='red', label='Puntos')
-
-ax.set_xlabel('Eje X'); ax.set_ylabel('Eje Y')
-ax.set_title('Ejemplo básico de Matplotlib')
-ax.legend()
-
-fig.savefig('grafico.png', dpi=300, format='png')
-plt.show()
-            </div>
-            <p class="note-text">Un mismo eje (<code>ax</code>) puede combinar <code>plot</code> y <code>scatter</code> — cada llamada agrega una capa nueva sobre el mismo gráfico.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">27 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 28: Subplots -->
-    <div class="slide-container" id="slide28">
-        <h2 class="slide-title">Subplots: Comparar Varias Vistas a la Vez</h2>
+        <h2 class="slide-title">¿Qué es la Jerarquía Visual?</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <div class="code-block" style="font-size: 11px;">
-fig, axs = plt.subplots(1, 2, figsize=(18, 8))
-
-axs[0].plot(x, y, color='blue')
-axs[0].set_title('Gráfico de línea')
-
-axs[1].scatter(x, y, color='green')
-axs[1].set_title('Gráfico de dispersión')
-
-plt.tight_layout()
-plt.show()
-                    </div>
-                </div>
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-table-columns"></i> Una grilla de ejes</span>
+                    <span class="moment-badge"><i class="fa-solid fa-plane"></i> La cabina de un avión</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-list-ol"></i> <code>plt.subplots(1, 2, ...)</code> devuelve un arreglo de ejes (<code>axs[0]</code>, <code>axs[1]</code>), cada uno independiente.</li>
-                            <li><i class="fa-solid fa-arrows-left-right-to-line"></i> <code>tight_layout()</code> ajusta los espacios para que no se superpongan etiquetas.</li>
+                            <li><i class="fa-solid fa-eye"></i> Es el orden en que el ojo humano percibe lo que ve: "mirá esto primero, esto después, esto solo si necesitás el detalle".</li>
+                            <li><i class="fa-solid fa-brain"></i> El cerebro es perezoso por naturaleza: busca patrones y atajos.</li>
                         </ul>
                     </div>
                 </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-user-tie"></i></div>
+                        <h3>Sin jerarquía = ruido visual</h3>
+                        <p>Si un ejecutivo tiene 5 minutos antes de una junta y todos los elementos "pesan" igual, se sentirá abrumado y podría decidir con una interpretación apresurada.</p>
+                    </div>
+                </div>
             </div>
-            <p class="note-text">GridSpec permite un control más fino de la disposición — lo vemos en detalle en el Módulo 10, aplicado a un dashboard completo.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">28 / 48</div>
+            <div class="slide-index">26 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 29: División Módulo 07 -->
+    <!-- SLIDE 27: Pilares del diseño visual -->
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title">Los Pilares del Diseño Visual en Reporting</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-arrows-turn-right"></i></div>
+                    <h3>Patrón F/Z</h3>
+                    <p>Zona superior izq. = KPIs críticos. Zona media = tendencias. Zona inferior/derecha = detalle.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-text-height"></i></div>
+                    <h3>Tamaño y peso</h3>
+                    <p>Lo más grande se percibe como más importante. Fuentes Sans Serif (Segoe UI, Aptos) para números.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-palette"></i></div>
+                    <h3>Color con propósito</h3>
+                    <p>Semánticos: rojo=alerta, verde=cumplimiento, ámbar=atención. Grises para ejes y etiquetas.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-expand"></i></div>
+                    <h3>Espacio en blanco</h3>
+                    <p>No es espacio desperdiciado: agrupa conceptos relacionados y separa secciones.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">27 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 28: Arquitectura de la información -->
+    <div class="slide-container" id="slide28">
+        <h2 class="slide-title">Arquitectura de la Información: de lo General a lo Particular</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-comments"></i> El reporte como una conversación</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-1"></i> <strong>El Titular (KPIs):</strong> "¿Cómo vamos?"</li>
+                            <li><i class="fa-solid fa-2"></i> <strong>El Contexto (Tendencias):</strong> "¿Cómo llegamos hasta acá?"</li>
+                            <li><i class="fa-solid fa-3"></i> <strong>El Diagnóstico (Desgloses):</strong> "¿Quién o qué causó esto?"</li>
+                            <li><i class="fa-solid fa-4"></i> <strong>El Detalle (Tablas):</strong> "Mostrame los datos exactos."</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-briefcase"></i></div>
+                        <h3>Ejemplo real: dashboard de un Controller</h3>
+                        <p>Nivel 1: tarjetas de EBITDA, Ingresos, Costos y % Desviación. Nivel 2: gráfico de cascada (Waterfall). Nivel 3: top 5 centros de costo excedidos. Nivel 4: tabla dinámica filtrable con facturas específicas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">28 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 29: Errores comunes y anti-patrones -->
     <div class="slide-container" id="slide29">
+        <h2 class="slide-title">Errores Comunes y "Anti-Patrones" del Reporting</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Anti-patrón</th><th>Solución</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Efecto Árbol de Navidad</strong></td><td>Demasiados colores vibrantes compitiendo. Usá paleta monocromática y reservá el color brillante para excepciones.</td></tr>
+                        <tr><td><strong>Chartjunk</strong> (Tufte)</td><td>Bordes gruesos, sombras 3D, líneas oscuras. Maximizá el Data-to-Ink Ratio: si podés quitarlo sin perder el dato, quitalo.</td></tr>
+                        <tr><td><strong>Dato Huérfano</strong></td><td>"$1.000.000" sin contexto no dice nada. Acompañá cada KPI con un comparativo (vs. Target, vs. Año Anterior) o un Sparkline.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Accesibilidad: ~8% de los hombres tiene alguna deficiencia en la percepción del color. No dependas solo del semáforo rojo/verde — agregá íconos (flechas) o variá el contraste.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">29 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: División Módulo 07 -->
+    <div class="slide-container" id="slide30">
         <div></div>
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 07</span>
-            <h2>Seaborn: Visualizaciones Relacionales y Categóricas</h2>
-            <p style="font-size: 20px;">Scatterplot, lineplot, boxplot y FacetGrid, sobre un dataset simulado tipo "propinas".</p>
+            <h2>Práctica: Auditoría UX de Dashboards</h2>
+            <p style="font-size: 20px;">De analista a consultor: detectar y rediseñar fallos de jerarquía visual y lectura en Z.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">29 / 48</div>
+            <div class="slide-index">30 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 30: Reproducibilidad y dataset simulado -->
-    <div class="slide-container" id="slide30">
-        <h2 class="slide-title">Reproducibilidad y Dataset Simulado tipo "Tips"</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-seedling"></i> _SEED + sns.set_theme</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-lock"></i> Semilla fija: cualquier generación aleatoria es determinista entre corridas.</li>
-                            <li><i class="fa-solid fa-palette"></i> <code>sns.set_theme</code> define un estilo global coherente para todas las celdas.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="table-layout">
-                        <table>
-                            <thead>
-                                <tr><th>Variable</th><th>Cómo se simula</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td><code>total_bill</code></td><td><code>np.random.gamma</code> (positiva, sesgada)</td></tr>
-                                <tr><td><code>tip</code></td><td><code>np.random.normal</code>, correlacionada con total_bill</td></tr>
-                                <tr><td><code>day</code>, <code>time</code></td><td><code>np.random.choice</code></td></tr>
-                                <tr><td><code>size</code></td><td><code>np.random.poisson</code></td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">30 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 31: Gráficos con Seaborn -->
+    <!-- SLIDE 31: Ejercicio de auditoría y rediseño -->
     <div class="slide-container" id="slide31">
-        <h2 class="slide-title">Cuatro Gráficos con Seaborn</h2>
+        <h2 class="slide-title">Ejercicio: Auditoría y Rediseño de un Dashboard</h2>
         <div class="content-area">
-            <div class="tiled-content">
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-braille"></i></div>
-                    <h3>Scatterplot</h3>
-                    <p>Relación entre <code>total_bill</code> y <code>tip</code>, coloreado por categoría (Lunch vs Dinner).</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-chart-line"></i></div>
-                    <h3>Lineplot</h3>
-                    <p>Media de <code>tip</code> por bins de <code>total_bill</code>, para suavizar la dispersión y ver la tendencia.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-square"></i></div>
-                    <h3>Boxplot</h3>
-                    <p>Distribución de <code>tip</code> por categoría: medianas, cuartiles y outliers entre Lunch y Dinner.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-table-cells-large"></i></div>
-                    <h3>FacetGrid</h3>
-                    <p>Rejilla de scatterplots, uno por día de la semana (<code>group</code>), para comparar subgrupos sin mezclarlos.</p>
-                </div>
+            <span class="moment-badge live"><i class="fa-solid fa-magnifying-glass"></i> Práctica no entregable — sin código, análisis crítico</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-chart-pie"></i> El escenario: un gráfico de pastel con 15 categorías en colores similares, títulos en Comic Sans tamaño 24 azul brillante, y un KPI de "Ventas" sin comparativo.</li>
+                    <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Identificación:</strong> al menos 4 fallos de jerarquía visual o UX.</li>
+                    <li><i class="fa-solid fa-table-columns"></i> <strong>Propuesta de layout:</strong> reorganizar con el patrón de lectura en "F" — ¿qué va arriba-izquierda? ¿qué se mueve al final?</li>
+                    <li><i class="fa-solid fa-swatchbook"></i> <strong>Guía de estilo:</strong> máximo 3 colores principales + grises, con su función analítica.</li>
+                </ul>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">31 / 48</div>
+            <div class="slide-index">31 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 32: Buenas prácticas y flujo -->
+    <!-- SLIDE 32: Caso Dashboard Comercial Q3 -->
     <div class="slide-container" id="slide32">
-        <h2 class="slide-title">Buenas Prácticas de Código y Flujo Recomendado</h2>
+        <h2 class="slide-title">Caso de Estudio: "Dashboard Comercial - Q3"</h2>
         <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-code"></i> Modularidad</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-cube"></i> Cada paso (simular, transformar, cada gráfico) vive en su propia función — testable y reutilizable.</li>
-                            <li><i class="fa-solid fa-file-export"></i> Exportar a PNG con <code>bbox_inches="tight"</code> evita que se recorten etiquetas.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="font-size: 12px;">
-simulate_tips_dataset()
-transform_dataset()
-plot_scatter(); plot_line()
-plot_box(); plot_facetgrid()
-                    </div>
-                </div>
+            <span class="moment-badge bug"><i class="fa-solid fa-comment-dots"></i> "La información está ahí, pero tardamos 10 minutos en entenderla"</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-user-tie"></i> Sos el nuevo analista de datos de una empresa de retail; el gerente de ventas te muestra el dashboard actual en Excel.</li>
+                    <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Diagnóstico:</strong> al menos 3 violaciones graves a los principios de UI/UX y al patrón de lectura en "Z".</li>
+                    <li><i class="fa-solid fa-arrows-turn-right"></i> <strong>Reestructuración:</strong> redistribuir 4 elementos (tabla dinámica, gráfico circular, slicers, tarjetas de KPI) usando correctamente el modelo en "Z".</li>
+                </ul>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">32 / 48</div>
+            <div class="slide-index">32 / 37</div>
         </div>
     </div>
 
@@ -1322,368 +1309,93 @@ plot_box(); plot_facetgrid()
         <div></div>
         <div class="transition-layout">
             <hr>
-            <span class="moment-badge">Módulo 08</span>
-            <h2>Distribuciones: Histograma, KDE, Boxplot y Violin</h2>
-            <p style="font-size: 20px;">Cómo leer la forma de una distribución y elegir el gráfico correcto según sus estadísticas.</p>
+            <span class="moment-badge">Módulo 08 • Pre-entrega</span>
+            <h2>EDA Visual del Dataset del Proyecto</h2>
+            <p style="font-size: 20px;">El checkpoint que conecta la visualización con el resto del proyecto de Data Science.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">33 / 48</div>
+            <div class="slide-index">33 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 34: Estadísticas descriptivas y outliers -->
+    <!-- SLIDE 34: Dónde estamos y qué sigue -->
     <div class="slide-container" id="slide34">
-        <h2 class="slide-title">Cuartiles, IQR y Detección de Outliers</h2>
+        <h2 class="slide-title">Dónde Estamos y Qué Sigue</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <div class="code-block" style="font-size: 12px;">
-IQR = Q3 - Q1
-
-lower = Q1 - 1.5 * IQR
-upper = Q3 + 1.5 * IQR
-
-<span style="color: #6a737d;"># fuera de [lower, upper] -> outlier</span>
-                    </div>
-                </div>
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-ruler-combined"></i> La regla del boxplot</span>
+                    <span class="moment-badge"><i class="fa-solid fa-route"></i> Camino recorrido hasta acá</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-percent"></i> <strong>Q1 (25%)</strong> y <strong>Q3 (75%)</strong> delimitan el rango intercuartílico.</li>
-                            <li><i class="fa-solid fa-triangle-exclamation"></i> Cualquier valor fuera de <code>[Q1 - 1.5·IQR, Q3 + 1.5·IQR]</code> se considera <strong>outlier</strong>.</li>
+                            <li><i class="fa-solid fa-gear"></i> Configuración del entorno y repositorio.</li>
+                            <li><i class="fa-solid fa-broom"></i> Módulo 4: carga y saneamiento del dataset (nulos, tipos de datos).</li>
+                            <li><i class="fa-solid fa-table"></i> Transformación y agrupación con Pandas.</li>
                         </ul>
                     </div>
                 </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-bridge"></i></div>
+                        <h3>El puente hacia Machine Learning</h3>
+                        <p>Este checkpoint de visualización conecta con el análisis predictivo: las relaciones que descubras hoy deciden qué variables vas a usar en tus modelos.</p>
+                    </div>
+                </div>
             </div>
-            <p class="note-text">Dataset de práctica: ventas de e-commerce (<code>OrderAmount</code>), combinando Gamma (compras normales), log-normal (compras grandes, "heavy tail") y uniforme (promociones puntuales).</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">34 / 48</div>
+            <div class="slide-index">34 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 35: Multimodalidad y skewness -->
+    <!-- SLIDE 35: Qué construir -->
     <div class="slide-container" id="slide35">
-        <h2 class="slide-title">Multimodalidad y Skewness (Asimetría)</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-mountain-sun"></i> Multimodalidad</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-chart-simple"></i> Se suaviza el histograma con una media móvil y se cuentan los picos locales (valores mayores que sus vecinos).</li>
-                            <li><i class="fa-solid fa-water"></i> Más de un pico → conviene un <strong>KDE</strong>, que muestra la forma continua y suavizada.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="font-size: 11px;">
-<span style="color: #6a737d;"># skewness: tercer momento</span>
-<span style="color: #6a737d;"># central normalizado</span>
-skew = mean((x - x̄)³) / σ³
-                    </div>
-                </div>
-            </div>
-            <p class="note-text">Si la distribución es muy sesgada (skewness alto), un histograma puede ocultar información — ahí el violinplot muestra forma y dispersión de manera más completa.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">35 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 36: Lógica de recomendación de gráfico -->
-    <div class="slide-container" id="slide36">
-        <h2 class="slide-title">Lógica de Recomendación: Qué Gráfico Usar</h2>
-        <div class="content-area">
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr><th>Condición</th><th>Gráfico recomendado</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Hay outliers (> 0)</td><td><strong>BOXPLOT</strong></td></tr>
-                        <tr><td>Más de un pico</td><td><strong>KDE</strong></td></tr>
-                        <tr><td>Unimodal, sin outliers, skewness &gt; 1</td><td><strong>VIOLIN</strong></td></tr>
-                        <tr><td>Unimodal, simétrica</td><td><strong>HISTOGRAMA</strong></td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <p class="note-text">Esta lógica traduce estadística descriptiva en una decisión visual concreta — el ejercicio pide imprimir el gráfico recomendado, la cantidad de outliers, y mediana + IQR con 2 decimales.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">36 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 37: División Módulo 09 -->
-    <div class="slide-container" id="slide37">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 09</span>
-            <h2>Plotly: Crear Visualizaciones Interactivas</h2>
-            <p style="font-size: 20px;">Tooltips enriquecidos, filtros con dropdown y exportación a HTML.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">37 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 38: Scatter interactivo con Plotly -->
-    <div class="slide-container" id="slide38">
-        <h2 class="slide-title">Scatter Plot Interactivo con Múltiples Dimensiones</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge live"><i class="fa-solid fa-arrows-to-dot"></i> x, y, color, tamaño y metadatos</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-fill-drip"></i> <strong>Color</strong> por <code>label</code>, <strong>tamaño</strong> de punto por <code>size</code>.</li>
-                            <li><i class="fa-solid fa-comment"></i> <strong>Tooltip</strong> que muestra múltiples campos: label, x, y, otras features.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-filter"></i> <strong>Dropdown</strong> para filtrar por etiqueta ("All" o una etiqueta puntual).</li>
-                            <li><i class="fa-solid fa-file-export"></i> Exportación final a <code>grafico_interactivo.html</code>, para compartir sin depender del notebook.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">38 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 39: División Módulo 10 -->
-    <div class="slide-container" id="slide39">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 10</span>
-            <h2>Diseño Avanzado de Subplots con GridSpec</h2>
-            <p style="font-size: 20px;">De gráficos individuales a un dashboard: layouts flexibles, validación y coverage.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">39 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 40: Por qué GridSpec -->
-    <div class="slide-container" id="slide40">
-        <h2 class="slide-title">¿Por Qué GridSpec y no plt.subplot()?</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-table-cells"></i> Grillas rígidas vs. flexibles</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-lock"></i> <code>plt.subplot(2, 2, 1)</code> limita a una grilla pareja y rígida.</li>
-                            <li><i class="fa-solid fa-arrows-up-down-left-right"></i> <strong>GridSpec</strong> permite que un subplot ocupe varias filas o columnas — paneles principales y secundarios, como en un dashboard real.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="font-size: 10px;">
-+-------------------+-----------+
-|                   |           |
-|   gráfico grande  | gráfico   |
-|                   |           |
-+---------+---------+-----------+
-| gráfico |    gráfico ancho    |
-+---------+----------------------+
-                    </div>
-                </div>
-            </div>
-            <p class="note-text">Escenario de negocio: un e-commerce necesita un dashboard que analice ventas por categoría, evolución temporal, segmentos de clientes y desempeño regional — todo en una sola figura.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">40 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 41: Validación del layout -->
-    <div class="slide-container" id="slide41">
-        <h2 class="slide-title">Validar el Layout antes de Dibujar</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Un layout inválido no debe construirse</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-check"></i> Tipos correctos (enteros), <code>r, c ≥ 0</code>, <code>h, w &gt; 0</code>.</li>
-                            <li><i class="fa-solid fa-border-none"></i> Límites del grid: <code>r + h ≤ R</code> y <code>c + w ≤ C</code>.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="code-block" style="font-size: 11px;">
-grid = np.zeros((R, C))
-
-<span style="color: #6a737d;"># marcar celdas ocupadas;</span>
-<span style="color: #6a737d;"># si ya estaba ocupada -> ERROR</span>
-                    </div>
-                </div>
-            </div>
-            <p class="note-text">Detectar solapamientos es equivalente a una detección de colisiones espaciales — clara, determinística y fácil de depurar.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">41 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 42: Coverage y construcción final -->
-    <div class="slide-container" id="slide42">
-        <h2 class="slide-title">Coverage y Construcción Final del Dashboard</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <div class="code-block" style="font-size: 11px;">
-coverage = celdas_ocupadas / celdas_totales
-
-gs = GridSpec(R, C)
-ax = fig.add_subplot(
-    gs[r:r+h, c:c+w])
-                    </div>
-                </div>
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-ruler"></i> ¿El diseño aprovecha el espacio?</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-percent"></i> <code>coverage</code> compara celdas ocupadas contra el total — ayuda a evaluar si el layout es compacto o disperso.</li>
-                            <li><i class="fa-solid fa-diagram-project"></i> Cada subplot final puede contener barras, series temporales, boxplots o heatmaps.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">42 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 43: División Módulo 11 -->
-    <div class="slide-container" id="slide43">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 11</span>
-            <h2>Exportación y Ajuste Final para Reportes</h2>
-            <p style="font-size: 20px;">Formatos, resolución, tipografías: que el gráfico se vea igual de bien fuera del notebook.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">43 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 44: Formatos de exportación -->
-    <div class="slide-container" id="slide44">
-        <h2 class="slide-title">PNG, SVG o PDF: ¿Cuál Elegir?</h2>
-        <div class="content-area">
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr><th>Formato</th><th>Cuándo usarlo</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>PNG</strong></td><td>Rasterizado, ideal para pantalla. Soporta transparencia; calidad depende del DPI.</td></tr>
-                        <tr><td><strong>SVG</strong></td><td>Vectorial, escalable sin pérdida — ideal si el gráfico se va a redimensionar o editar después.</td></tr>
-                        <tr><td><strong>PDF</strong></td><td>Vectorial para impresión y documentos formales, ampliamente compatible.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <p class="note-text">La elección depende del uso final: pantalla (PNG), edición o escalabilidad (SVG), impresión o documentos formales (PDF).</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">44 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 45: DPI, tipografías y ajustes -->
-    <div class="slide-container" id="slide45">
-        <h2 class="slide-title">DPI, Tipografías y Ajustes para Diapositivas</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <div class="code-block" style="font-size: 11px;">
-plt.savefig('grafico.png', dpi=300)
-
-plt.rcParams['font.family'] = 'Arial'
-plt.rcParams['font.size'] = 12
-                    </div>
-                </div>
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-magnifying-glass"></i> Reglas prácticas</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-desktop"></i> Pantalla: 72-100 DPI suele alcanzar.</li>
-                            <li><i class="fa-solid fa-print"></i> Impresión: 300 DPI o más, para evitar pixelación.</li>
-                            <li><i class="fa-solid fa-crop"></i> Ajustar <code>figsize</code> para que encaje en la diapositiva o página, sin cortar etiquetas.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <p class="note-text">Antes de exportar, conviene visualizar el gráfico en su tamaño final para detectar problemas de legibilidad.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">45 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 46: División Módulo 12 -->
-    <div class="slide-container" id="slide46">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 12</span>
-            <h2>Integración en Jupyter/Colab y Reproducibilidad</h2>
-            <p style="font-size: 20px;">Cerrando el círculo: cómo llevar todo lo visto a un notebook limpio, ejecutable de punta a punta.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">46 / 48</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 47: Checklist final de reproducibilidad -->
-    <div class="slide-container" id="slide47">
-        <h2 class="slide-title">Checklist Final: Notebook Listo para Compartir</h2>
+        <h2 class="slide-title">Qué Construir: el Artefacto Visual</h2>
         <div class="content-area">
             <div class="bullet-list">
                 <ul>
-                    <li><i class="fa-solid fa-play"></i> Corre completo con <code>Runtime → Run all</code>, sin celdas ejecutadas "a mano" fuera de orden.</li>
-                    <li><i class="fa-solid fa-user-slash"></i> Sin <code>input()</code> ni lectura de <code>stdin</code> — nada que dependa de una persona presente.</li>
-                    <li><i class="fa-solid fa-diagram-project"></i> Lógica encapsulada en funciones, orquestadas desde un único <code>main()</code>.</li>
-                    <li><i class="fa-solid fa-code-branch"></i> Este patrón permite migrar el notebook a scripts o pipelines de producción sin reescribir la lógica.</li>
+                    <li><i class="fa-solid fa-chart-column"></i> <strong>Análisis Univariado:</strong> al menos 2 gráficos de distribución (ej. histogramas con KDE) de las variables más importantes.</li>
+                    <li><i class="fa-solid fa-braille"></i> <strong>Análisis Bivariado/Multivariado:</strong> al menos 3 gráficos de relación o comparación (boxplots por categoría, scatter plots, heatmap de correlación general).</li>
+                    <li><i class="fa-solid fa-pen"></i> <strong>Interpretación:</strong> cada gráfico con una breve descripción (2-3 líneas) de qué se ve y qué conclusión preliminar se puede sacar.</li>
                 </ul>
             </div>
-            <p class="note-text">Es una práctica estándar en Python profesional: el mismo criterio que usamos en el Módulo 03 para preparar datos, ahora cierra la clase aplicado al notebook completo, en Jupyter o en Google Colab.</p>
+            <p class="note-text">Errores a evitar: el "vómito de gráficos" (20 sin explicación — mejor 5 bien analizados), ejes sin escala ni etiqueta, e ignorar la distribución antes de analizar correlación (outliers que sesgan la relación).</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">47 / 48</div>
+            <div class="slide-index">35 / 37</div>
         </div>
     </div>
 
-    <!-- SLIDE 48: ¿Dudas? ¿Consultas? -->
-    <div class="slide-container" id="slide48">
+    <!-- SLIDE 36: Entregable -->
+    <div class="slide-container" id="slide36">
+        <h2 class="slide-title">Entregable: Instrucciones del EDA Visual</h2>
+        <div class="content-area">
+            <span class="moment-badge live"><i class="fa-solid fa-file-pdf"></i> Un único archivo PDF</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Sección</th><th>Contenido</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Portada</td><td>Título del proyecto y nombre del estudiante.</td></tr>
+                        <tr><td>Resumen del dataset</td><td>Breve descripción de los datos (1 párrafo).</td></tr>
+                        <tr><td>Visualizaciones (mín. 5)</td><td>≥1 histograma/KDE, ≥1 boxplot/violinplot, ≥1 scatter/heatmap.</td></tr>
+                        <tr><td>Análisis por gráfico</td><td>Qué se descubrió (ej. "la variable X tiene sesgo a la derecha y outliers &gt; 5000").</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">No se entrega código (.py/.ipynb) en este paso — se evalúa la visualización y la comunicación de los hallazgos. Nombre sugerido: <code>EDA_Visual_Apellido_Nombre.pdf</code>.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">36 / 37</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 37: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide37">
         <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
             <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
                 <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
@@ -1697,7 +1409,7 @@ plt.rcParams['font.size'] = 12
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">48 / 48</div>
+            <div class="slide-index">37 / 37</div>
         </div>
     </div>
 
