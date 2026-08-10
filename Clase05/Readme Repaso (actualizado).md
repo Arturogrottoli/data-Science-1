@@ -501,19 +501,70 @@ print(reporte)
 
 ### BLOQUE 1 — Fundamentos de Matplotlib *(Filminas 02–06)*
 
-**Filmina 02 — División de módulo.** Da el pie para el primer bloque: Figure, Axes, los dos estilos de trabajo, subplots y personalización. Sin código todavía — es la filmina de transición, se pasa rápido.
+**Filmina 02 — División de módulo.** Da el pie para el primer bloque: Figure, Axes, los dos estilos de trabajo, subplots y personalización. Es la filmina de transición — antes de entrar de lleno en Figure/Axes, conviene parar un minuto y dar la introducción general que sigue, porque todo lo que viene después (Matplotlib, Seaborn, Plotly) da por sentado que la clase entiende para qué sirve graficar en primer lugar.
+
+#### Introducción — ¿Por Qué Graficar? ¿Qué es Matplotlib? *(no está en una filmina puntual, es el puente antes de arrancar)*
+
+**Qué decir:**
+
+**¿Por qué está bueno hacer gráficos?**
+
+El cerebro humano no está diseñado para leer tablas de números — está diseñado para detectar patrones, formas y colores casi instantáneamente. Si le mostramos a alguien una tabla con 10.000 filas de ventas diarias, va a tardar minutos (u horas) en notar que las ventas cayeron a la mitad en marzo. Si le mostramos un gráfico de línea con esos mismos 10.000 datos, la caída se ve en menos de un segundo. Un gráfico no agrega información nueva a los datos — lo que hace es **traducir números a percepción visual**, que es el canal más rápido que tenemos para procesar información.
+
+**¿Para qué nos sirven los gráficos, en la práctica?**
+
+En el trabajo real de un/a Data Scientist, graficar cumple varios roles distintos, no uno solo:
+
+- **Para explorar** (EDA — Análisis Exploratorio de Datos): antes de construir cualquier modelo, hay que "mirar" los datos — ver si hay outliers, si una variable está sesgada, si dos variables se relacionan. Esto casi nunca se hace leyendo la tabla cruda, se hace graficando.
+- **Para detectar errores**: un valor cargado mal (por ejemplo, una edad de 300 años) salta a la vista en un histograma, pero puede pasar desapercibido en una tabla de 50.000 filas.
+- **Para comunicar resultados**: un análisis técnico impecable no sirve de nada si la persona que toma la decisión (un gerente, un cliente) no lo entiende. El gráfico es el puente entre el análisis y la decisión.
+- **Para convencer con evidencia**: mostrar "las ventas subieron 12% en la región norte" es una afirmación; mostrarlo en un gráfico de barras comparando regiones es una evidencia que se puede verificar de un vistazo.
+
+Esta idea — graficar no es un paso decorativo al final, es una herramienta de análisis en sí misma — es el hilo conductor de toda la clase de hoy, y se repite con otras palabras en la Filmina 18 ("El Porqué de la Visualización") cuando lleguemos al Bloque 4.
+
+**¿Qué es Matplotlib?**
+
+Matplotlib es la librería base de visualización en el ecosistema de Python — la más antigua, la más usada, y la que está "por debajo" de casi todas las demás. Fue creada a principios de los 2000 buscando reproducir en Python las capacidades de gráficos de MATLAB (de ahí el nombre: Mat-plot-lib). Hoy es, junto con NumPy y Pandas, una de las tres librerías fundacionales de la ciencia de datos en Python.
+
+Lo importante para entender la clase de hoy: **Seaborn (que vemos en el Bloque 3) no reemplaza a Matplotlib — está construido encima de Matplotlib.** Cuando alguien llama a `sns.boxplot()`, por detrás Seaborn termina llamando funciones de Matplotlib para dibujar. Aprender Matplotlib primero es lo que permite, más adelante, entender qué está pasando "por debajo" cuando se usa Seaborn, y poder personalizar un gráfico de Seaborn con comandos de Matplotlib cuando Seaborn solo no alcanza.
+
+**¿Cómo se usa, en términos generales?**
+
+El flujo de trabajo típico con Matplotlib, sin importar qué tan simple o complejo sea el gráfico, sigue siempre los mismos pasos:
+
+1. **Importar la librería:** `import matplotlib.pyplot as plt` — por convención casi universal se importa con el alias `plt`.
+2. **Crear el lienzo y el gráfico:** con `plt.subplots()`, que devuelve una `Figure` (el lienzo) y uno o más `Axes` (el gráfico en sí) — esto lo vamos a ver en detalle en la próxima filmina.
+3. **Dibujar los datos:** con funciones como `ax.plot()` (líneas), `ax.bar()` (barras), `ax.scatter()` (dispersión), etc.
+4. **Personalizar:** título, etiquetas de los ejes, leyenda, colores — para que el gráfico comunique, no solo que "esté" el dato.
+5. **Mostrar o guardar:** `plt.show()` para verlo en pantalla, o `plt.savefig()` para exportarlo a un archivo.
+
+Con este flujo general en la cabeza, ahora sí se puede entrar en el detalle de cada pieza — empezando por la diferencia entre `Figure`, `Axes` y `Axis` en la próxima filmina.
+
+**Preguntar a la clase:**
+
+> ¿Alguna vez tomaron una decisión (personal o de trabajo) mirando un gráfico en vez de una tabla de números? ¿Por qué el gráfico les resultó más fácil de leer?
+
+---
 
 #### Filmina 03 — Figure, Axes y Axis
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-La filmina resume la diferencia en tres bullets. Para que quede realmente claro, conviene explicarlo con la analogía completa: Matplotlib separa tres conceptos que se confunden todo el tiempo al empezar.
+La filmina resume la diferencia en tres bullets cortos. Para que quede realmente claro y no se quede en una definición de memoria, conviene desarrollar cada uno por separado — no alcanza con leer la filmina, hay que explicar qué implica cada objeto en la práctica.
 
-- **`Figure`**: es la hoja de papel completa. El objeto de más alto nivel — lo que termina siendo la imagen final que se muestra o se guarda. Puede estar vacía, o tener adentro uno o cien gráficos.
-- **`Axes`**: es cada gráfico individual dentro de esa hoja. Ojo: en inglés "Axes" es plural, pero acá se usa para referirse a UN gráfico completo (con su título, su leyenda, sus datos). Es el objeto con el que más se trabaja.
-- **`Axis`** (sin la "e" del final): es solamente la línea graduada de un eje — el X o el Y — con sus marcas (*ticks*) y sus números.
+**`Figure` — el contenedor de nivel superior**
 
-**Analogía que no está en la filmina:** una `Figure` es un álbum de fotos. Cada `Axes` es una foto individual dentro del álbum. El `Axis` es apenas el marco numerado de esa foto (los números en el borde). La regla práctica: casi todo lo que uno personaliza (título, etiquetas, límites, leyenda) se hace sobre el objeto `ax` (Axes), no sobre `axis`.
+La `Figure` es el objeto más alto en la jerarquía: es literalmente el archivo que se termina generando cuando uno guarda un gráfico (`.png`, `.pdf`). No dibuja ningún dato por sí misma — su trabajo es puramente administrativo: define el tamaño total en pulgadas (`figsize`), el color de fondo de toda la ventana, la resolución al exportar (`dpi`), y actúa como el "dueño" de todos los gráficos que viven adentro de ella. Una analogía útil: la `Figure` es la hoja de papel en blanco, o el marco de una ventana — importa su tamaño y su borde, pero no lo que se dibuja adentro. En código, `fig` es la variable que casi siempre se usa solo dos veces: al crearla (`fig, ax = plt.subplots()`) y al guardarla (`fig.savefig(...)`) — el resto del trabajo se hace sobre `ax`.
+
+**`Axes` — el área de dibujo, "el gráfico" propiamente dicho**
+
+El `Axes` es donde realmente pasa todo: es el objeto que contiene los datos dibujados (las barras, los puntos, las líneas), el título, la leyenda, y los dos ejes (X e Y) con sus etiquetas. Cuando alguien dice coloquialmente "el gráfico", casi siempre se está refiriendo al `Axes`, no a la `Figure`. Es, con diferencia, el objeto con el que más se trabaja línea a línea: `ax.plot()`, `ax.set_title()`, `ax.legend()`, `ax.set_xlim()` — todos estos comandos le hablan al `Axes`. El nombre en inglés es plural ("Axes") porque técnicamente agrupa el conjunto de ejes X e Y que lo componen, pero en la práctica se usa para nombrar a **un** gráfico individual completo. Siguiendo la analogía de la hoja de papel: si la `Figure` es la hoja completa, cada `Axes` es un dibujo puntual hecho sobre esa hoja — y una hoja puede tener uno o varios dibujos.
+
+**`Axis` — la regla graduada de un eje**
+
+El `Axis` (sin la "e" al final, y en singular) es la pieza más chica de las tres: es solamente la línea numerada de UN eje — el eje X o el eje Y — con sus marcas (*ticks*) y sus etiquetas numéricas. Un `Axes` siempre tiene dos objetos `Axis` adentro (`ax.xaxis` y `ax.yaxis`). Rara vez se manipula el `Axis` directamente en el uso cotidiano — se hace sobre todo cuando hace falta un control muy fino del formato de los números o las fechas que aparecen en un eje (por ejemplo, mostrar fechas como "Ene 2024" en vez de "2024-01-01", algo que se ve en el Anexo del notebook con `matplotlib.dates`). Para el 95% de los casos de uso normales, alcanza con trabajar sobre `ax` (Axes) y nunca hace falta tocar `axis` directamente.
+
+**La confusión más común, explicada con una regla práctica:** `Axes` (el objeto gráfico completo, con mayúscula inicial cuando se lo nombra como clase) no es lo mismo que `Axis` (un eje puntual). Casi todo lo que se personaliza en un gráfico — título, etiquetas de los ejes, límites, leyenda, color de fondo del gráfico — se hace llamando métodos sobre el objeto `ax` (Axes). Si en algún momento del código aparece la palabra `axis` a secas, casi seguro se está hablando de un eje individual (X o Y), no del gráfico completo.
 
 Una `Figure` puede tener un solo `Axes` (un gráfico sencillo) o diez `Axes` (un dashboard completo) — este último caso lo vamos a ver en detalle en el Bloque 6.
 
@@ -529,12 +580,15 @@ Esta filmina es 100% teoría, todavía no hay código para correr — se sigue d
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-La filmina muestra los dos bloques de código en paralelo. Antes de correrlos, conviene explicar el POR QUÉ:
+La filmina muestra los dos bloques de código en paralelo. Antes de correrlos, conviene explicar el POR QUÉ de cada estilo por separado, no solo contrastarlos de pasada:
 
-- **Estilo Pyplot (implícito):** se le habla directo al módulo `plt` (`plt.plot()`, `plt.title()`). Matplotlib asume que el comando aplica al último gráfico que se creó. Es rápido para un gráfico suelto, pero se vuelve ambiguo apenas hay dos o más gráficos en pantalla — es como dar instrucciones sin decir a quién.
-- **Estilo Orientado a Objetos (explícito, recomendado):** se crean variables `fig` y `ax` y se les habla directamente a ellas (`ax.plot()`, `ax.set_title()`). No hay ambigüedad posible: cada instrucción le habla a un objeto puntual.
+**Estilo Pyplot (implícito).** Se le habla directo al módulo `plt` (`plt.plot()`, `plt.title()`). Por detrás, Matplotlib mantiene la idea de "la figura activa" y "el Axes activo" — cada vez que se llama a una función de `plt`, Matplotlib busca cuál fue el último gráfico creado y aplica el comando ahí. Es un mecanismo cómodo cuando hay un solo gráfico en pantalla (no hay ambigüedad posible sobre "cuál es el activo"), pero se vuelve un problema en cuanto se crea un segundo `Axes`: `plt.title()` le va a poner el título al Axes que Matplotlib considera activo en ese momento, que no siempre es el que la persona que programa tiene en mente. Es la fuente número uno de bugs silenciosos para quien recién empieza con Matplotlib — el código no tira error, simplemente el título aparece en el gráfico "equivocado".
+
+**Estilo Orientado a Objetos — OO (explícito, el recomendado).** Se crean variables con nombre propio (`fig`, `ax`) para la Figure y el Axes, y cada instrucción se dirige explícitamente a esa variable (`ax.plot()`, `ax.set_title()`). No existe el concepto de "objeto activo": cada línea de código dice exactamente a qué objeto le está hablando, sin importar cuántos Axes haya en la Figure. Esto es lo que permite, más adelante, iterar sobre una lista de Axes en un `for` (algo muy común al armar dashboards) sin perder el control de cuál es cuál.
 
 En Data Science se recomienda casi siempre el estilo OO porque en cuanto se arma un panel comparativo (algo constante en EDA), el estilo Pyplot se vuelve un lío.
+
+**Qué buscamos ver con este ejemplo:** el mismo gráfico de línea hecho de las dos formas, para comprobar en carne propia que con UN solo gráfico el resultado visual es idéntico — la diferencia entre los dos estilos no se nota todavía acá, recién se va a notar en la Filmina 05 cuando aparezca un segundo Axes.
 
 👉 **Acá pasás a Colab.** Abrí `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_ (actualizado al docx nuevo).ipynb`, andá al **Bloque 1** y corré la celda del ejemplo "Estilo Pyplot vs. Estilo Orientado a Objetos".
 
@@ -557,6 +611,16 @@ ax.set_title("Estilo Orientado a Objetos (explícito)")
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `import matplotlib.pyplot as plt`: trae el módulo de Matplotlib con el alias estándar `plt`. Sin esta línea, ningún comando de las siguientes existe.
+- `x = [1, 2, 3, 4, 5]` / `y = [2, 3, 5, 7, 11]`: dos listas comunes de Python con los valores a graficar — Matplotlib no necesita NumPy ni Pandas para graficar algo simple, listas alcanzan.
+- `plt.plot(x, y, color="steelblue", marker="o")`: dibuja la línea. Como no hay ningún `Axes` creado todavía, Matplotlib crea uno automáticamente "por detrás de escena" y lo marca como el activo. `marker="o"` agrega un círculo en cada punto de dato, además de la línea que los conecta.
+- `plt.title(...)`: le pone título al Axes que Matplotlib considera activo en este momento — que es el que se acaba de crear en la línea anterior.
+- `plt.show()`: renderiza y muestra en pantalla todo lo que se dibujó hasta acá.
+- `fig, ax = plt.subplots()`: esta vez SÍ se crean explícitamente la Figure y el Axes, y quedan guardados en variables con nombre. A partir de esta línea, ya no hay "objeto activo" implícito — todo se hace hablándole directamente a `ax`.
+- `ax.plot(...)`: idéntico a `plt.plot()` en el resultado visual, pero la diferencia es que este comando le habla puntualmente al objeto `ax`, no al "lo que sea que esté activo".
+- `ax.set_title(...)`: pone el título específicamente en `ax` — no hay forma de que termine en otro Axes por error, porque no hay otro Axes en esta celda.
+
 **Qué mostrar en detalle:**
 - Con un solo gráfico, la diferencia visual es nula — hacer notar que el problema aparece recién con 2+ Axes (se ve en la próxima filmina).
 - Mostrar `type(fig)` → `Figure`, `type(ax)` → `AxesSubplot`.
@@ -567,9 +631,11 @@ plt.show()
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-`plt.subplots(nrows, ncols)` crea de una vez la `Figure` y todos los `Axes` vacíos, organizados en una grilla. A partir de ahí, cada `ax.algo()` dibuja SOLO en ese Axes puntual — se termina la ambigüedad de no saber dónde está dibujando `plt.plot()`, que es justo el problema del estilo Pyplot que vimos en la filmina anterior.
+`plt.subplots(nrows, ncols)` crea de una vez la `Figure` y todos los `Axes` vacíos, organizados en una grilla, y los devuelve ya empaquetados: la Figure sola, y los Axes en una tupla (o un array de tuplas si la grilla tiene más de una fila). A partir de ahí, cada `ax.algo()` dibuja SOLO en ese Axes puntual — se termina la ambigüedad de no saber dónde está dibujando `plt.plot()`, que es justo el problema del estilo Pyplot que vimos en la filmina anterior: acá cada Axes tiene su propia variable, así que no hay "objeto activo" que confundir.
 
-Esto es central para el **Análisis Exploratorio de Datos (EDA)**: casi siempre se necesita comparar dos vistas relacionadas en una sola imagen — la filmina menciona el ejemplo de un proyecto inmobiliario: un histograma de precios al lado de un scatter de metros² vs. precio.
+Esto es central para el **Análisis Exploratorio de Datos (EDA)**: casi siempre se necesita comparar dos vistas relacionadas en una sola imagen — la filmina menciona el ejemplo de un proyecto inmobiliario: un histograma de precios al lado de un scatter de metros² vs. precio. La razón de fondo es que el cerebro compara mucho mejor dos cosas que están una al lado de la otra, en la misma escala visual, que dos cosas que hay que ver en pestañas separadas o gráficos sueltos.
+
+**Qué buscamos ver con este ejemplo:** dos series de datos distintas (ventas de enero y de febrero), cada una con el tipo de gráfico que mejor le queda (línea para ver evolución, barras para comparar valores puntuales), dibujadas una al lado de la otra en el mismo panel — y un título general para toda la Figure, además de los títulos individuales de cada Axes.
 
 👉 **Acá pasás a Colab.** Seguís en el **Bloque 1**, corré la celda de "Varias Vistas en un Mismo Panel" (Enero vs. Febrero).
 
@@ -593,6 +659,16 @@ fig.suptitle("Un solo panel (Figure) con dos gráficos (Axes): Enero vs Febrero"
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `semanas = [...]`: la lista compartida que va a servir de eje X para ambos gráficos — las mismas 4 semanas se usan en los dos paneles.
+- `fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))`: pide una grilla de 1 fila y 2 columnas — dos Axes lado a lado. Como es una sola fila, `plt.subplots` devuelve los Axes en una tupla simple `(ax1, ax2)` que se desempaqueta directo en dos variables con nombre propio. `figsize=(10, 4)` fija el tamaño de la Figure completa en pulgadas (10 de ancho, 4 de alto) — sin esto, el tamaño por defecto suele quedar chico para dos gráficos lado a lado.
+- `ventas_enero = [...]` y `ax1.plot(...)`: dibuja la serie de enero como línea en el Axes de la izquierda (`ax1`). `marker="o"` marca cada dato puntual sobre la línea.
+- `ax1.set_title(...)`: título específico del gráfico de la izquierda — solo afecta a `ax1`.
+- `ventas_febrero = [...]` y `ax2.bar(...)`: dibuja la serie de febrero como barras en el Axes de la derecha (`ax2`) — un tipo de gráfico distinto al de la izquierda, porque acá interesa comparar valores puntuales semana a semana, no tanto ver la tendencia continua.
+- `ax2.set_title(...)`: título específico del gráfico de la derecha.
+- `fig.suptitle(...)`: a diferencia de los dos anteriores, este comando le habla a la `fig` (la Figure completa), no a un Axes — pone un título que "corona" a los dos gráficos juntos, explicando qué relación hay entre ambos paneles.
+- `plt.show()`: renderiza toda la Figure, con sus dos Axes y sus tres títulos (dos individuales + uno general).
+
 **Qué mostrar en detalle:**
 - `fig.suptitle()` vs `ax.set_title()`: el primero titula TODA la figura, el segundo titula un solo Axes. Mostrar la diferencia sacando uno de los dos.
 - `(ax1, ax2) = plt.subplots(...)`: el desempaquetado automático de la tupla de Axes en dos variables con nombre.
@@ -603,13 +679,15 @@ plt.show()
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-La filmina lista los comandos (título, labels, leyenda, límites, tight_layout) como una tabla. Vale la pena remarcar el POR QUÉ de cada uno, no solo el QUÉ: un gráfico sin etiquetas es solo una forma abstracta — no comunica nada por sí solo.
+La filmina lista los comandos (título, labels, leyenda, límites, tight_layout) como una tabla corta. Vale la pena remarcar el POR QUÉ de cada uno por separado, no solo el QUÉ: un gráfico sin etiquetas es solo una forma abstracta — no comunica nada por sí solo, aunque los datos que representa sean correctos.
 
-- `ax.set_title()`: el nombre de la historia que se está contando.
-- `ax.set_xlabel()` / `ax.set_ylabel()`: qué mide cada eje, en qué unidades. "Ingresos (USD)" es información; "Ingresos" a secas no dice si son pesos, dólares o millones.
-- `ax.legend()`: obligatoria en cuanto hay más de una serie en el mismo Axes.
-- `ax.set_xlim()` / `ax.set_ylim()`: el rango visible lo decide quien programa, no Matplotlib solo — esto se vuelve crítico más adelante cuando hablemos de ejes truncados en el Bloque 4.
-- `fig.tight_layout()`: el salvavidas cuando los subplots se pisan entre sí.
+- **`ax.set_title()`**: el nombre de la historia que se está contando. Un buen título dice qué se mide y, si corresponde, en qué período — no es solo un rótulo decorativo, es la primera (y a veces única) frase que alguien va a leer del gráfico.
+- **`ax.set_xlabel()` / `ax.set_ylabel()`**: qué mide cada eje, en qué unidades. "Ingresos (USD)" es información concreta; "Ingresos" a secas obliga a quien lee a adivinar si son pesos, dólares o millones — una ambigüedad que en un reporte real puede llevar a una mala decisión.
+- **`ax.legend()`**: obligatoria en cuanto hay más de una serie en el mismo Axes. Sin ella, dos líneas de distinto color no tienen forma de identificarse — la leyenda usa el texto que se le haya pasado en el parámetro `label=` de cada `plot()`.
+- **`ax.set_xlim()` / `ax.set_ylim()`**: el rango visible de cada eje lo decide quien programa, no Matplotlib solo — por defecto, Matplotlib ajusta los límites para que "entren" justo los datos, lo cual puede exagerar visualmente variaciones chicas. Esto se vuelve crítico más adelante cuando hablemos de ejes truncados en el Bloque 4: fijar el límite inferior en `0` es, muchas veces, una decisión ética, no solo estética.
+- **`fig.tight_layout()`**: el salvavidas cuando los subplots se pisan entre sí — recalcula automáticamente los espacios entre gráficos, títulos y etiquetas para que nada quede cortado o superpuesto.
+
+**Qué buscamos ver con este ejemplo:** dos series de datos en el mismo Axes (Producto A y B), con todos los elementos de personalización juntos en un solo gráfico — título con negrita, etiquetas de ejes con unidades, leyenda, grilla suave, y un límite de eje Y fijado a propósito.
 
 👉 **Acá pasás a Colab.** Seguís en el **Bloque 1**, última celda: "Personalización Completa" (ventas Producto A vs. B).
 
@@ -636,6 +714,19 @@ plt.tight_layout()
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `años`, `ventas_A`, `ventas_B`: tres listas paralelas — el mismo índice en cada una corresponde al mismo año.
+- `fig, ax = plt.subplots(figsize=(8, 5))`: un solo Axes esta vez (no hace falta grilla), con tamaño 8x5 pulgadas.
+- `ax.plot(años, ventas_A, label='Producto A', color='blue', linewidth=2)`: dibuja la primera línea. El parámetro `label=` no se ve en el gráfico todavía — es el texto que va a usar `ax.legend()` más abajo. `linewidth=2` engrosa la línea para que se distinga bien.
+- `ax.plot(años, ventas_B, label='Producto B', color='orange', linestyle='--')`: segunda línea en el mismo Axes — `linestyle='--'` la dibuja punteada, una forma extra (además del color) de diferenciarla, útil para accesibilidad (lo vamos a retomar en el Bloque 6).
+- `ax.set_title(..., fontsize=14, fontweight='bold')`: título con tamaño de fuente explícito y en negrita, para que jerárquicamente destaque por sobre las etiquetas de los ejes.
+- `ax.set_xlabel(...)` / `ax.set_ylabel(...)`: las unidades quedan explícitas en el propio texto de la etiqueta ("Miles de Unidades"), no hay que adivinarlas.
+- `ax.legend()`: sin argumentos — Matplotlib arma la leyenda automáticamente usando los `label=` que se pasaron en cada `plot()`.
+- `ax.grid(True, linestyle=':', alpha=0.6)`: activa una grilla de fondo, punteada (`linestyle=':'`) y semi-transparente (`alpha=0.6`) para que ayude a leer valores sin dominar visualmente al dato.
+- `ax.set_ylim(0, 100)`: fuerza el eje Y a arrancar en 0 — decisión consciente, no dejada al azar de Matplotlib.
+- `plt.tight_layout()`: ajusta espacios finales antes de mostrar.
+- `plt.show()`: renderiza todo el gráfico final.
+
 **Qué mostrar en detalle — Errores comunes** (esto no está en la filmina, agregarlo de palabra): confundir `Axes` con `Axis`; no guardar `fig, ax` (se pierde control fino apenas hay más de un gráfico); el "gráfico de espagueti" (10 líneas de colores en un solo Axes — mejor separar en subplots); olvidar las unidades del eje.
 
 👉 **Volvés a las filminas, Filmina 07 (división de módulo).**
@@ -650,11 +741,18 @@ plt.show()
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-Antes de buscar relaciones entre variables, el primer paso de todo análisis es mirar cada variable **por separado**, respondiendo cuatro preguntas: ¿cuál es el valor más común?, ¿están dispersos o concentrados?, ¿hay outliers?, ¿es simétrica o tiene cola hacia un lado? La filmina lista estas preguntas — vale la pena que la clase las tenga anotadas porque van a reaparecer en el Bloque 8 (Pre-entrega).
+Antes de buscar relaciones entre variables, el primer paso de todo análisis es mirar cada variable **por separado**. La filmina lista cuatro preguntas — vale la pena desarrollar cada una, porque son literalmente la checklist mental que hay que recorrer frente a cualquier variable numérica nueva:
 
-El **histograma** divide el rango de una variable numérica en intervalos (*bins*) y cuenta cuántos datos caen en cada uno. La cantidad de bins cambia completamente el mensaje, y esto la filmina lo dice pero sin ejemplo visual — conviene remarcarlo oralmente:
-- **Pocos bins:** imagen demasiado general — puede ocultar, por ejemplo, que la distribución tiene dos picos.
-- **Muchos bins:** el gráfico se vuelve ruidoso, como una serie de picos aislados sin patrón reconocible.
+- **¿Cuál es el valor más común?** — dónde se concentra la mayor densidad de datos, el "centro de gravedad" de la variable.
+- **¿Están muy dispersos o se concentran en un solo punto?** — qué tan ancha es la distribución: una variable puede tener el mismo promedio y comportarse muy distinto según qué tan esparcidos estén sus valores alrededor de ese promedio.
+- **¿Hay valores extraños (outliers) que se alejan del resto?** — datos que podrían ser errores de carga, o podrían ser el caso más interesante del dataset (un cliente excepcional, un evento atípico real).
+- **¿La distribución es simétrica o tiene "cola" hacia un lado?** — esto determina, entre otras cosas, si conviene usar la media o la mediana como resumen, y qué tipo de gráfico la representa mejor (lo vamos a ver en la tabla de la Filmina 10).
+
+Esta checklist va a reaparecer, con las mismas cuatro preguntas, en el Bloque 8 (Pre-entrega) — es el punto de partida obligado de cualquier EDA.
+
+El **histograma** divide el rango de una variable numérica en intervalos (*bins*) y cuenta cuántos datos caen en cada uno: el eje X muestra los intervalos, el eje Y la cantidad de datos que cayó en cada uno. La cantidad de bins cambia completamente el mensaje, y esto la filmina lo dice pero sin ejemplo visual — conviene remarcarlo oralmente con el mecanismo detrás de cada caso:
+- **Pocos bins:** cada barra agrupa un rango muy amplio de valores, promediando internamente toda la variación que hay dentro de ese rango — el resultado es una imagen demasiado general que puede ocultar, por ejemplo, que la distribución en realidad tiene dos picos separados (dos subgrupos mezclados).
+- **Muchos bins:** cada barra representa un rango tan angosto que empieza a reflejar el ruido aleatorio de la muestra, no la forma real de la población — el gráfico se vuelve una serie de picos aislados sin patrón reconocible, casi como ver el "grano" de los datos en vez de su forma.
 
 No hay un número "correcto" universal — hay que probar un par de valores y quedarse con el que mejor cuenta la historia sin mentir ni esconder. El código de esta idea se corre recién en la próxima filmina, junto con el KDE.
 
@@ -662,16 +760,18 @@ No hay un número "correcto" universal — hay que probar un par de valores y qu
 
 **Qué decir (ampliando lo que dicen las filminas):**
 
-El **KDE** (*Kernel Density Estimation*, estimación de densidad por kernel) reemplaza los bloques rígidos del histograma por pequeñas "colinas" suaves puestas sobre cada observación, que después se suman todas. El resultado es una curva continua que muestra la forma subyacente de los datos sin depender de la elección arbitraria de bins.
+El **KDE** (*Kernel Density Estimation*, estimación de densidad por kernel) resuelve el problema de "cuántos bins elegir" de otra manera: en vez de agrupar en bloques rígidos, coloca una pequeña curva suave (una "colina", técnicamente un *kernel*) centrada exactamente en cada observación individual, y después suma todas esas colinas superpuestas. El resultado es una única curva continua que muestra la forma subyacente de los datos sin depender de dónde exactamente se cortan los bins — no hay una decisión arbitraria de ancho de intervalo escondida atrás.
 
-Con el histograma y el KDE en mano, se puede leer la tabla que trae la Filmina 10:
+Con el histograma y el KDE en mano, se puede leer la tabla que trae la Filmina 10 — vale la pena explicar cada fila con su implicación práctica, no solo leerla:
 
-| Patrón | Qué significa |
-|---|---|
-| **Simetría** | Izquierda espejo de la derecha (Campana de Gauss). |
-| **Sesgo a la derecha** | Cola larga hacia valores altos (salarios, precios de casas). |
-| **Sesgo a la izquierda** | Cola larga hacia valores bajos. |
-| **Multimodalidad** | Dos o más "jorobas" → hay subgrupos mezclados en la misma variable (ej. alturas de hombres y mujeres juntas). |
+| Patrón | Qué significa | Por qué importa |
+|---|---|---|
+| **Simetría** | Izquierda espejo de la derecha (Campana de Gauss). | La media y la mediana coinciden — cualquiera de las dos resume bien a la variable. |
+| **Sesgo a la derecha** | Cola larga hacia valores altos (salarios, precios de casas). | La media queda "arrastrada" hacia arriba por los valores extremos — la mediana suele representar mejor al dato típico. |
+| **Sesgo a la izquierda** | Cola larga hacia valores bajos. | Caso simétricamente opuesto al anterior — menos común en variables de negocio, pero aparece en variables acotadas por arriba (ej. calificaciones, porcentajes). |
+| **Multimodalidad** | Dos o más "jorobas" → hay subgrupos mezclados en la misma variable (ej. alturas de hombres y mujeres juntas). | Es una señal de que conviene segmentar la variable antes de analizarla — tratarla como un solo grupo homogéneo esconde la estructura real. |
+
+**Qué buscamos ver con este ejemplo:** el mismo dato (`total_bill`, el monto de la cuenta en el dataset de propinas) graficado tres veces con distinta cantidad de bins, para comparar en vivo el efecto de "pocos bins / muchos bins / cantidad razonable + KDE" que se explicó en la Filmina 08.
 
 👉 **Acá pasás a Colab.** Abrí el **Bloque 2** y corré la celda con los 3 subplots de bins (5, 60, 20+KDE).
 
@@ -697,6 +797,16 @@ plt.tight_layout()
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `tips = sns.load_dataset("tips")`: carga el dataset de ejemplo "propinas de restaurante" que trae Seaborn incorporado — no requiere ningún archivo local, se descarga (o se lee de caché) automáticamente.
+- `fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15, 4))`: crea 3 Axes en una fila — uno para cada versión del mismo histograma. `axes` acá es un array de 3 elementos (`axes[0]`, `axes[1]`, `axes[2]`), no una tupla de 2 como en el ejemplo anterior de Enero/Febrero.
+- `sns.histplot(data=tips, x="total_bill", bins=5, ax=axes[0])`: dibuja el histograma con solo 5 bins, en el primer Axes. `data=tips` le pasa el DataFrame completo, y `x="total_bill"` le dice qué columna graficar — Seaborn se encarga de contar cuántas filas caen en cada uno de los 5 intervalos.
+- `axes[0].set_title(...)`: título descriptivo de qué decisión se tomó en ese panel puntual.
+- `sns.histplot(..., bins=60, ax=axes[1])`: mismo dato, mismo tipo de gráfico, pero con 60 bins — el único parámetro que cambia es `bins`, para que la comparación sea limpia.
+- `sns.histplot(..., bins=20, kde=True, ax=axes[2], color="teal")`: acá se agrega `kde=True`, que le pide a Seaborn que superponga la curva KDE sobre las barras del histograma, además de usar una cantidad de bins intermedia (20) que ya se ve razonable.
+- `plt.tight_layout()`: evita que los 3 títulos y las 3 etiquetas de eje se pisen entre paneles.
+- `plt.show()`: renderiza los 3 gráficos juntos, para poder compararlos de un vistazo.
+
 **Qué mostrar en detalle:** `total_bill` (el monto de la cuenta) tiene sesgo a la derecha — la mayoría de las cuentas son bajas/medias, con una cola de cuentas altas. Es el mismo patrón que salarios o precios de casas, tal como dice la tabla de la Filmina 10.
 
 **Preguntar a la clase:**
@@ -717,12 +827,19 @@ plt.show()
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-Seaborn **no es "mejor"** que Matplotlib — está construido ENCIMA de Matplotlib, pensado específicamente para graficar DataFrames de Pandas de forma rápida. La diferencia práctica: en Matplotlib puro hay que filtrar cada grupo a mano y dibujarlo por separado; en Seaborn se le pasa el DataFrame completo y los nombres de columnas, y arma solo colores, leyenda y estilo.
+Seaborn **no es "mejor"** que Matplotlib — está construido ENCIMA de Matplotlib, pensado específicamente para graficar DataFrames de Pandas de forma rápida. Internamente, cuando se llama a una función de Seaborn, esa función termina invocando comandos de Matplotlib para efectivamente dibujar — Seaborn es una capa de conveniencia, no un motor de dibujo alternativo. La diferencia práctica está en el nivel de abstracción: en Matplotlib puro hay que filtrar cada grupo a mano (con un `for` o con máscaras booleanas) y dibujarlo por separado, iteración por iteración; en Seaborn se le pasa el DataFrame completo y los nombres de las columnas, y la librería arma sola los colores, la leyenda y el estilo.
 
-- **Seaborn** → ideal para EDA: histogramas, boxplots, correlaciones, scatterplots con categorías.
-- **Matplotlib** → cuando hace falta personalizar mucho un gráfico puntual, o algo que Seaborn no tiene resuelto.
+- **Seaborn** → ideal para EDA: histogramas, boxplots, correlaciones, scatterplots con categorías — resuelve en una línea lo que en Matplotlib puro son varias.
+- **Matplotlib** → cuando hace falta personalizar mucho un gráfico puntual, o construir un tipo de visualización que Seaborn no tiene resuelto de fábrica (como el ejemplo de GridSpec del Anexo).
 
-**Esto no está en la filmina, pero conviene agregarlo:** Seaborn también tiene dos "modos" de funcionar: funciones **Axes-level** (`scatterplot`, `boxplot`, `histplot`) que aceptan `ax=` y dibujan donde se les indica, y funciones **Figure-level** (`displot`, `relplot`, `catplot`) que arman su propia Figure y devuelven un `FacetGrid` — ideales para exploración rápida o para separar en paneles por categoría con `col=`. Pasarle `ax=` a una función figure-level tira error.
+**Esto no está en la filmina, pero conviene agregarlo, porque genera errores confusos si no se entiende:** Seaborn tiene dos "modos" de funcionar, y mezclarlos es una fuente común de bugs.
+
+- **Funciones Axes-level** (`scatterplot`, `boxplot`, `histplot`, entre otras): aceptan el parámetro `ax=` y dibujan exactamente en el Axes que se les indique — se integran perfecto dentro de un layout de subplots armado a mano con Matplotlib, tal como se vio en el Bloque 1.
+- **Funciones Figure-level** (`displot`, `relplot`, `catplot`): arman su propia `Figure` desde cero y devuelven un objeto `FacetGrid`, no un `Axes` — no aceptan `ax=` porque no tiene sentido pedirles que dibujen "dentro de" algo que ya existe. Son ideales para exploración rápida, o para separar automáticamente en paneles por categoría usando el parámetro `col=`.
+
+**Regla práctica:** si en algún momento aparece un error al pasarle `ax=` a una función de Seaborn, lo primero para revisar es si esa función es Figure-level — ese parámetro simplemente no existe para ellas.
+
+**Qué buscamos ver con este ejemplo:** primero, el mismo scatter plot coloreado por género hecho con Matplotlib puro (filtrando a mano) y con Seaborn (una sola línea), para comparar la diferencia de esfuerzo. Después, un ejemplo de cada modalidad de Seaborn (Axes-level obedeciendo a un `ax=` propio, y Figure-level armando su panel automático por categoría).
 
 👉 **Acá pasás a Colab.** Abrí el **Bloque 3** y corré las dos primeras celdas: "Matplotlib puro vs. Seaborn" y "Axes-level vs. Figure-level".
 
@@ -760,6 +877,16 @@ g = sns.displot(data=tips, x="total_bill", col="time", kind="kde", fill=True)
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `tips = sns.load_dataset("tips")`: carga el dataset de propinas — se reutiliza en casi todo este Bloque 3.
+- `for genero, color in [("Male", "steelblue"), ("Female", "orange")]:`: recorre una lista de tuplas (género, color), dos iteraciones en total — una por cada valor posible de la columna `sex`.
+- `subset = tips[tips["sex"] == genero]`: dentro del `for`, filtra el DataFrame completo quedándose solo con las filas de ese género — esto es exactamente el trabajo manual que Seaborn hace solo con `hue=`.
+- `ax.scatter(subset["total_bill"], subset["tip"], color=color, label=genero)`: dibuja los puntos de ESE subconjunto, con SU color y SU etiqueta — se ejecuta una vez por cada vuelta del `for`, así que en total dibuja dos capas de puntos superpuestas en el mismo Axes.
+- `ax.legend()`: arma la leyenda usando los `label=` acumulados en las dos llamadas a `scatter()`.
+- `sns.scatterplot(data=tips, x="total_bill", y="tip", hue="sex")`: hace exactamente lo mismo que las 5 líneas anteriores, pero en una sola línea — `hue="sex"` le indica a Seaborn que separe, coloree y arme la leyenda automáticamente por esa columna.
+- `fig, mi_eje = plt.subplots(figsize=(6, 4))` + `sns.scatterplot(..., ax=mi_eje, ...)`: acá se crea el Axes explícitamente con Matplotlib primero, y luego se le pide a Seaborn que dibuje adentro de ese `ax` puntual — comportamiento Axes-level.
+- `g = sns.displot(data=tips, x="total_bill", col="time", kind="kde", fill=True)`: no hay ningún `plt.subplots()` previo — `displot` arma su propia Figure sola. `col="time"` le pide que separe automáticamente en un panel por cada valor de la columna `time` (Lunch/Dinner), sin que el programador arme esos subplots a mano. `kind="kde"` pide curvas de densidad en vez de barras, y `fill=True` rellena el área bajo la curva.
+
 **Qué mostrar en detalle:** `hue="sex"` reemplaza el `for` completo — Seaborn separa, colorea y arma la leyenda automáticamente.
 
 👉 **Volvés a las filminas, Filminas 13–14.**
@@ -768,12 +895,22 @@ plt.show()
 
 **Qué decir (ampliando lo que dicen las filminas):**
 
-Un **Boxplot** resume una distribución en 5 números: **Mínimo**, **Q1 (25%)**, **Mediana**, **Q3 (75%)** y **Máximo**. La caja es el rango intercuartílico (IQR — el 50% central de los datos). Los puntos fuera de los "bigotes" son outliers — ojo, no siempre son un error de carga: pueden ser el cliente más valioso de la empresa (esto no está en la filmina, pero es un buen disparador de discusión).
+Un **Boxplot** resume una distribución completa en 5 números clave, y vale la pena explicar cada uno con lo que representa:
 
-Un **Violinplot** combina el boxplot con una curva KDE: el ancho del violín representa la frecuencia. Dos grupos pueden tener exactamente la misma mediana y los mismos cuartiles (boxplots idénticos) pero formas de distribución completamente distintas — el violín revela eso que el boxplot solo no puede mostrar.
+- **Mínimo**: el valor más bajo del grupo (sin contar los outliers, que quedan marcados aparte como puntos sueltos).
+- **Q1 (25%)**: el valor por debajo del cual queda el 25% de los datos — el borde inferior de la caja.
+- **Mediana**: el valor central — la mitad de los datos está por debajo, la otra mitad por arriba. Se dibuja como una línea dentro de la caja.
+- **Q3 (75%)**: el valor por debajo del cual queda el 75% de los datos — el borde superior de la caja.
+- **Máximo**: el valor más alto del grupo (sin contar outliers).
 
-- Usar **Boxplot** si la audiencia no es técnica, o solo importa variabilidad y extremos.
-- Usar **Violinplot** si hace falta la forma precisa y hay suficientes registros (con pocos datos, el violín miente dando una falsa sensación de suavidad).
+La **caja** en sí (entre Q1 y Q3) es el rango intercuartílico (IQR) — el 50% central de los datos, la zona donde "vive" la mayoría del grupo. Los **bigotes** se extienden hasta el mínimo y el máximo "normales"; los puntos que quedan afuera de los bigotes son los **outliers**. Un matiz importante que no está en la filmina, pero conviene decirlo en voz alta: un outlier no siempre es un error de carga — puede ser el cliente más valioso de la empresa, o el caso más interesante del dataset. El boxplot solo lo señala; la decisión de qué hacer con él es de quien analiza.
+
+Un **Violinplot** combina el boxplot con una curva KDE (la misma técnica de suavizado que vimos en el Bloque 2): el ancho del violín en cada altura representa la frecuencia de datos en ese valor. La utilidad concreta: dos grupos pueden tener exactamente la misma mediana y los mismos cuartiles — es decir, boxplots visualmente idénticos — pero formas de distribución completamente distintas (uno concentrado en el centro, otro con dos picos). El boxplot solo no puede distinguir esos dos casos; el violín sí, porque muestra la densidad completa.
+
+- Usar **Boxplot** si la audiencia no es técnica, o si solo importa comunicar variabilidad y valores extremos de forma rápida.
+- Usar **Violinplot** si hace falta la forma precisa de la distribución y hay suficientes registros — con pocos datos, el KDE del violín suaviza de más y da una falsa sensación de continuidad que los datos reales no tienen.
+
+**Qué buscamos ver con este ejemplo:** la misma variable (`total_bill`) comparada entre dos categorías (`time`: Lunch vs. Dinner), primero resumida en 5 números (boxplot) y después con su forma de densidad completa (violinplot), una al lado de la otra para poder comparar directamente qué información aporta cada una.
 
 👉 **Acá pasás a Colab.** Seguís en el **Bloque 3**, celda de "Boxplot y Violinplot".
 
@@ -796,25 +933,35 @@ plt.tight_layout()
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(11, 4.5))`: dos Axes lado a lado, uno para cada tipo de gráfico.
+- `sns.boxplot(data=tips, x="time", y="total_bill", ax=axes[0])`: `x="time"` es la variable categórica (define cuántas cajas se dibujan, una por valor único de `time`), `y="total_bill"` es la variable numérica cuya distribución se resume dentro de cada caja.
+- `sns.violinplot(data=tips, x="time", y="total_bill", ax=axes[1])`: mismos parámetros `x`/`y` que el boxplot — es intencional, para que la comparación entre ambos gráficos sea directa (mismos datos, mismo agrupamiento, distinta representación).
+- `plt.tight_layout()` / `plt.show()`: ajusta espacios y renderiza el panel completo.
+
 👉 **Volvés a las filminas, Filmina 15.**
 
 #### Filmina 15 — Heatmap de Correlación y Estrategia de Elección
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-Un **heatmap** convierte una tabla de números en una cuadrícula de colores. El uso más común: visualizar la **matriz de correlación** (coeficiente de Pearson, entre -1 y 1).
+Un **heatmap** convierte una tabla de números en una cuadrícula de colores — cada celda de la tabla se pinta según su valor, en vez de mostrarse como texto. El uso más común en ciencia de datos: visualizar la **matriz de correlación**, que resume con el coeficiente de Pearson (un número entre -1 y 1) qué tan relacionadas están todas las parejas de variables numéricas de un dataset, de una sola vez.
 
-- **Cerca de 1** (color intenso): las variables se mueven juntas (metros² y precio).
-- **Cerca de -1** (color intenso opuesto): direcciones contrarias (peso del auto y eficiencia de combustible).
-- **Cerca de 0** (color neutro): sin relación clara.
+- **Cerca de 1** (color intenso en un extremo): las variables se mueven juntas — cuando una sube, la otra también (ej. metros² y precio de una casa).
+- **Cerca de -1** (color intenso en el extremo opuesto): las variables se mueven en direcciones contrarias — cuando una sube, la otra baja (ej. peso del auto y eficiencia de combustible).
+- **Cerca de 0** (color neutro, en el medio de la escala): no hay una relación lineal clara entre esas dos variables.
 
-La filmina cierra este bloque con la tabla de estrategia:
+La ventaja de verlo como heatmap en vez de como tabla de números: con 10 o 20 variables, la tabla de correlaciones tiene cientos de celdas — leerla número por número es lento y propenso a error. El color permite detectar de un vistazo cuáles son las relaciones fuertes (celdas muy oscuras o muy claras) sin tener que leer cada valor.
+
+La filmina cierra este bloque con la tabla de estrategia — la síntesis de todo lo visto en el Bloque 3:
 
 | Pregunta | Gráfico |
 |---|---|
 | ¿Outliers o dispersión en un grupo? | Boxplot |
 | ¿Forma y densidad de la distribución? | Violinplot |
 | ¿Qué variables están relacionadas? | Heatmap |
+
+**Qué buscamos ver con este ejemplo:** la matriz de correlación de las tres columnas numéricas del dataset de propinas, coloreada y con el número exacto escrito adentro de cada celda — para poder leer tanto el color (impresión rápida) como el valor preciso (verificación).
 
 👉 **Acá pasás a Colab.** Última celda del **Bloque 3**: "Heatmap de correlación".
 
@@ -831,6 +978,14 @@ sns.heatmap(matriz_corr, annot=True, cmap="coolwarm", vmin=-1, vmax=1)
 plt.title("Heatmap de correlación: total_bill, tip, size")
 plt.show()
 ```
+
+**Qué hace cada línea:**
+- `tips[["total_bill", "tip", "size"]]`: selecciona solo las 3 columnas numéricas del DataFrame — nota el doble corchete, que devuelve un DataFrame (no una Serie) con esas 3 columnas.
+- `.corr()`: el método de Pandas que calcula la matriz de correlación de Pearson entre todas las parejas de columnas del DataFrame — el resultado es una tabla cuadrada de 3x3, con un `1.0` en la diagonal (cada variable correlaciona perfecto consigo misma).
+- `sns.heatmap(matriz_corr, ...)`: recibe directamente esa tabla de correlaciones y la pinta como cuadrícula de colores.
+- `annot=True`: le pide a Seaborn que escriba el número de cada celda encima del color — sin esto, solo se vería el color, sin el valor exacto.
+- `cmap="coolwarm"`: elige la paleta de colores — "coolwarm" es una paleta divergente (fríos para un extremo, cálidos para el otro), ideal para correlaciones porque tienen un punto medio significativo (el 0).
+- `vmin=-1, vmax=1`: fija el rango de la escala de colores exactamente entre -1 y 1 — sin esto, Seaborn ajustaría la escala a los valores mínimo y máximo presentes en ESTA matriz puntual, lo que haría que el mismo color represente cosas distintas en gráficos diferentes.
 
 **Qué mostrar en detalle — Errores comunes** (agregar de palabra, no está en la filmina): saturar el heatmap con 50 variables (filtrar primero las relevantes); violinplots sobre grupos de 5 datos (engañoso, mejor un boxplot); no ordenar las categorías del boxplot de mayor a menor mediana (reduce la carga cognitiva de quien lee).
 
@@ -852,11 +1007,13 @@ plt.show()
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-**Analogía del mapa vs. la lista de direcciones** (la filmina la nombra, conviene desarrollarla en voz alta): una lista de direcciones es precisa, pero no da contexto — como una tabla de datos cruda. Un mapa muestra qué hay alrededor y cuán lejos se está del destino — como una buena visualización.
+**Analogía del mapa vs. la lista de direcciones** (la filmina la nombra, conviene desarrollarla en voz alta): una lista de direcciones ("gire a la izquierda, camine 200m, cruce el puente") es precisa, pero no da contexto — es exactamente lo que es una tabla de datos cruda. Un mapa, en cambio, muestra de un vistazo no solo dónde está el destino, sino qué hay alrededor, qué rutas alternativas existen y cuán lejos se está — es lo que hace una buena visualización con los datos: no agrega información nueva, pero la organiza espacialmente para que se entienda de un vistazo.
 
-**Función cognitiva** (esto amplía el "bolt" de la filmina): leer una tabla es secuencial (fila por fila, comparando mentalmente). Un gráfico permite que la percepción detecte patrones en milisegundos. Ejemplo para dar en vivo: en 1.000 transacciones bancarias, encontrar una sospechosa a mano lleva minutos; en un scatter, un punto disparado del resto se ve al instante.
+**Función cognitiva** (esto amplía el "bolt" de la filmina, conviene explicarlo con el mecanismo detrás): leer una tabla es un proceso secuencial — el cerebro tiene que leer fila por fila, comparar mentalmente, y recordar el valor anterior para notar una diferencia. Un gráfico, en cambio, aprovecha la percepción visual "subatentiva": el sistema visual humano detecta diferencias de posición, color o tamaño de forma automática y paralela, sin esfuerzo consciente. Ejemplo para dar en vivo: en 1.000 transacciones bancarias, encontrar una transacción sospechosa leyendo la tabla lleva minutos; en un scatter plot, un punto que está mil veces más arriba que el resto se ve en milisegundos. Esa es la esencia de por qué graficar reduce la carga cognitiva: libera espacio mental para el análisis, en vez de gastarlo en el simple hecho de leer.
 
 **Nota para el docente:** esta filmina no tiene código propio. Antes de seguir a la Filmina 19, es un buen momento para bajar la teoría a tierra con dos ejemplos aplicados del notebook que, aunque no tienen una filmina 1 a 1, sirven de "banco de pruebas" para todo lo que se explica en las Filminas 18 a 22.
+
+**Qué buscamos ver con el Ejemplo 1:** el mismo dato de ventas mensuales graficado dos veces — una vez sin ninguna decisión de diseño (`ax.bar()` a secas), y otra vez aplicando tres decisiones concretas (encuadre, jerarquía visual, anotación) para que se note en carne propia la diferencia entre "graficar el dato" y "comunicar el dato".
 
 👉 **Acá pasás a Colab** (adelantándote un poco al hilo de las filminas, a propósito). Abrí el **Bloque 4** y corré "Ejemplo 1 — Encuadre, Jerarquía Visual y Anotaciones" y "Ejemplo 2 — Ética Visual".
 
@@ -882,7 +1039,18 @@ plt.tight_layout()
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `meses` / `ventas`: las mismas 12 barras se van a dibujar dos veces, con distinto tratamiento visual — así la comparación es sobre el diseño, no sobre el dato.
+- `ax_sin_diseno.bar(meses, ventas, color="steelblue")`: un solo color para las 12 barras, sin ningún criterio — todas "pesan" lo mismo visualmente.
+- `ax_sin_diseno.set_title("ventas")`: título en minúscula, sin unidad — no dice si son pesos, dólares, ni qué mes destacar. Esto es intencional: es el "gráfico sin pensarlo" del que habla la filmina.
+- `colores = ['#AAAAAA'] * 11 + ['#1a5276']`: arma una lista de 12 colores — 11 veces gris (`'#AAAAAA'` repetido) y al final un azul oscuro (`'#1a5276'`) para el mes 12 (diciembre). Es la implementación concreta de la **jerarquía visual**: un solo color distinto basta para que el ojo vaya directo ahí.
+- `ax_con_diseno.bar(meses, ventas, color=colores)`: a diferencia de la primera barra, acá `color=` recibe una LISTA de 12 colores en vez de uno solo — Matplotlib pinta cada barra con el color que le corresponde según su posición en la lista.
+- `ax_con_diseno.set_title(...)` y `.set_ylabel(...)`: título específico con la unidad explícita ("miles de $") — esto es el **encuadre**.
+- `ax_con_diseno.annotate(...)`: agrega la **anotación**. `xy=(11, 80)` es la punta de la flecha, en coordenadas reales del gráfico (mes índice 11 = diciembre, valor 80). `xytext=(7, 68)` es dónde va el texto, separado del dato para no taparlo. `arrowprops=dict(arrowstyle='->')` es lo que efectivamente dibuja la flecha — sin este parámetro solo aparecería el texto suelto, sin conexión visual al dato.
+
 **Qué decir sobre este ejemplo:** mismos datos, dos gráficos. A la izquierda, `ax.bar()` a secas — no dice unidad ni qué mirar. A la derecha, tres decisiones de diseño encima: título con unidad (**encuadre**), un color distinto para el mes que importa (**jerarquía visual**), y una flecha que explica por qué (**anotación**).
+
+**Qué buscamos ver con el Ejemplo 2:** el mismo dato de cuota de mercado representado de dos formas — una que manipula sutilmente la percepción (torta con un sector "separado" y un título sesgado) y otra que lo muestra sin ningún truco (barras ordenadas, eje desde 0) — para poder discutir en vivo por qué la segunda es más honesta aunque la primera "se vea" más atractiva.
 
 **Ejecutar (Ejemplo 2):**
 ```python
@@ -918,6 +1086,16 @@ plt.tight_layout()
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `data = {...}` / `df = pd.DataFrame(data)`: arma un DataFrame de 4 filas con la compañía y su cuota — Plotly Express trabaja mejor recibiendo un DataFrame y los nombres de columna, en vez de listas sueltas.
+- `fig = px.pie(df, values='Cuota de Mercado (%)', names='Compañía', title=..., hole=0.4, color_discrete_sequence=...)`: crea el gráfico de torta. `values=` indica qué columna define el tamaño de cada sector, `names=` qué columna los etiqueta. El `title` ya está redactado para sesgar la lectura hacia Apple. `hole=0.4` le da forma de "dona" en vez de torta completa (estética, no afecta el problema ético). `color_discrete_sequence` fija una paleta pastel.
+- `fig.update_traces(textinfo='percent+label', pull=[0.15, 0, 0, 0])`: `textinfo='percent+label'` muestra el porcentaje y el nombre dentro de cada sector. **`pull=[0.15, 0, 0, 0]`** es la línea clave de la manipulación: separa el primer sector (Apple, primero en la lista `data`) un 15% del resto del gráfico — visualmente lo hace parecer más grande y más importante de lo que su porcentaje real indica.
+- `fig.show()`: renderiza el gráfico interactivo.
+- `empresas` / `cuotas`: en la segunda versión, los mismos 4 valores pero **ordenados de mayor a menor** cuota — "Otras Compañías" (40%, el valor más alto) queda primero.
+- `ax.barh(empresas, cuotas, color='#5DADE2')`: `barh` (horizontal bar) en vez de `bar` — con nombres de compañía largos, las barras horizontales son más legibles que las verticales. Un solo color para las 4 barras: nadie se destaca artificialmente.
+- `ax.set_xlim(0, 50)`: fuerza el eje X (acá el eje de los valores, porque son barras horizontales) a arrancar en 0 — la regla de honestidad para gráficos de barras que se vio en el Bloque 1.
+- `for i, v in enumerate(cuotas): ax.text(v + 0.5, i, f'{v}%', va='center')`: recorre cada valor de `cuotas` con su índice `i`, y escribe el porcentaje exacto como texto al lado de cada barra (`v + 0.5` para separarlo un poco de la punta de la barra) — así no hace falta "leer" la escala del eje para saber el valor exacto de cada una.
+
 **Qué decir sobre este ejemplo:** la primera versión (torta con Plotly) separa el sector de Apple y titula "35% Apple" — visualmente parece que domina. La segunda versión (barras horizontales) ordena por valor real: "Otras Compañías" (40%) queda primera. Los números son idénticos — lo que cambia es el diseño. **¿Cuál es mejor? El de barras.** No porque el pie chart esté mal hecho técnicamente, sino porque `pull` + el título elegido comunican una conclusión que los datos no sostienen. Un gráfico honesto no es el más lindo: es el que se interpreta bien sin ayuda de quien lo hizo.
 
 👉 **Volvés a las filminas, Filmina 19.**
@@ -926,20 +1104,25 @@ plt.show()
 
 **Qué decir (ampliando lo que dicen las filminas):**
 
-**Cuatro pilares del análisis visual** (Filmina 19):
+**Cuatro pilares del análisis visual** (Filmina 19) — vale la pena desarrollar cada uno con un ejemplo concreto además de la tabla:
 
-| Pilar | Pregunta | Gráfico típico |
-|---|---|---|
-| Distribución | ¿Cómo se reparten mis datos? | Histograma, KDE |
-| Relación | ¿Depende X de Y? | Scatter, Heatmap |
-| Evolución temporal | ¿Crecemos, decrecemos, estancamos? | Línea |
-| Composición | ¿Qué % viene de cada parte? | Barras apiladas |
+| Pilar | Pregunta | Gráfico típico | Ejemplo concreto |
+|---|---|---|---|
+| **Distribución** | ¿Cómo se reparten mis datos? | Histograma, KDE | Todo el Bloque 2 de hoy: bins, sesgo, multimodalidad |
+| **Relación** | ¿Depende X de Y? | Scatter, Heatmap | El heatmap de correlación del Bloque 3 |
+| **Evolución temporal** | ¿Crecemos, decrecemos, estancamos? | Línea | Series temporales — se profundiza en el Anexo del notebook |
+| **Composición** | ¿Qué % viene de cada parte? | Barras apiladas, torta | El propio ejemplo de cuota de mercado que acabamos de ver |
 
-**Data Storytelling** (agregar de palabra, no está desarrollado en la filmina): todo análisis visual tiene Inicio (contexto: "las ventas fluctuaron"), Nudo (el problema: "cae fuerte en la región norte") y Desenlace (la acción: "investigar al nuevo competidor").
+**Data Storytelling** (agregar de palabra, no está desarrollado en la filmina): todo análisis visual bien contado sigue una estructura narrativa, igual que un relato. **Inicio**: da el contexto ("las ventas fluctuaron este año"). **Nudo**: señala dónde está el problema o la oportunidad ("pero en la región norte, la caída es drástica"). **Desenlace**: propone la acción a seguir ("hay que investigar al nuevo competidor en esa zona"). Un gráfico aislado, sin esta estructura alrededor, es solo un dato suelto — el storytelling es lo que lo convierte en una conclusión accionable.
 
-**De gráficos sueltos a dashboards** (Filmina 20): la analogía del tablero de un auto — velocímetro, combustible, temperatura del motor combinados para que el conductor actúe rápido. **Regla de oro:** máximo 5 visualizaciones principales por dashboard.
+**De gráficos sueltos a dashboards** (Filmina 20): la analogía del tablero de un auto es literal — el velocímetro, el nivel de combustible y la temperatura del motor son tres indicadores independientes que, combinados en un solo panel, le permiten al conductor tomar una decisión (frenar, parar a cargar nafta) sin tener que consultar tres pantallas separadas. Un dashboard de negocio cumple la misma función: reúne varias visualizaciones para dar una imagen completa de una situación de un vistazo. **Regla de oro:** un dashboard efectivo se limita a un máximo de 5 visualizaciones principales — más que eso empieza a generar "ruido visual" que confunde en vez de aclarar, exactamente lo opuesto de lo que se busca.
 
-**Semáforo cognitivo del color y casos reales** (Filmina 21): secuenciales (variables numéricas, azul claro→oscuro), divergentes (punto medio crítico, rojo/blanco/azul), categóricos (grupos sin orden, pero respetando convenciones — rojo = pérdida, no al revés). Casos reales que trae la filmina: Retail (heatmaps de recorrido de clientes, +15% ventas reubicando productos), Salud pública (áreas apiladas de capacidad hospitalaria), Amazon (caída súbita en "añadir al carrito" delata un bug en segundos), Finanzas personales (donuts de gastos).
+**Semáforo cognitivo del color** (Filmina 21) — la filmina da la clasificación, conviene remarcar el criterio detrás de cada tipo:
+- **Secuenciales**: para variables numéricas que tienen un orden natural (azul claro→oscuro para ingresos bajos→altos) — el color crece o decrece junto con el valor.
+- **Divergentes**: para variables con un punto medio significativo (rojo/blanco/azul para temperatura bajo cero/en cero/sobre cero) — el mismo esquema de color que se usó en el heatmap de correlación del Bloque 3, donde el punto medio era la correlación 0.
+- **Categóricos**: para grupos sin orden inherente entre sí — acá lo importante no es la progresión del color, sino respetar las convenciones culturales (rojo = pérdida/alerta, verde = ganancia/ok). Usarlos al revés confunde al 100% de la audiencia, porque la asociación cultural es más fuerte que cualquier leyenda que se agregue.
+
+**Casos reales que trae la filmina** — vale la pena leerlos completos porque son el "para qué sirve esto en un trabajo real": **Retail** (heatmaps de recorrido de clientes sobre el plano de una tienda — no solo muestran qué se vende, sino qué se mira pero no se compra, permitiendo mover productos de baja rotación a zonas de alto tráfico visual: +15% de ventas sin cambiar precios). **Salud pública** (gráficos de áreas apiladas para ver la capacidad hospitalaria disponible frente a la ocupada, permitiendo ver el "punto de quiebre" antes de que ocurra). **Amazon** (una caída súbita en el gráfico de "añadir al carrito" delata un bug técnico en el botón en cuestión de segundos, no que la gente dejó de querer los productos). **Finanzas personales** (donuts de gastos — un caso donde el pie chart, criticado en contextos técnicos, funciona bien para un usuario casual que solo necesita entender "la mitad de mi plata se va en alquiler").
 
 Estas tres filminas son teóricas, sin código propio — el "banco de pruebas" ya se corrió antes (Filmina 18). Se sigue derecho a la Filmina 22.
 
@@ -951,7 +1134,15 @@ Estas tres filminas son teóricas, sin código propio — el "banco de pruebas" 
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-La filmina trae la tabla de 3 trampas (Eje Y truncado, Pie chart con muchas categorías, Exceso de Data-Ink). La más fácil de demostrar en vivo es el **eje Y truncado**: empezar el eje vertical en un número distinto de cero para exagerar una diferencia. Puede hacer que un crecimiento del 1% parezca del 50%. Mantener siempre el cero como base, salvo razón estadística muy fuerte — y si la hay, aclararlo explícitamente en el gráfico.
+La filmina trae la tabla de 3 trampas — vale la pena desarrollar cada una, no solo la del eje truncado que se demuestra en código:
+
+- **Eje Y truncado**: empezar el eje vertical en un número distinto de cero para exagerar una diferencia. El mecanismo es puramente geométrico: si el eje arranca en 995 en vez de 0, una diferencia real de 12 unidades sobre una base de 1000 (1.2%) ocupa visualmente todo el alto del gráfico, como si fuera una diferencia del 50%. Mantener siempre el cero como base, salvo razón estadística muy fuerte — y si la hay, aclararlo explícitamente en el gráfico.
+- **Pie chart con demasiadas categorías**: el problema no es estético, es perceptual — el ojo humano es objetivamente malo comparando ángulos y áreas (a diferencia de comparar longitudes, que es el atributo pre-atentivo más preciso, visto en la Filmina 20). Con más de 5-6 categorías, distinguir si una "tajada" de 7% es mayor que una de 6% se vuelve casi imposible. La alternativa casi siempre mejor: un gráfico de barras ordenado, donde comparar longitudes es trivial para el cerebro.
+- **Exceso de "Data-Ink"** (concepto de Edward Tufte): llenar el gráfico de bordes gruesos, sombras 3D, fondos de colores y líneas de grilla pesadas. Todo lo que no sea directamente el dato es ruido visual que compite por la atención. Se retoma con un ejemplo de código en el Bloque 6.
+
+La más fácil de demostrar en vivo con código es el **eje Y truncado**.
+
+**Qué buscamos ver con este ejemplo:** los mismos 4 valores de ingresos trimestrales (con una variación real de apenas ~1.2%) graficados dos veces con distinto límite de eje Y — para comprobar en vivo cómo la sola elección de `set_ylim()` puede convertir un cambio insignificante en algo que parece un salto dramático.
 
 👉 **Acá pasás a Colab.** Seguís en el **Bloque 4**, celda de "El Eje Y Truncado".
 
@@ -976,6 +1167,12 @@ plt.tight_layout()
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `ingresos = [1000, 1005, 1008, 1012]`: los mismos 4 valores se usan en ambos gráficos — la única diferencia entre los dos paneles va a ser el límite del eje Y, nada del dato cambia.
+- `ax_truncado.bar(trimestres, ingresos, color="#E74C3C")`: barras rojas — un color de alerta, casi como anticipando visualmente el efecto engañoso.
+- `ax_truncado.set_ylim(995, 1015)`: acá está la trampa exacta — el eje Y va de 995 a 1015, un rango de apenas 20 unidades. Como los valores (1000 a 1012) ocupan casi todo ese rango angosto, las diferencias entre barras se ven enormes.
+- `ax_honesto.set_ylim(0, 1200)`: el mismo tipo de gráfico, pero con el eje Y arrancando en 0 y llegando bien por encima del valor máximo — en esta escala, la diferencia real entre trimestres (apenas 12 unidades sobre 1000) se ve tan chica como realmente es.
+
 **Qué mostrar en detalle:** mismos 4 números en los dos gráficos — el de la izquierda "grita" una tendencia dramática que, en la escala real (derecha), es casi imperceptible. Las otras dos trampas de la tabla (pie chart con muchas categorías, exceso de Data-Ink) se retoman en el Bloque 6 con el ejemplo de chartjunk.
 
 👉 **Volvés a las filminas, Filmina 23 (división de módulo).**
@@ -990,18 +1187,18 @@ plt.show()
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-Un dashboard (en Excel o cualquier herramienta de BI) es una **interfaz de usuario**, no una colección de gráficos insertados. El objetivo es reducir la carga cognitiva: el usuario debe extraer los insights más críticos en los primeros 3 segundos — esto conecta directo con la "regla de oro" de 5 visualizaciones que vimos en la Filmina 20.
+Un dashboard (en Excel o cualquier herramienta de BI) es una **interfaz de usuario**, no una colección de gráficos insertados uno al lado del otro sin criterio. La diferencia es importante: una interfaz de usuario está diseñada pensando en cómo la persona que la usa se mueve por ella, no solo en qué información contiene. El objetivo es reducir la carga cognitiva: el usuario debe poder extraer los insights más críticos en los primeros 3 segundos, sin tener que "buscar" dónde está lo importante — esto conecta directo con la "regla de oro" de 5 visualizaciones que vimos en la Filmina 20: un dashboard con demasiados elementos vuelve imposible cumplir ese objetivo de 3 segundos.
 
-En culturas occidentales leemos de izquierda a derecha y de arriba hacia abajo. En pantallas sin mucho texto continuo, el ojo escanea siguiendo un recorrido en forma de la letra **"Z"**, tal como muestra la tabla de la filmina:
+En culturas occidentales leemos de izquierda a derecha y de arriba hacia abajo — por eso, en pantallas o documentos sin mucho texto continuo (como un dashboard, a diferencia de un libro), el ojo tiende a escanear la información siguiendo un recorrido en forma de la letra **"Z"**: primero una pasada horizontal arriba, después una diagonal hacia abajo, después otra pasada horizontal abajo. Diseñar un dashboard significa, literalmente, poner cada elemento en el punto de ese recorrido que le corresponde según su importancia:
 
-| Posición | Qué colocar |
-|---|---|
-| 1. Arriba-Izquierda (Ancla visual) | KPIs principales: Ventas Totales, Margen, ROI |
-| 2. Arriba-Derecha (Contexto y control) | Slicers, línea de tiempo |
-| 3. Abajo-Izquierda (Profundidad analítica) | Tendencias, comparativas clave |
-| 4. Abajo-Derecha (Punto de salida) | Tablas de detalle, top 10 |
+| Posición | Qué colocar | Por qué ahí |
+|---|---|---|
+| **1. Arriba-Izquierda** (Ancla visual) | KPIs principales: Ventas Totales, Margen, ROI | Es el primer punto que toca el ojo en el recorrido — tiene que ser lo más importante de todo el reporte, sin excepción. |
+| **2. Arriba-Derecha** (Contexto y control) | Slicers, línea de tiempo (Timeline) | Es el segundo punto del recorrido — acá van los elementos que permiten filtrar o ajustar la vista antes de bajar al detalle. |
+| **3. Abajo-Izquierda** (Profundidad analítica) | Tendencias en el tiempo, comparativas clave | El ojo vuelve a la izquierda después de la diagonal — es el lugar natural para el "cómo llegamos hasta acá" (gráficos de líneas o barras). |
+| **4. Abajo-Derecha** (Punto de salida) | Tablas de detalle, top 10, formato condicional | El último punto del recorrido — el lugar del detalle fino, para quien quiere auditar los números exactos antes de cerrar el reporte. |
 
-Recorrido recomendado: **KPIs → Controles/Slicers → Gráficos de Tendencia → Tablas de Detalle**.
+Recorrido recomendado: **KPIs → Controles/Slicers → Gráficos de Tendencia → Tablas de Detalle**. Ocultar las líneas de cuadrícula por defecto de Excel y usar el tamaño de las celdas como un sistema de grillas propio ayuda a que el ojo siga ese recorrido sin distracciones — de lo contrario, la cuadrícula nativa de la planilla compite visualmente con el diseño intencional del dashboard.
 
 **Este bloque es 100% conceptual — no hay celda de código en el notebook para correr acá.** Se aplica al diseñar dashboards en Excel/BI, no en Python. Se sigue derecho a la Filmina 25.
 
@@ -1019,16 +1216,14 @@ Recorrido recomendado: **KPIs → Controles/Slicers → Gráficos de Tendencia �
 
 **Qué decir (ampliando lo que dicen las filminas):**
 
-**Analogía de la cabina de avión** (Filmina 26): cientos de indicadores compitiendo por la atención. Un piloto entrenado sabe dónde mirar; un ejecutivo con 5 minutos antes de una junta, no. La jerarquía visual es el sistema que le dice al usuario "mirá esto primero, esto después, esto solo si necesitás el detalle". Sin jerarquía, todo "pesa" igual — el resultado es ruido visual. El cerebro es perezoso por naturaleza: busca atajos.
+**Analogía de la cabina de avión** (Filmina 26): cientos de indicadores compitiendo por la atención al mismo tiempo. Un piloto entrenado sabe exactamente dónde mirar en cada momento de vuelo, porque su entrenamiento le dio una jerarquía mental de qué instrumento revisar primero; un ejecutivo con 5 minutos antes de una junta, enfrentado a un dashboard sin esa jerarquía, no tiene ese entrenamiento — y el diseño tiene que suplirlo. La jerarquía visual es exactamente eso: el sistema que le dice al usuario, sin que tenga que aprenderlo de memoria, "mirá esto primero, esto después, esto solo si necesitás el detalle". Sin jerarquía, todos los elementos "pesan" lo mismo visualmente — el resultado es ruido: nada se destaca, todo compite. Esto conecta con un principio de psicología cognitiva que menciona la filmina: el cerebro es perezoso por naturaleza (en el buen sentido — es eficiente) y busca atajos para no gastar energía de más; un diseño con jerarquía clara aprovecha esa tendencia en vez de pelear contra ella.
 
-Los 4 pilares que trae la Filmina 27:
+Los 4 pilares que trae la Filmina 27 — desarrollando cada uno con su mecanismo:
 
-| Pilar | Idea clave |
-|---|---|
-| Patrón F/Z | Zona superior izq. = KPIs críticos. Zona media = tendencias. Zona inferior/derecha = detalle. |
-| Tamaño y peso | Lo más grande se percibe como más importante. Fuentes Sans Serif para números. |
-| Color con propósito | Semánticos (rojo=alerta, verde=cumplimiento, ámbar=atención). Grises para ejes/etiquetas. |
-| Espacio en blanco | No es espacio desperdiciado: agrupa y separa conceptos. |
+- **Patrón F/Z**: ya lo vimos en detalle en el Bloque 5 con la letra "Z" — acá se aplica la misma lógica de recorrido visual: zona superior izquierda para los KPIs críticos, zona media para tendencias, zona inferior o derecha para el detalle.
+- **Tamaño y peso**: lo más grande se percibe automáticamente como lo más importante — es un atributo pre-atentivo (se procesa sin esfuerzo consciente, como vimos en el Bloque 4). El matiz que agrega la filmina: en Excel es común abusar de esto, haciendo un KPI gigante que ocupa media pantalla. La recomendación es que sea "lo suficientemente grande para destacar, pero lo suficientemente chico para permitir contexto" — el tamaño debe usarse con intención, no al máximo posible. También recomienda fuentes Sans Serif (como Segoe UI o Aptos) para los números, porque son más limpias y legibles en pantallas digitales que las fuentes con serifas.
+- **Color con propósito**: la idea central es que en un reporte analítico el color debe ser funcional, no decorativo. Colores semánticos (rojo=alerta, verde=cumplimiento, ámbar=atención) comunican estado sin necesidad de leer texto. Colores neutros (grises) para ejes, cuadrículas y etiquetas de datos — el gris reduce el ruido visual de fondo y hace que los colores funcionales, cuando aparecen, resalten más por contraste.
+- **Espacio en blanco**: no es espacio desperdiciado — es el "aire" que permite a los elementos respirar. Agrupar demasiados gráficos sin separación entre ellos crea una mancha visual indistinguible, donde el ojo no sabe dónde termina un elemento y empieza el siguiente. El espacio en blanco cumple una función activa: agrupa conceptos relacionados (poniéndolos cerca) y separa secciones distintas (poniendo distancia entre ellas).
 
 Estas dos filminas son teóricas — el código llega en la próxima, con el ejemplo de chartjunk que baja el pilar de "espacio en blanco / color con propósito" a código real.
 
@@ -1036,7 +1231,9 @@ Estas dos filminas son teóricas — el código llega en la próxima, con el eje
 
 **Qué decir (esto no está desarrollado como ejemplo en las filminas, pero conecta directo con la tabla de Filmina 29):**
 
-El mismo principio de "menos es más" se aplica a un gráfico de Matplotlib: cada borde, sombra o línea de más es *ruido* que compite con el dato. Edward Tufte llama a esto maximizar el **Data-to-Ink Ratio**: si se puede quitar un elemento y el dato se sigue entendiendo igual de bien, hay que quitarlo. Esta es también la tercera trampa que había quedado pendiente de la Filmina 22 (Exceso de Data-Ink).
+El mismo principio de "menos es más" que se explicó en la Filmina 27 se puede aplicar y ver en código real con Matplotlib: cada borde, sombra o línea de más es *ruido* que compite con el dato. Edward Tufte (el autor que acuñó el término "chartjunk", literalmente "basura de gráfico") propuso el concepto de **Data-to-Ink Ratio** (proporción de tinta dedicada a los datos vs. tinta dedicada a la decoración): la regla práctica es que si se puede quitar un elemento visual y el dato se sigue entendiendo igual de bien, hay que quitarlo, porque ese elemento no estaba aportando información, solo ocupando espacio y atención. Esta es también la tercera trampa que había quedado pendiente de la Filmina 22 (Exceso de Data-Ink) — se retoma acá porque recién ahora tenemos las herramientas de código (`spines`, `grid`) para demostrarla en vivo.
+
+**Qué buscamos ver con este ejemplo:** los mismos 5 valores por región, graficados dos veces — una versión "cargada" (bordes gruesos, colores random sin significado, grilla pesada) y otra minimalista (un solo color, sin bordes innecesarios, grilla apenas visible) — para comprobar que ambas comunican exactamente el mismo dato, pero una lo hace con mucho menos "ruido" visual.
 
 👉 **Acá pasás a Colab.** Abrí el **Bloque 6** y corré la celda "Chartjunk vs. gráfico limpio".
 
@@ -1066,25 +1263,36 @@ plt.tight_layout()
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `colores_random = [...]`: 5 colores muy distintos entre sí, uno por barra, sin ningún criterio semántico (no representan categorías con significado propio) — es intencionalmente "ruido de color".
+- `ax_chartjunk.bar(categorias, valores, color=colores_random, edgecolor="black", linewidth=2.5)`: además del color random por barra, `edgecolor="black"` le agrega un borde negro a cada barra, y `linewidth=2.5` lo hace grueso — un elemento visual más que no aporta información sobre el dato en sí.
+- `ax_chartjunk.grid(True, linewidth=1.5, color="black")`: activa una grilla de fondo gruesa y negra — compite directamente con las barras por la atención, en vez de ayudar sutilmente a leer valores.
+- `for spine in ax_chartjunk.spines.values(): spine.set_linewidth(2.5)`: `spines` son los cuatro bordes del área del gráfico (arriba, abajo, izquierda, derecha) — este bucle los recorre todos y les pone un grosor de línea de 2.5, engrosando el marco completo del Axes.
+- `ax_limpio.bar(categorias, valores, color="#4C72B0")`: un solo color para las 5 barras, sin bordes adicionales — el color no está comunicando ninguna categoría distinta, así que no hace falta variarlo.
+- `ax_limpio.spines["top"].set_visible(False)` y `["right"].set_visible(False)`: apaga específicamente los bordes de arriba y de la derecha del Axes — son los dos bordes que casi nunca aportan información (el de abajo y el de la izquierda sí sirven, porque son los propios ejes X e Y).
+- `ax_limpio.grid(axis="y", alpha=0.3)`: grilla solo en el eje Y (no en X, porque acá son categorías, no tiene sentido una grilla vertical) y con `alpha=0.3` (30% de opacidad) — suficiente para ayudar a leer valores aproximados, sin dominar visualmente al dato.
+
 👉 **Volvés a las filminas, Filmina 28.**
 
 #### Filminas 28–29 — Arquitectura de la Información, Anti-Patrones y Accesibilidad
 
 **Qué decir (ampliando lo que dicen las filminas):**
 
-Un dashboard ejecutivo es como una conversación (Filmina 28): **El Titular (KPIs)** — "¿cómo vamos?"; **El Contexto (Tendencias)** — "¿cómo llegamos hasta acá?"; **El Diagnóstico (Desgloses)** — "¿quién o qué lo causó?"; **El Detalle (Tablas)** — "mostrame los datos exactos".
+Un dashboard ejecutivo es como una conversación (Filmina 28) — vale la pena desarrollar cada uno de los 4 niveles con el porqué de su orden: **El Titular (KPIs)** responde "¿cómo vamos?" — es lo primero porque es la conclusión que cualquiera necesita antes que ningún detalle. **El Contexto (Tendencias)** responde "¿cómo llegamos hasta acá?" — le da al titular una dimensión temporal, mostrando si la situación actual es una mejora, un empeoramiento o algo estable. **El Diagnóstico (Desgloses)** responde "¿quién o qué causó esto?" — desglosa el número general en sus partes (por región, por producto, por centro de costo) para encontrar dónde está el problema u oportunidad puntual. **El Detalle (Tablas)** responde "mostrame los datos exactos" — es el último nivel, para quien necesita auditar o verificar un número específico.
 
-*Ejemplo real que trae la filmina — dashboard de un Controller:* Nivel 1: EBITDA/Ingresos/Costos/Desviación. Nivel 2: gráfico de cascada. Nivel 3: top 5 centros de costo excedidos. Nivel 4: tabla dinámica filtrable.
+*Ejemplo real que trae la filmina — dashboard de un Controller revisando el cierre mensual:* Nivel 1: cuatro tarjetas grandes arriba con EBITDA, Ingresos, Costos y % de Desviación (el titular). Nivel 2: un gráfico de cascada (Waterfall) que explica el paso del presupuesto al real (el contexto). Nivel 3: un gráfico de barras con el top 5 de centros de costo que se excedieron (el diagnóstico). Nivel 4: una tabla dinámica filtrable con las facturas específicas (el detalle). Los 4 niveles de la conversación, aplicados en orden.
 
-**Anti-patrones** (Filmina 29):
+**Anti-patrones** (Filmina 29) — cada uno con su mecanismo y su corrección concreta:
 
-| Anti-patrón | Solución |
-|---|---|
-| Efecto Árbol de Navidad | Demasiados colores vibrantes compitiendo — usar paleta monocromática, reservar el brillante para excepciones |
-| Chartjunk | Bordes/sombras/grids pesados — visto en el ejemplo de la Filmina 27 |
-| Dato Huérfano | "$1.000.000" sin contexto — acompañar con comparativo (vs. Target, vs. Año Anterior) |
+| Anti-patrón | Qué pasa | Solución |
+|---|---|---|
+| **Efecto Árbol de Navidad** | Demasiados colores vibrantes compitiendo entre sí — el usuario no sabe qué es una alerta real y qué es solo decoración. | Usar una paleta monocromática o de colores similares para los datos estándar, y reservar los colores brillantes (rojo, naranja) exclusivamente para las excepciones o metas incumplidas. |
+| **Chartjunk** (Tufte) | Bordes gruesos, sombras 3D, líneas de división muy oscuras — visto en el ejemplo de código de la Filmina 27. | Maximizar el Data-to-Ink Ratio: si se puede quitar algo y el dato se sigue entendiendo, quitarlo. |
+| **Dato Huérfano** | "$1.000.000" sin ningún contexto no significa nada por sí solo — ¿es bueno o malo? ¿es más que el mes pasado? | Todo KPI debe venir acompañado de una comparación (vs. Target, vs. Año Anterior) o una micro-tendencia (un Sparkline al lado del número). |
 
-**Accesibilidad** (también Filmina 29): ~8% de los hombres tiene algún tipo de daltonismo (el más común: confunde rojo y verde). Respaldar siempre el color con `style=` y usar `palette="colorblind"`.
+**Accesibilidad** (también Filmina 29): aproximadamente el 8% de los hombres y el 0.5% de las mujeres tiene alguna deficiencia en la percepción del color — el tipo más común confunde rojo y verde, que son justamente los colores semánticos más usados en dashboards (alerta/cumplimiento). Depender solo de ese semáforo rojo/verde deja afuera a una parte real de la audiencia. La corrección tiene dos caminos que se pueden combinar: agregar un ícono adicional (una flecha hacia abajo junto al rojo, por ejemplo) para que el significado no dependa solo del color, o usar una paleta ya diseñada para ser distinguible por personas con daltonismo, como `palette="colorblind"` en Seaborn — que es exactamente lo que hace el código de esta filmina.
+
+**Qué buscamos ver con este ejemplo:** una misma serie de datos (pasajeros por mes, para 3 meses distintos) graficada con tres capas de accesibilidad superpuestas — color distinto, trazo de línea distinto, y marcador geométrico distinto por categoría — de forma que la información siga siendo legible aunque una persona no pueda distinguir los colores, o aunque el gráfico se imprima en blanco y negro.
 
 👉 **Acá pasás a Colab.** Última celda del **Bloque 6**: "Accesibilidad Cromática".
 
@@ -1104,6 +1312,12 @@ plt.title("Accesible: Diferentes colores, trazos y figuras")
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `flights = sns.load_dataset("flights")`: carga el dataset de pasajeros aéreos por mes que trae Seaborn — tiene una fila por combinación de año y mes, con la cantidad de pasajeros.
+- `df_meses = flights[flights['month'].isin(['Jan', 'Jul', 'Dec'])]`: filtra el DataFrame, quedándose solo con enero, julio y diciembre — con los 12 meses juntos, el gráfico se saturaría de líneas; con 3, se puede ver el efecto de accesibilidad con claridad.
+- `df_meses['month'] = df_meses['month'].cat.remove_unused_categories()`: la columna `month` es de tipo categórico en el dataset original, con los 12 meses como categorías posibles. Después del filtro, quedan solo 3 meses con datos, pero la columna "recuerda" las 12 categorías originales — este método limpia esa memoria, dejando solo las 3 categorías realmente presentes (evita que Seaborn intente reservar colores/estilos para meses que ya no están en los datos).
+- `sns.lineplot(..., hue="month", style="month", markers=True, palette="colorblind")`: acá están las tres capas de accesibilidad juntas — `hue="month"` da un color distinto por mes, `style="month"` da un tipo de trazo distinto por mes (sólido, punteado, etc.), y `markers=True` agrega un marcador geométrico distinto en cada punto de dato. `palette="colorblind"` reemplaza la paleta de colores default por una diseñada específicamente para ser distinguible con daltonismo.
+
 👉 **Volvés a las filminas, Filmina 30 (división de módulo).**
 
 ---
@@ -1114,17 +1328,25 @@ plt.show()
 
 #### Filmina 31 — Ejercicio 1: Auditoría y Rediseño
 
-**Qué decir (ampliando lo que dice la filmina):** para esta práctica no se usa código, sino capacidad de análisis crítico. El escenario: un gráfico de pastel con 15 categorías en colores similares, títulos en Comic Sans azul brillante, y un KPI de "Ventas" sin comparativo — la filmina resume la consigna, conviene leerla en voz alta completa antes de dar tiempo a resolver.
+**Qué decir (ampliando lo que dice la filmina):** para esta práctica no se usa código, sino capacidad de análisis crítico — el objetivo del Bloque 7 es que la clase aplique, sin ayuda de la computadora, todo lo que se vino explicando desde el Bloque 4 en adelante. El escenario que describe la filmina: un gráfico de pastel con 15 categorías en colores muy similares (la trampa de "pie chart con demasiadas categorías" de la Filmina 22), títulos en Comic Sans tamaño 24 en azul brillante (una violación directa del pilar "tamaño y peso" y "color con propósito" de la Filmina 27), y un KPI de "Ventas" en la esquina inferior derecha sin ningún comparativo (el anti-patrón "Dato Huérfano" de la Filmina 29) — conviene leer el escenario completo en voz alta antes de dar tiempo a resolver, porque cada detalle que menciona corresponde a un concepto puntual ya visto.
 
-**Consigna:** identificar 4 fallos de jerarquía visual/UX, proponer un layout con el patrón "F", definir una guía de estilo (máx. 3 colores + grises), y contextualizar el KPI con una métrica de comparación.
+**Consigna, desarrollada:**
+1. **Identificación**: enumerar al menos 4 fallos de jerarquía visual o UX presentes en el escenario — la idea es que cada fallo identificado se pueda nombrar con el vocabulario técnico visto en la clase (chartjunk, dato huérfano, eje truncado, etc.), no solo describirlo en palabras propias.
+2. **Propuesta de layout**: describir cómo se reorganizarían los elementos usando el patrón de lectura en "F" (variante del patrón "Z" para pantallas con más densidad de información) — qué va arriba a la izquierda, qué se mueve al final.
+3. **Guía de estilo**: definir una paleta de colores profesional, con un máximo de 3 colores principales más grises, explicando la función analítica de cada uno (cuál es semántico, cuál es neutro).
+4. **Contextualización**: proponer qué métrica de comparación agregarle al KPI de ventas para que deje de ser un dato huérfano (¿vs. el mes anterior? ¿vs. un objetivo?).
 
-Sin código — no hay transición a Colab en este bloque.
+Sin código — no hay transición a Colab en este bloque, este ejercicio se resuelve en papel o en un documento de texto.
 
 #### Filmina 32 — Ejercicio 2: Caso "Dashboard Comercial - Q3"
 
-**Qué decir (ampliando lo que dice la filmina):** sos el nuevo analista de una empresa de retail. El gerente dice: *"la información está ahí, pero tardamos 10 minutos en entenderla"*. Diagnóstico: al menos 3 violaciones a UI/UX y al patrón "Z" (conectar con lo visto en las Filminas 24 y 26-29). Reestructuración: redistribuir tabla dinámica, gráfico circular, slicers y tarjetas de KPI con el modelo "Z".
+**Qué decir (ampliando lo que dice la filmina):** este segundo ejercicio cambia el formato — en vez de un escenario abstracto, es un caso de estudio con un rol concreto: sos el nuevo analista de datos de una empresa de retail. El gerente de ventas te envía el dashboard actual (construido en Excel) que usa el equipo directivo, con el comentario textual: *"la información está ahí, pero en las reuniones tardamos 10 minutos en entender cómo nos fue en el mes"* — esta frase es la pista central del ejercicio: no es un problema de datos faltantes, es un problema de diseño que hace lento el acceso a la información que sí está.
 
-**Preguntar a la clase:** dejar que un par de estudiantes propongan su diagnóstico en voz alta antes de mostrar la respuesta esperada — este bloque funciona mejor como discusión abierta que como exposición.
+**Consigna, desarrollada:**
+- **Diagnóstico**: identificar al menos 3 violaciones graves a los principios de UI/UX y al patrón de lectura en "Z" — conectar explícitamente con lo visto en la Filmina 24 (el patrón Z en sí) y las Filminas 26-29 (jerarquía visual, pilares del diseño, anti-patrones).
+- **Reestructuración**: proponer cómo redistribuir 4 elementos concretos — tabla dinámica, gráfico circular, slicers, tarjetas de KPI — usando correctamente el modelo en "Z" (KPIs arriba-izquierda, controles arriba-derecha, tendencias abajo-izquierda, detalle abajo-derecha).
+
+**Preguntar a la clase:** dejar que un par de estudiantes propongan su diagnóstico en voz alta antes de mostrar la respuesta esperada — este bloque funciona mejor como discusión abierta que como exposición. Una forma de dinamizarlo: pedir que cada estudiante mencione UN solo fallo distinto al que ya mencionó un compañero, para ir construyendo la lista entre todos en vez de que una sola persona la complete sola.
 
 👉 **Volvés a las filminas, Filmina 33 (división de módulo).**
 
@@ -1138,7 +1360,9 @@ Sin código — no hay transición a Colab en este bloque.
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-Hasta acá el proyecto ya recorrió: configuración del entorno, carga y saneamiento del dataset (Módulo 4), transformación con Pandas — la filmina lo resume en 3 bullets. Vale la pena remarcar la frase clave que sí trae la filmina: este checkpoint es el **puente hacia el análisis predictivo**. Las relaciones que se descubran hoy deciden qué variables se usan en los modelos de Machine Learning más adelante — no es un ejercicio aislado de visualización, es la base del próximo módulo del curso.
+Hasta acá el proyecto ya recorrió tres etapas, y vale la pena desarrollar cada una en vez de solo nombrarlas: **Configuración** — preparar el entorno de trabajo y sincronizar el repositorio, el paso administrativo inicial de cualquier proyecto. **Estructura** — en el módulo de limpieza de datos (previo a esta clase), se entregó la carga y el saneamiento inicial del dataset: nulos tratados, tipos de datos correctos. **Manipulación** — se aprendió a transformar y agrupar datos con Pandas, la base técnica para poder graficar cualquier cosa hoy.
+
+La frase clave que trae la filmina, y que vale la pena remarcar con énfasis: este checkpoint es el **puente hacia el análisis predictivo**. No es un ejercicio aislado de "hacer lindos gráficos" — las relaciones que se descubran hoy (qué variables correlacionan, cuáles tienen outliers, cuáles están sesgadas) van a determinar directamente qué variables se eligen y cómo se preparan para los modelos de Machine Learning en los módulos siguientes del curso. Un modelo entrenado sin haber hecho antes este EDA visual corre el riesgo de usar variables redundantes (alta correlación entre sí) o de no detectar outliers que después distorsionan el entrenamiento.
 
 Sin código en esta filmina — se sigue a la 35.
 
@@ -1146,18 +1370,23 @@ Sin código en esta filmina — se sigue a la 35.
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-Sin exportar todos los gráficos posibles, seleccionar solo los que aporten valor:
-- **Univariado:** ≥2 gráficos de distribución (histogramas con KDE) — esto es literalmente el Bloque 2 de hoy.
-- **Bivariado/Multivariado:** ≥3 gráficos de relación o comparación (boxplots, scatter, heatmap de correlación) — el Bloque 3 de hoy.
-- **Interpretación:** 2-3 líneas por gráfico, explicando qué se ve y qué conclusión preliminar se puede sacar — esto es nuevo, no se pidió en ningún bloque anterior, conviene remarcarlo.
+El objetivo de aprendizaje que plantea la filmina es "consolidar un EDA visual preliminar utilizando Matplotlib y Seaborn, aplicando principios de jerarquía visual y storytelling" — es decir, no alcanza con aplicar solo la técnica (Bloques 1-3), también hay que aplicar el criterio de comunicación (Bloques 4-6) que se vio después del break. Sin exportar todos los gráficos posibles, hay que seleccionar solo los que aporten valor real al entendimiento del dataset:
 
-**Errores a evitar** (la filmina los trae en el pie de página, conviene leerlos completos): el "vómito de gráficos" (20 sin explicación — mejor 5 bien analizados), ejes sin escala ni etiqueta, ignorar la distribución antes de analizar correlación.
+- **Análisis Univariado:** al menos 2 gráficos que muestren la distribución de las variables más importantes — esto es literalmente el Bloque 2 de hoy (histogramas con KDE), aplicado ahora al dataset propio del proyecto en vez del dataset de propinas usado como ejemplo.
+- **Análisis Bivariado/Multivariado:** al menos 3 gráficos que muestren relaciones o comparaciones — boxplots para comparar categorías, scatter plots para ver correlaciones puntuales, o un heatmap de correlación general. Es el Bloque 3 de hoy, aplicado al dataset propio.
+- **Interpretación:** cada gráfico debe estar acompañado de una breve descripción (2-3 líneas) que explique qué se está viendo y qué conclusión preliminar se puede sacar. Esto es lo genuinamente nuevo respecto a los bloques anteriores — hasta ahora se pedía solo el gráfico técnicamente correcto; acá se pide, además, la interpretación escrita en palabras.
+
+**Errores a evitar** (la filmina los trae en el pie de página, conviene leerlos completos y con su porqué): **el "vómito de gráficos"** — incluir 20 gráficos sin explicación es peor que incluir 5 bien analizados, porque obliga a quien lee a hacer el trabajo de interpretación que debería estar ya hecho. **Ejes sin escala o etiqueta** — un gráfico sin `ylabel` es solo una forma abstracta, el lector no sabe si se habla de pesos, dólares o kilogramos (el mismo error que se vio en el Bloque 1). **Ignorar la distribución antes de analizar correlación** — calcular una correlación sin haber visto primero si la variable tiene outliers puede llevar a una conclusión falsa, porque un solo valor extremo puede inflar o desinflar artificialmente un coeficiente de correlación.
 
 #### Filmina 36 — El Entregable
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-Un único archivo **PDF**: portada (título + nombre), resumen del dataset (1 párrafo), mínimo 5 visualizaciones (≥1 histograma/KDE, ≥1 boxplot/violinplot, ≥1 scatter/heatmap), y análisis por gráfico. **No se entrega código** en este paso — se evalúa la visualización y la comunicación. Nombre sugerido: `EDA_Visual_Apellido_Nombre.pdf`.
+El formato pedido es un único archivo **PDF**, con una estructura fija que conviene detallar parte por parte: **Portada** (título del proyecto y nombre del estudiante — identifica el trabajo). **Resumen del dataset** (un párrafo breve describiendo qué datos se están analizando — da contexto antes de entrar en los gráficos). **Visualizaciones**, un mínimo de 5, con al menos una de cada categoría: 1 histograma o KDE (distribución), 1 boxplot o violinplot (comparación por categorías), 1 scatter plot o heatmap de correlación (relación entre variables) — no cualquier combinación de 5 gráficos sirve, tiene que cubrir estos 3 tipos como mínimo. **Análisis por gráfico**: debajo de cada imagen, un párrafo breve explicando qué se descubrió (ej. "se observa que la variable X tiene un sesgo a la derecha y presenta outliers por encima de los 5000 unidades").
+
+**No se entrega código** (`.py` o `.ipynb`) en este paso — la evaluación se centra en la calidad de la visualización y en la capacidad de comunicar los hallazgos en el PDF, no en el código que los generó. Nombre sugerido para el archivo: `EDA_Visual_Apellido_Nombre.pdf`.
+
+**Qué buscamos ver con este ejemplo:** un mini-ejemplo de cómo se vería, en la práctica, UNA de las 5 visualizaciones pedidas — el gráfico en sí, más el párrafo de interpretación que iría justo debajo en el PDF final. Sirve como plantilla de formato para cuando cada estudiante arme su propia pre-entrega con su dataset.
 
 👉 **Acá pasás a Colab.** Última celda del **Bloque 8**: el mini-ejemplo de cómo se ve una de las 5 visualizaciones pedidas, aplicado al dataset de vuelos.
 
@@ -1177,6 +1406,13 @@ ax.set_ylabel("Frecuencia (Días)")
 plt.tight_layout()
 plt.show()
 ```
+
+**Qué hace cada línea:**
+- `df_vuelos = pd.read_csv("vuelos_asientos_pasajeros.csv")`: carga el dataset local de tráfico aéreo que se va a usar también en la Actividad Práctica Integradora que sigue.
+- `fig, ax = plt.subplots(figsize=(7, 4))`: un Axes simple — para el PDF final no hace falta un panel de múltiples gráficos, cada visualización suele ir en su propia página o sección.
+- `sns.histplot(data=df_vuelos, x="pasajeros", kde=True, ax=ax, color="#4682B4")`: histograma con curva KDE superpuesta de la columna `pasajeros` — la misma técnica del Bloque 2, aplicada acá a una variable real del dataset de vuelos en vez de al dataset de ejemplo.
+- `ax.set_title(..., fontsize=13, fontweight="bold")` / `ax.set_xlabel(...)` / `ax.set_ylabel(...)`: la personalización completa que se vio en la Filmina 06 — título, unidades explícitas en cada eje. En un entregable evaluable, omitir estas líneas es directamente uno de los "errores a evitar" de la Filmina 35.
+- `plt.tight_layout()` / `plt.show()`: ajusta espacios y renderiza el gráfico final, listo para exportarse (por ejemplo, con `plt.savefig()` visto en el Anexo) e incluirse en el PDF.
 
 > **Interpretación de ejemplo (así se escribe en el PDF final):** la distribución de pasajeros diarios muestra una concentración principal entre valores medios, con una cola hacia la derecha — hay un grupo más chico de días con tráfico excepcionalmente alto que conviene revisar por separado antes de correlacionar esta variable con otras.
 
@@ -1198,6 +1434,8 @@ Dataset: `vuelos_asientos_pasajeros.csv` (columnas: `indice_tiempo`, `clasificac
 
 **Consigna:** cargar el CSV, crear una estructura Figure/Axes, graficar un histograma de `vuelos` con 30 bins, color `#4682B4`.
 
+**Qué buscamos ver:** el primer contacto con el dataset real de la actividad — cuántos vuelos por día son "normales" y si la distribución tiene alguna forma particular (sesgo, outliers) antes de avanzar a comparaciones más complejas.
+
 ```python
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -1214,9 +1452,18 @@ ax.set_ylabel("Frecuencia (Días)", fontsize=10)
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `sns.set_theme(style="whitegrid")`: fija un estilo visual global de Seaborn para toda la sesión — todos los gráficos que se dibujen después de esta línea van a compartir el mismo fondo con grilla suave, sin tener que repetirlo en cada celda.
+- `df_vuelos = pd.read_csv(...)`: carga el dataset real de tráfico aéreo — se va a reutilizar en los 3 pasos de esta actividad.
+- `fig, ax = plt.subplots(figsize=(8, 4))`: la estructura explícita de Figure/Axes que pide la consigna, en vez de usar `plt.figure()` a secas.
+- `sns.histplot(data=df_vuelos, x="vuelos", ax=ax, bins=30, color="#4682B4", kde=True)`: histograma de la columna `vuelos` con 30 bins (el número exacto que pide la consigna) y curva KDE superpuesta — la misma técnica vista en el Bloque 2, ahora aplicada a un dataset real en vez de al dataset de ejemplo de propinas.
+- `ax.set_title(...)`, `ax.set_xlabel(...)`, `ax.set_ylabel(...)`: la personalización obligatoria vista en la Filmina 06 — sin esto, no queda claro qué mide cada eje.
+
 ### Paso 2 — Comparación de Grupos y Relación entre Variables *(Bloque 3)*
 
 **Consigna:** comparar `pasajeros` entre `clasificacion_vuelo` (Cabotaje vs. Internacional) con Boxplot y Violinplot, y un Heatmap de correlación entre `pasajeros`, `asientos`, `vuelos`.
+
+**Qué buscamos ver:** tres gráficos del Bloque 3 aplicados juntos al mismo dataset — si el tipo de vuelo (Cabotaje/Internacional) hace diferencia en la cantidad de pasajeros, y si las tres variables numéricas del dataset están relacionadas entre sí.
 
 ```python
 import pandas as pd
@@ -1241,9 +1488,18 @@ plt.tight_layout()
 plt.show()
 ```
 
+**Qué hace cada línea:**
+- `fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(15, 4.5))`: tres Axes en una fila, uno para cada gráfico — el mismo patrón de subplots del Bloque 1, con `axes[0]`, `axes[1]`, `axes[2]`.
+- `sns.boxplot(..., x="clasificacion_vuelo", y="pasajeros", ..., palette="colorblind")`: `x` es la variable categórica (Cabotaje/Internacional, define cuántas cajas hay), `y` es la variable numérica que se resume — igual que en el Bloque 3, pero acá además se usa `palette="colorblind"` para que el resultado sea accesible desde el vamos, aplicando lo visto en el Bloque 6.
+- `sns.violinplot(...)`: mismos parámetros `x`/`y` que el boxplot, para poder comparar directamente qué información extra aporta la forma completa de la densidad.
+- `matriz_corr = df_vuelos[["pasajeros", "asientos", "vuelos"]].corr()`: selecciona las 3 columnas numéricas y calcula su matriz de correlación — igual que en el Bloque 3, pero acá con las variables reales del dataset de vuelos.
+- `sns.heatmap(matriz_corr, annot=True, cmap="coolwarm", vmin=-1, vmax=1, ax=axes[2])`: dibuja esa matriz como cuadrícula de colores en el tercer Axes, con los mismos parámetros vistos en la Filmina 15 (`annot=True` para ver el número exacto, `vmin`/`vmax` fijos para que la escala de color sea consistente).
+
 ### Paso 3 — Mini-EDA con Storytelling *(Bloque 8 — ensayo de la Pre-entrega)*
 
 **Consigna:** elegir 2 gráficos (uno de distribución, uno de relación) y escribir una interpretación de 2-3 líneas debajo de cada uno — es un ensayo directo del formato de la Pre-entrega, aplicado al dataset de vuelos en vez del dataset propio.
+
+**Qué buscamos ver:** practicar el formato completo que se va a pedir en la Pre-entrega (Bloque 8) — no solo el gráfico técnicamente correcto, sino el gráfico MÁS la interpretación escrita, ensayado acá con el dataset conocido de la clase antes de aplicarlo al dataset propio de cada proyecto.
 
 ```python
 import pandas as pd
@@ -1264,6 +1520,10 @@ axes[1].set_title("Asientos Ofertados vs. Pasajeros Reales")
 plt.tight_layout()
 plt.show()
 ```
+
+**Qué hace cada línea:**
+- `sns.histplot(data=df_vuelos, x="asientos", kde=True, ax=axes[0], color="#5DADE2")`: el gráfico de "distribución" pedido por la consigna — la forma en que se reparten los asientos ofertados día a día.
+- `sns.scatterplot(data=df_vuelos, x="asientos", y="pasajeros", hue="clasificacion_vuelo", palette="colorblind", ax=axes[1])`: el gráfico de "relación" pedido por la consigna — cada punto es un día, su posición muestra la relación entre asientos ofertados y pasajeros reales, y el color (accesible) distingue el tipo de vuelo.
 
 **Comentar en clase:** los asientos ofertados se concentran en un rango medio con cola hacia valores altos (vuelos internacionales de mayor porte); existe relación positiva entre asientos y pasajeros en ambas clasificaciones, con más dispersión en Cabotaje.
 
