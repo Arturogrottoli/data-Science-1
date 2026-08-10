@@ -1485,8 +1485,8 @@ enero = df[<span style="color: #032f62;">'2023-01'</span>]
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 06</span>
-            <h2>Pre-Entrega 4: Estructura Inicial del Dataset</h2>
-            <p style="font-size: 20px;">Cargá, inspeccioná y saneá el dataset de tu Proyecto Final con Pandas y NumPy.</p>
+            <h2>Pre-Entrega: Limpieza y Análisis Exploratorio</h2>
+            <p style="font-size: 20px;">Poné a prueba tu criterio analítico sobre un dataset real, con nulos, duplicados y tipos incorrectos.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
@@ -1496,7 +1496,7 @@ enero = df[<span style="color: #032f62;">'2023-01'</span>]
 
     <!-- SLIDE 39: Pre-Entrega: consigna -->
     <div class="slide-container" id="slide39">
-        <h2 class="slide-title">Pre-Entrega 4: ¿Qué Debés Entregar?</h2>
+        <h2 class="slide-title">Pre-Entrega: ¿Qué Debés Entregar?</h2>
         <div class="content-area">
             <div class="table-layout">
                 <table>
@@ -1504,11 +1504,10 @@ enero = df[<span style="color: #032f62;">'2023-01'</span>]
                         <tr><th>Bloque</th><th>Contenido</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td><strong>1. Carga del Dataset</strong></td><td><code>read_csv</code> (o similar) para traer tus datos al entorno.</td></tr>
-                        <tr><td><strong>2. Estructura Base</strong></td><td>Reporte del número de filas y columnas (<code>.shape</code>).</td></tr>
-                        <tr><td><strong>3. Diagnóstico Estructural</strong></td><td><code>.info()</code> para nulos y <code>dtypes</code> que no coincidan con la realidad.</td></tr>
-                        <tr><td><strong>4. Resumen Numérico</strong></td><td><code>.describe()</code> para entender los rangos de tus variables.</td></tr>
-                        <tr><td><strong>5. Saneamiento Inicial</strong></td><td>Al menos 3 filtros booleanos + eliminar una columna que no aporte.</td></tr>
+                        <tr><td><strong>1. Carga y Medición Inicial</strong></td><td>Total de valores faltantes por columna y qué % de las filas representa cada ausencia.</td></tr>
+                        <tr><td><strong>2. Detección de Duplicados</strong></td><td>Filas exactamente iguales, y duplicados en columnas que deberían ser únicas (IDs, facturas).</td></tr>
+                        <tr><td><strong>3. Análisis de Impacto</strong></td><td>Para cada columna con nulos: ¿qué significa que falte? ¿Los duplicados son error o dato válido?</td></tr>
+                        <tr><td><strong>4. Creación del Informe</strong></td><td>Documento legible por un supervisor que no sabe programar (Word, Docs o Markdown).</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1521,15 +1520,16 @@ enero = df[<span style="color: #032f62;">'2023-01'</span>]
 
     <!-- SLIDE 40: Pre-Entrega: errores a evitar + entregable -->
     <div class="slide-container" id="slide40">
-        <h2 class="slide-title">Pre-Entrega 4: Errores Comunes a Evitar</h2>
+        <h2 class="slide-title">Pre-Entrega: Errores Comunes a Evitar</h2>
         <div class="content-area">
             <div class="bullet-list">
                 <ul>
-                    <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Ignorar los tipos de datos:</strong> intentar sumar una columna y que tire error porque Pandas la leyó como <code>object</code> (texto) — revisá siempre <code>.info()</code>.</li>
-                    <li><i class="fa-solid fa-floppy-disk"></i> <strong>No guardar los cambios:</strong> filtrar con <code>df[df['edad'] > 18]</code> no modifica el original a menos que lo reasignes (<code>df = df[df['edad'] > 18]</code>).</li>
+                    <li><i class="fa-solid fa-percent"></i> <strong>Confundir porcentajes:</strong> dividí el total de nulos entre el total de <strong>filas</strong>, no de columnas.</li>
+                    <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Imputar sin pensar:</strong> no rellenes "edad" con 0 sin una razón válida — distorsiona el promedio mucho más que un nulo.</li>
+                    <li><i class="fa-solid fa-file-code"></i> <strong>Entregar código sin más:</strong> este checkpoint evalúa tu <strong>criterio analítico</strong>. Las tablas pueden ser capturas del notebook, pero lo central es explicar el porqué de cada decisión.</li>
                 </ul>
             </div>
-            <p class="note-text">Entregable: PDF con la exportación del notebook (código, resultados y comentarios), con diagnóstico de nulos, dtypes, describe() y los filtros realizados. Nombre sugerido: Apellido_Nombre_Checkpoint1.pdf.</p>
+            <p class="note-text">Entregable: Pre-entrega — Limpieza y Análisis Exploratorio con Pandas (evaluable, suma al proyecto final). Consigna y rúbrica completas en la unidad de pre-entrega.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>

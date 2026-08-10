@@ -19,7 +19,7 @@ Antes de los 5 módulos nuevos hay un **Módulo 0 de repaso**, pensado como puen
 - [Módulo 3 — Agrupar, Resumir y Comparar: GroupBy y Pivot Tables](#módulo-3--agrupar-resumir-y-comparar-groupby-y-pivot-tables)
 - [Módulo 4 — Fechas, Series Temporales y Resampling](#módulo-4--fechas-series-temporales-y-resampling)
 - [Módulo 5 — Manipulación de Datos: Pandas (Síntesis)](#módulo-5--manipulación-de-datos-pandas-síntesis)
-- [Módulo 6 — Pre-Entrega: Limpieza y Análisis Exploratorio](#módulo-6--pre-entrega-limpieza-y-análisis-exploratorio)
+- [Módulo 6 — Pre-Entrega 4: Estructura Inicial del Dataset del Proyecto](#módulo-6--pre-entrega-4-estructura-inicial-del-dataset-del-proyecto)
 
 ---
 
@@ -36,7 +36,7 @@ Para seguir la clase en paralelo con `Clase04.html` (41 filminas) sin perderte:
 | — | Break del Coder | 24 | — | Corte de ~10 minutos |
 | 4 | Fechas, Series Temporales y Resampling | 25–29 | Módulo 4 | `to_datetime`, índice temporal, `resample()` |
 | 5 | Manipulación de Datos: Pandas (Síntesis) | 30–37 | Módulo 5 | Origen de Pandas, pipeline profesional completo, `merge` vs. `concat`, errores comunes |
-| 6 | Pre-Entrega: Limpieza y Análisis Exploratorio | 38–41 | Módulo 6 | Consigna evaluable: nulos, duplicados, análisis de impacto e informe |
+| 6 | Pre-Entrega 4: Estructura Inicial del Dataset | 38–41 | Módulo 6 | Consigna evaluable: carga, `.shape`, `.info()`, `.describe()`, 3 filtros booleanos de saneamiento |
 
 ---
 
@@ -726,9 +726,9 @@ delanteros["goles_por_90"] = delanteros["goals"] / (delanteros["minutes_played"]
 
 ---
 
-## Módulo 6 — Pre-Entrega: Estructura Inicial del Dataset del Proyecto
+## Módulo 6 — Pre-Entrega 4: Estructura Inicial del Dataset del Proyecto
 
-**Origen de esta consigna**: es el **Checkpoint 1** oficial de la plataforma ("Pre-entrega: Estructura inicial del dataset del proyecto"). Nace como cierre del módulo de NumPy y Pandas (Clase 03), pero como en esa clase no llegamos a ver todo el contenido necesario, se corrió a Clase 04 — por eso vive acá y no en la guía de Clase 03.
+**Origen de esta consigna**: es el **Checkpoint 1 / Pre-entrega 4** oficial de la plataforma ("Pre-entrega: Estructura inicial del dataset del proyecto"). Nace como cierre del módulo de NumPy y Pandas (Clase 03), pero como en esa clase no llegamos a ver todo el contenido necesario, se corrió a Clase 04 — por eso vive acá y no en la guía de Clase 03. **No confundir con la Pre-entrega de Clase 05** ("EDA Visual del Dataset del Proyecto"): son dos checkpoints distintos y consecutivos — esta (Pre-entrega 4) sanea la estructura del dataset; la de Clase 05 lo visualiza una vez ya saneado.
 
 **Contexto y posición en la cadena**: en Nivelación y Fundamentos de Python preparaste el entorno y la lógica de programación; en este primer checkpoint aplicás Pandas y NumPy para "darle una identidad" a tu propio Proyecto Final. Lo que construyas hoy no es el análisis definitivo — es la base saneada y explorada sobre la que en el próximo módulo vas a aplicar visualización, y más adelante, Machine Learning.
 
