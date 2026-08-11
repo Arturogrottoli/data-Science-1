@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 10 - Repaso Final: Clases 01 a 09 | Coderhouse</title>
+    <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==========================================================================
+           CODER 4.0 DESIGN SYSTEM & VARS
+           ========================================================================== */
+        :root {
+            --blanco-lienzo: #F8F2E8;
+            --negro-coder: #171717;
+            --naranja-oscuro: #260700;
+            --naranja-horizonte: #FF632B;
+            --amarillo-solar: #FE872D;
+            --rosa-energia: #FE64A3;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #dcd6cd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: var(--font-main);
+            overflow: hidden;
+        }
+
+        /* Slide Viewer (Absolute 1280x720 No-Scale-Shift) */
+        .presentation-viewport {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: var(--blanco-lienzo);
+        }
+
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            color: var(--negro-coder);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 70px 40px 70px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out, visibility var(--transition-speed) ease-in-out;
+            z-index: 1;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Abstract Brand Accents: Subtly warm gradients connecting to Coder 4.0 */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -150px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(255,99,43,0.06) 0%, rgba(248,242,232,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .slide-container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography & Hierarchy */
+        h1 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+        }
+
+        .slide-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slide-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 2px;
+            background-color: rgba(38, 7, 0, 0.1);
+            margin-left: 15px;
+        }
+
+        p, li {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #3d3430;
+            font-weight: 400;
+        }
+
+        /* Content Area Layout Wrapper */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Grid & Column Definitions */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 45px;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Coder 4.0 Split Card layouts */
+        .two-column.tiled > div {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            padding: 35px;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .two-column.tiled h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--naranja-horizonte);
+            margin-bottom: 12px;
+        }
+
+        /* Warm Retro Photography Frame */
+        .image-wrapper {
+            border-radius: 16px;
+            height: 340px;
+            overflow: hidden;
+            width: 100%;
+            border: 4px solid #ffffff;
+            box-shadow: 0 10px 25px rgba(38, 7, 0, 0.08);
+        }
+
+        .image-wrapper img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* Custom 2D Filled Icons & Tiles */
+        .tiled-content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .tile {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .tile .icon-box {
+            background-color: rgba(255, 99, 43, 0.1);
+            color: var(--naranja-horizonte);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .tile h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--naranja-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .tile p {
+            font-size: 14px;
+        }
+
+        /* Bullet List styling */
+        .bullet-list ul {
+            list-style: none;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .bullet-list li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--naranja-horizonte);
+            font-size: 16px;
+        }
+
+        /* Footer & Brand Branding Mark */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(38, 7, 0, 0.06);
+            padding-top: 15px;
+            width: 100%;
+        }
+
+        .slide-footer .brand-logo {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--naranja-oscuro);
+            letter-spacing: -0.5px;
+        }
+
+        .slide-footer .brand-logo span {
+            color: var(--naranja-horizonte);
+        }
+
+        .slide-footer .slide-index {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(38, 7, 0, 0.4);
+        }
+
+        /* Slide Type Banners ("Momentos de la Clase") */
+        .moment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+
+        .moment-badge.live {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .moment-badge.bug {
+            background-color: var(--rosa-energia);
+        }
+
+        .moment-badge.tip {
+            background-color: var(--amarillo-solar);
+            color: var(--naranja-oscuro);
+        }
+
+        /* Transition slide */
+        .transition-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .transition-layout h2 {
+            font-size: 56px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.1;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+        }
+
+        .transition-layout hr {
+            width: 80px;
+            height: 5px;
+            background-color: var(--naranja-horizonte);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        /* Clean retro table */
+        .table-layout {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+            width: 100%;
+        }
+
+        .table-layout table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-layout th, .table-layout td {
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(38, 7, 0, 0.06);
+            font-size: 14px;
+        }
+
+        .table-layout th {
+            background-color: rgba(38, 7, 0, 0.03);
+            color: var(--naranja-oscuro);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .table-layout tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Q&A / Legal section */
+        .legal-notice {
+            font-size: 10px;
+            line-height: 1.4;
+            color: rgba(38, 7, 0, 0.4);
+            text-align: justify;
+            margin-top: 20px;
+        }
+
+        /* Presentation controls toolbar */
+        .controls-toolbar {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(38, 7, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dot.active {
+            background-color: var(--naranja-horizonte);
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        /* Code Block Container */
+        .code-block {
+            background-color: #ffffff;
+            border-left: 4px solid var(--naranja-horizonte);
+            padding: 15px 20px;
+            font-family: monospace;
+            font-size: 13px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        /* Small note under tables */
+        .note-text {
+            margin-top: 18px;
+            font-size: 14px;
+            font-style: italic;
+            color: rgba(38, 7, 0, 0.6);
+        }
+
+        /* Chip: número de clase en las filminas de repaso */
+        .class-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            font-weight: 800;
+            font-size: 18px;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-viewport">
+
+    <!-- SLIDE 1: Portada -->
+    <div class="slide-container active" id="slide1">
+        <div></div>
+        <div class="transition-layout" style="margin-bottom: 30px;">
+            <span class="moment-badge">CODER 4.0 • CLASE 10 • REPASO FINAL</span>
+            <h1 style="font-size: 46px;">Repaso Final: de la Industria 4.0 al Aprendizaje No Supervisado</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Un recorrido por las Clases 01 a 09
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">01 / 29</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CLASE 01 -->
+    <!-- ============================================================ -->
+
+    <!-- SLIDE 2: División Clase 01 -->
+    <div class="slide-container" id="slide2">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Clase 01</span>
+            <h2>Transformación Digital e Industria 4.0</h2>
+            <p style="font-size: 20px;">Por qué los datos son el activo central de la Industria 4.0.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">02 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Clase 01 - Temas -->
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title"><span class="class-chip">01</span>Lo que vimos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-microchip"></i></div>
+                    <h3>9 Elementos de la Industria 4.0</h3>
+                    <p>De IoT a Robótica Avanzada — las piezas que definen la fábrica y la empresa digital de hoy.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-diagram-project"></i></div>
+                    <h3>Ciclo de Vida de un Proyecto DS</h3>
+                    <p>De la pregunta de negocio al dato, y del dato a la decisión — el mapa que vamos a recorrer toda la carrera.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-cloud"></i></div>
+                    <h3>Entorno de Trabajo: Google Colab</h3>
+                    <p>La potencia de un notebook interactivo en la nube, sin instalación local — donde vamos a programar toda la cursada.</p>
+                </div>
+            </div>
+            <p class="note-text">Los datos son el activo central de la Industria 4.0 — todo lo que viene después en el curso construye sobre esa idea.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">03 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: Clase 01 - Las 4 Revoluciones -->
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title"><span class="class-chip">01</span>Las 4 Revoluciones Industriales</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Era</th><th>Motor del cambio</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>1.0</strong> — Fines s. XVIII-XIX</td><td>Máquina de vapor y mecanización</td></tr>
+                        <tr><td><strong>2.0</strong> — Fines s. XIX-XX</td><td>Electricidad y producción en masa</td></tr>
+                        <tr><td><strong>3.0</strong> — 2ª mitad s. XX</td><td>Electrónica y automatización</td></tr>
+                        <tr><td><strong>4.0</strong> — Siglo XXI (hoy)</td><td>Datos, IoT e Inteligencia Artificial</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Cada revolución no reemplazó del todo a la anterior — se le sumó. Hoy conviven máquinas eléctricas, líneas automatizadas y sensores conectados en la misma fábrica.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">04 / 29</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CLASE 02 -->
+    <!-- ============================================================ -->
+
+    <!-- SLIDE 5: División Clase 02 -->
+    <div class="slide-container" id="slide5">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Clase 02</span>
+            <h2>Fundamentos de Python</h2>
+            <p style="font-size: 20px;">El vocabulario básico de programación que todo lo demás da por sabido.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">05 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Clase 02 - Temas -->
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title"><span class="class-chip">02</span>Lo que vimos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-hashtag"></i></div>
+                    <h3>Variables y Tipos</h3>
+                    <p>Escalares (<code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code>) y operadores básicos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-list"></i></div>
+                    <h3>Colecciones a Fondo</h3>
+                    <p>Listas, tuplas y diccionarios — cuándo usar cada estructura según lo que necesitás guardar.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-code-branch"></i></div>
+                    <h3>Control de Flujo</h3>
+                    <p><code>if/elif/else</code> para decisiones, <code>for</code> y <code>while</code> para repetir tareas.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-gears"></i></div>
+                    <h3>Funciones</h3>
+                    <p>Bloques reutilizables, funciones avanzadas, y la primera ingesta de datos con Pandas.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">06 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Clase 02 - Ejemplo -->
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title"><span class="class-chip">02</span>Todo junto, en un ejemplo chico</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block">
+temperaturas = [22.5, 24.0, 30.1, 18.3]
+
+alertas = []
+for temp in temperaturas:
+    if temp > 28:
+        alertas.append(temp)
+
+def resumen(lista):
+    return f"{len(lista)} alertas"
+
+print(resumen(alertas))
+                    </div>
+                </div>
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-key"></i> Lo más importante</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-list"></i> Una <strong>lista</strong> guarda la colección de datos.</li>
+                            <li><i class="fa-solid fa-code-branch"></i> El <strong><code>for</code> + <code>if</code></strong> filtra sin escribir 100 líneas repetidas.</li>
+                            <li><i class="fa-solid fa-gears"></i> La <strong>función</strong> empaqueta la lógica para reutilizarla.</li>
+                        </ul>
+                    </div>
+                    <p class="note-text">Este patrón — lista vacía + for + append — vuelve a aparecer todo el curso.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">07 / 29</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CLASE 03 -->
+    <!-- ============================================================ -->
+
+    <!-- SLIDE 8: División Clase 03 -->
+    <div class="slide-container" id="slide8">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Clase 03</span>
+            <h2>NumPy y Pandas</h2>
+            <p style="font-size: 20px;">Vectorización y la estructura de datos central de la ciencia de datos en Python.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">08 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Clase 03 - Temas -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title"><span class="class-chip">03</span>Lo que vimos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>Vectorización y Broadcasting</h3>
+                    <p>Operar arrays enteros de una vez, sin bucles — y cómo NumPy combina arrays de distinto tamaño.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-square-root-variable"></i></div>
+                    <h3>Álgebra Lineal</h3>
+                    <p>Operaciones matriciales con NumPy — la base matemática detrás de muchos modelos de ML.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-table"></i></div>
+                    <h3>Series y DataFrames</h3>
+                    <p>La estructura central de Pandas: filas, columnas, índice y tipos por columna.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-broom"></i></div>
+                    <h3>Preprocesamiento e Integración</h3>
+                    <p>Primeros pasos de limpieza y agregación — la sinergia entre NumPy y Pandas.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">09 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Clase 03 - Lista vs Array -->
+    <div class="slide-container" id="slide10">
+        <h2 class="slide-title"><span class="class-chip">03</span>Lista de Python vs. Array de NumPy</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Característica</th><th>Lista Python</th><th>Array NumPy</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Tipos de datos</td><td>Puede mezclar int, str, float</td><td>Solo un tipo por array</td></tr>
+                        <tr><td>Velocidad</td><td>Lenta (Python puro)</td><td>Muy rápida (C compilado)</td></tr>
+                        <tr><td>Operaciones matemáticas</td><td>Una por una, con <code>for</code></td><td>Sobre todo el array a la vez</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Para un millón de elementos, la diferencia puede ser de segundos vs. milisegundos — por eso NumPy es la base de Pandas, Scikit-Learn y prácticamente todo el ecosistema.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 29</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CLASE 04 -->
+    <!-- ============================================================ -->
+
+    <!-- SLIDE 11: División Clase 04 -->
+    <div class="slide-container" id="slide11">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Clase 04</span>
+            <h2>Manipulación de Datos con Pandas</h2>
+            <p style="font-size: 20px;">Limpiar, transformar y agrupar — la base de cualquier análisis confiable.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">11 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Clase 04 - Temas -->
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title"><span class="class-chip">04</span>Lo que vimos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-eraser"></i></div>
+                    <h3>Nulos y Duplicados</h3>
+                    <p>Detección, cuantificación, <code>duplicated()</code>/<code>drop_duplicates()</code> — eliminar vs. imputar.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-shuffle"></i></div>
+                    <h3><code>map</code> y <code>apply</code></h3>
+                    <p>Traducir etiquetas y calcular indicadores nuevos sin escribir un solo bucle.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>GroupBy y Pivot Tables</h3>
+                    <p>Split-Apply-Combine — agrupar, resumir y comparar categorías.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-calendar-days"></i></div>
+                    <h3>Fechas y Resampling</h3>
+                    <p><code>to_datetime</code>, índice temporal y <code>resample()</code> para suavizar series.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">12 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Clase 04 - GroupBy en código -->
+    <div class="slide-container" id="slide13">
+        <h2 class="slide-title"><span class="class-chip">04</span><code>groupby</code> en acción</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block">
+# 1. Agrupa las filas por "Producto"
+# 2. Toma la columna "Total_Venta"
+# 3. Suma todos los valores de cada grupo
+df.groupby("Producto")["Total_Venta"].sum()
+                    </div>
+                </div>
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-key"></i> Lo más importante</span>
+                    <p>Es el equivalente al <code>GROUP BY</code> de SQL, y la operación más usada para pasar de datos crudos a un resumen de negocio.</p>
+                    <p class="note-text">Con esto cerramos la Pre-Entrega 4: Estructura Inicial del Dataset — carga, diagnóstico y primer saneamiento del dataset del proyecto final.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">13 / 29</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CLASE 05 -->
+    <!-- ============================================================ -->
+
+    <!-- SLIDE 14: División Clase 05 -->
+    <div class="slide-container" id="slide14">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Clase 05</span>
+            <h2>Visualización de Datos</h2>
+            <p style="font-size: 20px;">De Matplotlib a un dashboard que se entiende en 3 segundos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Clase 05 - Temas -->
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title"><span class="class-chip">05</span>Lo que vimos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>Matplotlib</h3>
+                    <p>Figure, Axes y Axis — el modelo de objetos detrás de cualquier gráfico en Python.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-chart-simple"></i></div>
+                    <h3>Seaborn</h3>
+                    <p>Histogramas, boxplots, violinplots y heatmaps de correlación, en una línea.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-book-open"></i></div>
+                    <h3>Storytelling y Dashboards</h3>
+                    <p>Encuadre, jerarquía visual, ética de los gráficos y la regla de oro de 5 visualizaciones.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-palette"></i></div>
+                    <h3>UI/UX</h3>
+                    <p>La regla de lectura en "Z" y los principios de jerarquía visual en un dashboard.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Clase 05 - Qué gráfico usar -->
+    <div class="slide-container" id="slide16">
+        <h2 class="slide-title"><span class="class-chip">05</span>¿Qué Gráfico Usar?</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Pregunta</th><th>Gráfico</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>¿Cómo se reparten mis datos?</td><td>Histograma / KDE</td></tr>
+                        <tr><td>¿Outliers o dispersión en un grupo?</td><td>Boxplot</td></tr>
+                        <tr><td>¿Qué variables están relacionadas?</td><td>Scatter / Heatmap</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Un gráfico técnicamente correcto no alcanza — tiene que comunicar de forma honesta y clara (ejes desde cero, sin chartjunk).</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">16 / 29</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CLASE 06 -->
+    <!-- ============================================================ -->
+
+    <!-- SLIDE 17: División Clase 06 -->
+    <div class="slide-container" id="slide17">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Clase 06</span>
+            <h2>EDA y Estadística Descriptiva</h2>
+            <p style="font-size: 20px;">Entender la forma de los datos antes de modelarlos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">17 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: Clase 06 - Temas -->
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title"><span class="class-chip">06</span>Lo que vimos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-broom"></i></div>
+                    <h3>Limpieza e Integración</h3>
+                    <p>Detección y tratamiento de valores faltantes y outliers.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-scale-balanced"></i></div>
+                    <h3>Tendencia Central y Dispersión</h3>
+                    <p>Media, mediana, moda, desvío estándar — cómo resumir una variable con un número.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-wave-square"></i></div>
+                    <h3>Distribuciones</h3>
+                    <p>Normal y Uniforme — histogramas y diagramas de densidad para reconocerlas.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-ruler"></i></div>
+                    <h3>Normalización y Escalado</h3>
+                    <p>Llevar variables a la misma escala antes de compararlas o modelarlas.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">18 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Clase 06 - Media vs Mediana -->
+    <div class="slide-container" id="slide19">
+        <h2 class="slide-title"><span class="class-chip">06</span>Media vs. Mediana: ¿Cuál Usar?</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Medida</th><th>Cuándo conviene</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Media</strong></td><td>Distribución simétrica, sin valores extremos que la distorsionen.</td></tr>
+                        <tr><td><strong>Mediana</strong></td><td>Hay outliers o la distribución tiene sesgo (ej. salarios, ventas muy altas puntuales).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">La mediana resiste mejor los valores extremos — la elección correcta depende de la forma real de la distribución, no de una regla fija.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 29</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CLASE 07 -->
+    <!-- ============================================================ -->
+
+    <!-- SLIDE 20: División Clase 07 -->
+    <div class="slide-container" id="slide20">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Clase 07</span>
+            <h2>Pipelines Reproducibles y Casos de ML</h2>
+            <p style="font-size: 20px;">Un análisis que no se puede reproducir no sirve en un entorno profesional.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">20 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: Clase 07 - Temas -->
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title"><span class="class-chip">07</span>Lo que vimos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-recycle"></i></div>
+                    <h3>Principios de Reproducibilidad</h3>
+                    <p>Qué hace que un pipeline se pueda repetir con el mismo resultado, siempre.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-route"></i></div>
+                    <h3>Pipeline End-to-End</h3>
+                    <p>Las etapas completas: ingesta, transformación y componentes clave de cada una.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-industry"></i></div>
+                    <h3>ML en la Industria</h3>
+                    <p>Casos de uso reales de Machine Learning aplicados a procesos productivos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">21 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Clase 07 - Checklist reproducibilidad -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title"><span class="class-chip">07</span>¿Qué Hace Reproducible un Pipeline?</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-check"></i> Corre completo con "Run all", sin celdas ejecutadas a mano fuera de orden.</li>
+                    <li><i class="fa-solid fa-check"></i> Usa semillas fijas (<code>random_state</code>) para que el resultado no cambie entre corridas.</li>
+                    <li><i class="fa-solid fa-check"></i> No depende de variables sueltas fuera de las funciones.</li>
+                    <li><i class="fa-solid fa-check"></i> Documenta de dónde salen los datos y qué transformaciones se aplicaron.</li>
+                </ul>
+            </div>
+            <p class="note-text">Este mismo criterio reaparece en cada Pre-Entrega del curso: un notebook que solo corre "en la compu de quien lo hizo" no está terminado.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 29</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CLASE 08 -->
+    <!-- ============================================================ -->
+
+    <!-- SLIDE 23: División Clase 08 -->
+    <div class="slide-container" id="slide23">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Clase 08</span>
+            <h2>Aprendizaje Supervisado en Práctica</h2>
+            <p style="font-size: 20px;">De un dataset limpio a un modelo entrenado y validado correctamente.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: Clase 08 - Temas -->
+    <div class="slide-container" id="slide24">
+        <h2 class="slide-title"><span class="class-chip">08</span>Lo que vimos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-sitemap"></i></div>
+                    <h3>Árbol de Decisión y KNN</h3>
+                    <p>Dos formas distintas de clasificar: reglas jerárquicas vs. "los vecinos más parecidos".</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>Regresión Logística y Lineal</h3>
+                    <p>Predecir una categoría vs. predecir un número continuo.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-tree"></i></div>
+                    <h3>Random Forest</h3>
+                    <p>Muchos árboles combinados — más robusto que un árbol solo.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-vial"></i></div>
+                    <h3>Cross-Validation</h3>
+                    <p>Validar el modelo en varios splits, no en uno solo, para confiar en la métrica.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">24 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: Clase 08 - Data Leakage -->
+    <div class="slide-container" id="slide25">
+        <h2 class="slide-title"><span class="class-chip">08</span>El Error Más Común: Data Leakage</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block">
+# La clave: fit SOLO sobre train,
+# transform aplicado a ambos
+scaler.fit(X_train)
+X_train_esc = scaler.transform(X_train)
+X_test_esc = scaler.transform(X_test)
+                    </div>
+                </div>
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Por qué importa</span>
+                    <p>Si se ajusta el <code>scaler</code> (o cualquier preprocesamiento) sobre todo el dataset antes de dividir, el modelo "espía" información del test — la métrica final queda inflada y miente sobre el rendimiento real.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">25 / 29</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CLASE 09 -->
+    <!-- ============================================================ -->
+
+    <!-- SLIDE 26: División Clase 09 -->
+    <div class="slide-container" id="slide26">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Clase 09</span>
+            <h2>Aprendizaje No Supervisado</h2>
+            <p style="font-size: 20px;">Sin etiquetas: encontrar estructura en los datos en vez de predecir.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">26 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 27: Clase 09 - Temas -->
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title"><span class="class-chip">09</span>Lo que vimos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-link"></i></div>
+                    <h3>Reglas de Asociación</h3>
+                    <p>Apriori — qué productos o eventos aparecen juntos con frecuencia.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-circle-dot"></i></div>
+                    <h3>K-Means</h3>
+                    <p>Agrupar en <code>k</code> clusters, y cómo elegir ese <code>k</code> con criterio.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-sitemap"></i></div>
+                    <h3>Jerárquico y DBSCAN</h3>
+                    <p>Clustering sin definir <code>k</code> de antemano, y detección de ruido/outliers.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-compress"></i></div>
+                    <h3>PCA</h3>
+                    <p>Reducir muchas variables a unas pocas, conservando la mayor parte de la información.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">27 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 28: Clase 09 - Tres tipos de problemas -->
+    <div class="slide-container" id="slide28">
+        <h2 class="slide-title"><span class="class-chip">09</span>Tres Grandes Tipos de Problemas</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Tipo</th><th>Objetivo</th><th>Ejemplo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Clustering</td><td>Agrupar datos similares</td><td>Segmentar clientes</td></tr>
+                        <tr><td>Reducción de Dimensionalidad</td><td>Simplificar variables</td><td>Visualizar en 2D con PCA</td></tr>
+                        <tr><td>Reglas de Asociación</td><td>Encontrar relaciones frecuentes</td><td>Qué se compra junto en retail</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Sin etiquetas, el objetivo cambia de "predecir una respuesta conocida" a "encontrar patrones ocultos" — otra forma de pensar el problema, no una versión incompleta del supervisado.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">28 / 29</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 29: Cierre -->
+    <div class="slide-container" id="slide29">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-route" style="font-size: 50px; color: var(--amarillo-solar);"></i>
+                <i class="fa-solid fa-flag-checkered" style="font-size: 90px; color: var(--naranja-horizonte);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 60px; color: var(--rosa-energia);"></i>
+            </div>
+            <h1 style="font-size: 52px;">De Python puro a los dos grandes mundos del Machine Learning</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                ¿Dudas de cualquiera de las 9 clases? Este es el momento de preguntar.
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">29 / 29</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Presentation navigation controls toolbar -->
+<div class="controls-toolbar">
+    <button class="control-btn" id="prev-slide"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+    <div class="slide-dots" id="slide-dots"></div>
+    <button class="control-btn" id="next-slide">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<script>
+    // Slider Presentation Logic
+    const slides = document.querySelectorAll('.slide-container');
+    const prevBtn = document.getElementById('prev-slide');
+    const nextBtn = document.getElementById('next-slide');
+    const dotsContainer = document.getElementById('slide-dots');
+
+    let currentSlideIndex = 0;
+
+    // Create Navigation Indicators Dynamically
+    slides.forEach((slide, idx) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (idx === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToSlide(idx);
+        });
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateControls() {
+        dots.forEach((dot, idx) => {
+            if (idx === currentSlideIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+
+        slides[currentSlideIndex].classList.remove('active');
+        currentSlideIndex = index;
+        slides[currentSlideIndex].classList.add('active');
+
+        updateControls();
+    }
+
+    // Keyboard Navigation Handlers
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+            goToSlide(currentSlideIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+            goToSlide(currentSlideIndex - 1);
+        }
+    });
+
+    // Button Click Event Listeners
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex + 1);
+    });
+</script>
+
+</body>
+</html>
