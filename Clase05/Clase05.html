@@ -1310,8 +1310,8 @@ axes[1].hist(datos_z)
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 08 • Pre-entrega</span>
-            <h2>EDA Visual del Dataset del Proyecto</h2>
-            <p style="font-size: 20px;">El checkpoint que conecta la visualización con el resto del proyecto de Data Science.</p>
+            <h2>Limpieza y Documentación del Dataset</h2>
+            <p style="font-size: 20px;">El checkpoint que sanea, agrupa y documenta la base de tu Proyecto Final.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
@@ -1319,26 +1319,25 @@ axes[1].hist(datos_z)
         </div>
     </div>
 
-    <!-- SLIDE 34: Dónde estamos y qué sigue -->
+    <!-- SLIDE 34: Inicialización, Carga y Diagnóstico -->
     <div class="slide-container" id="slide34">
-        <h2 class="slide-title">Dónde Estamos y Qué Sigue</h2>
+        <h2 class="slide-title">Inicialización, Carga y Diagnóstico</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge"><i class="fa-solid fa-route"></i> Camino recorrido hasta acá</span>
+                    <span class="moment-badge"><i class="fa-solid fa-code-branch"></i> Paso 1: Inicialización</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-gear"></i> Configuración del entorno y repositorio.</li>
-                            <li><i class="fa-solid fa-broom"></i> Módulo 4: carga y saneamiento del dataset (nulos, tipos de datos).</li>
-                            <li><i class="fa-solid fa-table"></i> Transformación y agrupación con Pandas.</li>
+                            <li><i class="fa-solid fa-folder-tree"></i> Repositorio en GitHub con un <code>.ipynb</code> o <code>.py</code> y el dataset original — o un link a la fuente si pesa mucho.</li>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Paso 2: Carga y Diagnóstico</strong> — <code>read_csv()</code> y <code>.info()</code>, <code>.describe()</code>, <code>.isnull().sum()</code> para entender el estado real de los datos.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="tile" style="height: 260px;">
                         <div class="icon-box"><i class="fa-solid fa-bridge"></i></div>
-                        <h3>El puente hacia Machine Learning</h3>
-                        <p>Este checkpoint de visualización conecta con el análisis predictivo: las relaciones que descubras hoy deciden qué variables vas a usar en tus modelos.</p>
+                        <h3>El puente hacia la visualización</h3>
+                        <p>Un dataset mal saneado produce gráficos que mienten. Esta pre-entrega es la base sólida sobre la que se construyen las visualizaciones y, más adelante, los modelos de Machine Learning.</p>
                     </div>
                 </div>
             </div>
@@ -1349,18 +1348,17 @@ axes[1].hist(datos_z)
         </div>
     </div>
 
-    <!-- SLIDE 35: Qué construir -->
+    <!-- SLIDE 35: Limpieza Rigurosa y Agregaciones de Negocio -->
     <div class="slide-container" id="slide35">
-        <h2 class="slide-title">Qué Construir: el Artefacto Visual</h2>
+        <h2 class="slide-title">Limpieza Rigurosa y Agregaciones de Negocio</h2>
         <div class="content-area">
             <div class="bullet-list">
                 <ul>
-                    <li><i class="fa-solid fa-chart-column"></i> <strong>Análisis Univariado:</strong> al menos 2 gráficos de distribución (ej. histogramas con KDE) de las variables más importantes.</li>
-                    <li><i class="fa-solid fa-braille"></i> <strong>Análisis Bivariado/Multivariado:</strong> al menos 3 gráficos de relación o comparación (boxplots por categoría, scatter plots, heatmap de correlación general).</li>
-                    <li><i class="fa-solid fa-pen"></i> <strong>Interpretación:</strong> cada gráfico con una breve descripción (2-3 líneas) de qué se ve y qué conclusión preliminar se puede sacar.</li>
+                    <li><i class="fa-solid fa-broom"></i> <strong>Limpieza Rigurosa:</strong> imputación de valores faltantes (media, moda o eliminación estratégica), eliminación de duplicados, y conversión de columnas a tipos de datos apropiados (ej. fechas).</li>
+                    <li><i class="fa-solid fa-layer-group"></i> <strong>Agregaciones de Negocio:</strong> al menos 3 agrupaciones (<code>groupby</code>) que respondan preguntas clave — ej. promedio por categoría, conteo de registros por región.</li>
                 </ul>
             </div>
-            <p class="note-text">Errores a evitar: el "vómito de gráficos" (20 sin explicación — mejor 5 bien analizados), ejes sin escala ni etiqueta, e ignorar la distribución antes de analizar correlación (outliers que sesgan la relación).</p>
+            <p class="note-text">Errores a evitar: olvidar <code>reset_index()</code> tras eliminar filas; no verificar la consistencia de tipos antes de calcular; subir archivos de datos extremadamente pesados (usar un link si pesan más de 50MB).</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
@@ -1370,23 +1368,23 @@ axes[1].hist(datos_z)
 
     <!-- SLIDE 36: Entregable -->
     <div class="slide-container" id="slide36">
-        <h2 class="slide-title">Entregable: Instrucciones del EDA Visual</h2>
+        <h2 class="slide-title">Entregable: Repositorio y Documentación</h2>
         <div class="content-area">
-            <span class="moment-badge live"><i class="fa-solid fa-file-pdf"></i> Un único archivo PDF</span>
+            <span class="moment-badge live"><i class="fa-brands fa-github"></i> Un repositorio, no un solo archivo</span>
             <div class="table-layout">
                 <table>
                     <thead>
                         <tr><th>Sección</th><th>Contenido</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td>Portada</td><td>Título del proyecto y nombre del estudiante.</td></tr>
-                        <tr><td>Resumen del dataset</td><td>Breve descripción de los datos (1 párrafo).</td></tr>
-                        <tr><td>Visualizaciones (mín. 5)</td><td>≥1 histograma/KDE, ≥1 boxplot/violinplot, ≥1 scatter/heatmap.</td></tr>
-                        <tr><td>Análisis por gráfico</td><td>Qué se descubrió (ej. "la variable X tiene sesgo a la derecha y outliers &gt; 5000").</td></tr>
+                        <tr><td>Notebook o script</td><td><code>.ipynb</code> o <code>.py</code> con la carga, el diagnóstico y la limpieza aplicada.</td></tr>
+                        <tr><td>Dataset</td><td>Archivo original, o un link a la fuente si pesa más de 50MB.</td></tr>
+                        <tr><td>Agregaciones</td><td>Al menos 3 <code>groupby</code> que respondan preguntas de negocio concretas.</td></tr>
+                        <tr><td><code>README.md</code></td><td>Origen de los datos y las decisiones de limpieza tomadas — por qué se imputó, eliminó o convirtió cada cosa.</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p class="note-text">No se entrega código (.py/.ipynb) en este paso — se evalúa la visualización y la comunicación de los hallazgos. Nombre sugerido: <code>EDA_Visual_Apellido_Nombre.pdf</code>.</p>
+            <p class="note-text">La documentación es parte de la entrega: un notebook sin <code>README.md</code> no permite que otra persona entienda las decisiones tomadas.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>

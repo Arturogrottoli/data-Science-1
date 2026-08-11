@@ -1,6 +1,6 @@
 # Readme Repaso — Clase 05: Visualizaciones Avanzadas en Data Science
 
-Guion de clase para el profesor. Cada sección incluye qué decir, qué mostrar y qué ejecutar en el notebook. La Parte 2 sigue el orden exacto de las filminas de `Clase05.html` (37 filminas) e interleava con el notebook `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_ (actualizado al docx nuevo).ipynb`. Cada vez que hay código, el texto marca explícitamente **👉 cuándo pasar a Colab** y **👉 cuándo volver a las filminas**, para que sea fácil ir alternando ventanas en vivo.
+Guion de clase para el profesor. Cada sección incluye qué decir, qué mostrar y qué ejecutar en el notebook. La Parte 2 sigue el orden exacto de las filminas de `Clase05.html` (37 filminas) e interleava con el notebook `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_ (actualizado).ipynb`. Cada vez que hay código, el texto marca explícitamente **👉 cuándo pasar a Colab** y **👉 cuándo volver a las filminas**, para que sea fácil ir alternando ventanas en vivo.
 
 ---
 
@@ -11,7 +11,7 @@ Guion de clase para el profesor. Cada sección incluye qué decir, qué mostrar 
 Abrir tres archivos antes de arrancar, y dejarlos en pestañas separadas para poder alternar rápido:
 - Repaso: `Repaso_Data_Science_I_Fundamentos_para_la_Ciencia_de_Datos_.ipynb`
 - Filminas: `Clase05.html`
-- Código de la Parte 2: `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_ (actualizado al docx nuevo).ipynb`
+- Código de la Parte 2: `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_ (actualizado).ipynb`
 
 ---
 
@@ -488,7 +488,7 @@ print(reporte)
 | 23–24 | Arquitectura Visual y Regla de Lectura en "Z" | Bloque 5 (conceptual, sin código) |
 | 25–29 | Principios de UI/UX y Jerarquía Visual | Bloque 6 |
 | 30–32 | Práctica: Auditoría UX de Dashboards | Bloque 7 (sin código) |
-| 33–36 | Pre-entrega: EDA Visual del Proyecto | Bloque 8 |
+| 33–36 | Pre-entrega: Limpieza y Documentación del Dataset | Bloque 8 |
 | 37 | Cierre | — |
 
 > Todo lo que quedó fuera del `Clase 05.docx` vigente (GridSpec, series temporales, análisis multivariado con `hue/style/size`, Plotly, formatos de exportación) sigue disponible en el **Anexo** del notebook — no tiene filmina asociada ni se pide en la Pre-entrega, pero está para quien quiera ir más allá.
@@ -590,7 +590,7 @@ En Data Science se recomienda casi siempre el estilo OO porque en cuanto se arma
 
 **Qué buscamos ver con este ejemplo:** el mismo gráfico de línea hecho de las dos formas, para comprobar en carne propia que con UN solo gráfico el resultado visual es idéntico — la diferencia entre los dos estilos no se nota todavía acá, recién se va a notar en la Filmina 05 cuando aparezca un segundo Axes.
 
-👉 **Acá pasás a Colab.** Abrí `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_ (actualizado al docx nuevo).ipynb`, andá al **Bloque 1** y corré la celda del ejemplo "Estilo Pyplot vs. Estilo Orientado a Objetos".
+👉 **Acá pasás a Colab.** Abrí `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_ (actualizado).ipynb`, andá al **Bloque 1** y corré la celda del ejemplo "Estilo Pyplot vs. Estilo Orientado a Objetos".
 
 **Ejecutar:**
 ```python
@@ -1352,69 +1352,127 @@ Sin código — no hay transición a Colab en este bloque, este ejercicio se res
 
 ---
 
-### BLOQUE 8 — Pre-entrega: EDA Visual del Dataset del Proyecto *(Filminas 33–36)*
+### BLOQUE 8 — Pre-entrega: Limpieza y Documentación del Dataset *(Filminas 33–36)*
 
-**Filmina 33 — División de módulo.** Este es el cierre evaluable de la clase.
+**Filmina 33 — División de módulo.** Este es el cierre evaluable de la clase. **Importante:** esta consigna es la oficial de la plataforma — reemplaza a una versión anterior de este mismo bloque que hablaba de "EDA Visual" (gráficos). No confundir tampoco con la **Pre-entrega 4** de Clase 04 ("Estructura Inicial del Dataset"): son dos checkpoints relacionados pero distintos — Clase 04 ya sanea la estructura básica (nulos, tipos, filtros); esta pre-entrega de Clase 05 profundiza la limpieza (imputación con criterio, deduplicación, conversión de fechas), suma agregaciones de negocio con `groupby`, y agrega el requisito de documentar todo en un repositorio de GitHub con `README.md`.
 
-#### Filmina 34 — Dónde Estamos y Qué Sigue
-
-**Qué decir (ampliando lo que dice la filmina):**
-
-Hasta acá el proyecto ya recorrió tres etapas, y vale la pena desarrollar cada una en vez de solo nombrarlas: **Configuración** — preparar el entorno de trabajo y sincronizar el repositorio, el paso administrativo inicial de cualquier proyecto. **Estructura** — en el módulo de limpieza de datos (previo a esta clase), se entregó la carga y el saneamiento inicial del dataset: nulos tratados, tipos de datos correctos. **Manipulación** — se aprendió a transformar y agrupar datos con Pandas, la base técnica para poder graficar cualquier cosa hoy.
-
-La frase clave que trae la filmina, y que vale la pena remarcar con énfasis: este checkpoint es el **puente hacia el análisis predictivo**. No es un ejercicio aislado de "hacer lindos gráficos" — las relaciones que se descubran hoy (qué variables correlacionan, cuáles tienen outliers, cuáles están sesgadas) van a determinar directamente qué variables se eligen y cómo se preparan para los modelos de Machine Learning en los módulos siguientes del curso. Un modelo entrenado sin haber hecho antes este EDA visual corre el riesgo de usar variables redundantes (alta correlación entre sí) o de no detectar outliers que después distorsionan el entrenamiento.
-
-Sin código en esta filmina — se sigue a la 35.
-
-#### Filmina 35 — Qué Construir
+#### Filmina 34 — Inicialización, Carga y Diagnóstico
 
 **Qué decir (ampliando lo que dice la filmina):**
 
-El objetivo de aprendizaje que plantea la filmina es "consolidar un EDA visual preliminar utilizando Matplotlib y Seaborn, aplicando principios de jerarquía visual y storytelling" — es decir, no alcanza con aplicar solo la técnica (Bloques 1-3), también hay que aplicar el criterio de comunicación (Bloques 4-6) que se vio después del break. Sin exportar todos los gráficos posibles, hay que seleccionar solo los que aporten valor real al entendimiento del dataset:
+**Paso 1 — Inicialización:** antes de escribir una sola línea de análisis, el proyecto necesita un repositorio en GitHub con un notebook (`.ipynb`) o script (`.py`) y el dataset original — o, si el dataset pesa mucho, un link a la fuente en vez del archivo pesado directamente en el repo. Esto no es un detalle administrativo menor: un repositorio bien inicializado desde el principio es lo que permite que el trabajo sea reproducible y compartible, en vez de vivir solo en la computadora de quien lo hizo.
 
-- **Análisis Univariado:** al menos 2 gráficos que muestren la distribución de las variables más importantes — esto es literalmente el Bloque 2 de hoy (histogramas con KDE), aplicado ahora al dataset propio del proyecto en vez del dataset de propinas usado como ejemplo.
-- **Análisis Bivariado/Multivariado:** al menos 3 gráficos que muestren relaciones o comparaciones — boxplots para comparar categorías, scatter plots para ver correlaciones puntuales, o un heatmap de correlación general. Es el Bloque 3 de hoy, aplicado al dataset propio.
-- **Interpretación:** cada gráfico debe estar acompañado de una breve descripción (2-3 líneas) que explique qué se está viendo y qué conclusión preliminar se puede sacar. Esto es lo genuinamente nuevo respecto a los bloques anteriores — hasta ahora se pedía solo el gráfico técnicamente correcto; acá se pide, además, la interpretación escrita en palabras.
+**Paso 2 — Carga y Diagnóstico:** `read_csv()` para traer los datos, y tres comandos de diagnóstico que ya se vieron en la Pre-entrega 4 de Clase 04 pero que acá se aplican con más profundidad: `.info()` (nulos y `dtypes` por columna), `.describe()` (rangos y estadísticas de las variables numéricas), `.isnull().sum()` (el conteo exacto de nulos por columna, para saber con precisión qué hay que resolver antes de seguir).
 
-**Errores a evitar** (la filmina los trae en el pie de página, conviene leerlos completos y con su porqué): **el "vómito de gráficos"** — incluir 20 gráficos sin explicación es peor que incluir 5 bien analizados, porque obliga a quien lee a hacer el trabajo de interpretación que debería estar ya hecho. **Ejes sin escala o etiqueta** — un gráfico sin `ylabel` es solo una forma abstracta, el lector no sabe si se habla de pesos, dólares o kilogramos (el mismo error que se vio en el Bloque 1). **Ignorar la distribución antes de analizar correlación** — calcular una correlación sin haber visto primero si la variable tiene outliers puede llevar a una conclusión falsa, porque un solo valor extremo puede inflar o desinflar artificialmente un coeficiente de correlación.
+**Qué buscamos ver con este ejemplo:** el diagnóstico completo de un dataset real de altas de clientes de una plataforma de e-commerce (`ecommerce_clientes.csv`, 2.589 filas) — con nulos y duplicados genuinos, no simulados, para que la limpieza que viene en la próxima filmina tenga sentido real.
 
-#### Filmina 36 — El Entregable
-
-**Qué decir (ampliando lo que dice la filmina):**
-
-El formato pedido es un único archivo **PDF**, con una estructura fija que conviene detallar parte por parte: **Portada** (título del proyecto y nombre del estudiante — identifica el trabajo). **Resumen del dataset** (un párrafo breve describiendo qué datos se están analizando — da contexto antes de entrar en los gráficos). **Visualizaciones**, un mínimo de 5, con al menos una de cada categoría: 1 histograma o KDE (distribución), 1 boxplot o violinplot (comparación por categorías), 1 scatter plot o heatmap de correlación (relación entre variables) — no cualquier combinación de 5 gráficos sirve, tiene que cubrir estos 3 tipos como mínimo. **Análisis por gráfico**: debajo de cada imagen, un párrafo breve explicando qué se descubrió (ej. "se observa que la variable X tiene un sesgo a la derecha y presenta outliers por encima de los 5000 unidades").
-
-**No se entrega código** (`.py` o `.ipynb`) en este paso — la evaluación se centra en la calidad de la visualización y en la capacidad de comunicar los hallazgos en el PDF, no en el código que los generó. Nombre sugerido para el archivo: `EDA_Visual_Apellido_Nombre.pdf`.
-
-**Qué buscamos ver con este ejemplo:** un mini-ejemplo de cómo se vería, en la práctica, UNA de las 5 visualizaciones pedidas — el gráfico en sí, más el párrafo de interpretación que iría justo debajo en el PDF final. Sirve como plantilla de formato para cuando cada estudiante arme su propia pre-entrega con su dataset.
-
-👉 **Acá pasás a Colab.** Última celda del **Bloque 8**: el mini-ejemplo de cómo se ve una de las 5 visualizaciones pedidas, aplicado al dataset de vuelos.
+👉 **Acá pasás a Colab.** Abrí el **Bloque 8** y corré la celda de "Carga y Diagnóstico".
 
 **Ejecutar:**
 ```python
-import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
 
-df_vuelos = pd.read_csv("vuelos_asientos_pasajeros.csv")
+df = pd.read_csv("ecommerce_clientes.csv")
 
-fig, ax = plt.subplots(figsize=(7, 4))
-sns.histplot(data=df_vuelos, x="pasajeros", kde=True, ax=ax, color="#4682B4")
-ax.set_title("Distribución de Pasajeros Diarios", fontsize=13, fontweight="bold")
-ax.set_xlabel("Cantidad de Pasajeros por Día")
-ax.set_ylabel("Frecuencia (Días)")
-plt.tight_layout()
-plt.show()
+print(f"Dimensiones: {df.shape}")
+df.info()
+
+print("\nValores nulos por columna:")
+print(df.isnull().sum())
+
+print("\nEstadísticas descriptivas (columnas numéricas):")
+print(df.describe())
 ```
 
 **Qué hace cada línea:**
-- `df_vuelos = pd.read_csv("vuelos_asientos_pasajeros.csv")`: carga el dataset local de tráfico aéreo que se va a usar también en la Actividad Práctica Integradora que sigue.
-- `fig, ax = plt.subplots(figsize=(7, 4))`: un Axes simple — para el PDF final no hace falta un panel de múltiples gráficos, cada visualización suele ir en su propia página o sección.
-- `sns.histplot(data=df_vuelos, x="pasajeros", kde=True, ax=ax, color="#4682B4")`: histograma con curva KDE superpuesta de la columna `pasajeros` — la misma técnica del Bloque 2, aplicada acá a una variable real del dataset de vuelos en vez de al dataset de ejemplo.
-- `ax.set_title(..., fontsize=13, fontweight="bold")` / `ax.set_xlabel(...)` / `ax.set_ylabel(...)`: la personalización completa que se vio en la Filmina 06 — título, unidades explícitas en cada eje. En un entregable evaluable, omitir estas líneas es directamente uno de los "errores a evitar" de la Filmina 35.
-- `plt.tight_layout()` / `plt.show()`: ajusta espacios y renderiza el gráfico final, listo para exportarse (por ejemplo, con `plt.savefig()` visto en el Anexo) e incluirse en el PDF.
+- `df = pd.read_csv("ecommerce_clientes.csv")`: carga el dataset — 9 columnas: `COMPANY_ID`, `COMPANY_CREATED_AT`, `SUBSCRIPTION_STATUS`, `PRODUCT`, `SELLER_TYPE`, `COUNTRY`, `EMAIL`, `ACTIVE_USERS_L_28D`, `ALL_USERS_COUNT`.
+- `df.shape`: dimensiones del dataset — cuántas filas (clientes) y columnas (variables) hay antes de tocar nada.
+- `df.info()`: recorre columna por columna mostrando cuántos valores no nulos tiene cada una y de qué `dtype` es — acá aparece el primer problema real: `COMPANY_CREATED_AT` es `object` (texto), cuando debería ser una fecha.
+- `df.isnull().sum()`: el conteo exacto de nulos por columna — muestra que `SELLER_TYPE` y `ALL_USERS_COUNT` tienen huecos importantes, y que `ACTIVE_USERS_L_28D` también tiene algunos.
+- `df.describe()`: estadísticas de las columnas numéricas (`COMPANY_ID`, `ACTIVE_USERS_L_28D`, `ALL_USERS_COUNT`) — da una primera idea de los rangos antes de decidir cómo imputar.
 
-> **Interpretación de ejemplo (así se escribe en el PDF final):** la distribución de pasajeros diarios muestra una concentración principal entre valores medios, con una cola hacia la derecha — hay un grupo más chico de días con tráfico excepcionalmente alto que conviene revisar por separado antes de correlacionar esta variable con otras.
+**Qué mostrar en detalle:** tres problemas reales conviven en este dataset — nulos en `SELLER_TYPE` (categórica), nulos en `ACTIVE_USERS_L_28D` y `ALL_USERS_COUNT` (numéricas, pero con significados distintos), y una fecha guardada como texto. Cada uno se resuelve con una estrategia diferente en la próxima filmina — no hay una receta única para "limpiar nulos".
+
+👉 **Volvés a las filminas, Filmina 35.**
+
+#### Filmina 35 — Limpieza Rigurosa y Agregaciones de Negocio
+
+**Qué decir (ampliando lo que dice la filmina):**
+
+**Paso 3 — Limpieza Rigurosa**, con sus tres técnicas desarrolladas por separado:
+- **Imputación de valores faltantes**: no es una sola técnica, son tres estrategias distintas según qué signifique el hueco — **media** (para numéricas donde el valor faltante probablemente esté cerca del promedio), **moda** (para categóricas, el valor más frecuente), o **eliminación estratégica** (cuando no hay ninguna imputación razonable y es mejor descartar la fila).
+- **Eliminación de duplicados**: no alcanza con `duplicated()` sin argumentos (que compara la fila completa) — en datos reales, dos registros del mismo cliente casi nunca son idénticos en todas las columnas, pero sí comparten un identificador único como el email.
+- **Conversión de tipos**: las fechas que llegan como texto no se pueden ordenar cronológicamente ni operar con ellas hasta convertirlas con `pd.to_datetime()` — el mismo problema que se vio con `indice_tiempo` en el dataset de vuelos, ahora aplicado a `COMPANY_CREATED_AT`.
+
+**Paso 4 — Agregaciones de Negocio:** al menos 3 `groupby` que respondan preguntas concretas — no agregaciones al azar, sino preguntas que un negocio real haría: ¿en qué país están concentrados los clientes?, ¿qué producto genera más uso activo?, ¿cómo se reparte el tipo de vendedor según el estado de la suscripción?
+
+**Qué buscamos ver con este ejemplo:** resolver los tres problemas diagnosticados en la filmina anterior, cada uno con la técnica que le corresponde — y después responder tres preguntas de negocio distintas sobre el dataset ya limpio.
+
+👉 **Acá pasás a Colab.** Seguís en el **Bloque 8**, celdas de "Limpieza Rigurosa" y "Agregaciones de Negocio".
+
+**Ejecutar (Limpieza Rigurosa):**
+```python
+import pandas as pd
+
+df["SELLER_TYPE"] = df["SELLER_TYPE"].fillna(df["SELLER_TYPE"].mode()[0])
+df["ACTIVE_USERS_L_28D"] = df["ACTIVE_USERS_L_28D"].fillna(0)
+df = df.dropna(subset=["ALL_USERS_COUNT"])
+df = df.reset_index(drop=True)
+
+duplicados = df["EMAIL"].duplicated().sum()
+print(f"Emails duplicados antes de limpiar: {duplicados}")
+df = df.drop_duplicates(subset=["EMAIL"], keep="first").reset_index(drop=True)
+print(f"Filas después de eliminar duplicados: {len(df)}")
+
+df["COMPANY_CREATED_AT"] = pd.to_datetime(df["COMPANY_CREATED_AT"])
+print(f"\ndtype de COMPANY_CREATED_AT después de convertir: {df['COMPANY_CREATED_AT'].dtype}")
+```
+
+**Qué hace cada línea:**
+- `df["SELLER_TYPE"].fillna(df["SELLER_TYPE"].mode()[0])`: `.mode()` devuelve una Serie (puede haber más de un valor empatado como más frecuente), por eso `[0]` toma el primero — imputar una variable categórica con un promedio no tendría sentido, por eso acá se usa la moda.
+- `df["ACTIVE_USERS_L_28D"].fillna(0)`: acá el nulo probablemente significa "sin actividad registrada en ese período", no "dato desconocido" — es una decisión de negocio, no una regla mecánica aplicable a cualquier columna numérica.
+- `df.dropna(subset=["ALL_USERS_COUNT"])`: a diferencia de las dos anteriores, acá se decide eliminar directamente las filas — no hay una imputación razonable si no se sabe si esa empresa activó usuarios o no.
+- `df.reset_index(drop=True)`: después de cada operación que quita filas, el índice queda con "huecos" (0, 1, 3, 7...) — sin este paso, ese índice discontinuo puede romper operaciones posteriores que asuman una secuencia consecutiva. Es exactamente el error que la filmina marca como "común a evitar".
+- `df["EMAIL"].duplicated().sum()`: cuenta cuántos emails están repetidos — a diferencia de `df.duplicated()` sin argumentos, que solo detectaría filas 100% idénticas en todas las columnas.
+- `df.drop_duplicates(subset=["EMAIL"], keep="first")`: elimina las filas con email repetido, quedándose con la primera aparición de cada una.
+- `pd.to_datetime(df["COMPANY_CREATED_AT"])`: convierte el texto a un tipo de dato fecha real — sin esto, cualquier análisis de antigüedad o tendencia temporal daría resultados incorrectos, porque Pandas ordenaría las fechas alfabéticamente en vez de cronológicamente.
+
+**Ejecutar (Agregaciones de Negocio):**
+```python
+print("1) Cantidad de clientes por país:")
+print(df.groupby("COUNTRY")["COMPANY_ID"].count())
+
+print("\n2) Promedio de usuarios activos (últimos 28 días) por producto:")
+print(df.groupby("PRODUCT")["ACTIVE_USERS_L_28D"].mean().round(1).sort_values(ascending=False))
+
+print("\n3) Cantidad de clientes por estado de suscripción y tipo de vendedor:")
+print(df.groupby(["SUBSCRIPTION_STATUS", "SELLER_TYPE"])["COMPANY_ID"].count())
+```
+
+**Qué hace cada línea:**
+- `df.groupby("COUNTRY")["COMPANY_ID"].count()`: agrupa por país y cuenta cuántos `COMPANY_ID` hay en cada grupo — responde "¿dónde está concentrada la base de clientes?".
+- `df.groupby("PRODUCT")["ACTIVE_USERS_L_28D"].mean().round(1).sort_values(ascending=False)`: agrupa por producto, promedia el uso activo reciente, redondea a 1 decimal y ordena de mayor a menor — responde "¿qué producto genera más uso real, no solo más altas?".
+- `df.groupby(["SUBSCRIPTION_STATUS", "SELLER_TYPE"])["COMPANY_ID"].count()`: agrupa por DOS columnas a la vez (una lista en vez de un solo nombre) — responde una pregunta que un `groupby` de una sola columna no puede responder: cómo se reparte el tipo de vendedor dentro de cada estado de suscripción.
+
+**Qué mostrar en detalle — Errores comunes** (la filmina los trae, conviene desarrollarlos): **olvidar `reset_index()`** tras eliminar filas — el ejemplo de arriba lo aplica explícitamente después de cada `dropna`. **No verificar la consistencia de tipos antes de calcular** — intentar promediar una columna que todavía es texto tira error o, peor, da un resultado sin sentido si Pandas logra forzar la conversión. **Subir archivos de datos extremadamente pesados** — si el dataset del proyecto pesa más de 50MB, va un link a la fuente en el repositorio, no el archivo en sí.
+
+👉 **Volvés a las filminas, Filmina 36.**
+
+#### Filmina 36 — Documentación y Entregable
+
+**Qué decir (ampliando lo que dice la filmina):**
+
+**Paso 5 — Documentación:** el `README.md` del repositorio tiene que explicar, en texto llano (no en código), dos cosas: de dónde salen los datos, y qué decisiones de limpieza se tomaron y por qué. No alcanza con que el código funcione — sin esta documentación, cualquier persona que abra el repositorio ve las transformaciones pero no entiende el criterio detrás de cada una, que es justamente lo que se evalúa en este checkpoint.
+
+**Qué buscamos ver con este ejemplo:** cómo se vería, en la práctica, la sección de documentación del `README.md` — aplicada a las decisiones de limpieza reales que se tomaron en la Filmina 35.
+
+👉 **Acá pasás a Colab.** Última celda del **Bloque 8**: el ejemplo de documentación.
+
+> **Origen de los datos:** extracto de altas de clientes de una plataforma de e-commerce (Company, Product, Subscription Status, Seller Type, Country, Email, actividad de usuarios).
+>
+> **Decisiones de limpieza:** `SELLER_TYPE` nulo se imputó con la moda porque representa una clasificación faltante, no una ausencia real de tipo. `ACTIVE_USERS_L_28D` nulo se completó con 0 porque significa "sin actividad registrada". Las filas sin `ALL_USERS_COUNT` se eliminaron porque no permiten evaluar adopción del producto. Se eliminaron duplicados por `EMAIL`, quedándose con el primer registro de cada cliente. `COMPANY_CREATED_AT` se convirtió a tipo fecha para poder analizar antigüedad y tendencias temporales.
+
+**Entregable:** un **repositorio en GitHub** (no un solo archivo) que contenga: el notebook o script con la carga, el diagnóstico y la limpieza aplicada; el dataset original (o un link a la fuente si pesa más de 50MB); al menos 3 `groupby` de agregación de negocio; y un `README.md` que documente el origen de los datos y las decisiones de limpieza tomadas.
 
 👉 **Volvés a las filminas, Filmina 37 (cierre).**
 
@@ -1495,11 +1553,11 @@ plt.show()
 - `matriz_corr = df_vuelos[["pasajeros", "asientos", "vuelos"]].corr()`: selecciona las 3 columnas numéricas y calcula su matriz de correlación — igual que en el Bloque 3, pero acá con las variables reales del dataset de vuelos.
 - `sns.heatmap(matriz_corr, annot=True, cmap="coolwarm", vmin=-1, vmax=1, ax=axes[2])`: dibuja esa matriz como cuadrícula de colores en el tercer Axes, con los mismos parámetros vistos en la Filmina 15 (`annot=True` para ver el número exacto, `vmin`/`vmax` fijos para que la escala de color sea consistente).
 
-### Paso 3 — Mini-EDA con Storytelling *(Bloque 8 — ensayo de la Pre-entrega)*
+### Paso 3 — Mini-EDA con Storytelling *(Bloques 4-6: aplicando jerarquía visual)*
 
-**Consigna:** elegir 2 gráficos (uno de distribución, uno de relación) y escribir una interpretación de 2-3 líneas debajo de cada uno — es un ensayo directo del formato de la Pre-entrega, aplicado al dataset de vuelos en vez del dataset propio.
+**Consigna:** elegir 2 gráficos (uno de distribución, uno de relación) y escribir una interpretación de 2-3 líneas debajo de cada uno — practicando el hábito de acompañar todo gráfico con una conclusión escrita, no solo mostrarlo.
 
-**Qué buscamos ver:** practicar el formato completo que se va a pedir en la Pre-entrega (Bloque 8) — no solo el gráfico técnicamente correcto, sino el gráfico MÁS la interpretación escrita, ensayado acá con el dataset conocido de la clase antes de aplicarlo al dataset propio de cada proyecto.
+**Qué buscamos ver:** cerrar la actividad integradora aplicando los principios de storytelling y jerarquía visual vistos después del break (Bloques 4-6) sobre el dataset de vuelos — el gráfico técnicamente correcto MÁS la interpretación en palabras, el mismo hábito que se retoma más adelante en el curso al preparar reportes.
 
 ```python
 import pandas as pd
@@ -1533,7 +1591,7 @@ plt.show()
 
 ## ANEXO del Notebook — Herramientas Complementarias (fuera del temario actual)
 
-El notebook `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_ (actualizado al docx nuevo).ipynb` termina con un Anexo que **no tiene filmina asociada** ni se pide en la Pre-entrega, pero conserva técnicas reales y útiles de una versión anterior del programa:
+El notebook `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_ (actualizado).ipynb` termina con un Anexo que **no tiene filmina asociada** ni se pide en la Pre-entrega, pero conserva técnicas reales y útiles de una versión anterior del programa:
 
 - **A. GridSpec:** layouts de subplots con tamaños desiguales (mini-dashboards con un gráfico grande y uno chico).
 - **B. Series Temporales:** conversión a `datetime`, `resample()` y `rolling()` para suavizar series ruidosas.
@@ -1558,7 +1616,7 @@ El notebook `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_ (actualizado al
 | Eje Y truncado | La trampa más común para exagerar una diferencia mínima |
 | Regla de lectura en "Z" | KPIs arriba-izq. → controles arriba-der. → tendencias abajo-izq. → detalle abajo-der. |
 | Chartjunk / Data-Ink Ratio | Ruido visual que no aporta información / maximizar lo que sí aporta |
-| Pre-entrega EDA Visual | PDF con ≥5 gráficos e interpretación — el puente hacia Machine Learning |
+| Pre-entrega: Limpieza y Documentación | Repo GitHub con carga, diagnóstico, limpieza, 3 `groupby` y `README.md` — no un PDF |
 
 ## Errores comunes que suelen aparecer
 
@@ -1568,4 +1626,4 @@ El notebook `Semana_5_Visualizaciones_Avanzadas_en_Data_Science_ (actualizado al
 - Truncar el eje Y sin aclararlo — aunque no sea intencional, el efecto engañoso es el mismo.
 - Armar un dashboard con más de 5-6 visualizaciones principales — genera ruido en vez de claridad.
 - Usar rojo/verde como único diferenciador de categorías, sin respaldo de forma o trazo.
-- En la Pre-entrega: entregar código en vez de PDF, o gráficos sin interpretación escrita.
+- En la Pre-entrega: olvidar `reset_index()` tras eliminar filas, imputar sin pensar en qué significa el nulo, o entregar el notebook sin `README.md` documentando las decisiones.
