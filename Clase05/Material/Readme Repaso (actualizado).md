@@ -1364,34 +1364,9 @@ Sin código — no hay transición a Colab en este bloque, este ejercicio se res
 
 **Paso 2 — Carga y Diagnóstico:** `read_csv()` para traer los datos, y tres comandos de diagnóstico que ya se vieron en la Pre-entrega 4 de Clase 04 pero que acá se aplican con más profundidad: `.info()` (nulos y `dtypes` por columna), `.describe()` (rangos y estadísticas de las variables numéricas), `.isnull().sum()` (el conteo exacto de nulos por columna, para saber con precisión qué hay que resolver antes de seguir).
 
-**Qué buscamos ver con este ejemplo:** el diagnóstico completo de un dataset real de altas de clientes de una plataforma de e-commerce (`ecommerce_clientes.csv`, 2.589 filas) — con nulos y duplicados genuinos, no simulados, para que la limpieza que viene en la próxima filmina tenga sentido real.
+⚠️ **Esta filmina no se resuelve en vivo con código.** A partir de acá, la consigna es para que cada alumno la aplique sobre el dataset de su propio proyecto — el notebook trae la consigna y un dataset de práctica (`ecommerce_clientes.csv`, con nulos y duplicados reales) para quien quiera ensayar antes, pero sin la solución ya resuelta.
 
-👉 **Acá pasás a Colab.** Abrí el **Bloque 8** y corré la celda de "Carga y Diagnóstico".
-
-**Ejecutar:**
-```python
-import pandas as pd
-
-df = pd.read_csv("ecommerce_clientes.csv")
-
-print(f"Dimensiones: {df.shape}")
-df.info()
-
-print("\nValores nulos por columna:")
-print(df.isnull().sum())
-
-print("\nEstadísticas descriptivas (columnas numéricas):")
-print(df.describe())
-```
-
-**Qué hace cada línea:**
-- `df = pd.read_csv("ecommerce_clientes.csv")`: carga el dataset — 9 columnas: `COMPANY_ID`, `COMPANY_CREATED_AT`, `SUBSCRIPTION_STATUS`, `PRODUCT`, `SELLER_TYPE`, `COUNTRY`, `EMAIL`, `ACTIVE_USERS_L_28D`, `ALL_USERS_COUNT`.
-- `df.shape`: dimensiones del dataset — cuántas filas (clientes) y columnas (variables) hay antes de tocar nada.
-- `df.info()`: recorre columna por columna mostrando cuántos valores no nulos tiene cada una y de qué `dtype` es — acá aparece el primer problema real: `COMPANY_CREATED_AT` es `object` (texto), cuando debería ser una fecha.
-- `df.isnull().sum()`: el conteo exacto de nulos por columna — muestra que `SELLER_TYPE` y `ALL_USERS_COUNT` tienen huecos importantes, y que `ACTIVE_USERS_L_28D` también tiene algunos.
-- `df.describe()`: estadísticas de las columnas numéricas (`COMPANY_ID`, `ACTIVE_USERS_L_28D`, `ALL_USERS_COUNT`) — da una primera idea de los rangos antes de decidir cómo imputar.
-
-**Qué mostrar en detalle:** tres problemas reales conviven en este dataset — nulos en `SELLER_TYPE` (categórica), nulos en `ACTIVE_USERS_L_28D` y `ALL_USERS_COUNT` (numéricas, pero con significados distintos), y una fecha guardada como texto. Cada uno se resuelve con una estrategia diferente en la próxima filmina — no hay una receta única para "limpiar nulos".
+👉 **Acá pasás a Colab.** Mostrá el **Bloque 8** — la consigna completa y el dataset de práctica están ahí, para que cada uno la resuelva por su cuenta.
 
 👉 **Volvés a las filminas, Filmina 35.**
 
@@ -1401,60 +1376,14 @@ print(df.describe())
 
 **Paso 3 — Limpieza Rigurosa**, con sus tres técnicas desarrolladas por separado:
 - **Imputación de valores faltantes**: no es una sola técnica, son tres estrategias distintas según qué signifique el hueco — **media** (para numéricas donde el valor faltante probablemente esté cerca del promedio), **moda** (para categóricas, el valor más frecuente), o **eliminación estratégica** (cuando no hay ninguna imputación razonable y es mejor descartar la fila).
-- **Eliminación de duplicados**: no alcanza con `duplicated()` sin argumentos (que compara la fila completa) — en datos reales, dos registros del mismo cliente casi nunca son idénticos en todas las columnas, pero sí comparten un identificador único como el email.
-- **Conversión de tipos**: las fechas que llegan como texto no se pueden ordenar cronológicamente ni operar con ellas hasta convertirlas con `pd.to_datetime()` — el mismo problema que se vio con `indice_tiempo` en el dataset de vuelos, ahora aplicado a `COMPANY_CREATED_AT`.
+- **Eliminación de duplicados**: no alcanza con `duplicated()` sin argumentos (que compara la fila completa) — en datos reales, dos registros del mismo cliente casi nunca son idénticos en todas las columnas, pero sí comparten un identificador único como el email o el ID.
+- **Conversión de tipos**: las fechas que llegan como texto no se pueden ordenar cronológicamente ni operar con ellas hasta convertirlas con `pd.to_datetime()`.
 
-**Paso 4 — Agregaciones de Negocio:** al menos 3 `groupby` que respondan preguntas concretas — no agregaciones al azar, sino preguntas que un negocio real haría: ¿en qué país están concentrados los clientes?, ¿qué producto genera más uso activo?, ¿cómo se reparte el tipo de vendedor según el estado de la suscripción?
+**Paso 4 — Agregaciones de Negocio:** al menos 3 `groupby` que respondan preguntas concretas — no agregaciones al azar, sino preguntas que un negocio real haría sobre el dataset del proyecto de cada uno.
 
-**Qué buscamos ver con este ejemplo:** resolver los tres problemas diagnosticados en la filmina anterior, cada uno con la técnica que le corresponde — y después responder tres preguntas de negocio distintas sobre el dataset ya limpio.
+**Qué mostrar en detalle — Errores comunes** (la filmina los trae, conviene desarrollarlos): **olvidar `reset_index()`** tras eliminar filas — el índice queda con huecos y puede romper operaciones posteriores. **No verificar la consistencia de tipos antes de calcular** — intentar promediar una columna que todavía es texto tira error o, peor, da un resultado sin sentido si Pandas logra forzar la conversión. **Subir archivos de datos extremadamente pesados** — si el dataset del proyecto pesa más de 50MB, va un link a la fuente en el repositorio, no el archivo en sí.
 
-👉 **Acá pasás a Colab.** Seguís en el **Bloque 8**, celdas de "Limpieza Rigurosa" y "Agregaciones de Negocio".
-
-**Ejecutar (Limpieza Rigurosa):**
-```python
-import pandas as pd
-
-df["SELLER_TYPE"] = df["SELLER_TYPE"].fillna(df["SELLER_TYPE"].mode()[0])
-df["ACTIVE_USERS_L_28D"] = df["ACTIVE_USERS_L_28D"].fillna(0)
-df = df.dropna(subset=["ALL_USERS_COUNT"])
-df = df.reset_index(drop=True)
-
-duplicados = df["EMAIL"].duplicated().sum()
-print(f"Emails duplicados antes de limpiar: {duplicados}")
-df = df.drop_duplicates(subset=["EMAIL"], keep="first").reset_index(drop=True)
-print(f"Filas después de eliminar duplicados: {len(df)}")
-
-df["COMPANY_CREATED_AT"] = pd.to_datetime(df["COMPANY_CREATED_AT"])
-print(f"\ndtype de COMPANY_CREATED_AT después de convertir: {df['COMPANY_CREATED_AT'].dtype}")
-```
-
-**Qué hace cada línea:**
-- `df["SELLER_TYPE"].fillna(df["SELLER_TYPE"].mode()[0])`: `.mode()` devuelve una Serie (puede haber más de un valor empatado como más frecuente), por eso `[0]` toma el primero — imputar una variable categórica con un promedio no tendría sentido, por eso acá se usa la moda.
-- `df["ACTIVE_USERS_L_28D"].fillna(0)`: acá el nulo probablemente significa "sin actividad registrada en ese período", no "dato desconocido" — es una decisión de negocio, no una regla mecánica aplicable a cualquier columna numérica.
-- `df.dropna(subset=["ALL_USERS_COUNT"])`: a diferencia de las dos anteriores, acá se decide eliminar directamente las filas — no hay una imputación razonable si no se sabe si esa empresa activó usuarios o no.
-- `df.reset_index(drop=True)`: después de cada operación que quita filas, el índice queda con "huecos" (0, 1, 3, 7...) — sin este paso, ese índice discontinuo puede romper operaciones posteriores que asuman una secuencia consecutiva. Es exactamente el error que la filmina marca como "común a evitar".
-- `df["EMAIL"].duplicated().sum()`: cuenta cuántos emails están repetidos — a diferencia de `df.duplicated()` sin argumentos, que solo detectaría filas 100% idénticas en todas las columnas.
-- `df.drop_duplicates(subset=["EMAIL"], keep="first")`: elimina las filas con email repetido, quedándose con la primera aparición de cada una.
-- `pd.to_datetime(df["COMPANY_CREATED_AT"])`: convierte el texto a un tipo de dato fecha real — sin esto, cualquier análisis de antigüedad o tendencia temporal daría resultados incorrectos, porque Pandas ordenaría las fechas alfabéticamente en vez de cronológicamente.
-
-**Ejecutar (Agregaciones de Negocio):**
-```python
-print("1) Cantidad de clientes por país:")
-print(df.groupby("COUNTRY")["COMPANY_ID"].count())
-
-print("\n2) Promedio de usuarios activos (últimos 28 días) por producto:")
-print(df.groupby("PRODUCT")["ACTIVE_USERS_L_28D"].mean().round(1).sort_values(ascending=False))
-
-print("\n3) Cantidad de clientes por estado de suscripción y tipo de vendedor:")
-print(df.groupby(["SUBSCRIPTION_STATUS", "SELLER_TYPE"])["COMPANY_ID"].count())
-```
-
-**Qué hace cada línea:**
-- `df.groupby("COUNTRY")["COMPANY_ID"].count()`: agrupa por país y cuenta cuántos `COMPANY_ID` hay en cada grupo — responde "¿dónde está concentrada la base de clientes?".
-- `df.groupby("PRODUCT")["ACTIVE_USERS_L_28D"].mean().round(1).sort_values(ascending=False)`: agrupa por producto, promedia el uso activo reciente, redondea a 1 decimal y ordena de mayor a menor — responde "¿qué producto genera más uso real, no solo más altas?".
-- `df.groupby(["SUBSCRIPTION_STATUS", "SELLER_TYPE"])["COMPANY_ID"].count()`: agrupa por DOS columnas a la vez (una lista en vez de un solo nombre) — responde una pregunta que un `groupby` de una sola columna no puede responder: cómo se reparte el tipo de vendedor dentro de cada estado de suscripción.
-
-**Qué mostrar en detalle — Errores comunes** (la filmina los trae, conviene desarrollarlos): **olvidar `reset_index()`** tras eliminar filas — el ejemplo de arriba lo aplica explícitamente después de cada `dropna`. **No verificar la consistencia de tipos antes de calcular** — intentar promediar una columna que todavía es texto tira error o, peor, da un resultado sin sentido si Pandas logra forzar la conversión. **Subir archivos de datos extremadamente pesados** — si el dataset del proyecto pesa más de 50MB, va un link a la fuente en el repositorio, no el archivo en sí.
+Esta consigna tampoco se resuelve en el pizarrón — es la parte central de la pre-entrega, para que cada alumno la encare con su propio criterio sobre su propio dataset.
 
 👉 **Volvés a las filminas, Filmina 36.**
 
@@ -1463,14 +1392,6 @@ print(df.groupby(["SUBSCRIPTION_STATUS", "SELLER_TYPE"])["COMPANY_ID"].count())
 **Qué decir (ampliando lo que dice la filmina):**
 
 **Paso 5 — Documentación:** el `README.md` del repositorio tiene que explicar, en texto llano (no en código), dos cosas: de dónde salen los datos, y qué decisiones de limpieza se tomaron y por qué. No alcanza con que el código funcione — sin esta documentación, cualquier persona que abra el repositorio ve las transformaciones pero no entiende el criterio detrás de cada una, que es justamente lo que se evalúa en este checkpoint.
-
-**Qué buscamos ver con este ejemplo:** cómo se vería, en la práctica, la sección de documentación del `README.md` — aplicada a las decisiones de limpieza reales que se tomaron en la Filmina 35.
-
-👉 **Acá pasás a Colab.** Última celda del **Bloque 8**: el ejemplo de documentación.
-
-> **Origen de los datos:** extracto de altas de clientes de una plataforma de e-commerce (Company, Product, Subscription Status, Seller Type, Country, Email, actividad de usuarios).
->
-> **Decisiones de limpieza:** `SELLER_TYPE` nulo se imputó con la moda porque representa una clasificación faltante, no una ausencia real de tipo. `ACTIVE_USERS_L_28D` nulo se completó con 0 porque significa "sin actividad registrada". Las filas sin `ALL_USERS_COUNT` se eliminaron porque no permiten evaluar adopción del producto. Se eliminaron duplicados por `EMAIL`, quedándose con el primer registro de cada cliente. `COMPANY_CREATED_AT` se convirtió a tipo fecha para poder analizar antigüedad y tendencias temporales.
 
 **Entregable:** un **repositorio en GitHub** (no un solo archivo) que contenga: el notebook o script con la carga, el diagnóstico y la limpieza aplicada; el dataset original (o un link a la fuente si pesa más de 50MB); al menos 3 `groupby` de agregación de negocio; y un `README.md` que documente el origen de los datos y las decisiones de limpieza tomadas.
 
