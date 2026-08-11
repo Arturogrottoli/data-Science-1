@@ -4,6 +4,44 @@
 
 > Documento generado a partir de todas las celdas del notebook (texto explicativo + codigo completo), en el mismo orden en que aparecen.
 
+---
+
+## Cómo dar este ejemplo en clase
+
+Este es el **Ejemplo 1** de la Clase 10 (Repaso Final). Es un proyecto de punta a punta — de la pregunta de negocio al modelo evaluado — que funciona como repaso integrador porque toca, en un solo caso real, contenido de casi toda la cursada:
+
+| Lo que se ve acá | De qué clase viene |
+|---|---|
+| Carga, tipos de datos, `.info()`/`.describe()` | Clase 03 — NumPy y Pandas |
+| Nulos, imputación, `missingno`, capping de outliers | Clase 04 y Clase 06 — Limpieza y EDA |
+| Gráficos de distribución, balance de clases, feature importances | Clase 05 — Visualización |
+| `train_test_split`, Random Forest, KNN, Logistic Regression, XGBoost | Clase 08 — Aprendizaje Supervisado |
+| `Pipeline` + `ColumnTransformer` + `GridSearchCV` + `StratifiedKFold` | Clase 07 y Clase 08 — Reproducibilidad y validación correcta |
+
+**Por qué conviene leerlo en dos pasadas:** el notebook entrena un modelo dos veces — primero con preprocesado manual (más fácil de seguir, pero con **data leakage** real: `fillna` calculado sobre todo el dataset, categóricas que quedan afuera del modelo final) y después con un `Pipeline` formal que corrige esos errores. Esa comparación **a propósito** es el mejor gancho para la clase: no es un ejemplo perfecto desde el inicio, es un ejemplo que se corrige a sí mismo — igual que pasa en un proyecto real.
+
+**Sugerencia de recorrido en vivo** (no hace falta leer las 1500 líneas palabra por palabra):
+1. Arrancar por "De qué se trata este análisis" y "Cuánto vale resolver esto" — el encuadre de negocio, para que quede claro que esto no es solo un ejercicio técnico.
+2. Pasar rápido por el diccionario de columnas — mencionar que son 37 variables y que muchas fechas llegan mal tipadas (`object` en vez de `datetime`), gancho directo a Clase 03/04.
+3. Detenerse en "Visualización de nulos con missingno" — es una herramienta que probablemente no vieron antes, vale la pena mostrar el gráfico.
+4. Mostrar el contraste "Modelado — primera pasada" (manual, con leakage) vs. "Pipeline formal" — el corazón pedagógico del ejemplo.
+5. Cerrar con la sección "Conclusiones" — el hallazgo de negocio (`ALL_USERS_COUNT` importa más que la infraestructura) es un buen disparador de preguntas.
+
+### Índice
+
+- [De qué se trata este análisis](#de-qué-se-trata-este-análisis)
+- [Qué significa cada columna](#qué-significa-cada-columna)
+- [Carga del Dataset](#carga-del-dataset)
+- [Limpieza y transformación de datos](#limpieza-y-transformación-de-datos)
+- [Visualización de nulos con missingno](#visualización-de-nulos-con-missingno)
+- [Modelado — primera pasada](#modelado--primera-pasada)
+- [Qué tan desbalanceadas están las clases](#qué-tan-desbalanceadas-están-las-clases)
+- [Pipeline formal: `Pipeline` + `GridSearchCV` + `StratifiedKFold`](#pipeline-formal-pipeline--gridsearchcv--stratifiedkfold)
+- [Riesgos y controles de calidad](#riesgos-y-controles-de-calidad)
+- [Conclusiones](#conclusiones)
+
+---
+
 # ¿Qué empresas se quedan en Veeqo? — Predicción de churn B2B
 
 Proyecto de clasificación binaria sobre la base de clientes de **Veeqo** (plataforma de gestión de inventario y envíos multicanal, adquirida por Amazon en 2021).
