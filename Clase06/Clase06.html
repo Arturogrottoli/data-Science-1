@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clase 05 - Visualización de Datos: Fundamentos, Storytelling y Dashboards | Coderhouse</title>
+    <title>Clase 06 - Estadística y Preprocesamiento: Fundamentos para el Análisis de Datos | Coderhouse</title>
     <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -501,15 +501,15 @@
     <div class="slide-container active" id="slide1">
         <div></div>
         <div class="transition-layout" style="margin-bottom: 30px;">
-            <span class="moment-badge">CODER 4.0 • CLASE 05</span>
-            <h1 style="font-size: 46px;">Visualización de Datos: Fundamentos, Storytelling y Dashboards</h1>
+            <span class="moment-badge">CODER 4.0 • CLASE 06</span>
+            <h1 style="font-size: 44px;">Estadística y Preprocesamiento: Fundamentos para el Análisis de Datos</h1>
             <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
-                De Figure y Axes en Matplotlib a un dashboard que se entiende en los primeros 3 segundos
+                De medidas de tendencia central a un dataset limpio, listo para tu primera Pre-entrega
             </p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">01 / 37</div>
+            <div class="slide-index">01 / 54</div>
         </div>
     </div>
 
@@ -519,383 +519,544 @@
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 01</span>
-            <h2>Fundamentos de Matplotlib</h2>
-            <p style="font-size: 20px;">Figure, Axes y Axis, los dos estilos de trabajo, subplots y personalización.</p>
+            <h2>Estadística Descriptiva</h2>
+            <p style="font-size: 20px;">El arte de resumir grandes volúmenes de datos en unos pocos números que tengan sentido.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">02 / 37</div>
+            <div class="slide-index">02 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 3: Figure vs Axes vs Axis -->
+    <!-- SLIDE 3: Media, Mediana, Moda -->
     <div class="slide-container" id="slide3">
-        <h2 class="slide-title">El Modelo de Objetos: Figure, Axes y Axis</h2>
+        <h2 class="slide-title">Medidas de Tendencia Central: el "Centro" de los Datos</h2>
+        <div class="content-area">
+            <span class="moment-badge tip"><i class="fa-solid fa-truck-fast"></i> ¿Cuánto tardamos en promedio en entregar un pedido?</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Medida</th><th>Cómo se calcula</th><th>Uso ideal</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Media</strong></td><td>Suma de todos los valores ÷ cantidad total.</td><td>Datos simétricos, sin outliers. Muy sensible a valores atípicos.</td></tr>
+                        <tr><td><strong>Mediana</strong></td><td>El valor que queda justo en el centro al ordenar los datos.</td><td>La más robusta ante extremos — salarios, tiempos de entrega.</td></tr>
+                        <tr><td><strong>Moda</strong></td><td>El valor que más se repite.</td><td>Variables categóricas (color más vendido) o discretas. Puede ser bimodal.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Si la mayoría de los pedidos llegan en 20 minutos pero un par de veces por semana tardan 180, la media dirá "45 minutos" — una cifra que no representa a nadie.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">03 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: Rango, Varianza, Desviación Estándar -->
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title">Medidas de Dispersión: Entendiendo la Variabilidad</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-image"></i> El lienzo y el dibujo</span>
+                    <span class="moment-badge bug"><i class="fa-solid fa-water"></i> Dos ríos, la misma profundidad media</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-file"></i> <strong>Figure:</strong> el contenedor de nivel superior. Gestiona el espacio total y el color de fondo — no dibuja datos.</li>
-                            <li><i class="fa-solid fa-chart-simple"></i> <strong>Axes:</strong> el área donde ocurre la magia — lo que solemos llamar "un gráfico" (título, leyendas, ejes).</li>
-                            <li><i class="fa-solid fa-ruler"></i> <strong>Axis:</strong> la línea graduada (X o Y) que pone las marcas (ticks) y los números.</li>
+                            <li><i class="fa-solid fa-ruler"></i> <strong>Rango:</strong> máximo − mínimo. Solo usa dos datos, ignora lo que pasa en el medio.</li>
+                            <li><i class="fa-solid fa-square-root-variable"></i> <strong>Varianza:</strong> promedio de las distancias al cuadrado respecto a la media. Sus unidades quedan al cuadrado.</li>
+                            <li><i class="fa-solid fa-ruler-combined"></i> <strong>Desviación estándar:</strong> raíz cuadrada de la varianza — vuelve a las unidades originales.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                        <h3>Cuidado con los nombres</h3>
-                        <p><strong>Axes</strong> (el objeto gráfico completo) no es lo mismo que <strong>Axis</strong> (el eje). Una Figure puede tener un solo Axes o diez — un panel de control complejo.</p>
+                        <div class="icon-box"><i class="fa-solid fa-person-swimming"></i></div>
+                        <h3>Río A vs. Río B</h3>
+                        <p>Ambos tienen 1.5 m de profundidad media. El Río A siempre mide 1.5 m; el Río B tiene zonas de 0.1 m y pozos de 4 m. Sin dispersión, podrías ahogarte confiando solo en el promedio.</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">03 / 37</div>
+            <div class="slide-index">04 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 4: Pyplot vs Orientado a Objetos -->
-    <div class="slide-container" id="slide4">
-        <h2 class="slide-title">Dos Estilos: Pyplot vs. Orientado a Objetos</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge bug"><i class="fa-solid fa-bolt"></i> Estilo Pyplot (implícito)</span>
-                    <div class="code-block" style="font-size: 12px;">
-import matplotlib.pyplot as plt
-plt.plot([1, 2, 3], [4, 5, 6])
-plt.title("Gráfico Rápido")
-plt.show()
-                    </div>
-                    <p class="note-text" style="margin-top: 10px;">Problema: con varios gráficos a la vez, se confunde a cuál le estás hablando.</p>
-                </div>
-                <div>
-                    <span class="moment-badge live"><i class="fa-solid fa-code"></i> Estilo Orientado a Objetos (recomendado)</span>
-                    <div class="code-block" style="font-size: 12px;">
-fig, ax = plt.subplots()
-ax.plot([1, 2, 3], [4, 5, 6])
-ax.set_title("Gráfico Profesional")
-plt.show()
-                    </div>
-                    <p class="note-text" style="margin-top: 10px;">Creamos objetos para fig y ax: siempre sabemos qué estamos modificando.</p>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">04 / 37</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 5: Subplots -->
+    <!-- SLIDE 5: Lectura conjunta: Sesgo y Coeficiente de Variación -->
     <div class="slide-container" id="slide5">
-        <h2 class="slide-title">Subplots: Varias Vistas en una Sola Figura</h2>
+        <h2 class="slide-title">Lectura Conjunta: Centro y Dispersión</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <div class="code-block" style="font-size: 11px;">
-<span style="color: #6a737d;"># 1 fila, 2 columnas</span>
-fig, axes = plt.subplots(
-    nrows=1, ncols=2, figsize=(10, 4))
-
-<span style="color: #6a737d;"># axes es un array de Axes</span>
-axes[0].plot(datos_x, datos_y)
-axes[1].hist(datos_z)
-                    </div>
-                </div>
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-table-columns"></i> plt.subplots(): la navaja suiza</span>
+                    <span class="moment-badge"><i class="fa-solid fa-arrows-left-right"></i> Media vs. Mediana: detección de sesgo</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-magnifying-glass-chart"></i> Esencial para el <strong>Análisis Exploratorio de Datos (EDA)</strong>: organizar múltiples vistas en una sola hoja.</li>
-                            <li><i class="fa-solid fa-house"></i> Ejemplo: en un proyecto inmobiliario, un histograma de precios al lado del scatter metros²-precio.</li>
+                            <li><i class="fa-solid fa-equals"></i> Media ≈ Mediana → datos simétricos (campana).</li>
+                            <li><i class="fa-solid fa-arrow-up"></i> Media &gt; Mediana → valores grandes "tiran" hacia arriba (sesgo a la derecha).</li>
+                            <li><i class="fa-solid fa-arrow-down"></i> Media &lt; Mediana → valores pequeños afectan la media (sesgo a la izquierda).</li>
                         </ul>
                     </div>
                 </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-elephant"></i></div>
+                        <h3>Coeficiente de Variación</h3>
+                        <p>Comparar la desviación estándar del peso de un elefante contra la de un ratón es injusto: el elefante siempre "gana". El coeficiente de variación da una medida de variabilidad relativa, para comparar manzanas con naranjas.</p>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">05 / 37</div>
+            <div class="slide-index">05 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 6: Personalización y estética -->
+    <!-- SLIDE 6: Aplicaciones reales y errores comunes -->
     <div class="slide-container" id="slide6">
-        <h2 class="slide-title">Personalización: de Dibujo a Hallazgo Analítico</h2>
+        <h2 class="slide-title">Aplicaciones Reales y Errores Comunes</h2>
         <div class="content-area">
             <div class="tiled-content">
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-heading"></i></div>
-                    <h3>Títulos y etiquetas</h3>
-                    <p><code>set_title()</code>, <code>set_xlabel()</code>, <code>set_ylabel()</code>: qué miden los ejes y en qué unidades.</p>
+                    <div class="icon-box"><i class="fa-solid fa-building-columns"></i></div>
+                    <h3>Fintech</h3>
+                    <p>La mediana del monto de préstamos evita que "grandes préstamos corporativos" distorsionen el perfil del cliente típico.</p>
                 </div>
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-list"></i></div>
-                    <h3>Leyendas y límites</h3>
-                    <p><code>ax.legend()</code> distingue series; <code>set_xlim()</code>/<code>set_ylim()</code> evitan que se pierda perspectiva.</p>
+                    <div class="icon-box"><i class="fa-solid fa-tv"></i></div>
+                    <h3>Streaming</h3>
+                    <p>La moda revela los géneros más populares; media y desviación del "tiempo de visionado" detectan cuentas compartidas.</p>
                 </div>
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-                    <h3>Ajustes finales</h3>
-                    <p><code>figsize</code>, <code>plt.style.use('ggplot')</code> y <code>fig.tight_layout()</code> para que nada se solape.</p>
+                    <div class="icon-box"><i class="fa-solid fa-industry"></i></div>
+                    <h3>Manufactura</h3>
+                    <p>Una desviación estándar alta en el diámetro de un tornillo es un problema de calidad, aunque la media sea perfecta.</p>
                 </div>
             </div>
-            <p class="note-text">Errores comunes: confundir Axes con Axis, no guardar la referencia a <code>fig, ax</code>, el "gráfico de espagueti" (10 líneas en un solo Axes) y olvidar las unidades de los ejes.</p>
+            <p class="note-text">Errores a evitar: usar solo la media (reportá siempre ambas), olvidar que la varianza cambia de unidades, e ignorar que la moda puede revelar un valor "por defecto" del sistema (como el 999 para datos faltantes).</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">06 / 37</div>
+            <div class="slide-index">06 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 7: División Módulo 02 -->
+    <!-- SLIDE 7: Práctica Estadística Descriptiva -->
     <div class="slide-container" id="slide7">
+        <h2 class="slide-title">Práctica (no entregable): tus Propios Datos</h2>
+        <div class="content-area">
+            <span class="moment-badge live"><i class="fa-solid fa-flask-vial"></i> Convertir números brutos en conclusiones de negocio</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-database"></i> Elegí una columna numérica de un dataset que ya trabajaste (precios, tiempos de envío, montos de venta).</li>
+                    <li><i class="fa-solid fa-calculator"></i> Calculá mínimo, máximo, rango, media, mediana, moda, varianza y desviación estándar.</li>
+                    <li><i class="fa-solid fa-pen"></i> Redactá una interpretación por métrica: "la desviación estándar de 15 minutos indica que los tiempos suelen variar típicamente en ese rango".</li>
+                    <li><i class="fa-solid fa-scale-unbalanced"></i> Compará media y mediana: ¿hay sesgo? ¿la media es una buena métrica para decidir, o conviene la mediana?</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">07 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: División Módulo 02 -->
+    <div class="slide-container" id="slide8">
         <div></div>
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 02</span>
-            <h2>Análisis Univariado: Histogramas y KDE</h2>
-            <p style="font-size: 20px;">El primer paso de todo análisis: mirar cada variable por separado, antes de buscar relaciones.</p>
+            <h2>Normalización y Estandarización</h2>
+            <p style="font-size: 20px;">Poner a todos los datos en un "campo de juego nivelado" con técnicas de escalado.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">07 / 37</div>
+            <div class="slide-index">08 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 8: El histograma -->
-    <div class="slide-container" id="slide8">
-        <h2 class="slide-title">El Histograma: Contando por "Baldes" (Bins)</h2>
-        <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-chart-column"></i> Eje X = intervalos, Eje Y = frecuencia</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Pocos bins:</strong> la imagen es demasiado general — puede ocultar una distribución con dos picos.</li>
-                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Demasiados bins:</strong> el gráfico se vuelve ruidoso, como picos aislados.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-circle-question"></i></div>
-                        <h3>Las 4 preguntas del análisis univariado</h3>
-                        <p>¿Cuál es el valor más común? ¿Están dispersos o concentrados? ¿Hay outliers? ¿Es simétrica o tiene cola hacia un lado?</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">08 / 37</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 9: KDE -->
+    <!-- SLIDE 9: El problema de la escala -->
     <div class="slide-container" id="slide9">
-        <h2 class="slide-title">KDE: la Curva Suave (Kernel Density Estimation)</h2>
+        <h2 class="slide-title">El Problema de la Escala: ¿Por Qué Escalar?</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge"><i class="fa-solid fa-water"></i> Colinas en vez de bloques</span>
+                    <span class="moment-badge tip"><i class="fa-solid fa-person-running"></i> Lanzador de pesas vs. saltador de altura</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-mound"></i> En lugar de bloques rectangulares, el KDE coloca pequeñas "colinas" suaves sobre cada observación y las suma.</li>
-                            <li><i class="fa-solid fa-eye"></i> El resultado es una línea continua que muestra la forma subyacente, sin depender de dónde cortamos los bins.</li>
+                            <li><i class="fa-solid fa-ruler-combined"></i> 20 metros vs. 2.30 metros: números en escalas distintas, no comparables directamente.</li>
+                            <li><i class="fa-solid fa-house"></i> Si el Ingreso Mensual es $5.000 y la Edad es 30, el modelo puede pensar que el ingreso importa 166 veces más — solo porque el número es más grande.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-bars-staggered"></i></div>
-                        <h3>¿Por qué complementa al histograma?</h3>
-                        <p>Las barras del histograma son bruscas; el KDE suaviza la estimación de la función de densidad de probabilidad para ver la "forma" real de la población.</p>
+                        <div class="icon-box"><i class="fa-solid fa-diagram-project"></i></div>
+                        <h3>Dónde impacta</h3>
+                        <p><strong>Distancias</strong> (K-Nearest Neighbors): una variable con rango 0-1.000.000 domina totalmente a otra de rango 0-1. <strong>Gradientes</strong> (Regresión Logística, Redes Neuronales): escalas dispares hacen que el algoritmo "rebote" y tarde más en aprender, o no aprenda.</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">09 / 37</div>
+            <div class="slide-index">09 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 10: Leyendo la forma -->
+    <!-- SLIDE 10: Normalización Min-Max -->
     <div class="slide-container" id="slide10">
-        <h2 class="slide-title">Leyendo la Forma: Simetría, Sesgo y Multimodalidad</h2>
+        <h2 class="slide-title">Normalización (Min-Max Scaling)</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block" style="text-align: center; font-size: 16px;">X_norm = (X − X_min) / (X_max − X_min)</div>
+                    <p class="note-text">Comprime todos los valores de una columna a un rango fijo, generalmente entre 0 y 1. El mínimo se vuelve 0, el máximo se vuelve 1.</p>
+                </div>
+                <div>
+                    <div class="tile" style="height: 240px;">
+                        <div class="icon-box"><i class="fa-solid fa-microchip"></i></div>
+                        <h3>Ejemplo: velocidad de procesadores</h3>
+                        <p>[2.0, 3.0, 4.0, 5.0] GHz. Mínimo 2.0, máximo 5.0 → el valor 3.5 se normaliza como 0.5. Ideal cuando hay límites claros (píxeles 0-255, redes neuronales).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Estandarización Z-Score -->
+    <div class="slide-container" id="slide11">
+        <h2 class="slide-title">Estandarización (Z-Score Scaling)</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <div class="code-block" style="text-align: center; font-size: 16px;">X_std = (X − μ) / σ</div>
+                    <p class="note-text">No obliga a los datos a estar entre 0 y 1: los centra para que tengan media 0 y desviación estándar 1.</p>
+                </div>
+                <div>
+                    <div class="tile" style="height: 240px;">
+                        <div class="icon-box"><i class="fa-solid fa-ruler-vertical"></i></div>
+                        <h3>Ejemplo: estatura</h3>
+                        <p>Media 170 cm, desviación 10 cm. Una persona de 180 cm tiene Z = +1; de 160 cm, Z = −1; de 170 cm, Z = 0. Preferida cuando los datos son normales o el algoritmo asume centrado (Regresión Lineal, PCA).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">11 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Comparativa -->
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title">Comparativa: ¿Cuándo Usar Cada Una?</h2>
         <div class="content-area">
             <div class="table-layout">
                 <table>
                     <thead>
-                        <tr><th>Patrón</th><th>Qué significa</th></tr>
+                        <tr><th>Característica</th><th>Normalización (Min-Max)</th><th>Estandarización (Z-Score)</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td><strong>Simetría</strong></td><td>La izquierda es espejo de la derecha (Campana de Gauss).</td></tr>
-                        <tr><td><strong>Sesgo a la derecha</strong></td><td>Cola larga hacia valores altos (ej. salarios, precios de casas).</td></tr>
-                        <tr><td><strong>Sesgo a la izquierda</strong></td><td>Cola larga hacia valores bajos.</td></tr>
-                        <tr><td><strong>Multimodalidad</strong></td><td>Dos o más "jorobas" → subgrupos mezclados (ej. alturas de hombres y mujeres juntas).</td></tr>
+                        <tr><td><strong>Rango de salida</strong></td><td>Estrictamente [0, 1] o [-1, 1]</td><td>Sin límites (usualmente entre -3 y 3)</td></tr>
+                        <tr><td><strong>Media / Desviación</strong></td><td>Varía según los datos</td><td>Media = 0, Desviación = 1</td></tr>
+                        <tr><td><strong>Sensibilidad a outliers</strong></td><td>Muy sensible: un valor extremo cambia todo el rango</td><td>Más robusta: los outliers afectan la media pero no aplastan al resto</td></tr>
+                        <tr><td><strong>¿Cuándo elegirla?</strong></td><td>Rangos fijos o distribución desconocida (ej. imágenes)</td><td>Datos normales o algoritmos estocásticos (Redes Neuronales)</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p class="note-text">Errores comunes: confundir con un gráfico de barras (el histograma es para numéricas continuas, sin huecos entre barras) e ignorar la escala del eje X — un outlier lejano puede comprimir todo el resto en una sola barra.</p>
+            <p class="note-text">En la práctica profesional, la estandarización suele ser el punto de partida por defecto.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">10 / 37</div>
+            <div class="slide-index">12 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 11: División Módulo 03 -->
-    <div class="slide-container" id="slide11">
+    <!-- SLIDE 13: Data Leakage -->
+    <div class="slide-container" id="slide13">
+        <h2 class="slide-title">El Peligro de la "Fuga de Información" (Data Leakage)</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-triangle-exclamation"></i> El error más crítico de los principiantes</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-1"></i> Dividí primero tus datos en <strong>train</strong> y <strong>test</strong>.</li>
+                            <li><i class="fa-solid fa-2"></i> Ajustá (<code>fit</code>) el escalador usando <strong>solo</strong> el train.</li>
+                            <li><i class="fa-solid fa-3"></i> Transformá train y test con esos valores ya calculados.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <h3>Estudiando para un examen</h3>
+                        <p>Si mirás las preguntas del examen (test) para decidir qué estudiar (train), tu nota será artificialmente alta — pero no habrás aprendido realmente.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">13 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Errores comunes en escalado -->
+    <div class="slide-container" id="slide14">
+        <h2 class="slide-title">Errores Comunes en el Escalado</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Error</th><th>Por qué es un problema</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Creer que el escalado elimina outliers</strong></td><td>Un millonario en un dataset de sueldos medios queda en 1.0 y aplasta al resto cerca de 0.0001. Tratá los outliers antes de escalar.</td></tr>
+                        <tr><td><strong>Escalar variables categóricas</strong></td><td>Género (0/1) o ID_Cliente no tienen magnitud real. El escalado es solo para numéricas continuas.</td></tr>
+                        <tr><td><strong>Pensar que cambia la "forma"</strong></td><td>Si tus datos tienen forma de "L", seguirán con forma de "L" tras estandarizar — solo se centran en cero.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Si tu modelo usa distancias o gradientes, el escalado no es opcional: es obligatorio.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Práctica escalado -->
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title">Práctica (no entregable): Escalado en Python</h2>
+        <div class="content-area">
+            <span class="moment-badge live"><i class="fa-solid fa-code"></i> pandas + sklearn.preprocessing</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-table-columns"></i> Elegí al menos dos variables con escalas muy distintas (ej. Edad e Ingresos).</li>
+                    <li><i class="fa-solid fa-scissors"></i> Dividí en <code>X_train</code>/<code>X_test</code> (20% test) <strong>antes</strong> de cualquier transformación.</li>
+                    <li><i class="fa-solid fa-square-root-variable"></i> <code>MinMaxScaler</code> y <code>StandardScaler</code>: <code>.fit()</code> solo en train, <code>.transform()</code> en ambos.</li>
+                    <li><i class="fa-solid fa-magnifying-glass"></i> Con <code>.describe()</code>, verificá que la media quede ≈0 (estandarización) y el rango [0,1] (normalización).</li>
+                </ul>
+            </div>
+            <p class="note-text">Error a evitar: nunca llames a <code>.fit_transform()</code> sobre el test. En el test solo se usa <code>.transform()</code>.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: División Módulo 03 -->
+    <div class="slide-container" id="slide16">
         <div></div>
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 03</span>
-            <h2>Seaborn: Distribución y Comparación entre Grupos</h2>
-            <p style="font-size: 20px;">Boxplots, violinplots y heatmaps — de ver una variable a comparar grupos enteros.</p>
+            <h2>Estadística y Preprocesamiento: Fundamentos</h2>
+            <p style="font-size: 20px;">"Garbage in, garbage out": si los datos de entrada son ruidosos, el resultado será erróneo.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">11 / 37</div>
+            <div class="slide-index">16 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 12: Por qué Seaborn -->
-    <div class="slide-container" id="slide12">
-        <h2 class="slide-title">¿Por Qué Seaborn? Una Capa Estadística sobre Matplotlib</h2>
+    <!-- SLIDE 17: El puente entre datos crudos y conocimiento -->
+    <div class="slide-container" id="slide17">
+        <h2 class="slide-title">El Puente entre los Datos Crudos y el Conocimiento</h2>
         <div class="content-area">
-            <div class="tiled-content">
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-table"></i></div>
-                    <h3>Integración con Pandas</h3>
-                    <p>Le pasás un DataFrame y le decís qué columna va en X y cuál en Y.</p>
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-utensils"></i> Un restaurante saludable con 500 opiniones en papelitos sueltos</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-broom"></i> <strong>Preprocesamiento:</strong> la "fontanería" — que los datos sean consistentes, completos y estén en el formato adecuado.</li>
+                            <li><i class="fa-solid fa-chart-line"></i> <strong>Estadística:</strong> la interpretación — entender qué nos dice esa masa de datos ya limpia sobre la realidad.</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-square-root-variable"></i></div>
-                    <h3>Orientación estadística</h3>
-                    <p>Calcula automáticamente promedios, medianas, intervalos de confianza y densidades mientras dibuja.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-palette"></i></div>
-                    <h3>Estética por defecto</h3>
-                    <p><code>sns.set_theme()</code> transforma un reporte técnico de los 90 en una visualización ejecutiva moderna.</p>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-money-bill-wave"></i></div>
+                        <h3>El caso del salario "0"</h3>
+                        <p>Un empleado con salario "0" (dato faltante) y el CEO con "1.000.000": el promedio simple no representa a nadie. El preprocesamiento detecta el "0" como error; la estadística advierte que el millón distorsiona la realidad.</p>
+                    </div>
                 </div>
             </div>
-            <p class="note-text">Dato clave: Seaborn está construido sobre Matplotlib — podés dibujar con Seaborn y afinar detalles finales con <code>plt.title()</code> o <code>plt.xlabel()</code>.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">12 / 37</div>
+            <div class="slide-index">17 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 13: Boxplot -->
-    <div class="slide-container" id="slide13">
-        <h2 class="slide-title">Boxplot: los 5 Números Clave</h2>
+    <!-- SLIDE 18: Población, Muestra y Tipos de Variables -->
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title">Población, Muestra y Tipos de Variables</h2>
         <div class="content-area">
             <div class="table-layout">
                 <table>
                     <thead>
-                        <tr><th>Elemento</th><th>Qué representa</th></tr>
+                        <tr><th>Concepto</th><th>Definición</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td><strong>Mínimo</strong></td><td>El valor más bajo (excluyendo atípicos).</td></tr>
-                        <tr><td><strong>Q1 (25%)</strong></td><td>Por debajo está el 25% de los datos.</td></tr>
-                        <tr><td><strong>Mediana (Q2)</strong></td><td>El centro exacto — divide la muestra en dos mitades.</td></tr>
-                        <tr><td><strong>Q3 (75%)</strong></td><td>Por debajo está el 75% de los datos.</td></tr>
-                        <tr><td><strong>Máximo</strong></td><td>El valor más alto (excluyendo atípicos).</td></tr>
+                        <tr><td><strong>Población</strong></td><td>El conjunto total de elementos a estudiar (ej. todos los ciudadanos de un país).</td></tr>
+                        <tr><td><strong>Muestra</strong></td><td>Un subconjunto representativo — casi siempre trabajamos con muestras.</td></tr>
+                        <tr><td><strong>Cualitativas: Nominales</strong></td><td>Sin orden natural (color de ojos, país de origen).</td></tr>
+                        <tr><td><strong>Cualitativas: Ordinales</strong></td><td>Con orden lógico (satisfacción: bajo, medio, alto).</td></tr>
+                        <tr><td><strong>Cuantitativas: Discretas</strong></td><td>Valores aislados, conteos (número de hijos).</td></tr>
+                        <tr><td><strong>Cuantitativas: Continuas</strong></td><td>Cualquier valor en un rango, con decimales (peso, altura).</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p class="note-text">La caja es el IQR (50% central). Mediana descentrada = distribución sesgada. Los puntos fuera de los bigotes son outliers — cuidado: no siempre son un error de carga, pueden ser tu cliente más valioso.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">13 / 37</div>
+            <div class="slide-index">18 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 14: Violinplot -->
-    <div class="slide-container" id="slide14">
-        <h2 class="slide-title">Violinplot: la Silueta Completa de la Distribución</h2>
+    <!-- SLIDE 19: Flujo de preprocesamiento -->
+    <div class="slide-container" id="slide19">
+        <h2 class="slide-title">El Flujo de Trabajo del Preprocesamiento</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-circle-question"></i></div>
+                    <h3>Valores faltantes</h3>
+                    <p>¿Eliminamos o imputamos (media/mediana)?</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-bug"></i></div>
+                    <h3>Detección de ruido</h3>
+                    <p>Errores de dedo evidentes, como una edad de 250 años.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>Integración</h3>
+                    <p>Unificar fuentes distintas (Excel de ventas + base de clientes) en una sola estructura.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-compress"></i></div>
+                    <h3>Transformación</h3>
+                    <p>Normalización y agregación (de ventas diarias a mensuales).</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: Caso E-commerce -->
+    <div class="slide-container" id="slide20">
+        <h2 class="slide-title">Ejemplo del Mundo Real: el Caso del E-commerce</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-cart-shopping"></i> ¿Comprará el cliente el próximo mes?</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Cliente</th><th>Edad</th><th>Gasto</th><th>Ciudad</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>A</td><td>25</td><td>$100</td><td>"Madrid"</td></tr>
+                        <tr><td>B</td><td><em>null</em></td><td>$50</td><td>"madrid" (minúscula)</td></tr>
+                        <tr><td>C</td><td>30</td><td>500) — error de captura</td><td>"MADRID"</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">El preprocesamiento unifica "Madrid"/"madrid"/"MADRID" en una categoría, decide qué hacer con la edad faltante de B, y corrige el gasto de C.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">20 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: Tablas de frecuencia y sesgo -->
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title">Frecuencias y el Riesgo del Sesgo de Muestra</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge live"><i class="fa-solid fa-chart-area"></i> Boxplot + KDE</span>
+                    <span class="moment-badge"><i class="fa-solid fa-percent"></i> Absoluta vs. Relativa</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-arrows-left-right"></i> El <strong>ancho del violín</strong> representa la frecuencia — más ancho, más datos concentrados.</li>
-                            <li><i class="fa-solid fa-layer-group"></i> Excelente para detectar <strong>subgrupos (multimodalidad)</strong> que un boxplot con la misma mediana podría ocultar.</li>
+                            <li><i class="fa-solid fa-hashtag"></i> <strong>Frecuencia absoluta:</strong> ¿cuántas veces aparece un dato? (10 personas prefieren el iPhone).</li>
+                            <li><i class="fa-solid fa-chart-pie"></i> <strong>Frecuencia relativa:</strong> ¿qué porcentaje del total representa? (esas 10 personas son el 20%).</li>
                         </ul>
                     </div>
                 </div>
                 <div>
-                    <div class="table-layout">
-                        <table>
-                            <thead>
-                                <tr><th>Usá...</th><th>Cuando...</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td><strong>Boxplot</strong></td><td>Audiencia no técnica, o solo importa variabilidad y extremos.</td></tr>
-                                <tr><td><strong>Violinplot</strong></td><td>Necesitás la forma precisa y hay suficientes registros.</td></tr>
-                            </tbody>
-                        </table>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-mobile-screen"></i></div>
+                        <h3>Sesgo de muestra</h3>
+                        <p>Si tu muestra de "usuarios de tecnología" es 90% menores de 20 años, tus conclusiones sobre facilidad de uso estarán sesgadas y no representarán a la población general.</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">14 / 37</div>
+            <div class="slide-index">21 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 15: Heatmap y estrategia de elección -->
-    <div class="slide-container" id="slide15">
-        <h2 class="slide-title">Heatmap de Correlación y Estrategia de Elección</h2>
+    <!-- SLIDE 22: Errores comunes y mejores prácticas -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">Errores Comunes y Mejores Prácticas</h2>
         <div class="content-area">
-            <div class="two-column">
-                <div>
-                    <span class="moment-badge"><i class="fa-solid fa-fire"></i> Matriz de correlación como cuadrícula de colores</span>
-                    <div class="bullet-list">
-                        <ul>
-                            <li><i class="fa-solid fa-arrow-up"></i> <strong>Cerca de 1:</strong> se mueven juntas (metros² y precio).</li>
-                            <li><i class="fa-solid fa-arrow-down"></i> <strong>Cerca de -1:</strong> direcciones opuestas (peso del auto y eficiencia).</li>
-                            <li><i class="fa-solid fa-minus"></i> <strong>Cerca de 0:</strong> sin relación clara.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div>
-                    <div class="table-layout">
-                        <table>
-                            <thead>
-                                <tr><th>Pregunta</th><th>Gráfico</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>¿Outliers o dispersión en un grupo?</td><td>Boxplot</td></tr>
-                                <tr><td>¿Forma y densidad de la distribución?</td><td>Violinplot</td></tr>
-                                <tr><td>¿Qué variables están relacionadas?</td><td>Heatmap</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Error</th><th>Mejor práctica</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Confundir media con mediana en salarios desiguales</td><td>Mirá siempre ambas medidas.</td></tr>
+                        <tr><td>Ignorar los datos faltantes (borrar filas sin pensar)</td><td>Analizá por qué faltan antes de borrarlos.</td></tr>
+                        <tr><td>No estandarizar formatos ("USA", "United States", "EE.UU.")</td><td>Unificá categorías antes de analizar.</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <p class="note-text">Errores comunes: saturar el heatmap con 50 variables (filtrá primero), violinplots sobre grupos de 5 datos (engañoso), y no ordenar las categorías del boxplot de mayor a menor mediana.</p>
+            <p class="note-text">Visualizá antes de calcular, documentá tus cambios y mantené el escepticismo profesional: si un dato parece demasiado bueno para ser verdad, probablemente sea un error.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">15 / 37</div>
+            <div class="slide-index">22 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 16: Break de Coder -->
-    <div class="slide-container break-slide" id="slide16">
+    <!-- SLIDE 23: Práctica App de Fitness -->
+    <div class="slide-container" id="slide23">
+        <h2 class="slide-title">Práctica (no entregable): Diagnóstico de una App de Fitness</h2>
+        <div class="content-area">
+            <span class="moment-badge live"><i class="fa-solid fa-dumbbell"></i> 100 usuarios, columnas con problemas reales</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-user"></i> Edad: valores en "0" y uno en "200". Ciudad: "Barcelona"/"Barna"/"BCN". Suscripcion: "Premium"/"premium".</li>
+                    <li><i class="fa-solid fa-tags"></i> Clasificá las 5 variables (Cualitativa Nominal/Ordinal o Cuantitativa Discreta/Continua).</li>
+                    <li><i class="fa-solid fa-weight-scale"></i> Si hay 2 usuarios de 200 kg, ¿media o mediana para el "peso típico"? Justificá.</li>
+                    <li><i class="fa-solid fa-broom"></i> Para los 15 registros sin Peso_kg: ¿los borrarías o los rellenarías?</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: Break de Coder -->
+    <div class="slide-container break-slide" id="slide24">
         <div></div>
         <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
             <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
@@ -904,496 +1065,720 @@ axes[1].hist(datos_z)
         </div>
         <div class="slide-footer" style="border-top-color: rgba(248, 242, 232, 0.15);">
             <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span>HOUSE</span></div>
-            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">16 / 37</div>
+            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">24 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 17: División Módulo 04 -->
-    <div class="slide-container" id="slide17">
+    <!-- SLIDE 25: División Módulo 04 -->
+    <div class="slide-container" id="slide25">
         <div></div>
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 04</span>
-            <h2>Visualización Avanzada: del Dato a la Narrativa</h2>
-            <p style="font-size: 20px;">Por qué existe la visualización, cómo se cuenta una historia con datos y qué hace bueno a un dashboard.</p>
+            <h2>El Arte de Ordenar el Caos</h2>
+            <p style="font-size: 20px;">De una montaña de "datos en bruto" a una historia coherente sobre ellos.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">17 / 37</div>
+            <div class="slide-index">25 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 18: El porqué de la visualización -->
-    <div class="slide-container" id="slide18">
-        <h2 class="slide-title">El Porqué: la Visualización como Herramienta para Pensar</h2>
+    <!-- SLIDE 26: GIGO y el flujo en 5 pasos -->
+    <div class="slide-container" id="slide26">
+        <h2 class="slide-title">GIGO: el Flujo del Científico de Datos en 5 Pasos</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-recycle"></i> Garbage In, Garbage Out — si entra basura, sale basura</span>
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-1"></i></div>
+                    <h3>Preguntar</h3>
+                    <p>¿Cuál es el perfil de nuestro cliente ideal?</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-2"></i></div>
+                    <h3>Recolectar</h3>
+                    <p>Encuestas, bases de datos, sensores.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-3"></i></div>
+                    <h3>Preprocesar</h3>
+                    <p>Eliminar ruido y estructurar la información.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-4"></i></div>
+                    <h3>Representar</h3>
+                    <p>Tablas y gráficos que resuman los datos.</p>
+                </div>
+            </div>
+            <p class="note-text">5. Interpretar: extraer conclusiones basadas en la evidencia encontrada.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">26 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 27: Tabla de frecuencias, caso fábrica -->
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title">La Tabla de Frecuencias: el Primer Puente</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-map"></i> El mapa vs. la lista de direcciones</span>
+                    <span class="moment-badge tip"><i class="fa-solid fa-industry"></i> 10 fallas en cada turno, ¿son iguales?</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-list"></i> Una lista de direcciones es precisa pero sin contexto — como una tabla de datos.</li>
-                            <li><i class="fa-solid fa-compass"></i> Un mapa te muestra qué hay alrededor y cuán lejos estás — como una buena visualización.</li>
+                            <li><i class="fa-solid fa-hashtag"></i> A simple vista (frecuencia absoluta), Turno Mañana y Turno Noche parecen iguales: 10 fallas cada uno.</li>
+                            <li><i class="fa-solid fa-percent"></i> Pero Mañana produjo 1.000 piezas y Noche solo 100: la tasa de falla es 1% vs. 10%.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
-                        <h3>Función cognitiva</h3>
-                        <p>Leer una tabla es secuencial (fila por fila). Un gráfico permite que la percepción detecte patrones en milisegundos: en 1.000 transacciones bancarias, un punto disparado del resto se ve al instante.</p>
+                        <div class="icon-box"><i class="fa-solid fa-scale-unbalanced"></i></div>
+                        <h3>Moraleja</h3>
+                        <p>El preprocesamiento estadístico nos permite comparar "manzanas con manzanas" usando proporciones, no totales brutos.</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">18 / 37</div>
+            <div class="slide-index">27 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 19: Pilares del análisis visual + narrativa -->
-    <div class="slide-container" id="slide19">
-        <h2 class="slide-title">Los Pilares del Análisis Visual</h2>
+    <!-- SLIDE 28: Visualización: el modelo del Zoom -->
+    <div class="slide-container" id="slide28">
+        <h2 class="slide-title">Visualización: el Modelo del "Zoom"</h2>
         <div class="content-area">
             <div class="tiled-content">
                 <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-table"></i></div>
+                    <h3>La Tabla</h3>
+                    <p>Zoom máximo: ves cada dato individual.</p>
+                </div>
+                <div class="tile">
                     <div class="icon-box"><i class="fa-solid fa-chart-column"></i></div>
-                    <h3>Distribución</h3>
-                    <p>¿Cómo se reparten mis datos? Densidad y outliers.</p>
+                    <h3>El Gráfico</h3>
+                    <p>Zoom medio: ves la forma del conjunto (barras, histogramas, pie charts).</p>
                 </div>
                 <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-braille"></i></div>
-                    <h3>Relación</h3>
-                    <p>¿Depende X de Y? Nos permite predecir comportamientos.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                    <h3>Evolución temporal</h3>
-                    <p>No solo el valor de hoy: ¿crecemos, decrecemos o estancamos?</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-chart-pie"></i></div>
-                    <h3>Composición</h3>
-                    <p>¿Qué porcentaje viene de cada parte del total?</p>
+                    <div class="icon-box"><i class="fa-solid fa-bullseye"></i></div>
+                    <h3>La Medida Central</h3>
+                    <p>Zoom alejado: ves solo el punto central (media, mediana).</p>
                 </div>
             </div>
-            <p class="note-text">Data Storytelling: como todo relato, un análisis visual tiene <strong>Inicio</strong> (contexto: "las ventas fluctuaron"), <strong>Nudo</strong> (el problema: "cae fuerte en la región norte") y <strong>Desenlace</strong> (la acción: "investigar al nuevo competidor").</p>
+            <p class="note-text">Un gráfico no es decoración: es una herramienta de preprocesamiento visual que ayuda a detectar patrones que las tablas ocultan.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">19 / 37</div>
+            <div class="slide-index">28 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 20: De gráficos a dashboards -->
-    <div class="slide-container" id="slide20">
-        <h2 class="slide-title">De Gráficos Sueltos a Dashboards</h2>
+    <!-- SLIDE 29: Errores comunes: engaño de la media -->
+    <div class="slide-container" id="slide29">
+        <h2 class="slide-title">Errores Comunes: el Engaño de la Media y el Contexto</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Error</th><th>Explicación</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>El engaño de la media</strong></td><td>En una sala con 9 personas que ganan poco y 1 que gana mucho, el promedio no describe al "típico".</td></tr>
+                        <tr><td><strong>Confundir absoluta con relativa</strong></td><td>Los totales pueden engañar si el tamaño de los grupos es distinto. Calculá siempre proporciones.</td></tr>
+                        <tr><td><strong>Ignorar el contexto de negocio</strong></td><td>Un pico de ventas el 14 de febrero no es un error de datos: es San Valentín. Investigá antes de "limpiar".</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">29 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: Práctica Café Popular -->
+    <div class="slide-container" id="slide30">
+        <h2 class="slide-title">Práctica (no entregable): el Reporte del Café Popular</h2>
+        <div class="content-area">
+            <span class="moment-badge live"><i class="fa-solid fa-mug-saucer"></i> Ventas del lunes con fallos de registro</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-magnifying-glass"></i> "CAFE AMERICANO" vs. "Café Americano", un dato faltante, y un Croissant a $45.00 (valor atípico) entre bebidas de $2-3.50.</li>
+                    <li><i class="fa-solid fa-table"></i> Armá una Tabla de Frecuencias (absoluta y relativa) corrigiendo antes los nombres de categorías.</li>
+                    <li><i class="fa-solid fa-mug-hot"></i> Calculá la Moda (bebida más vendida) y explicá cómo afecta el croissant al precio promedio.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">30 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 31: División Módulo 05 -->
+    <div class="slide-container" id="slide31">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 05</span>
+            <h2>Feature Engineering</h2>
+            <p style="font-size: 20px;">Limpiar la mesa no es lo mismo que cocinar: crear variables útiles desde el negocio.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">31 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 32: Qué es el Feature Engineering -->
+    <div class="slide-container" id="slide32">
+        <h2 class="slide-title">¿Qué es el Feature Engineering?</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge"><i class="fa-solid fa-gauge-high"></i> El tablero de un auto</span>
+                    <span class="moment-badge tip"><i class="fa-solid fa-lightbulb"></i> Usar conocimiento de negocio para crear nuevas variables</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-gauge"></i> Velocímetro, combustible, temperatura: indicadores críticos combinados para que el conductor actúe rápido.</li>
-                            <li><i class="fa-solid fa-list-ol"></i> Principios: jerarquía visual (lo importante arriba-izquierda), coherencia de color, e interactividad (filtrar, hacer zoom).</li>
+                            <li><i class="fa-solid fa-gears"></i> El objetivo: que los algoritmos de Machine Learning entiendan mejor el problema.</li>
+                            <li><i class="fa-solid fa-piggy-bank"></i> Ingresos y Gastos Mensuales por separado son útiles, pero <strong>Capacidad de Ahorro</strong> (Ingresos − Gastos) es mucho más informativa.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
-                    <div class="table-layout">
-                        <table>
-                            <thead>
-                                <tr><th>Atributo pre-atentivo</th><th>Ideal para</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td><strong>Longitud</strong></td><td>Comparar cantidades (barras)</td></tr>
-                                <tr><td><strong>Posición</strong></td><td>Ver relaciones (dispersión)</td></tr>
-                                <tr><td><strong>Color/Intensidad</strong></td><td>Resaltar alertas o categorías</td></tr>
-                            </tbody>
-                        </table>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-motorcycle"></i></div>
+                        <h3>Ejemplo: App de Delivery</h3>
+                        <p>Dato crudo: <code>hora_pedido = 14:00</code>. Feature Engineering: <code>es_hora_pico = 1</code>, porque sabemos que entre las 13:00 y 15:00 la demanda colapsa.</p>
                     </div>
                 </div>
             </div>
-            <p class="note-text">Regla de oro: un dashboard efectivo se limita a un máximo de 5 visualizaciones principales — más que eso genera ruido visual y confunde en vez de aclarar.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">20 / 37</div>
+            <div class="slide-index">32 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 21: Semáforo de color y casos reales -->
-    <div class="slide-container" id="slide21">
-        <h2 class="slide-title">El Color como Información: Casos del Mundo Real</h2>
+    <!-- SLIDE 33: Ratios, Temporales, Binning -->
+    <div class="slide-container" id="slide33">
+        <h2 class="slide-title">Ratios, Variables Temporales y Binning</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-percent"></i></div>
+                    <h3>Ratios y Proporciones</h3>
+                    <p>"Ventas por Metro Cuadrado" en vez de "Ventas Totales". CTR (Clics ÷ Impresiones) en Marketing.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <h3>Variables Temporales</h3>
+                    <p>Recencia (¿hace cuántos días compró?), estacionalidad (¿fin de semana?), antigüedad del cliente.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>Binning</h3>
+                    <p>Agrupar Edad en categorías ("Generación Z", "Millennials") en vez de un número continuo.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">33 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 34: La regla de oro -->
+    <div class="slide-container" id="slide34">
+        <h2 class="slide-title">La Regla de Oro: el Contexto es Rey</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-triangle-exclamation"></i> Más variables no es mejor</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-shuffle"></i> Crear cientos de variables al azar es un error común de principiantes.</li>
+                    <li><i class="fa-solid fa-volume-xmark"></i> Una variable sin lógica de negocio suele ser "ruido" que confunde al modelo.</li>
+                    <li><i class="fa-solid fa-circle-question"></i> Antes de crear una columna, preguntate: si fuera un experto en este negocio, ¿este dato me ayudaría a decidir?</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">34 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 35: División Módulo 06 - Podcast -->
+    <div class="slide-container" id="slide35">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 06 • Recurso</span>
+            <h2>Podcast: Estadística y Preprocesamiento</h2>
+            <p style="font-size: 20px;">Un repaso en formato audio de los conceptos de esta unidad — ideal para reforzar en el trayecto a la próxima clase.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">35 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 36: División Módulo 07 -->
+    <div class="slide-container" id="slide36">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 07</span>
+            <h2>Consolidación en la Práctica</h2>
+            <p style="font-size: 20px;">De entender promedios y desviaciones a normalizar, detectar outliers y razonar con probabilidad.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">36 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 37: Flujo completo -->
+    <div class="slide-container" id="slide37">
+        <h2 class="slide-title">El Flujo Completo: de la Recogida a la Inferencia</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-inbox"></i></div>
+                    <h3>Recogida</h3>
+                    <p>Encuestas, sensores, bases de datos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-broom"></i></div>
+                    <h3>Preprocesamiento</h3>
+                    <p>Lavar y cortar los ingredientes: limpiar errores, normalizar escalas.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-map"></i></div>
+                    <h3>Descripción</h3>
+                    <p>Tablas y gráficos que muestran qué está pasando.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                    <h3>Interpretación → Inferencia</h3>
+                    <p>Conclusiones sobre la muestra, y predicciones sobre el grupo más grande.</p>
+                </div>
+            </div>
+            <p class="note-text">Sin preprocesamiento, la estadística descriptiva puede mentirnos: un sueldo mal tipeado como "1.000.000.000" dispara el promedio artificialmente.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">37 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 38: Población, Muestra, Individuo -->
+    <div class="slide-container" id="slide38">
+        <h2 class="slide-title">Población, Muestra e Individuo: el Riesgo del Sesgo</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge bug"><i class="fa-solid fa-traffic-light"></i> El "semáforo cognitivo"</span>
+                    <span class="moment-badge"><i class="fa-solid fa-users"></i> No toda "muestra" es representativa</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-square"></i> <strong>Secuenciales:</strong> variables numéricas (azul claro→oscuro para ingresos bajos→altos).</li>
-                            <li><i class="fa-solid fa-square"></i> <strong>Divergentes:</strong> punto medio crítico (rojo/blanco/azul para temperatura bajo/en/sobre cero).</li>
-                            <li><i class="fa-solid fa-square"></i> <strong>Categóricos:</strong> grupos sin orden — pero respetá las convenciones (rojo=pérdida, no al revés).</li>
+                            <li><i class="fa-solid fa-earth-americas"></i> <strong>Población:</strong> todos los elementos que nos interesa estudiar.</li>
+                            <li><i class="fa-solid fa-user-group"></i> <strong>Muestra:</strong> un subconjunto — estudiar toda la población suele ser caro o imposible.</li>
+                            <li><i class="fa-solid fa-user"></i> <strong>Individuo:</strong> cada elemento único dentro de la población o muestra.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="tile" style="height: 260px;">
                         <div class="icon-box"><i class="fa-solid fa-cart-shopping"></i></div>
-                        <h3>Casos reales</h3>
-                        <p><strong>Retail:</strong> heatmaps de recorrido de clientes (+15% ventas moviendo productos). <strong>Salud pública:</strong> áreas apiladas para capacidad hospitalaria. <strong>Amazon:</strong> caída súbita en "añadir al carrito" detecta bugs en segundos. <strong>Finanzas personales:</strong> donuts de gastos.</p>
+                        <h3>Caso de la industria</h3>
+                        <p>Un e-commerce encuesta sobre su nuevo diseño solo a quienes compraron hoy. Esa muestra está sesgada: ignora a quienes entraron y se fueron frustrados por el diseño.</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">21 / 37</div>
+            <div class="slide-index">38 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 22: Errores y trampas visuales -->
-    <div class="slide-container" id="slide22">
-        <h2 class="slide-title">Errores Comunes y "Trampas" Visuales</h2>
-        <div class="content-area">
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr><th>Trampa</th><th>Por qué engaña</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>Eje Y truncado</strong></td><td>Un crecimiento del 1% puede parecer del 50%. Mantené el cero como base.</td></tr>
-                        <tr><td><strong>Pie chart con muchas categorías</strong></td><td>El ojo humano compara mal los ángulos. Usá barras ordenadas.</td></tr>
-                        <tr><td><strong>Exceso de "Data-Ink"</strong></td><td>Bordes, sombras 3D y grillas gruesas son ruido (Edward Tufte). Si no ayuda a leer el valor, borralo.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <p class="note-text">Pregunta primero, gráfico después. Menos es más. El contexto (títulos, ejes, leyendas) es lo que convierte un dibujo en una herramienta de ciencia de datos.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">22 / 37</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 23: División Módulo 05 -->
-    <div class="slide-container" id="slide23">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 05</span>
-            <h2>Arquitectura Visual y la Regla de Lectura en "Z"</h2>
-            <p style="font-size: 20px;">El dashboard como interfaz de usuario: insights críticos en los primeros 3 segundos.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">23 / 37</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 24: El patrón de lectura en Z -->
-    <div class="slide-container" id="slide24">
-        <h2 class="slide-title">El Patrón de Lectura en "Z": Guiando el Ojo</h2>
-        <div class="content-area">
-            <span class="moment-badge tip"><i class="fa-solid fa-arrows-turn-right"></i> Occidente lee de izquierda a derecha, arriba hacia abajo</span>
-            <div class="table-layout">
-                <table>
-                    <thead>
-                        <tr><th>Posición</th><th>Qué colocar ahí</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>1. Arriba-Izquierda</strong> (Ancla visual)</td><td>KPIs principales: Ventas Totales, Margen, ROI.</td></tr>
-                        <tr><td><strong>2. Arriba-Derecha</strong> (Contexto y control)</td><td>Slicers horizontales, línea de tiempo (Timeline).</td></tr>
-                        <tr><td><strong>3. Abajo-Izquierda</strong> (Profundidad analítica)</td><td>Tendencias en el tiempo, comparativas clave.</td></tr>
-                        <tr><td><strong>4. Abajo-Derecha</strong> (Punto de salida)</td><td>Tablas de detalle, top 10, formato condicional.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <p class="note-text">Recorrido recomendado: KPIs → Controles/Slicers → Gráficos de Tendencia → Tablas de Detalle. Oculta las líneas de cuadrícula y usá el tamaño de las celdas como sistema de grillas.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">24 / 37</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 25: División Módulo 06 -->
-    <div class="slide-container" id="slide25">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 06</span>
-            <h2>Principios de UI/UX y Jerarquía Visual en Dashboards</h2>
-            <p style="font-size: 20px;">De arquitecto de datos a diseñador de información.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">25 / 37</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 26: Qué es la jerarquía visual -->
-    <div class="slide-container" id="slide26">
-        <h2 class="slide-title">¿Qué es la Jerarquía Visual?</h2>
+    <!-- SLIDE 39: Gestión de outliers -->
+    <div class="slide-container" id="slide39">
+        <h2 class="slide-title">Gestión de Outliers: ¿Borrar o Investigar?</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge"><i class="fa-solid fa-plane"></i> La cabina de un avión</span>
+                    <span class="moment-badge tip"><i class="fa-solid fa-magnifying-glass"></i> No siempre borres los outliers</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-eye"></i> Es el orden en que el ojo humano percibe lo que ve: "mirá esto primero, esto después, esto solo si necesitás el detalle".</li>
-                            <li><i class="fa-solid fa-brain"></i> El cerebro es perezoso por naturaleza: busca patrones y atajos.</li>
+                            <li><i class="fa-solid fa-keyboard"></i> A veces es un error de digitación → se borra.</li>
+                            <li><i class="fa-solid fa-shield-halved"></i> Otras veces es un caso de fraude bancario, o una oportunidad de mercado única → se investiga.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-user-tie"></i></div>
-                        <h3>Sin jerarquía = ruido visual</h3>
-                        <p>Si un ejecutivo tiene 5 minutos antes de una junta y todos los elementos "pesan" igual, se sentirá abrumado y podría decidir con una interpretación apresurada.</p>
+                        <div class="icon-box"><i class="fa-solid fa-square"></i></div>
+                        <h3>El Boxplot como detector</h3>
+                        <p>Los diagramas de caja permiten detectar visualmente los valores atípicos antes de decidir qué hacer con ellos.</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">26 / 37</div>
+            <div class="slide-index">39 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 27: Pilares del diseño visual -->
-    <div class="slide-container" id="slide27">
-        <h2 class="slide-title">Los Pilares del Diseño Visual en Reporting</h2>
-        <div class="content-area">
-            <div class="tiled-content">
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-arrows-turn-right"></i></div>
-                    <h3>Patrón F/Z</h3>
-                    <p>Zona superior izq. = KPIs críticos. Zona media = tendencias. Zona inferior/derecha = detalle.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-text-height"></i></div>
-                    <h3>Tamaño y peso</h3>
-                    <p>Lo más grande se percibe como más importante. Fuentes Sans Serif (Segoe UI, Aptos) para números.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-palette"></i></div>
-                    <h3>Color con propósito</h3>
-                    <p>Semánticos: rojo=alerta, verde=cumplimiento, ámbar=atención. Grises para ejes y etiquetas.</p>
-                </div>
-                <div class="tile">
-                    <div class="icon-box"><i class="fa-solid fa-expand"></i></div>
-                    <h3>Espacio en blanco</h3>
-                    <p>No es espacio desperdiciado: agrupa conceptos relacionados y separa secciones.</p>
-                </div>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">27 / 37</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 28: Arquitectura de la información -->
-    <div class="slide-container" id="slide28">
-        <h2 class="slide-title">Arquitectura de la Información: de lo General a lo Particular</h2>
+    <!-- SLIDE 40: Introducción a la probabilidad -->
+    <div class="slide-container" id="slide40">
+        <h2 class="slide-title">Lidiar con la Incertidumbre: Introducción a la Probabilidad</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge tip"><i class="fa-solid fa-comments"></i> El reporte como una conversación</span>
+                    <span class="moment-badge"><i class="fa-solid fa-dice"></i> De 0 (imposible) a 1 (seguro)</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-1"></i> <strong>El Titular (KPIs):</strong> "¿Cómo vamos?"</li>
-                            <li><i class="fa-solid fa-2"></i> <strong>El Contexto (Tendencias):</strong> "¿Cómo llegamos hasta acá?"</li>
-                            <li><i class="fa-solid fa-3"></i> <strong>El Diagnóstico (Desgloses):</strong> "¿Quién o qué causó esto?"</li>
-                            <li><i class="fa-solid fa-4"></i> <strong>El Detalle (Tablas):</strong> "Mostrame los datos exactos."</li>
+                            <li><i class="fa-solid fa-shuffle"></i> <strong>Experimento aleatorio:</strong> un proceso donde no sabemos el resultado exacto (lanzar una moneda, la bolsa de valores).</li>
+                            <li><i class="fa-solid fa-magnifying-glass-chart"></i> En Ciencia de Datos buscamos movernos en lo altamente probable — las certezas absolutas son raras.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-briefcase"></i></div>
-                        <h3>Ejemplo real: dashboard de un Controller</h3>
-                        <p>Nivel 1: tarjetas de EBITDA, Ingresos, Costos y % Desviación. Nivel 2: gráfico de cascada (Waterfall). Nivel 3: top 5 centros de costo excedidos. Nivel 4: tabla dinámica filtrable con facturas específicas.</p>
+                        <div class="icon-box"><i class="fa-solid fa-cloud-sun-rain"></i></div>
+                        <h3>El pronóstico del tiempo</h3>
+                        <p>Si el meteorólogo dice 90% de probabilidad de lluvia, analizó datos históricos (estadística descriptiva) de días similares (muestra) y llegó a una conclusión lógica (inferencia).</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">28 / 37</div>
+            <div class="slide-index">40 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 29: Errores comunes y anti-patrones -->
-    <div class="slide-container" id="slide29">
-        <h2 class="slide-title">Errores Comunes y "Anti-Patrones" del Reporting</h2>
+    <!-- SLIDE 41: Errores comunes - tabla de trampas -->
+    <div class="slide-container" id="slide41">
+        <h2 class="slide-title">Errores Comunes: Tabla de Trampas Frecuentes</h2>
         <div class="content-area">
             <div class="table-layout">
                 <table>
                     <thead>
-                        <tr><th>Anti-patrón</th><th>Solución</th></tr>
+                        <tr><th>Error común</th><th>Por qué es un problema</th><th>Forma correcta</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td><strong>Efecto Árbol de Navidad</strong></td><td>Demasiados colores vibrantes compitiendo. Usá paleta monocromática y reservá el color brillante para excepciones.</td></tr>
-                        <tr><td><strong>Chartjunk</strong> (Tufte)</td><td>Bordes gruesos, sombras 3D, líneas oscuras. Maximizá el Data-to-Ink Ratio: si podés quitarlo sin perder el dato, quitalo.</td></tr>
-                        <tr><td><strong>Dato Huérfano</strong></td><td>"$1.000.000" sin contexto no dice nada. Acompañá cada KPI con un comparativo (vs. Target, vs. Año Anterior) o un Sparkline.</td></tr>
+                        <tr><td>Ignorar valores faltantes</td><td>Las herramientas estadísticas fallan o dan resultados erróneos.</td><td>Imputar (media) o eliminar filas si son pocas.</td></tr>
+                        <tr><td>Confundir correlación con causalidad</td><td>Que dos variables se muevan juntas no implica que una cause la otra.</td><td>Pruebas rigurosas + contexto de negocio.</td></tr>
+                        <tr><td>No normalizar antes de comparar</td><td>Se le da peso excesivo a variables con rangos más grandes.</td><td>Min-Max o estandarización si las unidades difieren.</td></tr>
+                        <tr><td>Confundir descriptiva con inferencia</td><td>Afirmar que "toda la población" se comporta así por una muestra chica.</td><td>Usar márgenes de error e intervalos de confianza.</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p class="note-text">Accesibilidad: ~8% de los hombres tiene alguna deficiencia en la percepción del color. No dependas solo del semáforo rojo/verde — agregá íconos (flechas) o variá el contraste.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">29 / 37</div>
+            <div class="slide-index">41 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 30: División Módulo 07 -->
-    <div class="slide-container" id="slide30">
-        <div></div>
-        <div class="transition-layout">
-            <hr>
-            <span class="moment-badge">Módulo 07</span>
-            <h2>Práctica: Auditoría UX de Dashboards</h2>
-            <p style="font-size: 20px;">De analista a consultor: detectar y rediseñar fallos de jerarquía visual y lectura en Z.</p>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">30 / 37</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 31: Ejercicio de auditoría y rediseño -->
-    <div class="slide-container" id="slide31">
-        <h2 class="slide-title">Ejercicio: Auditoría y Rediseño de un Dashboard</h2>
+    <!-- SLIDE 42: Práctica Auditoría de Datos -->
+    <div class="slide-container" id="slide42">
+        <h2 class="slide-title">Práctica (no entregable): Auditoría de Datos e Interpretación</h2>
         <div class="content-area">
-            <span class="moment-badge live"><i class="fa-solid fa-magnifying-glass"></i> Práctica no entregable — sin código, análisis crítico</span>
+            <span class="moment-badge live"><i class="fa-solid fa-clipboard-check"></i> Juzgar la calidad de la información, no solo calcular</span>
             <div class="bullet-list">
                 <ul>
-                    <li><i class="fa-solid fa-chart-pie"></i> El escenario: un gráfico de pastel con 15 categorías en colores similares, títulos en Comic Sans tamaño 24 azul brillante, y un KPI de "Ventas" sin comparativo.</li>
-                    <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Identificación:</strong> al menos 4 fallos de jerarquía visual o UX.</li>
-                    <li><i class="fa-solid fa-table-columns"></i> <strong>Propuesta de layout:</strong> reorganizar con el patrón de lectura en "F" — ¿qué va arriba-izquierda? ¿qué se mueve al final?</li>
-                    <li><i class="fa-solid fa-swatchbook"></i> <strong>Guía de estilo:</strong> máximo 3 colores principales + grises, con su función analítica.</li>
+                    <li><i class="fa-solid fa-store"></i> Ventas del último mes de una sucursal (muestra) para decidir la estrategia de compras de toda la región (población). ¿Es representativa?</li>
+                    <li><i class="fa-solid fa-tag"></i> Precio Unitario: [10, 12, 11, 15, 2, 500, 13, 11]. ¿Qué harías con el 500 y con el 2?</li>
+                    <li><i class="fa-solid fa-percent"></i> De 200 clientes, 40 compraron productos orgánicos: frecuencia absoluta y relativa.</li>
+                    <li><i class="fa-solid fa-ruler-combined"></i> Edad (18-90) y Gasto Total (500-50.000): ¿por qué no podrías usarlos sin normalizar?</li>
                 </ul>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">31 / 37</div>
+            <div class="slide-index">42 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 32: Caso Dashboard Comercial Q3 -->
-    <div class="slide-container" id="slide32">
-        <h2 class="slide-title">Caso de Estudio: "Dashboard Comercial - Q3"</h2>
-        <div class="content-area">
-            <span class="moment-badge bug"><i class="fa-solid fa-comment-dots"></i> "La información está ahí, pero tardamos 10 minutos en entenderla"</span>
-            <div class="bullet-list">
-                <ul>
-                    <li><i class="fa-solid fa-user-tie"></i> Sos el nuevo analista de datos de una empresa de retail; el gerente de ventas te muestra el dashboard actual en Excel.</li>
-                    <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Diagnóstico:</strong> al menos 3 violaciones graves a los principios de UI/UX y al patrón de lectura en "Z".</li>
-                    <li><i class="fa-solid fa-arrows-turn-right"></i> <strong>Reestructuración:</strong> redistribuir 4 elementos (tabla dinámica, gráfico circular, slicers, tarjetas de KPI) usando correctamente el modelo en "Z".</li>
-                </ul>
-            </div>
-        </div>
-        <div class="slide-footer">
-            <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">32 / 37</div>
-        </div>
-    </div>
-
-    <!-- SLIDE 33: División Módulo 08 -->
-    <div class="slide-container" id="slide33">
+    <!-- SLIDE 43: División Módulo 08 - Pre-entrega -->
+    <div class="slide-container" id="slide43">
         <div></div>
         <div class="transition-layout">
             <hr>
             <span class="moment-badge">Módulo 08 • Pre-entrega</span>
-            <h2>Limpieza y Documentación del Dataset</h2>
-            <p style="font-size: 20px;">El checkpoint que sanea, agrupa y documenta la base de tu Proyecto Final.</p>
+            <h2>El Puente entre los Datos y las Decisiones</h2>
+            <p style="font-size: 20px;">El ciclo de la estadística y el preprocesamiento, y tu primera Pre-entrega del proyecto.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">33 / 37</div>
+            <div class="slide-index">43 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 34: Inicialización, Carga y Diagnóstico -->
-    <div class="slide-container" id="slide34">
-        <h2 class="slide-title">Inicialización, Carga y Diagnóstico</h2>
+    <!-- SLIDE 44: La estadística como ciencia de la incertidumbre -->
+    <div class="slide-container" id="slide44">
+        <h2 class="slide-title">La Estadística como Ciencia de la Incertidumbre</h2>
         <div class="content-area">
             <div class="two-column">
                 <div>
-                    <span class="moment-badge"><i class="fa-solid fa-code-branch"></i> Paso 1: Inicialización</span>
+                    <span class="moment-badge tip"><i class="fa-solid fa-user-secret"></i> La escena de un crimen</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-folder-tree"></i> Repositorio en GitHub con un <code>.ipynb</code> o <code>.py</code> y el dataset original — o un link a la fuente si pesa mucho.</li>
-                            <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Paso 2: Carga y Diagnóstico</strong> — <code>read_csv()</code> y <code>.info()</code>, <code>.describe()</code>, <code>.isnull().sum()</code> para entender el estado real de los datos.</li>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> Papeles sueltos, fotos borrosas, testimonios contradictorios: datos ruidosos y potencialmente engañosos.</li>
+                            <li><i class="fa-solid fa-scale-balanced"></i> La estadística recoge, organiza, resume e interpreta datos para decidir cuando no tenemos toda la información.</li>
                         </ul>
                     </div>
                 </div>
                 <div>
                     <div class="tile" style="height: 260px;">
-                        <div class="icon-box"><i class="fa-solid fa-bridge"></i></div>
-                        <h3>El puente hacia la visualización</h3>
-                        <p>Un dataset mal saneado produce gráficos que mienten. Esta pre-entrega es la base sólida sobre la que se construyen las visualizaciones y, más adelante, los modelos de Machine Learning.</p>
+                        <div class="icon-box"><i class="fa-solid fa-bowl-food"></i></div>
+                        <h3>La sopa y la muestra</h3>
+                        <p>No necesitás tomarte toda la olla (población) para saber si está bien de sal: basta una cucharada bien mezclada (muestra). Pero si probás solo la superficie sin revolver, tu conclusión será errónea.</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">34 / 37</div>
+            <div class="slide-index">44 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 35: Limpieza Rigurosa y Agregaciones de Negocio -->
-    <div class="slide-container" id="slide35">
-        <h2 class="slide-title">Limpieza Rigurosa y Agregaciones de Negocio</h2>
+    <!-- SLIDE 45: Preprocesamiento: la cocina de los datos -->
+    <div class="slide-container" id="slide45">
+        <h2 class="slide-title">Preprocesamiento: la Cocina de los Datos</h2>
         <div class="content-area">
-            <div class="bullet-list">
-                <ul>
-                    <li><i class="fa-solid fa-broom"></i> <strong>Limpieza Rigurosa:</strong> imputación de valores faltantes (media, moda o eliminación estratégica), eliminación de duplicados, y conversión de columnas a tipos de datos apropiados (ej. fechas).</li>
-                    <li><i class="fa-solid fa-layer-group"></i> <strong>Agregaciones de Negocio:</strong> al menos 3 agrupaciones (<code>groupby</code>) que respondan preguntas clave — ej. promedio por categoría, conteo de registros por región.</li>
-                </ul>
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-triangle-exclamation"></i> Los datos son "sucios" por naturaleza</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-user-slash"></i> Valores faltantes: clientes que no completaron su edad.</li>
+                            <li><i class="fa-solid fa-temperature-high"></i> Ruido y atípicos: un sensor que marca 500°C en una oficina.</li>
+                            <li><i class="fa-solid fa-language"></i> Inconsistencias: "España", "Esp", "España " en la misma columna.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-industry"></i></div>
+                        <h3>Línea de ensamblaje</h3>
+                        <p>Dato Bruto → Limpieza → Organización (categórico o numérico) → Representación (tablas, gráficos) → Interpretación.</p>
+                    </div>
+                </div>
             </div>
-            <p class="note-text">Errores a evitar: olvidar <code>reset_index()</code> tras eliminar filas; no verificar la consistencia de tipos antes de calcular; subir archivos de datos extremadamente pesados (usar un link si pesan más de 50MB).</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">35 / 37</div>
+            <div class="slide-index">45 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 36: Entregable -->
-    <div class="slide-container" id="slide36">
-        <h2 class="slide-title">Entregable: Repositorio y Documentación</h2>
+    <!-- SLIDE 46: Variables y frecuencias -->
+    <div class="slide-container" id="slide46">
+        <h2 class="slide-title">Variables y Frecuencias: el Lenguaje de la Medición</h2>
         <div class="content-area">
-            <span class="moment-badge live"><i class="fa-brands fa-github"></i> Un repositorio, no un solo archivo</span>
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-tags"></i> No tratamos igual un teléfono que una temperatura</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-palette"></i> <strong>Cualitativas:</strong> color de ojos, marca de auto.</li>
+                            <li><i class="fa-solid fa-calculator"></i> <strong>Cuantitativas:</strong> edad, ingresos, peso — admiten operaciones matemáticas.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-city"></i></div>
+                        <h3>Ciudad A vs. Ciudad B</h3>
+                        <p>500 compras en A (1.000.000 habitantes = 0.05%) vs. 50 en B (100 habitantes = 50%). La frecuencia relativa cuenta la historia real: tu producto es un éxito en B.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">46 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 47: El rol crítico de la probabilidad -->
+    <div class="slide-container" id="slide47">
+        <h2 class="slide-title">El Rol Crítico de la Probabilidad</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-percent"></i> El lenguaje matemático de la estadística</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-0"></i> <strong>0:</strong> el evento es imposible.</li>
+                            <li><i class="fa-solid fa-1"></i> <strong>1:</strong> el evento es seguro.</li>
+                            <li><i class="fa-solid fa-coins"></i> <strong>0.5:</strong> como lanzar una moneda.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-envelope-circle-check"></i></div>
+                        <h3>Filtro de spam</h3>
+                        <p>El modelo no dice "esto es basura": dice "hay 0.98 de probabilidad de que sea basura". Esa graduación permite diseñar sistemas que solo actúan con confianza suficiente.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">47 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 48: Errores comunes en preprocesamiento y estadística -->
+    <div class="slide-container" id="slide48">
+        <h2 class="slide-title">Errores Comunes en Preprocesamiento y Estadística</h2>
+        <div class="content-area">
             <div class="table-layout">
                 <table>
                     <thead>
-                        <tr><th>Sección</th><th>Contenido</th></tr>
+                        <tr><th>Error</th><th>Explicación</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td>Notebook o script</td><td><code>.ipynb</code> o <code>.py</code> con la carga, el diagnóstico y la limpieza aplicada.</td></tr>
-                        <tr><td>Dataset</td><td>Archivo original, o un link a la fuente si pesa más de 50MB.</td></tr>
-                        <tr><td>Agregaciones</td><td>Al menos 3 <code>groupby</code> que respondan preguntas de negocio concretas.</td></tr>
-                        <tr><td><code>README.md</code></td><td>Origen de los datos y las decisiones de limpieza tomadas — por qué se imputó, eliminó o convirtió cada cosa.</td></tr>
+                        <tr><td><strong>"Más datos" = "mejor análisis"</strong></td><td>Un millón de registros mal recolectados solo hace el error más grande y costoso.</td></tr>
+                        <tr><td><strong>Confundir muestra con población</strong></td><td>Los resultados de una encuesta en Twitter no representan a todo un país.</td></tr>
+                        <tr><td><strong>Ignorar outliers sin pensar</strong></td><td>A veces es un error del sensor; otras, la transacción fraudulenta más importante.</td></tr>
+                        <tr><td><strong>Tratar categóricos como numéricos</strong></td><td>Promediar códigos postales no tiene sentido: es un dato cualitativo disfrazado de número.</td></tr>
                     </tbody>
                 </table>
             </div>
-            <p class="note-text">La documentación es parte de la entrega: un notebook sin <code>README.md</code> no permite que otra persona entienda las decisiones tomadas.</p>
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">36 / 37</div>
+            <div class="slide-index">48 / 54</div>
         </div>
     </div>
 
-    <!-- SLIDE 37: ¿Dudas? ¿Consultas? -->
-    <div class="slide-container" id="slide37">
+    <!-- SLIDE 49: Aplicaciones en la industria real -->
+    <div class="slide-container" id="slide49">
+        <h2 class="slide-title">Aplicaciones en la Industria Real</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-tv"></i></div>
+                    <h3>Streaming (Netflix/Spotify)</h3>
+                    <p>Normaliza el tiempo visto en celular vs. TV 4K, y trata los faltantes de series abandonadas a los 2 minutos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-hospital"></i></div>
+                    <h3>Políticas Públicas</h3>
+                    <p>Datos censales mal tabulados pueden hacer que un hospital se construya en el lugar equivocado.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-building-columns"></i></div>
+                    <h3>Finanzas</h3>
+                    <p>Sin normalizar montos (estudiante vs. corporación), el modelo de detección de fraude falla.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">49 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 50: Síntesis - puntos clave -->
+    <div class="slide-container" id="slide50">
+        <h2 class="slide-title">Síntesis: Puntos Clave para Recordar</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-scale-balanced"></i> La muestra debe ser representativa para que las conclusiones sobre la población sean válidas.</li>
+                    <li><i class="fa-solid fa-tags"></i> Existen variables cualitativas y cuantitativas; cada una requiere un tratamiento distinto.</li>
+                    <li><i class="fa-solid fa-percent"></i> La frecuencia relativa suele ser más útil que la absoluta para comparaciones justas.</li>
+                    <li><i class="fa-solid fa-arrows-spin"></i> El preprocesamiento es un ciclo: del dato bruto a la interpretación, pasando por limpieza y visualización.</li>
+                </ul>
+            </div>
+            <p class="note-text">Dominar estas bases es lo que separa a un "usuario de herramientas" de un verdadero Científico de Datos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">50 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 51: Intro Entregable Tienda TechWorld -->
+    <div class="slide-container" id="slide51">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge live">✅ Entregable evaluado del Módulo</span>
+            <h2>Pre-entrega: "Tienda TechWorld"</h2>
+            <p style="font-size: 20px;">Un informe de preprocesamiento sobre un CSV crudo de ventas. Esta es la que se corrige y suma al proyecto.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">51 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 52: El dataset y sus problemas -->
+    <div class="slide-container" id="slide52">
+        <h2 class="slide-title">El Dataset: "Tienda TechWorld" y sus Problemas</h2>
+        <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-file-csv"></i> Un CSV crudo con las ventas del último mes</span>
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Columna</th><th>Problema detectado</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>ID_Transaccion</strong></td><td>Número correlativo — sin problemas.</td></tr>
+                        <tr><td><strong>Fecha</strong></td><td>Formatos mixtos: DD/MM/AAAA y MM/DD/AAAA.</td></tr>
+                        <tr><td><strong>Producto</strong></td><td>"Mouse", "ratón", "MOUSE " — mismo producto, tres etiquetas.</td></tr>
+                        <tr><td><strong>Precio</strong></td><td>Valores numéricos, pero algunos campos son "N/A".</td></tr>
+                        <tr><td><strong>Edad_Cliente</strong></td><td>Algunos valores negativos o superiores a 150.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">52 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 53: Qué tenés que entregar -->
+    <div class="slide-container" id="slide53">
+        <h2 class="slide-title">Entregable: Qué Tenés que Presentar</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Punto</th><th>Qué incluir</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Clasificación de variables</td><td>Cuáles son cualitativas y cuáles cuantitativas.</td></tr>
+                        <tr><td>Detección de errores</td><td>Al menos 3 problemas de "suciedad" encontrados, basados en la descripción del dataset.</td></tr>
+                        <tr><td>Propuesta de limpieza</td><td>Qué técnica aplicarías por error (normalización, eliminación de atípicos, estandarización de etiquetas).</td></tr>
+                        <tr><td>Muestra vs. Población</td><td>Si solo tenés datos de la sucursal central de 50, ¿por qué esa muestra podría estar sesgada para una predicción nacional?</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">Formato: entregá tus respuestas en un documento (PDF o Word).</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">53 / 54</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 54: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide54">
         <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
             <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
                 <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
@@ -1407,7 +1792,7 @@ axes[1].hist(datos_z)
         </div>
         <div class="slide-footer">
             <div class="brand-logo">CODER<span>HOUSE</span></div>
-            <div class="slide-index">37 / 37</div>
+            <div class="slide-index">54 / 54</div>
         </div>
     </div>
 
