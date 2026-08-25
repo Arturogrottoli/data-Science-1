@@ -1069,15 +1069,33 @@ print(df_stocks.isnull().sum()) # en este dataset, todo en cero: no hay nulos re
 
 **Cómo leer un `describe()` real**: comparar `min` y `max` de cada columna contra lo que sabés del mundo real es la primera línea de defensa contra errores de carga — un precio de acción negativo, por ejemplo, sería una alerta inmediata.
 
-### `.apply()`: aplicar funciones propias a un DataFrame *(sin filmina dedicada — contenido extra de Colab)*
+### `.apply()`: aplicar funciones propias a un DataFrame *(OPTATIVO — sin filmina dedicada, contenido extra de Colab; primero en cortar si falta tiempo)*
 
 Hasta acá vimos operaciones vectorizadas nativas (`df["col"] * 2`, `.mean()`, `.groupby().transform()`) y, en el Bloque 0, funciones `def` con `if/elif/else`. **`.apply()` es el puente entre las dos cosas**: te deja correr **tu propia función de Python** — con toda la lógica condicional que necesites — sobre cada valor de una columna o cada fila de un DataFrame.
 
 👉 **En Colab:**
 ```python
-df["MSFT"].apply(mi_funcion)        # sobre una columna: la función recibe UN VALOR por vez
-df.apply(mi_funcion, axis=1)        # sobre el DataFrame: axis=1 -> recibe LA FILA completa
+# Sobre una columna: la función recibe UN VALOR por vez (mismo criterio del Bloque 0)
+def categoria_precio(precio):
+    if precio < 50:
+        return "Económico"
+    elif precio < 200:
+        return "Medio"
+    else:
+        return "Premium"
+
+categorias_msft = df_stocks["MSFT"].apply(categoria_precio)
+print(categorias_msft.value_counts())
+
+# Sobre el DataFrame completo: axis=1 -> la función recibe LA FILA completa
+acciones_por_encima_100 = df_stocks.apply(lambda fila: (fila > 100).sum(), axis=1)
+print(acciones_por_encima_100.head())
 ```
+
+**Línea por línea:**
+- `categoria_precio(precio)` → la misma lógica de `clasificar_precios` del Bloque 0, pero pensada para recibir **un solo valor**, no una lista completa.
+- `df_stocks["MSFT"].apply(categoria_precio)` → aplica esa función a cada valor de la columna `MSFT`, uno por uno; devuelve una Serie con la categoría de cada mes.
+- `df_stocks.apply(lambda fila: ..., axis=1)` → con `axis=1`, la función recibe **la fila completa** (las 14 acciones de ese mes) en vez de un solo valor; acá contamos cuántas acciones superaron los 100 USD ese mes.
 
 **¿Por qué no usarlo siempre, si es tan cómodo?** Por dentro, `.apply()` **sí itera** — no es vectorización real, es "el mito del bucle `for`" del Módulo 8 con otro disfraz, y es más lento que `df["col"] * 2` sobre datasets grandes. Regla práctica: **si existe una operación vectorizada que resuelve lo mismo, se prefiere esa**; `.apply()` se reserva para lógica condicional, como una función `def` con `if/elif/else`.
 
