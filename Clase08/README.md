@@ -259,11 +259,80 @@ El notebook aplica el contenido de la clase sobre datos reales de la **EPH** (En
 
 **Qué decir mientras corre**: se genera un dataset sintético de 3 grupos (`make_blobs`) y se grafica dos veces — una vez en gris (sin etiquetas, como lo vería K-Means en Clase 07) y otra coloreado por grupo (con etiquetas, como lo ve un algoritmo supervisado). Es el mismo dataset en ambos paneles — lo único que cambia es si el color (la etiqueta) está disponible o no. Vale la pena señalar que la EPH que viene después sí trae la etiqueta (`IPCF`) desde el origen — no hay que inventarla ni agruparla.
 
+👉 **En el notebook:**
+```python
+X_demo, y_demo = make_blobs(n_samples=150, centers=3, random_state=42)
+
+fig, ax = plt.subplots(1, 2, figsize=(12, 4))
+ax[0].scatter(X_demo[:, 0], X_demo[:, 1], color='gray')          # sin etiquetas
+ax[1].scatter(X_demo[:, 0], X_demo[:, 1], c=y_demo, cmap='viridis')  # con etiquetas
+plt.show()
+```
+
+**Línea por línea:**
+- `make_blobs(n_samples=150, centers=3, random_state=42)` → genera 150 puntos sintéticos agrupados en 3 grupos "de fábrica"; `random_state=42` fija la semilla para que el resultado sea siempre el mismo.
+- `ax[0].scatter(..., color='gray')` → grafica los puntos todos del mismo color — así los "ve" un algoritmo no supervisado, sin ninguna pista de a qué grupo pertenece cada uno.
+- `ax[1].scatter(..., c=y_demo, cmap='viridis')` → el mismo dataset, coloreado según `y_demo` (la etiqueta que `make_blobs` generó internamente) — así lo ve un algoritmo supervisado.
+- El único cambio entre ambos paneles es si `y` está disponible o no — ese es el contraste completo que el bloque quiere mostrar.
+
 ### Bloque 1 y Bloque 2 — Carga de la EPH y Preprocesamiento
 
 **Qué decir sobre la sanitización del `IPCF`**: es un caso real de "suciedad" de una fuente oficial — la EPH exporta el ingreso con coma decimal (`'633333,33'`) en vez de punto, y Python no puede convertir eso a número directamente. El código lo resuelve con `.str.replace(',', '.')` antes de `pd.to_numeric(..., errors='coerce')` — el mismo patrón de "detectar y corregir antes de calcular" del Módulo 03/04 de Clase 06.
 
 **Qué decir sobre el código 99 en `IV2`**: es un ejemplo real de valor centinela (*sentinel value*) — 99 no significa "99 ambientes", significa "sin dato". Si no se reemplaza por `NaN` antes de imputar, el promedio de ambientes del dataset queda completamente distorsionado por hogares que en realidad no respondieron la pregunta.
+
+👉 **En el notebook (Bloque 1 — carga y join):**
+```python
+df_hogar      = pd.read_csv("usu_hogar_T425.txt", sep=";")
+df_individual = pd.read_csv("usu_individual_T425.txt", sep=";")
+
+df_jefes = df_individual[df_individual['CH03'] == 1][['CODUSU', 'NRO_HOGAR', 'NIVEL_ED']]
+df = pd.merge(df_hogar, df_jefes, on=['CODUSU', 'NRO_HOGAR'], how='inner')
+
+features = ['IV1', 'IV2', 'IX_TOT', 'NIVEL_ED']
+target   = 'IPCF'
+
+if df[target].dtype == 'object':
+    df[target] = df[target].astype(str).str.replace(',', '.')
+df[target] = pd.to_numeric(df[target], errors='coerce')
+
+df_model = df[features + [target]].dropna(subset=[target]).copy()
+```
+
+**Línea por línea:**
+- `pd.read_csv(..., sep=";")` → los archivos de la EPH usan punto y coma como separador, no coma; hay que indicarlo o Pandas leería todo como una sola columna de texto.
+- `df_individual['CH03'] == 1` → `CH03` es el código de relación de parentesco; `1` identifica específicamente al Jefe/a de Hogar dentro de cada grupo familiar.
+- `pd.merge(..., on=['CODUSU', 'NRO_HOGAR'], how='inner')` → une hogares con su jefe usando **dos** columnas combinadas como clave (un hogar se identifica por esas dos juntas); `inner` descarta cualquier hogar sin jefe identificado en ambas tablas.
+- `df[target].dtype == 'object'` → chequea si la columna llegó como texto — síntoma de que trae comas u otros caracteres no numéricos.
+- `.str.replace(',', '.')` → reemplaza la coma decimal por punto en cada celda, antes de convertir a número.
+- `pd.to_numeric(..., errors='coerce')` → convierte a número; lo que no sea convertible se vuelve `NaN` en vez de frenar el programa con un error.
+- `dropna(subset=[target])` → descarta solo las filas sin `IPCF` válido; los nulos de las demás columnas se resuelven recién en el Bloque 2.
+
+👉 **En el notebook (Bloque 2 — imputación, escalado y split):**
+```python
+df_model['IV2'] = df_model['IV2'].replace({99: np.nan})
+
+X = df_model[features]
+y = df_model[target]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+imputer = SimpleImputer(strategy='median')
+X_train_imputed = imputer.fit_transform(X_train)   # aprende + transforma
+X_test_imputed  = imputer.transform(X_test)          # solo transforma
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train_imputed)
+X_test_scaled  = scaler.transform(X_test_imputed)
+```
+
+**Línea por línea:**
+- `df_model['IV2'].replace({99: np.nan})` → reemplaza el código centinela `99` por `NaN`, para que el imputador lo trate como faltante real y no como "99 ambientes".
+- `train_test_split(X, y, test_size=0.2, random_state=42)` → separa el 20% de las filas para test **antes** de tocar nada más; `random_state=42` hace que el split sea siempre el mismo.
+- `SimpleImputer(strategy='median')` → crea el objeto que va a rellenar nulos con la mediana de cada columna.
+- `imputer.fit_transform(X_train)` → **aprende** la mediana de cada columna mirando solo train, y aplica el reemplazo en el mismo paso.
+- `imputer.transform(X_test)` → aplica esas mismas medianas (ya calculadas con train) sobre test, sin recalcularlas — la regla de oro contra el Data Leakage.
+- `StandardScaler()` + `fit_transform` / `transform` → la misma lógica que el imputador, pero para estandarizar (media 0, desvío 1): se ajusta con train y se aplica igual a test.
 
 ### Bloque 3 y Bloque 4 — Regresión Lineal y Random Forest
 
@@ -271,9 +340,68 @@ El notebook aplica el contenido de la clase sobre datos reales de la **EPH** (En
 
 **Qué decir sobre el gráfico de residuos**: dado que el `IPCF` tiene una distribución muy sesgada a la derecha (muchos hogares con ingreso bajo, pocos con ingreso muy alto), es esperable ver residuos asimétricos en vez de una campana perfecta — es la misma advertencia de la Filmina 04 de Clase 06 (sesgo) apareciendo en un modelo real.
 
+👉 **En el notebook (Bloque 3 — Regresión Lineal):**
+```python
+lr_model = LinearRegression()
+lr_model.fit(X_train_scaled, y_train)
+
+for fname, coef in zip(features, lr_model.coef_):
+    print(f"{fname}: {coef:+,.0f} pesos")
+
+y_pred_lr = lr_model.predict(X_test_scaled)
+residuals = y_test - y_pred_lr
+```
+
+**Línea por línea:**
+- `LinearRegression()` → instancia el modelo; todavía no calculó nada.
+- `lr_model.fit(X_train_scaled, y_train)` → ajusta los coeficientes β por Mínimos Cuadrados usando solo los datos de entrenamiento ya escalados.
+- `zip(features, lr_model.coef_)` → empareja cada nombre de columna con su coeficiente aprendido, para poder imprimir "qué feature pesa cuánto" en pesos.
+- `lr_model.predict(X_test_scaled)` → usa los coeficientes ya aprendidos para predecir el `IPCF` de las filas de test, que el modelo nunca vio.
+- `residuals = y_test - y_pred_lr` → la diferencia entre el valor real y el predicho, fila por fila; es lo que alimenta el histograma de residuos.
+
+👉 **En el notebook (Bloque 4 — Random Forest y métricas):**
+```python
+rf_model = RandomForestRegressor(n_estimators=100, max_depth=5, random_state=42)
+rf_model.fit(X_train_scaled, y_train)
+y_pred_rf = rf_model.predict(X_test_scaled)
+
+mae  = mean_absolute_error(y_test, y_pred_rf)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred_rf))
+r2   = r2_score(y_test, y_pred_rf)
+
+for fname, imp in sorted(zip(features, rf_model.feature_importances_), key=lambda x: -x[1]):
+    print(f"{fname}: {imp:.4f}")
+```
+
+**Línea por línea:**
+- `RandomForestRegressor(n_estimators=100, max_depth=5, random_state=42)` → 100 árboles, cada uno limitado a profundidad 5 para no sobreajustar; `random_state` fija la aleatoriedad del bootstrap y de la selección de columnas por split.
+- `rf_model.fit(X_train_scaled, y_train)` → entrena los 100 árboles sobre train.
+- `mean_absolute_error` / `mean_squared_error` / `r2_score` → tres formas distintas de resumir qué tan lejos quedó `y_pred_rf` de `y_test`; `rmse` se obtiene aplicando `np.sqrt` sobre el MSE.
+- `rf_model.feature_importances_` → un array con la contribución relativa de cada feature a las divisiones del bosque; `sorted(..., key=lambda x: -x[1])` lo ordena de mayor a menor importancia para imprimirlo legible.
+
 ### Bloque 5 — Pipeline y Cross-Validation
 
 **Qué decir**: la desviación estándar del R² entre los 5 folds (~0.016 en la corrida de referencia) es baja — señal de que el modelo es estable, aunque no sea muy potente. Vale la pena distinguir explícitamente "estable" de "bueno": un modelo puede dar siempre el mismo R² bajo en todos los folds (estable pero débil) o un R² alto que varía mucho entre folds (potente pero inestable) — son dos preguntas distintas.
+
+👉 **En el notebook:**
+```python
+pipeline_produccion = Pipeline([
+    ('imputador_central', SimpleImputer(strategy='median')),
+    ('escalador_estandar', StandardScaler()),
+    ('modelo_bosque', RandomForestRegressor(n_estimators=100, max_depth=5, random_state=42))
+])
+
+scores_cv = cross_val_score(pipeline_produccion, X_train, y_train, cv=5, scoring='r2')
+
+pipeline_produccion.fit(X_train, y_train)
+y_pred_final = pipeline_produccion.predict(X_test)
+```
+
+**Línea por línea:**
+- `Pipeline([...])` → encadena tres pasos con nombre (imputar, escalar, modelar) en un solo objeto; cada paso alimenta al siguiente, en orden.
+- `cross_val_score(pipeline_produccion, X_train, y_train, cv=5, scoring='r2')` → parte `X_train` en 5 folds y entrena el pipeline **completo** 5 veces (una por fold), devolviendo el R² de cada corrida; como el `fit` del imputador/escalador ocurre **dentro** de cada fold, ningún fold de test se filtra al ajuste.
+- `pipeline_produccion.fit(X_train, y_train)` → una vez validada la estabilidad, se reentrena una última vez con **todo** train (no solo 4/5 folds) para aprovechar el máximo de datos disponibles.
+- `pipeline_produccion.predict(X_test)` → predice sobre test pasando los datos crudos, sin escalar a mano — el Pipeline aplica imputación y escalado automáticamente antes de llegar al modelo.
 
 ### Bloque 6 — Clasificación: Regresión Logística vs. KNN
 
@@ -282,6 +410,33 @@ El notebook aplica el contenido de la clase sobre datos reales de la **EPH** (En
 **Qué decir sobre la línea de pobreza**: es un umbral relativo (50% de la mediana), no una cifra oficial del INDEC — se explica así a propósito, para que quede claro que es una simplificación pedagógica y no una afirmación estadística oficial sobre pobreza en Argentina. Si el grupo pregunta por la línea de pobreza real, vale la pena aclarar la diferencia entre esta construcción didáctica y la metodología oficial de INDEC (que usa una Canasta Básica Total, no un porcentaje de la mediana).
 
 **Qué decir sobre por qué el umbral se calcula solo con `y_train`**: es la misma regla de oro del imputador y el escalador (Bloque 2) — calcular el umbral con todo el dataset filtraría información del test hacia el proceso de entrenamiento, aunque el "objeto" que se ajusta acá no sea un `Scaler` sino un número simple.
+
+👉 **En el notebook:**
+```python
+linea_pobreza = y_train.median() * 0.5
+y_train_clf = (y_train < linea_pobreza).astype(int)
+y_test_clf  = (y_test < linea_pobreza).astype(int)
+
+log_model = LogisticRegression(random_state=42)
+log_model.fit(X_train_scaled, y_train_clf)
+y_proba_log = log_model.predict_proba(X_test_scaled)[:, 1]
+
+knn_model = KNeighborsClassifier(n_neighbors=5)
+knn_model.fit(X_train_scaled, y_train_clf)
+y_proba_knn = knn_model.predict_proba(X_test_scaled)[:, 1]
+
+for nombre, y_proba in [('Regresión Logística', y_proba_log), ('KNN', y_proba_knn)]:
+    fpr, tpr, _ = roc_curve(y_test_clf, y_proba)
+    auc = roc_auc_score(y_test_clf, y_proba)
+```
+
+**Línea por línea:**
+- `y_train.median() * 0.5` → la línea de pobreza es el 50% de la mediana del `IPCF`, calculada **solo** con `y_train` — el mismo criterio del imputador/escalador del Bloque 2, para no filtrar información de test.
+- `(y_train < linea_pobreza).astype(int)` → convierte el target continuo en binario: `1` si el ingreso está bajo esa línea, `0` si no; `.astype(int)` pasa el booleano a `0`/`1` numérico.
+- `LogisticRegression().fit(...)` / `KNeighborsClassifier(n_neighbors=5).fit(...)` → entrenan los dos modelos a comparar sobre los mismos datos ya escalados (`X_train_scaled`, reutilizado del Bloque 2).
+- `.predict_proba(X_test_scaled)[:, 1]` → en vez de la clase predicha, pide la **probabilidad** de pertenecer a la clase `1` (bajo la línea de pobreza) — la columna `[:, 1]` es la que hace falta para trazar la curva ROC.
+- `roc_curve(y_test_clf, y_proba)` → calcula, para muchos umbrales de decisión distintos, la tasa de falsos positivos (`fpr`) y de verdaderos positivos (`tpr`) — los ejes X e Y de la curva.
+- `roc_auc_score(y_test_clf, y_proba)` → resume toda la curva en un solo número entre 0 y 1: el área bajo la curva (AUC).
 
 ---
 
