@@ -290,7 +290,7 @@ temps_altas = temps[temps > 80.0]
 import numpy as np
 
 precios_usd = np.array([10.0, 25.5, 100.0, 5.25])
-tipo_cambio = 1000
+tipo_cambio = 1500
 
 precios_ars = precios_usd * tipo_cambio
 print(f"En USD:  {precios_usd}")
@@ -450,6 +450,18 @@ print(df)
 print("\nTotal por producto:")
 print(reporte)
 ```
+
+**Paso a paso — qué hacemos con la tabla y para qué sirve cada paso:**
+
+1. **Armamos el DataFrame** (`pd.DataFrame(datos_ventas)`): convertimos el diccionario de listas en una tabla real, con filas y columnas con nombre. Es el punto de partida obligado — los datos pueden venir de un diccionario a mano (como acá), de un CSV, de una consulta SQL — pero antes de poder usar cualquier herramienta de Pandas, tienen que estar dentro de un DataFrame.
+
+2. **Miramos la tabla antes de tocar nada** (`print(df)`, `df.shape`, `df.isnull().sum()`): nunca se transforma una tabla a ciegas. Primero hay que saber cuántas filas y columnas tiene (`shape`) y, sobre todo, cuántos huecos (`NaN`) hay y en qué columna (`isnull().sum()`). Acá ese chequeo nos dice que `Unidades` tiene exactamente 1 valor faltante — la fila del segundo "Teclado". Sin este paso, ese hueco podría pasar desapercibido hasta que una cuenta más adelante lo "arrastre" y explote en silencio.
+
+3. **Completamos el faltante** (`df["Unidades"] = df["Unidades"].fillna(0)`): resolvemos el `NaN` **antes** de calcular nada, porque cualquier operación matemática que lo involucre (como el paso 4) también da `NaN` — el vacío se contagia a toda la fila. Elegimos `0` puntualmente para este negocio, porque interpretamos "sin dato de unidades" como "no se vendió nada ese día" (arriba está la tabla con las otras dos estrategias — media, `ffill` — y cuándo usar cada una en vez de esta).
+
+4. **Creamos la columna calculada** (`df["Total_Venta"] = df["Unidades"] * df["Precio_Unitario"]`): multiplicamos dos columnas existentes, fila por fila, sin escribir ningún `for` — Pandas alinea automáticamente cada `Unidades` con su `Precio_Unitario` porque comparten el mismo índice de fila. El resultado queda guardado como una columna nueva del mismo DataFrame, lista para el paso siguiente. Este paso solo da un resultado correcto *porque* ya resolvimos el `NaN` en el paso 3 — si no, la fila de "Teclado" faltante hubiera quedado en `Total_Venta = NaN`.
+
+5. **Agrupamos y sumamos** (`df.groupby("Producto")["Total_Venta"].sum()`): esta es la pregunta de negocio real que motiva toda la tabla — "¿cuánto recaudó cada producto en total?". `groupby("Producto")` junta las filas que comparten el mismo producto (las dos filas de "Teclado", en este caso); `["Total_Venta"]` elige qué columna sumar dentro de cada grupo; `.sum()` hace la agregación. El resultado deja de ser una tabla de 5 filas (una por venta individual) para pasar a una de 3 filas (una por producto) — se pierde el detalle de cada transacción a cambio de ganar el resumen que responde la pregunta.
 
 **Qué mostrar en detalle:**
 - Ejecutar `df.dtypes` antes y después del fillna para ver los tipos.
