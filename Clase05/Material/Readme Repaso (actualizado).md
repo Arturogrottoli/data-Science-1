@@ -988,6 +988,21 @@ plt.show()
 - `cmap="coolwarm"`: elige la paleta de colores — "coolwarm" es una paleta divergente (fríos para un extremo, cálidos para el otro), ideal para correlaciones porque tienen un punto medio significativo (el 0).
 - `vmin=-1, vmax=1`: fija el rango de la escala de colores exactamente entre -1 y 1 — sin esto, Seaborn ajustaría la escala a los valores mínimo y máximo presentes en ESTA matriz puntual, lo que haría que el mismo color represente cosas distintas en gráficos diferentes.
 
+**Cómo leer el resultado — qué es el recuadro y qué información sacar:**
+
+Lo que aparece en pantalla es una cuadrícula de 3×3 (una fila y una columna por cada variable: `total_bill`, `tip`, `size`) — cada celda cruza la variable de su fila con la de su columna.
+
+- **La diagonal siempre da 1.0**, con el color más intenso de un extremo de la escala: es la correlación de cada variable consigo misma, siempre perfecta. No aporta información nueva — es solo el punto de referencia para calibrar el ojo antes de mirar el resto de la cuadrícula.
+- **La cuadrícula es simétrica** respecto a esa diagonal: la celda que cruza `total_bill` (fila) con `tip` (columna) muestra el mismo número que la celda que cruza `tip` con `total_bill` — alcanza con leer la mitad de la cuadrícula (arriba o abajo de la diagonal), la otra mitad es un espejo.
+- **Cómo leerlo en la práctica, en dos pasos:** primero un barrido visual por color, buscando las celdas más oscuras o más claras fuera de la diagonal (son las relaciones más fuertes, en cualquier dirección) e ignorando las de color intermedio/neutro (relaciones débiles). Recién después se confirma el valor exacto con el número escrito adentro gracias a `annot=True` — el color da la primera impresión de un vistazo, el número da la certeza.
+
+**Qué información sacamos de este dataset en particular** (el número exacto lo van a ver al correr la celda en vivo — la lectura conceptual es siempre esta):
+- `total_bill` vs. `tip` es, de las tres parejas, la correlación positiva más fuerte: a mayor cuenta total, mayor propina. Es la relación más esperable — funciona casi como "control de calidad" del dato: si esto NO diera una correlación alta, sería señal de que algo anda mal con los datos.
+- `total_bill` vs. `size` también es positiva pero más moderada: los grupos más grandes gastan más en total (tiene sentido — más personas, más consumo), pero la relación es menos ajustada que la anterior.
+- `tip` vs. `size` es la más débil de las tres: el tamaño del grupo influye menos sobre la propina de lo que influye sobre el total de la cuenta — un buen disparador para preguntar en voz alta: ¿la gente da propina proporcional a lo que gastó, o más bien una propina "de costumbre" que no escala tanto con el tamaño del grupo?
+
+**Qué NO nos dice el heatmap** (para cerrar el ejemplo con una advertencia importante): correlación no es causalidad — el heatmap no prueba que gastar más "cause" una propina más alta, solo que ambas variables se mueven juntas. Y solo capta relaciones **lineales**: dos variables podrían estar fuertemente relacionadas de forma curva y el heatmap igual mostraría un valor cercano a 0, como si no hubiera ninguna relación entre ellas.
+
 **Qué mostrar en detalle — Errores comunes** (agregar de palabra, no está en la filmina): saturar el heatmap con 50 variables (filtrar primero las relevantes); violinplots sobre grupos de 5 datos (engañoso, mejor un boxplot); no ordenar las categorías del boxplot de mayor a menor mediana (reduce la carga cognitiva de quien lee).
 
 👉 **Volvés a las filminas, Filmina 16 (Break).**
