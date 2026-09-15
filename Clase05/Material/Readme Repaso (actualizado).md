@@ -1285,6 +1285,17 @@ plt.show()
 - `ax_limpio.spines["top"].set_visible(False)` y `["right"].set_visible(False)`: apaga específicamente los bordes de arriba y de la derecha del Axes — son los dos bordes que casi nunca aportan información (el de abajo y el de la izquierda sí sirven, porque son los propios ejes X e Y).
 - `ax_limpio.grid(axis="y", alpha=0.3)`: grilla solo en el eje Y (no en X, porque acá son categorías, no tiene sentido una grilla vertical) y con `alpha=0.3` (30% de opacidad) — suficiente para ayudar a leer valores aproximados, sin dominar visualmente al dato.
 
+**Cómo leer el resultado — qué buscamos ver en cada panel y qué información sacar:**
+
+Al correr la celda aparecen dos gráficos de barras uno al lado del otro, con **exactamente los mismos 5 valores** (Norte 82, Sur 65, Este 90, Oeste 58, Centro 74) — la comparación es 100% sobre el diseño, nunca sobre el dato. Eso es clave aclararlo en voz alta antes de mirar los paneles: si el dato cambiara entre uno y otro, la comparación no probaría nada.
+
+- **Panel izquierdo ("Chartjunk"):** el ojo tiene que procesar, antes de llegar a comparar las alturas de las barras, cuatro cosas que no son el dato: 5 colores distintos (¿significan algo? el cerebro busca un patrón donde no lo hay, porque son random), un borde negro grueso alrededor de cada barra, una grilla de fondo pesada y negra que compite visualmente con las barras, y un marco exterior también grueso. Ninguno de esos cuatro elementos ayuda a responder "¿qué región tiene más?" — todos consumen atención sin sumar información.
+- **Panel derecho ("Limpio"):** un solo color para las 5 barras (correcto: las regiones no tienen un orden ni una categoría que justifique colores distintos), sin bordes de más, sin marco arriba ni a la derecha, y una grilla horizontal apenas visible que ayuda a leer el valor aproximado sin taparle protagonismo a las barras. La pregunta "¿qué región tiene más?" se responde exactamente igual de rápido que en el panel izquierdo — de hecho más rápido, porque no hay nada más compitiendo por la mirada.
+
+**El test real del Data-to-Ink Ratio (para hacer en vivo con la clase):** señalar, uno por uno, cada elemento del panel izquierdo que no está en el derecho (el borde negro, la grilla pesada, el marco grueso, los colores random) y preguntar: *"si tapo esto, ¿pierdo información sobre el dato?"* — la respuesta en los cuatro casos es no. Ese es literalmente el criterio de Tufte: **Data-to-Ink Ratio** = cuánta de la tinta que se usó en el gráfico está efectivamente representando un dato (la altura y posición de las 5 barras) contra cuánta es decoración. El panel derecho tiene *menos tinta total*, pero la misma cantidad de tinta-dato que el izquierdo — por eso su ratio es más alto, aunque tenga "menos cosas".
+
+**Por qué el color random del panel izquierdo es chartjunk y no "color con propósito"** (conectando con el pilar de la Filmina 27, más arriba): un color solo aporta información cuando **codifica** algo — una categoría, un estado (rojo=alerta), un valor por encima/debajo de un umbral. Acá los 5 colores no representan nada de eso: son decorativos, elegidos al azar por región sin ningún criterio semántico (por eso el comentario del código dice explícitamente "sin motivo"). Si en cambio la barra de la región que no llegó al objetivo se pintara de rojo y el resto de gris, ESE color sí sería funcional — dejaría de ser chartjunk porque estaría comunicando algo que el dato solo no muestra.
+
 👉 **Volvés a las filminas, Filmina 28.**
 
 #### Filminas 28–29 — Arquitectura de la Información, Anti-Patrones y Accesibilidad
@@ -1315,7 +1326,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 flights = sns.load_dataset("flights")
-df_meses = flights[flights['month'].isin(['Jan', 'Jul', 'Dec'])]
+df_meses = flights[flights['month'].isin(['Jan', 'Jul', 'Dec'])].copy()
 df_meses['month'] = df_meses['month'].cat.remove_unused_categories()
 
 plt.figure(figsize=(8, 4))
@@ -1327,8 +1338,10 @@ plt.show()
 
 **Qué hace cada línea:**
 - `flights = sns.load_dataset("flights")`: carga el dataset de pasajeros aéreos por mes que trae Seaborn — tiene una fila por combinación de año y mes, con la cantidad de pasajeros.
-- `df_meses = flights[flights['month'].isin(['Jan', 'Jul', 'Dec'])]`: filtra el DataFrame, quedándose solo con enero, julio y diciembre — con los 12 meses juntos, el gráfico se saturaría de líneas; con 3, se puede ver el efecto de accesibilidad con claridad.
+- `df_meses = flights[flights['month'].isin(['Jan', 'Jul', 'Dec'])].copy()`: filtra el DataFrame, quedándose solo con enero, julio y diciembre — con los 12 meses juntos, el gráfico se saturaría de líneas; con 3, se puede ver el efecto de accesibilidad con claridad. El `.copy()` del final no cambia el resultado, pero evita un warning (ver abajo).
 - `df_meses['month'] = df_meses['month'].cat.remove_unused_categories()`: la columna `month` es de tipo categórico en el dataset original, con los 12 meses como categorías posibles. Después del filtro, quedan solo 3 meses con datos, pero la columna "recuerda" las 12 categorías originales — este método limpia esa memoria, dejando solo las 3 categorías realmente presentes (evita que Seaborn intente reservar colores/estilos para meses que ya no están en los datos).
+
+**Sobre el `.copy()` — un warning que suele aparecer acá (para explicar si algún alumno lo pregunta):** sin el `.copy()`, la línea `df_meses = flights[flights['month'].isin([...])]` deja a Pandas sin poder garantizar si `df_meses` quedó como una **copia independiente** de `flights` o como una simple **vista** que sigue apuntando a los mismos datos por debajo. La línea siguiente, `df_meses['month'] = ...`, modifica `df_meses` — y como Pandas no está seguro de si eso también estaría modificando `flights` "por atrás", tira un `SettingWithCopyWarning` como advertencia preventiva. No es un error: el gráfico sale igual de bien con o sin el `.copy()`. Pero agregarlo saca la ambigüedad de encima — le dice explícitamente a Pandas "esto es una copia nueva, no una vista" — y es la forma correcta de resolverlo en cualquier código real, no solo en este ejemplo puntual.
 - `sns.lineplot(..., hue="month", style="month", markers=True, palette="colorblind")`: acá están las tres capas de accesibilidad juntas — `hue="month"` da un color distinto por mes, `style="month"` da un tipo de trazo distinto por mes (sólido, punteado, etc.), y `markers=True` agrega un marcador geométrico distinto en cada punto de dato. `palette="colorblind"` reemplaza la paleta de colores default por una diseñada específicamente para ser distinguible con daltonismo.
 
 👉 **Volvés a las filminas, Filmina 30 (división de módulo).**
