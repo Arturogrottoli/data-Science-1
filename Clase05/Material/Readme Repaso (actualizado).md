@@ -877,17 +877,6 @@ sns.scatterplot(data=tips, x="total_bill", y="tip", hue="sex")
 plt.title("Con Seaborn: mismo resultado en 1 línea")
 plt.show()
 ```
-```python
-# Axes-level: obedece al ax= que le pasamos
-fig, mi_eje = plt.subplots(figsize=(6, 4))
-sns.scatterplot(data=tips, x="total_bill", y="tip", ax=mi_eje, color="purple")
-mi_eje.set_title("Yo obedezco al 'ax' que creó el programador")
-plt.show()
-
-# Figure-level: arma su propia Figure, no acepta ax=
-g = sns.displot(data=tips, x="total_bill", col="time", kind="kde", fill=True)
-plt.show()
-```
 
 **Qué hace cada línea:**
 - `tips = sns.load_dataset("tips")`: carga el dataset de propinas — se reutiliza en casi todo este Bloque 3.
@@ -896,10 +885,10 @@ plt.show()
 - `ax.scatter(subset["total_bill"], subset["tip"], color=color, label=genero)`: dibuja los puntos de ESE subconjunto, con SU color y SU etiqueta — se ejecuta una vez por cada vuelta del `for`, así que en total dibuja dos capas de puntos superpuestas en el mismo Axes.
 - `ax.legend()`: arma la leyenda usando los `label=` acumulados en las dos llamadas a `scatter()`.
 - `sns.scatterplot(data=tips, x="total_bill", y="tip", hue="sex")`: hace exactamente lo mismo que las 5 líneas anteriores, pero en una sola línea — `hue="sex"` le indica a Seaborn que separe, coloree y arme la leyenda automáticamente por esa columna.
-- `fig, mi_eje = plt.subplots(figsize=(6, 4))` + `sns.scatterplot(..., ax=mi_eje, ...)`: acá se crea el Axes explícitamente con Matplotlib primero, y luego se le pide a Seaborn que dibuje adentro de ese `ax` puntual — comportamiento Axes-level.
-- `g = sns.displot(data=tips, x="total_bill", col="time", kind="kde", fill=True)`: no hay ningún `plt.subplots()` previo — `displot` arma su propia Figure sola. `col="time"` le pide que separe automáticamente en un panel por cada valor de la columna `time` (Lunch/Dinner), sin que el programador arme esos subplots a mano. `kind="kde"` pide curvas de densidad en vez de barras, y `fill=True` rellena el área bajo la curva.
 
 **Qué mostrar en detalle:** `hue="sex"` reemplaza el `for` completo — Seaborn separa, colorea y arma la leyenda automáticamente.
+
+*(La distinción Axes-level vs. Figure-level de más arriba queda solo como teoría — no hace falta correr un tercer ejemplo en vivo para que se entienda; si surge la pregunta en clase, `sns.scatterplot(..., ax=mi_eje)` vs. `sns.displot(...)` alcanza para mostrarlo en el momento.)*
 
 👉 **Volvés a las filminas, Filminas 13–14.**
 
@@ -1066,22 +1055,19 @@ plt.show()
 
 **Ejecutar (Ejemplo 2):**
 ```python
-import plotly.express as px
-import pandas as pd
-
-data = {'Compañía': ['Apple', 'Google', 'Microsoft', 'Otras Compañías'],
-        'Cuota de Mercado (%)': [35, 15, 10, 40]}
-df = pd.DataFrame(data)
-
-fig = px.pie(df, values='Cuota de Mercado (%)', names='Compañía',
-             title='Cuota de Mercado Global de Tecnología (35% Apple)',
-             hole=0.4, color_discrete_sequence=px.colors.qualitative.Pastel)
-fig.update_traces(textinfo='percent+label', pull=[0.15, 0, 0, 0])
-fig.show()
-```
-```python
 import matplotlib.pyplot as plt
 
+# ── Versión manipuladora: torta con un sector "separado" y título sesgado ──
+empresas_torta = ['Apple', 'Google', 'Microsoft', 'Otras Compañías']
+cuotas_torta = [35, 15, 10, 40]
+explode = [0.15, 0, 0, 0]  # separa el sector de Apple del resto
+
+fig, ax = plt.subplots(figsize=(5, 5))
+ax.pie(cuotas_torta, labels=empresas_torta, autopct='%1.0f%%', explode=explode)
+ax.set_title('Cuota de Mercado Global de Tecnología (35% Apple)')
+plt.show()
+
+# ── Versión honesta: barras ordenadas, eje desde 0 ──
 empresas = ['Otras Compañías', 'Apple', 'Google', 'Microsoft']
 cuotas = [40, 35, 15, 10]
 
@@ -1099,16 +1085,16 @@ plt.show()
 ```
 
 **Qué hace cada línea:**
-- `data = {...}` / `df = pd.DataFrame(data)`: arma un DataFrame de 4 filas con la compañía y su cuota — Plotly Express trabaja mejor recibiendo un DataFrame y los nombres de columna, en vez de listas sueltas.
-- `fig = px.pie(df, values='Cuota de Mercado (%)', names='Compañía', title=..., hole=0.4, color_discrete_sequence=...)`: crea el gráfico de torta. `values=` indica qué columna define el tamaño de cada sector, `names=` qué columna los etiqueta. El `title` ya está redactado para sesgar la lectura hacia Apple. `hole=0.4` le da forma de "dona" en vez de torta completa (estética, no afecta el problema ético). `color_discrete_sequence` fija una paleta pastel.
-- `fig.update_traces(textinfo='percent+label', pull=[0.15, 0, 0, 0])`: `textinfo='percent+label'` muestra el porcentaje y el nombre dentro de cada sector. **`pull=[0.15, 0, 0, 0]`** es la línea clave de la manipulación: separa el primer sector (Apple, primero en la lista `data`) un 15% del resto del gráfico — visualmente lo hace parecer más grande y más importante de lo que su porcentaje real indica.
-- `fig.show()`: renderiza el gráfico interactivo.
+- `explode = [0.15, 0, 0, 0]`: es la línea clave de la manipulación — separa el primer sector (Apple, primero en la lista) un 15% del resto de la torta, así `ax.pie()` lo dibuja visualmente más grande e importante de lo que su porcentaje real indica.
+- `ax.pie(cuotas_torta, labels=empresas_torta, autopct='%1.0f%%', explode=explode)`: dibuja la torta; `autopct='%1.0f%%'` muestra el porcentaje redondeado dentro de cada sector. El título ("35% Apple") ya está redactado para sesgar la lectura hacia esa empresa.
 - `empresas` / `cuotas`: en la segunda versión, los mismos 4 valores pero **ordenados de mayor a menor** cuota — "Otras Compañías" (40%, el valor más alto) queda primero.
 - `ax.barh(empresas, cuotas, color='#5DADE2')`: `barh` (horizontal bar) en vez de `bar` — con nombres de compañía largos, las barras horizontales son más legibles que las verticales. Un solo color para las 4 barras: nadie se destaca artificialmente.
 - `ax.set_xlim(0, 50)`: fuerza el eje X (acá el eje de los valores, porque son barras horizontales) a arrancar en 0 — la regla de honestidad para gráficos de barras que se vio en el Bloque 1.
 - `for i, v in enumerate(cuotas): ax.text(v + 0.5, i, f'{v}%', va='center')`: recorre cada valor de `cuotas` con su índice `i`, y escribe el porcentaje exacto como texto al lado de cada barra (`v + 0.5` para separarlo un poco de la punta de la barra) — así no hace falta "leer" la escala del eje para saber el valor exacto de cada una.
 
-**Qué decir sobre este ejemplo:** la primera versión (torta con Plotly) separa el sector de Apple y titula "35% Apple" — visualmente parece que domina. La segunda versión (barras horizontales) ordena por valor real: "Otras Compañías" (40%) queda primera. Los números son idénticos — lo que cambia es el diseño. **¿Cuál es mejor? El de barras.** No porque el pie chart esté mal hecho técnicamente, sino porque `pull` + el título elegido comunican una conclusión que los datos no sostienen. Un gráfico honesto no es el más lindo: es el que se interpreta bien sin ayuda de quien lo hizo.
+**Qué decir sobre este ejemplo:** la primera versión (torta) separa el sector de Apple con `explode` y titula "35% Apple" — visualmente parece que domina. La segunda versión (barras horizontales) ordena por valor real: "Otras Compañías" (40%) queda primera. Los números son idénticos — lo que cambia es el diseño. **¿Cuál es mejor? El de barras.** No porque la torta esté mal hecha técnicamente, sino porque `explode` + el título elegido comunican una conclusión que los datos no sostienen. Un gráfico honesto no es el más lindo: es el que se interpreta bien sin ayuda de quien lo hizo.
+
+*(Nota: esta versión usa solo Matplotlib en vez de Plotly — Plotly quedó reservado para el Anexo del notebook, donde ya se lo menciona como material "para ir más allá", así no se suma una librería nueva solo para este ejemplo puntual.)*
 
 👉 **Volvés a las filminas, Filmina 19.**
 
