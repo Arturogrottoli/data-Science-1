@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 07 - Fundamentos de Machine Learning: de la Teoría a Scikit-Learn | Coderhouse</title>
+    <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==========================================================================
+           CODER 4.0 DESIGN SYSTEM & VARS
+           ========================================================================== */
+        :root {
+            --blanco-lienzo: #F8F2E8;
+            --negro-coder: #171717;
+            --naranja-oscuro: #260700;
+            --naranja-horizonte: #FF632B;
+            --amarillo-solar: #FE872D;
+            --rosa-energia: #FE64A3;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #dcd6cd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: var(--font-main);
+            overflow: hidden;
+        }
+
+        /* Slide Viewer (Absolute 1280x720 No-Scale-Shift) */
+        .presentation-viewport {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: var(--blanco-lienzo);
+        }
+
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            color: var(--negro-coder);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 70px 40px 70px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out, visibility var(--transition-speed) ease-in-out;
+            z-index: 1;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Abstract Brand Accents: Subtly warm gradients connecting to Coder 4.0 */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -150px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(255,99,43,0.06) 0%, rgba(248,242,232,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .slide-container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography & Hierarchy */
+        h1 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+        }
+
+        .slide-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slide-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 2px;
+            background-color: rgba(38, 7, 0, 0.1);
+            margin-left: 15px;
+        }
+
+        p, li {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #3d3430;
+            font-weight: 400;
+        }
+
+        /* Content Area Layout Wrapper */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Grid & Column Definitions */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 45px;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Coder 4.0 Split Card layouts */
+        .two-column.tiled > div {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            padding: 35px;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .two-column.tiled h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--naranja-horizonte);
+            margin-bottom: 12px;
+        }
+
+        /* Warm Retro Photography Frame */
+        .image-wrapper {
+            border-radius: 16px;
+            height: 340px;
+            overflow: hidden;
+            width: 100%;
+            border: 4px solid #ffffff;
+            box-shadow: 0 10px 25px rgba(38, 7, 0, 0.08);
+        }
+
+        .image-wrapper img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* Custom 2D Filled Icons & Tiles */
+        .tiled-content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .tile {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .tile .icon-box {
+            background-color: rgba(255, 99, 43, 0.1);
+            color: var(--naranja-horizonte);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .tile h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--naranja-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .tile p {
+            font-size: 14px;
+        }
+
+        /* Bullet List styling */
+        .bullet-list ul {
+            list-style: none;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .bullet-list li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--naranja-horizonte);
+            font-size: 16px;
+        }
+
+        /* Footer & Brand Branding Mark */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(38, 7, 0, 0.06);
+            padding-top: 15px;
+            width: 100%;
+        }
+
+        .slide-footer .brand-logo {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--naranja-oscuro);
+            letter-spacing: -0.5px;
+        }
+
+        .slide-footer .brand-logo span {
+            color: var(--naranja-horizonte);
+        }
+
+        .slide-footer .slide-index {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(38, 7, 0, 0.4);
+        }
+
+        /* Slide Type Banners ("Momentos de la Clase") */
+        .moment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+
+        .moment-badge.live {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .moment-badge.bug {
+            background-color: var(--rosa-energia);
+        }
+
+        .moment-badge.tip {
+            background-color: var(--amarillo-solar);
+            color: var(--naranja-oscuro);
+        }
+
+        /* Slido Interactive layout */
+        .slido-box {
+            background-color: #ffffff;
+            border: 2px dashed var(--naranja-horizonte);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 99, 43, 0.05);
+        }
+
+        .slido-box h3 {
+            font-size: 26px;
+            color: var(--naranja-oscuro);
+            margin-bottom: 10px;
+        }
+
+        .slido-code {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--naranja-horizonte);
+            margin: 15px 0;
+            letter-spacing: -1px;
+        }
+
+        /* Transition slide */
+        .transition-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .transition-layout h2 {
+            font-size: 60px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.1;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+        }
+
+        .transition-layout hr {
+            width: 80px;
+            height: 5px;
+            background-color: var(--naranja-horizonte);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        /* Clean retro table */
+        .table-layout {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+            width: 100%;
+        }
+
+        .table-layout table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-layout th, .table-layout td {
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(38, 7, 0, 0.06);
+            font-size: 14px;
+        }
+
+        .table-layout th {
+            background-color: rgba(38, 7, 0, 0.03);
+            color: var(--naranja-oscuro);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .table-layout tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Break Slide Design */
+        .break-slide {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+        }
+
+        .break-slide::before {
+            display: none;
+        }
+
+        .break-slide h2 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--blanco-lienzo);
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        .break-slide p {
+            color: rgba(248, 242, 232, 0.75);
+            font-size: 22px;
+        }
+
+        .break-logo {
+            font-size: 80px;
+            color: var(--naranja-horizonte);
+            margin-bottom: 30px;
+        }
+
+        /* Q&A / Legal section */
+        .legal-notice {
+            font-size: 10px;
+            line-height: 1.4;
+            color: rgba(38, 7, 0, 0.4);
+            text-align: justify;
+            margin-top: 20px;
+        }
+
+        /* Presentation controls toolbar */
+        .controls-toolbar {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(38, 7, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dot.active {
+            background-color: var(--naranja-horizonte);
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        /* Code Block Container */
+        .code-block {
+            background-color: #ffffff;
+            border-left: 4px solid var(--naranja-horizonte);
+            padding: 15px 20px;
+            font-family: monospace;
+            font-size: 13px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        /* Small note under tables */
+        .note-text {
+            margin-top: 18px;
+            font-size: 14px;
+            font-style: italic;
+            color: rgba(38, 7, 0, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-viewport">
+
+    <!-- SLIDE 1: Portada General -->
+    <div class="slide-container active" id="slide1">
+        <div></div>
+        <div class="transition-layout" style="margin-bottom: 30px;">
+            <span class="moment-badge">CODER 4.0 • CLASE 07</span>
+            <h1 style="font-size: 42px;">Fundamentos de Machine Learning: de la Teoría a Scikit-Learn</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                El mapa de la IA, los tres tipos de aprendizaje, y el primer contacto con la librería que vas a usar todo el curso
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">01 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: División Tema 1 -->
+    <div class="slide-container" id="slide2">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Tema 01</span>
+            <h2>IA, Machine Learning y Deep Learning: el Mapa Completo</h2>
+            <p style="font-size: 20px;">Tres términos que se usan como sinónimos, pero que en realidad son muñecas rusas: uno adentro del otro.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">02 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: El Ecosistema de la IA -->
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title">El Ecosistema de la Inteligencia Artificial</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-envelope-open-text"></i> Clasificar miles de correos a mano, uno por uno</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-circle-nodes"></i> <strong>Relación de inclusión:</strong> como matrioskas — la IA es la muñeca más grande, el Machine Learning está adentro de la IA, y el Deep Learning está adentro del Machine Learning.</li>
+                            <li><i class="fa-solid fa-check-double"></i> Todo el Deep Learning es ML, y todo el ML es IA — pero no toda la IA es ML (existen los sistemas de reglas).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                        <h3>Por qué importa la jerarquía</h3>
+                        <p>Un problema real de correos ("retraso" vs. "mi paquete no ha llegado") muestra el límite de las reglas fijas — y por qué la IA necesitó evolucionar hacia enfoques que aprenden de datos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">03 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: IA Simbólica -->
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title">IA Simbólica: Sistemas Basados en Reglas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-code-branch"></i> "Si-Entonces" definido por humanos</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-user-doctor"></i> Ejemplo clásico: "Si el paciente tiene fiebre &gt; 38°C Y tiene tos, entonces sugerir test de gripe" — un experto humano escribió esa regla a mano.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> <strong>Limitación:</strong> el programador debe prever cada escenario posible. Si el mundo cambia, o el problema es muy complejo (reconocer una cara en una foto), es imposible escribir suficientes reglas.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-list-check"></i></div>
+                        <h3>La IA "de fábrica"</h3>
+                        <p>Los primeros sistemas de IA funcionaban así: eficientes cuando el proceso es 100% predecible, pero rígidos apenas aparece un caso que nadie anticipó.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">04 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Machine Learning -->
+    <div class="slide-container" id="slide5">
+        <h2 class="slide-title">Machine Learning: el Aprendizaje a través de Datos</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-envelope-circle-check"></i> 10.000 correos "Spam" + 10.000 "No Spam"</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrows-rotate"></i> En vez de decirle a la computadora qué reglas seguir, le damos <strong>datos</strong> (ejemplos) y un <strong>algoritmo</strong> para que ella misma descubra los patrones.</li>
+                            <li><i class="fa-solid fa-sliders"></i> <strong>Feature Engineering:</strong> el proceso de seleccionar y transformar las variables (columnas) que le entregamos al modelo — el modelo no "sabe" qué es una casa, solo procesa los números que nosotros elegimos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-brain"></i></div>
+                        <h3>El "if/else" que ya no alcanza</h3>
+                        <p>Listar miles de palabras prohibidas para detectar spam es inviable. El algoritmo analiza frecuencia de palabras, hora de envío y estructura, y crea su propia "regla matemática" interna.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">05 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Deep Learning -->
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title">Deep Learning: la Potencia de las Redes Neuronales</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-cat"></i> ¿Qué partes de una foto hacen que "sea" un gato?</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-images"></i> <strong>Datos no estructurados:</strong> mientras el ML clásico brilla con tablas de Excel, el Deep Learning es el rey de imágenes, sonido y texto libre.</li>
+                            <li><i class="fa-solid fa-wand-magic-sparkles"></i> <strong>Extracción automática de características:</strong> a diferencia del ML (donde nosotros elegimos las variables), el Deep Learning aprende solo qué bordes, texturas y formas importan.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-network-wired"></i></div>
+                        <h3>¿Por qué "profundo"?</h3>
+                        <p>Las Redes Neuronales Artificiales tienen muchas capas de procesamiento (decenas o cientos) — de ahí el nombre "Deep" (profundo).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">06 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Tabla comparativa ML vs DL -->
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title">Tabla Comparativa: ML Tradicional vs. Deep Learning</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Característica</th><th>Machine Learning Tradicional</th><th>Deep Learning</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Volumen de datos</strong></td><td>Funciona bien con conjuntos pequeños/medianos</td><td>Requiere cantidades masivas de datos</td></tr>
+                        <tr><td><strong>Hardware</strong></td><td>Puede correr en una laptop estándar</td><td>Suele requerir GPUs</td></tr>
+                        <tr><td><strong>Intervención humana</strong></td><td>Mucha (Feature Engineering manual)</td><td>Baja (aprende características solo)</td></tr>
+                        <tr><td><strong>Tiempo de entrenamiento</strong></td><td>De segundos a horas</td><td>De días a semanas</td></tr>
+                        <tr><td><strong>Ejemplos</strong></td><td>Predicción de ventas, scoring bancario</td><td>Reconocimiento facial, ChatGPT</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">07 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Aplicaciones en la industria actual -->
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title">Aplicaciones en la Industria Actual</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-phone"></i></div>
+                    <h3>IA basada en Reglas</h3>
+                    <p>Control de temperatura de oficina, o "Presione 1 para ventas". Eficiente cuando el proceso es 100% predecible.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-building-columns"></i></div>
+                    <h3>Machine Learning</h3>
+                    <p>Un banco predice si un cliente pagará un préstamo con su historial, edad e ingresos — y puede explicar por qué (interpretabilidad).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-car"></i></div>
+                    <h3>Deep Learning</h3>
+                    <p>Un auto autónomo identifica peatones, semáforos y otros autos en milisegundos a partir de cámaras de video.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">08 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Errores comunes -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">Errores Comunes y Mejores Prácticas</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Error</th><th>Por qué es falso</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>"El Deep Learning siempre es mejor"</strong></td><td>Para datos tabulares, el ML clásico suele ser más rápido, barato y preciso. No uses un cañón para matar un mosquito.</td></tr>
+                        <tr><td><strong>Confundir el modelo con los datos</strong></td><td>El modelo es el "estudiante", el dataset el "libro de texto". Si el libro es malo, el estudiante aprende mal por más inteligente que sea.</td></tr>
+                        <tr><td><strong>Pensar que la IA "entiende"</strong></td><td>Son funciones matemáticas que encuentran correlaciones estadísticas, no conciencia ni comprensión real.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">09 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Práctica Tema 1 -->
+    <div class="slide-container" id="slide10">
+        <h2 class="slide-title">Práctica (no entregable): Mapa de Círculos Concéntricos</h2>
+        <div class="content-area">
+            <span class="moment-badge live"><i class="fa-solid fa-flask-vial"></i> Elegí un escenario: fraude bancario, razas de perros por foto, o recomendador de películas</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-diagram-project"></i> Dibujá un diagrama de círculos concéntricos: IA (afuera) → ML → DL (adentro), mostrando cómo se abordaría el problema con cada enfoque.</li>
+                    <li><i class="fa-solid fa-arrow-right-arrow-left"></i> Marcá con flechas el flujo de datos: ¿de dónde vienen y cómo entran a cada enfoque?</li>
+                    <li><i class="fa-solid fa-tags"></i> Agregá etiquetas con ventajas/desventajas de cada capa ("Requiere GPU", "Interpretable", "Fácil de programar").</li>
+                </ul>
+            </div>
+            <p class="note-text">📌 Entregable del módulo: la Pre-entrega "Aplicaciones Prácticas de ML" (más adelante en esta clase) es la que se corrige y suma al proyecto final.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: División Tema 2 -->
+    <div class="slide-container" id="slide11">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Tema 02</span>
+            <h2>Tipos de Aprendizaje: Supervisado, No Supervisado y por Refuerzo</h2>
+            <p style="font-size: 20px;">Enseñarle a identificar frutas a un niño: mostrándole ejemplos, dejándolo agrupar solo, o premiándolo cuando acierta.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">11 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: La señal de aprendizaje -->
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title">El Concepto de "La Señal de Aprendizaje"</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-house"></i> Una tabla de departamentos en alquiler</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-table-columns"></i> <strong>Features (entradas):</strong> metros cuadrados, cantidad de habitaciones, barrio, tiene balcón — la información que alimenta al modelo.</li>
+                            <li><i class="fa-solid fa-tag"></i> <strong>Label (salida):</strong> el resultado que queremos predecir, por ejemplo el precio del alquiler.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-key"></i></div>
+                        <h3>La pregunta que define todo</h3>
+                        <p>La presencia o ausencia de esta "etiqueta" es lo que define, en gran medida, ante qué tipo de aprendizaje estamos parados.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">12 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Aprendizaje Supervisado -->
+    <div class="slide-container" id="slide13">
+        <h2 class="slide-title">Aprendizaje Supervisado: "el Estudiante con Profesor"</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-chalkboard-user"></i> El dataset etiquetado es el "profesor"</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-list-check"></i> <strong>Clasificación:</strong> predice una categoría discreta. Ej: Gmail detecta Spam analizando millones de correos ya marcados.</li>
+                            <li><i class="fa-solid fa-chart-line"></i> <strong>Regresión:</strong> predice un valor numérico continuo. Ej: estimar el precio de una vivienda a partir de ventas históricas.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-briefcase"></i></div>
+                        <h3>Por qué importa</h3>
+                        <p>La mayoría de las preguntas de negocio son supervisadas: "¿este cliente se va a dar de baja?", "¿cuánto va a vender mi tienda?", "¿es fraude?".</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">13 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Aprendizaje No Supervisado -->
+    <div class="slide-container" id="slide14">
+        <h2 class="slide-title">Aprendizaje No Supervisado: "Buscando Estructura en el Caos"</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-shuffle"></i> 10 millones de clientes, sin ninguna "respuesta correcta"</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-object-group"></i> <strong>Clustering:</strong> agrupa los datos donde los elementos de un mismo grupo se parecen mucho, y son muy distintos a los de otros grupos.</li>
+                            <li><i class="fa-solid fa-compress"></i> <strong>Reducción de dimensionalidad:</strong> simplifica cientos de columnas quedándose con lo más importante, sin perder la esencia.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-headphones"></i></div>
+                        <h3>Ejemplo: Spotify</h3>
+                        <p>Agrupa usuarios no por edad, sino por comportamiento: "escucha podcasts de noche", "solo hits del momento" — sin que nadie los haya etiquetado antes. El objetivo es <strong>descubrir</strong>, no predecir.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Aprendizaje por Refuerzo -->
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title">Aprendizaje por Refuerzo: "Aprender por Ensayo y Error"</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-gamepad"></i> Un Agente interactúa con un Entorno</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-bolt"></i> El agente toma una <strong>Acción</strong>; según lo acerque o aleje del objetivo, recibe una <strong>Recompensa</strong> (+) o <strong>Penalización</strong> (−). El objetivo es maximizar la recompensa acumulada.</li>
+                            <li><i class="fa-solid fa-chess"></i> <strong>AlphaGo</strong> aprendió a jugar al Go jugando millones de partidas contra sí mismo — sin ningún CSV con "las mejores jugadas".</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-robot"></i></div>
+                        <h3>Como aprender a jugar un videojuego</h3>
+                        <p>Nadie nace sabiendo que tocar la lava mata: se prueba, se pierden puntos, y el cerebro aprende a no repetirlo. Un brazo robótico industrial aprende su trayectoria más eficiente de la misma forma.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Cuadro comparativo -->
+    <div class="slide-container" id="slide16">
+        <h2 class="slide-title">Cuadro Comparativo: ¿Cuál Elegir?</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Característica</th><th>Supervisado</th><th>No Supervisado</th><th>Por Refuerzo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Datos iniciales</strong></td><td>Etiquetados (entrada + salida)</td><td>No etiquetados (solo entrada)</td><td>Sin datos previos; aprende interactuando</td></tr>
+                        <tr><td><strong>Objetivo</strong></td><td>Predecir / Clasificar</td><td>Encontrar patrones / Agrupar</td><td>Tomar decisiones secuenciales</td></tr>
+                        <tr><td><strong>Feedback</strong></td><td>Directo (error vs. respuesta real)</td><td>No tiene feedback explícito</td><td>Recompensa o penalización</td></tr>
+                        <tr><td><strong>Analogía</strong></td><td>Estudiar con el solucionario</td><td>Ordenar un ropero desordenado</td><td>Aprender a montar en bicicleta</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">16 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: Errores y confusiones -->
+    <div class="slide-container" id="slide17">
+        <h2 class="slide-title">Errores y Confusiones Comunes</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Confusión</th><th>Aclaración</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>"¿Puedo usar clustering para clasificar correos?"</strong></td><td>No. Agrupará correos parecidos, pero no sabrá cuál es "Spam" — para eso hacen falta etiquetas previas (Supervisado).</td></tr>
+                        <tr><td><strong>"El refuerzo es solo prueba y error"</strong></td><td>No es azar: usa estructuras matemáticas para decidir qué camino probar, basándose en experiencias pasadas.</td></tr>
+                        <tr><td><strong>"Si tengo muchos datos, el modelo será perfecto"</strong></td><td>Si las etiquetas están mal (correos buenos marcados como spam por error), el modelo aprenderá a equivocarse. La calidad manda sobre la cantidad.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">17 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: Síntesis -->
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title">Síntesis y Conexiones</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-graduation-cap"></i> Usás <strong>Aprendizaje Supervisado</strong> si tenés la respuesta histórica y querés predecir el futuro.</li>
+                    <li><i class="fa-solid fa-magnifying-glass-chart"></i> Usás <strong>Aprendizaje No Supervisado</strong> si querés explorar tus datos y entender cómo se agrupan.</li>
+                    <li><i class="fa-solid fa-robot"></i> Usás <strong>Aprendizaje por Refuerzo</strong> si necesitás que un sistema aprenda a tomar decisiones en un entorno dinámico.</li>
+                </ul>
+            </div>
+            <p class="note-text">En las próximas unidades vamos a implementar estos conceptos con Scikit-Learn, la librería estándar de Python para ML.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">18 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Práctica Tema 2 -->
+    <div class="slide-container" id="slide19">
+        <h2 class="slide-title">Práctica (no entregable): Diagnóstico de 5 Casos</h2>
+        <div class="content-area">
+            <span class="moment-badge live"><i class="fa-solid fa-flask-vial"></i> Para cada caso: ¿Supervisado, No Supervisado o Por Refuerzo? ¿Por qué?</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-a"></i> Banco que predice si un cliente devolverá un préstamo, según historial de miles de clientes.</li>
+                    <li><i class="fa-solid fa-b"></i> Supermercado que agrupa 50.000 clientes en "estilos de vida" para orientar folletos de ofertas.</li>
+                    <li><i class="fa-solid fa-c"></i> Vehículo autónomo que aprende a estacionar, sumando puntos si queda derecho y restando si choca.</li>
+                    <li><i class="fa-solid fa-d"></i> Inmobiliaria que estima el valor de mercado de un departamento según m², ubicación y antigüedad.</li>
+                </ul>
+            </div>
+            <p class="note-text">Justificá cada respuesta: ¿existen etiquetas? ¿hay respuesta correcta? ¿se busca estructura? ¿hay recompensas?</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: División Tema 3 (Pre-entrega) -->
+    <div class="slide-container" id="slide20">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge live">✅ Entregable evaluado del Módulo</span>
+            <h2>Aplicaciones Prácticas de ML: Del Algoritmo al Impacto Real</h2>
+            <p style="font-size: 20px;">Bajamos la teoría a tierra: cómo el ML se convierte en decisiones de negocio a escala.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">20 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: Cambio de paradigma -->
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title">El Cambio de Paradigma: de Reglas a Patrones</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-shield-halved"></i> Detectar spam con reglas manuales</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-ban"></i> "Si contiene 'GRATIS' en mayúsculas, marcar spam" — los estafadores escriben "G.R.A.T.I.S" y la regla queda obsoleta en horas.</li>
+                            <li><i class="fa-solid fa-arrows-rotate"></i> Con ML, el sistema aprende los patrones solo. Si los estafadores cambian de táctica, alimentamos al modelo con los nuevos ejemplos y se adapta.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-lightbulb"></i></div>
+                        <h3>Concepto clave</h3>
+                        <p>El ML es la herramienta ideal cuando las reglas son demasiado numerosas, cambian con el tiempo, o son imposibles de explicar con palabras — como describir cómo reconocés la cara de un amigo.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">21 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Ciclo de vida de una aplicación de ML -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">El Ciclo de Vida de una Aplicación de ML</h2>
+        <div class="content-area">
+            <span class="moment-badge"><i class="fa-solid fa-arrows-spin"></i> No es solo "entrenar un modelo" — es un proceso de 4 etapas</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-database"></i> <strong>Datos:</strong> la materia prima — sin datos históricos de calidad, no hay aprendizaje.</li>
+                    <li><i class="fa-solid fa-dumbbell"></i> <strong>Entrenamiento:</strong> el algoritmo analiza los datos para encontrar correlaciones y crea el "modelo".</li>
+                    <li><i class="fa-solid fa-magnifying-glass"></i> <strong>Evaluación:</strong> se prueba el modelo con datos que nunca vio, para confirmar que aprendió y no memorizó.</li>
+                    <li><i class="fa-solid fa-rocket"></i> <strong>Uso Real (Inferencia):</strong> el modelo se integra en una aplicación para decidir sobre datos nuevos, en tiempo real.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: Aplicaciones reales I -->
+    <div class="slide-container" id="slide23">
+        <h2 class="slide-title">Aplicaciones Reales: ¿Quién lo Usa y para Qué?</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-clapperboard"></i></div>
+                    <h3>Netflix</h3>
+                    <p>Analiza historial, géneros y horarios para predecir la probabilidad de que veas al menos el 70% de un título.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-envelope"></i></div>
+                    <h3>Gmail</h3>
+                    <p>Analiza texto, metadatos y reputación del remitente, y da una puntuación 0-1 de qué tan spam es un correo.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-car-side"></i></div>
+                    <h3>Uber</h3>
+                    <p>Predice el ETA, la demanda por zona (para precios dinámicos) y la ruta más eficiente.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: Más casos de la industria -->
+    <div class="slide-container" id="slide24">
+        <h2 class="slide-title">Más Casos de la Industria</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Caso de Uso</th><th>Tecnología/Empresa</th><th>Función Principal</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Detección de Fraude</strong></td><td>BBVA / PayPal</td><td>Identifica transacciones inusuales en milisegundos para bloquear robos.</td></tr>
+                        <tr><td><strong>Predicción de Demanda</strong></td><td>Zara / Amazon</td><td>Estima cuántas tallas "M" se venderán para evitar falta de inventario.</td></tr>
+                        <tr><td><strong>Mantenimiento Predictivo</strong></td><td>General Electric</td><td>Predice cuándo fallará una turbina de avión, según sensores de vibración.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="note-text">En salud, modelos de Deep Learning entrenados con miles de radiografías detectan anomalías como una "segunda opinión" para los médicos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">24 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: Errores comunes y falsas expectativas -->
+    <div class="slide-container" id="slide25">
+        <h2 class="slide-title">Errores Comunes y Falsas Expectativas</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Error</th><th>Realidad</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>"El ML es magia"</strong></td><td>Es estadística aplicada a gran escala. Detecta correlaciones, no necesariamente causalidad.</td></tr>
+                        <tr><td><strong>"Más datos siempre es mejor"</strong></td><td>Garbage In, Garbage Out — si los datos están sesgados, el modelo será sesgado.</td></tr>
+                        <tr><td><strong>"99% de precisión es perfecto"</strong></td><td>Depende del contexto: en una enfermedad rara (1 de cada 100), decir siempre "sano" da 99% y falla justo en lo único que importaba.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">25 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 26: Terminología clave -->
+    <div class="slide-container" id="slide26">
+        <h2 class="slide-title">Terminología Clave para Profesionales</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-table-columns"></i> <strong>Features:</strong> las variables que le damos al modelo para aprender (m², barrio, habitaciones).</li>
+                    <li><i class="fa-solid fa-tag"></i> <strong>Label:</strong> lo que queremos predecir (el "precio").</li>
+                    <li><i class="fa-solid fa-bolt"></i> <strong>Inferencia:</strong> usar el modelo ya entrenado para obtener una respuesta sobre un dato nuevo.</li>
+                    <li><i class="fa-solid fa-file-circle-exclamation"></i> <strong>Sobreajuste (Overfitting):</strong> el modelo memoriza tan bien el entrenamiento que no sabe qué hacer ante algo distinto — como un estudiante que memorizó respuestas sin entender la materia.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">26 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 27: Síntesis -->
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title">Síntesis y Conexión</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-puzzle-piece"></i> El Machine Learning no es un ente aislado: es un componente dentro de un sistema más grande.</li>
+                    <li><i class="fa-solid fa-scale-balanced"></i> Su valor no está en la complejidad del algoritmo, sino en la <strong>decisión que ayuda a tomar</strong>: ¿es spam? ¿qué precio debe tener? ¿está en riesgo?</li>
+                    <li><i class="fa-solid fa-code"></i> En las próximas unidades pasamos de la teoría a la herramienta: Scikit-Learn, la librería estándar de la industria.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">27 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 28: Práctica Tema 3 -->
+    <div class="slide-container" id="slide28">
+        <h2 class="slide-title">Práctica (no entregable): Perfilado de una Solución de ML</h2>
+        <div class="content-area">
+            <span class="moment-badge live"><i class="fa-solid fa-flask-vial"></i> Pensar como un científico de datos, sin programar</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-magnifying-glass"></i> Elegí un proceso manual de tu trabajo o vida cotidiana (categorizar facturas, decidir qué publicar).</li>
+                    <li><i class="fa-solid fa-table-columns"></i> Definí la Tarea, al menos 5 Features, y la Label (la "respuesta correcta" a predecir).</li>
+                    <li><i class="fa-solid fa-triangle-exclamation"></i> Anticipá desafíos: ¿de dónde saldrían los datos históricos? ¿qué sesgo podría tener el modelo?</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">28 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 29: División Tema 4 -->
+    <div class="slide-container" id="slide29">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Tema 04</span>
+            <h2>Scikit-Learn por Dentro: Estimators, Transformers y Predictors</h2>
+            <p style="font-size: 20px;">Entrar a sklearn es como entrar a una fábrica perfectamente organizada: todos los objetos se comportan igual.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">29 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: Estimators -->
+    <div class="slide-container" id="slide30">
+        <h2 class="slide-title">Estimators: la Base de Todo (el Alumno)</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-book-open"></i> <code>model.fit(X, y)</code></span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-book"></i> Un <strong>Estimador</strong> es cualquier objeto que aprende de los datos. El método estrella es <code>.fit()</code> — como un alumno que abre su libro y empieza a estudiar.</li>
+                            <li><i class="fa-solid fa-sliders"></i> <strong>Parámetros:</strong> las "instrucciones" que le das antes de estudiar, al crear el objeto: <code>Model(opcion=True)</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-pen"></i></div>
+                        <h3>Atributos aprendidos</h3>
+                        <p>Es lo que el alumno anotó tras estudiar. En Scikit-Learn siempre terminan en guion bajo: <code>model.coef_</code> o <code>scaler.mean_</code>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">30 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 31: Transformers -->
+    <div class="slide-container" id="slide31">
+        <h2 class="slide-title">Transformers: Transformando la Realidad (el Filtro)</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-filter"></i> <code>.transform()</code></span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-wand-magic-sparkles"></i> Un <strong>Transformer</strong> es un estimador que, tras "estudiar" los datos, puede modificarlos.</li>
+                            <li><i class="fa-solid fa-arrows-turn-to-dots"></i> Sirve para normalizar datos, rellenar valores faltantes (imputación), o convertir categorías en números.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
+                        <h3><code>fit_transform()</code></h3>
+                        <p>Una forma rápida de aprender la receta y aplicarla en el mismo paso — muy usada al preparar el conjunto de entrenamiento.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">31 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 32: Predictors -->
+    <div class="slide-container" id="slide32">
+        <h2 class="slide-title">Predictors: Tomando Decisiones (el Juez)</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge"><i class="fa-solid fa-gavel"></i> <code>.predict()</code></span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrow-right"></i> Un <strong>Predictor</strong> es un estimador capaz de pronosticar sobre datos nuevos: recibe <code>X</code> y devuelve una predicción <code>y_pred</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-ruler-combined"></i></div>
+                        <h3>Importante</h3>
+                        <p>Para que un predictor funcione bien, los datos nuevos deben tener exactamente la misma forma y escala que los datos con los que el modelo "estudió".</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">32 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 33: Flujo de trabajo estándar -->
+    <div class="slide-container" id="slide33">
+        <h2 class="slide-title">El Flujo de Trabajo Estándar</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-1"></i> <strong>Instanciar:</strong> creás el objeto, ej. <code>scaler = StandardScaler()</code>.</li>
+                    <li><i class="fa-solid fa-2"></i> <strong>Ajustar (Fit):</strong> el objeto aprende de los datos de entrenamiento.</li>
+                    <li><i class="fa-solid fa-3"></i> <strong>Transformar o Predecir:</strong> aplicás lo aprendido a datos nuevos.</li>
+                </ul>
+            </div>
+            <p class="note-text"><strong>Recordá:</strong> fit es aprender la receta, transform es cocinar con ella — no hace falta volver a aprender la receta cada vez que cocinás un plato nuevo.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">33 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 34: Cuidado con el fit -->
+    <div class="slide-container" id="slide34">
+        <h2 class="slide-title">Un Error Común: ¡Cuidado con el Fit!</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-triangle-exclamation"></i> Nunca hagas <code>.fit()</code> sobre test o datos nuevos</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-ban"></i> Solo se "estudia" (fit) con el conjunto de entrenamiento.</li>
+                            <li><i class="fa-solid fa-check"></i> Para los datos nuevos, solo aplicás lo aprendido con <code>.transform()</code> o <code>.predict()</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-utensils"></i></div>
+                        <h3>La receta y la cocina</h3>
+                        <p><code>fit</code> es aprender la receta una sola vez; <code>transform</code> es cocinar con ella cada vez que hace falta, sin volver a aprenderla.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">34 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 35: División Tema 5 -->
+    <div class="slide-container" id="slide35">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Tema 05</span>
+            <h2>Entrenar y Evaluar sin Trampas: Train/Test y Sobreajuste</h2>
+            <p style="font-size: 20px;">Si el profesor te da el examen con las mismas 50 preguntas que estudiaste... ¿aprendiste, o solo memorizaste?</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">35 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 36: Train/Test split -->
+    <div class="slide-container" id="slide36">
+        <h2 class="slide-title">Train/Test Split: el "Examen" del Modelo</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-scale-unbalanced"></i> Dividimos el dataset en dos partes disjuntas</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-book-open-reader"></i> <strong>Train Set (70-80%):</strong> el material de estudio — el modelo busca patrones y ajusta sus parámetros acá.</li>
+                            <li><i class="fa-solid fa-file-pen"></i> <strong>Test Set:</strong> el examen final — datos que el modelo <strong>nunca ve</strong> durante el entrenamiento.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-arrows-to-circle"></i></div>
+                        <h3>Generalización</h3>
+                        <p>Un modelo que no generaliza no tiene valor: en fraude bancario, no sirve reconocer solo los fraudes del año pasado si no detecta uno nuevo con un patrón distinto hoy.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">36 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 37: Los tres estados de un modelo -->
+    <div class="slide-container" id="slide37">
+        <h2 class="slide-title">Los Tres Estados de un Modelo</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Estado</th><th>Señal</th><th>Analogía</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Underfitting</strong></td><td>Error alto en train Y en test</td><td>Explicar la economía global usando solo el precio del pan — le faltan variables.</td></tr>
+                        <tr><td><strong>Overfitting</strong></td><td>Error casi cero en train, muy alto en test</td><td>Memorizar que la respuesta 3 es "C" sin saber por qué — si el orden cambia, falla.</td></tr>
+                        <tr><td><strong>Sweet Spot</strong></td><td>Error bajo y similar en ambos</td><td>El equilibrio: entiende los patrones e ignora el ruido aleatorio.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">37 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 38: Implementación con sklearn -->
+    <div class="slide-container" id="slide38">
+        <h2 class="slide-title">Implementación con Scikit-Learn</h2>
+        <div class="content-area">
+            <div class="code-block">from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)</div>
+            <p class="note-text"><code>test_size=0.2</code>: reserva el 20% de los datos para prueba y usa el 80% para entrenar. <code>random_state=42</code>: fija la semilla aleatoria para que la división sea siempre la misma — vital para la <strong>reproducibilidad</strong> de tus experimentos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">38 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 39: Peligros -->
+    <div class="slide-container" id="slide39">
+        <h2 class="slide-title">Peligros: Fuga de Información y Series Temporales</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-droplet"></i> Data Leakage: el error más grave de un principiante</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-ban"></i> Calcular un promedio con <strong>todo</strong> el dataset antes de dividirlo filtra información del test hacia el train.</li>
+                            <li><i class="fa-solid fa-medal"></i> <strong>Regla de oro:</strong> primero dividís en train/test, y cualquier cálculo estadístico se hace <strong>solo</strong> sobre train.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-clock"></i></div>
+                        <h3>Series Temporales: la excepción</h3>
+                        <p>Con datos que dependen del tiempo, nunca dividas al azar — mezclar 2023 en train y 2021 en test usa el futuro para predecir el pasado. Se usa división cronológica.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">39 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 40: Resumen -->
+    <div class="slide-container" id="slide40">
+        <h2 class="slide-title">Resumen de Conceptos Clave</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-brain"></i> Entrenar no es memorizar: buscamos patrones generales, no ruido.</li>
+                    <li><i class="fa-solid fa-percent"></i> Partición 80/20: el estándar inicial para aprender y evaluar con rigor.</li>
+                    <li><i class="fa-solid fa-triangle-exclamation"></i> Si tu modelo tiene "100% en train" pero falla en test, sospechá overfitting de inmediato.</li>
+                    <li><i class="fa-solid fa-lock"></i> El conjunto de prueba es sagrado: no lo ajustes ni "espíes" hasta la evaluación final.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">40 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 41: Práctica Tema 5 -->
+    <div class="slide-container" id="slide41">
+        <h2 class="slide-title">Práctica (no entregable): Evaluación Honesta</h2>
+        <div class="content-area">
+            <span class="moment-badge live"><i class="fa-solid fa-flask-vial"></i> Transformá tu script de entrenamiento simple en un flujo profesional</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-scissors"></i> Aplicá <code>train_test_split</code> con <code>test_size=0.2</code> y <code>random_state=42</code>.</li>
+                    <li><i class="fa-solid fa-dumbbell"></i> Entrená el modelo <strong>únicamente</strong> con <code>X_train</code>/<code>y_train</code>.</li>
+                    <li><i class="fa-solid fa-code-compare"></i> Calculá el <code>.score()</code> en train y en test, y compará: ¿overfitting, underfitting, o sweet spot?</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">41 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 42: División Tema 6 -->
+    <div class="slide-container" id="slide42">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Tema 06</span>
+            <h2>Aplicaciones Prácticas de ML: del Modelo al Mundo Real</h2>
+            <p style="font-size: 20px;">Cierre del módulo: cómo el ML se integra en productos, servicios y decisiones que impactan a millones de personas.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">42 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 43: El porqué del ML aplicado -->
+    <div class="slide-container" id="slide43">
+        <h2 class="slide-title">El Porqué del Machine Learning Aplicado</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-user-secret"></i> Detectar phishing con reglas manuales</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-ban"></i> "Si contiene 'urgente' Y un enlace sospechoso → phishing" — mañana cambian "urgente" por "prioritario" y la regla queda obsoleta en horas.</li>
+                            <li><i class="fa-solid fa-filter"></i> El ML aplicado funciona como un <strong>"filtro inteligente"</strong>: entrada compleja adentro, salida útil afuera (categoría, precio, alerta).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-eye"></i></div>
+                        <h3>Lo que un humano pasaría por alto</h3>
+                        <p>El modelo aprende a identificar señales sutiles — el "ruido" y los "patrones" — que una lista de reglas estáticas nunca podría anticipar.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">43 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 44: Casos de uso -->
+    <div class="slide-container" id="slide44">
+        <h2 class="slide-title">Casos de Uso: ¿Quién Está Usando ML Hoy?</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-clapperboard"></i></div>
+                    <h3>El "Efecto Netflix"</h3>
+                    <p>Filtro Colaborativo: compara tus patrones con millones de usuarios similares, no solo "películas de acción".</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-credit-card"></i></div>
+                    <h3>Fraude Bancario</h3>
+                    <p>Mastercard/Visa detectan anomalías: si aparece una compra atípica, asignan una "puntuación de riesgo" y bloquean en milisegundos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-car-side"></i></div>
+                    <h3>Uber y el ETA</h3>
+                    <p>Un modelo de Regresión toma hora del día, historial de la ruta y clima para predecir el tiempo de llegada.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">44 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 45: Salud y ciclo de vida del pipeline -->
+    <div class="slide-container" id="slide45">
+        <h2 class="slide-title">Salud: Diagnóstico por Imagen</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge tip"><i class="fa-solid fa-x-ray"></i> Un radiólogo cansado tras revisar 100 radiografías</span>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-brain"></i> Modelos de Clasificación de Imágenes, entrenados con millones de escaneos, resaltan áreas sospechosas de tumores.</li>
+                            <li><i class="fa-solid fa-user-doctor"></i> Funcionan como un "segundo par de ojos" incansable — con una precisión que iguala o supera a los expertos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: 260px;">
+                        <div class="icon-box"><i class="fa-solid fa-heart-pulse"></i></div>
+                        <h3>Valor práctico</h3>
+                        <p>No reemplaza al médico: sirve como apoyo para detecciones tempranas, en un contexto donde el costo del error es altísimo.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">45 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 46: El ciclo de vida del pipeline -->
+    <div class="slide-container" id="slide46">
+        <h2 class="slide-title">El Ciclo de Vida de un Proyecto de ML: el Pipeline</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-bullseye"></i> <strong>Definición del Problema:</strong> ¿clasificación (Sí/No) o regresión (número)?</li>
+                    <li><i class="fa-solid fa-broom"></i> <strong>Recolección y Limpieza:</strong> el paso más largo — "Garbage in, garbage out".</li>
+                    <li><i class="fa-solid fa-sliders"></i> <strong>Feature Engineering:</strong> elegir qué datos son relevantes (baños sí, color de puerta no).</li>
+                    <li><i class="fa-solid fa-dumbbell"></i> <strong>Entrenamiento y Evaluación:</strong> ajustar el modelo y probarlo con el test set.</li>
+                    <li><i class="fa-solid fa-rocket"></i> <strong>Despliegue (Inferencia):</strong> ponerlo a trabajar en una aplicación real.</li>
+                    <li><i class="fa-solid fa-heart-pulse"></i> <strong>Monitoreo:</strong> los modelos se "deterioran" si el mundo cambia (ej. una pandemia).</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">46 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 47: Trampas y errores comunes -->
+    <div class="slide-container" id="slide47">
+        <h2 class="slide-title">Trampas y Errores Comunes: lo que Nadie te Dice</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr><th>Error</th><th>Realidad</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Correlación vs. Causalidad</strong></td><td>"Compran protector solar y helado" no significa que uno cause el otro — hay una variable oculta (el verano).</td></tr>
+                        <tr><td><strong>Sesgo en los Datos (Bias)</strong></td><td>Un modelo de selección entrenado con 20 años de contrataciones sesgadas aprenderá ese sesgo como "patrón de éxito".</td></tr>
+                        <tr><td><strong>Sobreajuste (Overfitting)</strong></td><td>Un modelo que memoriza el entrenamiento pero falla en la vida real es inútil.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">47 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 48: Glosario -->
+    <div class="slide-container" id="slide48">
+        <h2 class="slide-title">Glosario para el Mundo Profesional</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-microchip"></i> <strong>Modelo:</strong> el "cerebro" que ya aprendió y está listo para decidir.</li>
+                    <li><i class="fa-solid fa-bolt"></i> <strong>Inferencia:</strong> usar el modelo para predecir algo nuevo (ej. Facebook sugiriendo etiquetas en una foto).</li>
+                    <li><i class="fa-solid fa-table-columns"></i> <strong>Features / Labels:</strong> las columnas de entrada, y la respuesta correcta que se intenta aprender.</li>
+                    <li><i class="fa-solid fa-gauge-high"></i> <strong>Métricas:</strong> los termómetros para saber si el modelo es bueno (Precisión, Recall, Error Cuadrático Medio).</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">48 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 49: Síntesis y cierre -->
+    <div class="slide-container" id="slide49">
+        <h2 class="slide-title">Síntesis y Cierre del Módulo</h2>
+        <div class="content-area">
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-scale-balanced"></i> El Machine Learning no es magia; es estadística aplicada a gran escala.</li>
+                    <li><i class="fa-solid fa-list-check"></i> La clave no es conocer todos los algoritmos, sino saber qué problema amerita ML, cómo preparar los datos, y cómo evaluar el éxito con impacto real.</li>
+                    <li><i class="fa-solid fa-shield-heart"></i> Usalo para construir sistemas precisos, pero también éticos y transparentes.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">49 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 50: Práctica final -->
+    <div class="slide-container" id="slide50">
+        <h2 class="slide-title">Práctica (no entregable): Diseño de una Solución de ML</h2>
+        <div class="content-area">
+            <span class="moment-badge live"><i class="fa-solid fa-flask-vial"></i> Aplicá el potencial del ML de forma conceptual</span>
+            <div class="bullet-list">
+                <ul>
+                    <li><i class="fa-solid fa-magnifying-glass"></i> Identificá un problema de tu trabajo, hobby o una empresa que admires.</li>
+                    <li><i class="fa-solid fa-list-check"></i> Definí la tarea (Clasificación/Regresión, Supervisado/No Supervisado) y al menos 5 Features.</li>
+                    <li><i class="fa-solid fa-shield-heart"></i> Definí el éxito con una métrica, y considerá qué sesgos podrían existir en los datos.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">50 / 51</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 51: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide51">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 90px; color: var(--naranja-horizonte);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 60px; color: var(--rosa-energia);"></i>
+            </div>
+            <h1 style="font-size: 64px;">¿Dudas? ¿Consultas?</h1>
+            <p style="font-size: 22px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Este es el momento de preguntar todo lo que necesites
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">51 / 51</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Presentation navigation controls toolbar -->
+<div class="controls-toolbar">
+    <button class="control-btn" id="prev-slide"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+    <div class="slide-dots" id="slide-dots"></div>
+    <button class="control-btn" id="next-slide">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<script>
+    // Slider Presentation Logic
+    const slides = document.querySelectorAll('.slide-container');
+    const prevBtn = document.getElementById('prev-slide');
+    const nextBtn = document.getElementById('next-slide');
+    const dotsContainer = document.getElementById('slide-dots');
+
+    let currentSlideIndex = 0;
+
+    // Create Navigation Indicators Dynamically
+    slides.forEach((slide, idx) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (idx === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToSlide(idx);
+        });
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateControls() {
+        dots.forEach((dot, idx) => {
+            if (idx === currentSlideIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+
+        slides[currentSlideIndex].classList.remove('active');
+        currentSlideIndex = index;
+        slides[currentSlideIndex].classList.add('active');
+
+        updateControls();
+    }
+
+    // Keyboard Navigation Handlers
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+            goToSlide(currentSlideIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+            goToSlide(currentSlideIndex - 1);
+        }
+    });
+
+    // Button Click Event Listeners
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex + 1);
+    });
+</script>
+
+</body>
+</html>
