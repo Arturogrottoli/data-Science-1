@@ -8,6 +8,24 @@ Esta guía es el **libreto completo para dictar la Clase 07**: reúne toda la te
 
 ---
 
+## Repaso de la Clase 06 — Estadística y Preprocesamiento
+
+Antes de hablar de Machine Learning, conviene tener fresco lo que se vio en Clase 06 — es el terreno sobre el que se apoya todo lo de hoy: **para que un algoritmo "aprenda" de un dataset, primero hace falta poder describirlo con estadística.** Esto es exactamente lo que hace el Bloque 0 del notebook (ver "Guía del Notebook" más abajo), sobre el dataset real de natalidad del DEIS. Los cuatro pilares que se repasan:
+
+1. **Limpieza e Integración**: ningún dataset real llega listo para analizar. **Limpiar** significa decidir qué hacer con nulos (imputarlos con la media/mediana si son numéricos, con la moda o una etiqueta de negocio si son categóricos) y con duplicados (eliminarlos) — sin borrar a ciegas, porque un nulo puede tener una causa de negocio válida detrás. **Integrar** significa combinar o derivar columnas nuevas a partir de las existentes, para que la información cruda se vuelva accionable.
+
+2. **Medidas de Tendencia Central y Dispersión**: la **tendencia central** responde "¿dónde está el centro de los datos?" — la **media** (sensible a valores extremos), la **mediana** (el valor que deja 50% de los datos a cada lado, no sensible a extremos) y la **moda** (el valor más frecuente). Cuando media y mediana difieren mucho, es señal de asimetría o de outliers. La **dispersión** responde "¿qué tan esparcidos están?" — el **desvío estándar** mide la variación promedio respecto a la media, y el **IQR** (rango intercuartílico, Q3 − Q1) mide el ancho del 50% central de los datos, siendo más robusto frente a outliers.
+
+3. **Distribuciones y Correlación**: la **distribución** es la forma que toman los datos al graficarlos (histograma) — simétrica (campana/Normal) o sesgada a la izquierda/derecha. La **correlación** (coeficiente de Pearson, entre -1 y 1) mide qué tan asociadas linealmente están dos variables numéricas: cerca de 1 suben juntas, cerca de -1 una sube cuando la otra baja, cerca de 0 no hay relación lineal. Regla de oro que se repite todo el curso: **correlación no implica causalidad**.
+
+4. **Transformación y Reducción de Dimensionalidad**: para que un algoritmo matemático procese los datos hace falta **transformarlos** — convertir texto a números y llevar las variables numéricas a una escala comparable (`StandardScaler`), porque los modelos basados en distancias son sensibles a la magnitud de cada columna. Cuando hay muchas columnas, **PCA** permite comprimirlas en unas pocas dimensiones que conservan la mayor parte de la variabilidad original.
+
+**Por qué este repaso es más que un trámite**: el punto (4) —escalar antes de medir distancias, y ajustar el escalador solo con los datos de entrenamiento— es literalmente la misma regla de oro que se retoma formalmente hoy en el Tema 05 (Data Leakage). No es contenido nuevo disfrazado de repaso: es el mismo concepto, primero en estadística pura y después aplicado a Machine Learning.
+
+**Recién ahora, con la estadística repasada, arrancamos con Machine Learning.**
+
+---
+
 ## Antes de Arrancar: ¿Qué es Machine Learning, y de qué va esta clase?
 
 **¿Qué es el Machine Learning, en una frase?** Es la rama de la Inteligencia Artificial que, en vez de decirle a la computadora paso a paso qué hacer, le muestra muchos ejemplos y deja que ella misma encuentre el patrón. La computadora no "razona" como una persona — encuentra regularidades estadísticas en los datos que se le dan, y usa esas regularidades para opinar sobre datos nuevos que nunca vio. Ese es el salto que separa "programar" de "entrenar": no se escribe la regla, se muestra el ejemplo.
@@ -47,22 +65,6 @@ Pero ese 1% que falla es exactamente el que importa: son los 10 pacientes enferm
 4. Entender la arquitectura interna de Scikit-Learn: Estimators, Transformers y Predictors, y el flujo `fit` → `transform`/`predict`.
 5. Aplicar correctamente `train_test_split` y diagnosticar Overfitting, Underfitting y Data Leakage.
 6. Completar la Pre-entrega "Aplicaciones Prácticas de ML — Del Algoritmo al Impacto Real".
-
----
-
-## Repaso de la Clase 06 — Estadística y Preprocesamiento
-
-Antes de entrar a la Clase 07, conviene tener fresco lo que se vio en Clase 06 — es el terreno sobre el que se apoya todo lo de hoy: **para que un algoritmo "aprenda" de un dataset, primero hace falta poder describirlo con estadística.** Esto es exactamente lo que hace el Bloque 0 del notebook (ver "Guía del Notebook" más abajo), sobre el dataset real de natalidad del DEIS. Los cuatro pilares que se repasan:
-
-1. **Limpieza e Integración**: ningún dataset real llega listo para analizar. **Limpiar** significa decidir qué hacer con nulos (imputarlos con la media/mediana si son numéricos, con la moda o una etiqueta de negocio si son categóricos) y con duplicados (eliminarlos) — sin borrar a ciegas, porque un nulo puede tener una causa de negocio válida detrás. **Integrar** significa combinar o derivar columnas nuevas a partir de las existentes, para que la información cruda se vuelva accionable.
-
-2. **Medidas de Tendencia Central y Dispersión**: la **tendencia central** responde "¿dónde está el centro de los datos?" — la **media** (sensible a valores extremos), la **mediana** (el valor que deja 50% de los datos a cada lado, no sensible a extremos) y la **moda** (el valor más frecuente). Cuando media y mediana difieren mucho, es señal de asimetría o de outliers. La **dispersión** responde "¿qué tan esparcidos están?" — el **desvío estándar** mide la variación promedio respecto a la media, y el **IQR** (rango intercuartílico, Q3 − Q1) mide el ancho del 50% central de los datos, siendo más robusto frente a outliers.
-
-3. **Distribuciones y Correlación**: la **distribución** es la forma que toman los datos al graficarlos (histograma) — simétrica (campana/Normal) o sesgada a la izquierda/derecha. La **correlación** (coeficiente de Pearson, entre -1 y 1) mide qué tan asociadas linealmente están dos variables numéricas: cerca de 1 suben juntas, cerca de -1 una sube cuando la otra baja, cerca de 0 no hay relación lineal. Regla de oro que se repite todo el curso: **correlación no implica causalidad**.
-
-4. **Transformación y Reducción de Dimensionalidad**: para que un algoritmo matemático procese los datos hace falta **transformarlos** — convertir texto a números y llevar las variables numéricas a una escala comparable (`StandardScaler`), porque los modelos basados en distancias son sensibles a la magnitud de cada columna. Cuando hay muchas columnas, **PCA** permite comprimirlas en unas pocas dimensiones que conservan la mayor parte de la variabilidad original.
-
-**Por qué este repaso es más que un trámite**: el punto (4) —escalar antes de medir distancias, y ajustar el escalador solo con los datos de entrenamiento— es literalmente la misma regla de oro que se retoma formalmente hoy en el Tema 05 (Data Leakage). No es contenido nuevo disfrazado de repaso: es el mismo concepto, primero en estadística pura y después aplicado a Machine Learning.
 
 ---
 
