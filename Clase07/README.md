@@ -10,18 +10,125 @@ Esta guía es el **libreto completo para dictar la Clase 07**: reúne toda la te
 
 ## Repaso de la Clase 06 — Estadística y Preprocesamiento
 
-Antes de hablar de Machine Learning, conviene tener fresco lo que se vio en Clase 06 — es el terreno sobre el que se apoya todo lo de hoy: **para que un algoritmo "aprenda" de un dataset, primero hace falta poder describirlo con estadística.** Esta sección no repite lo que ya dice el Colab (eso está en la Guía del Notebook, con el código real) — profundiza el **porqué** de cada pilar, con ejemplos y matices que sirven de apoyo para explicarlo en voz alta.
+Antes de hablar de Machine Learning, conviene tener fresco lo que se vio en Clase 06 — es el terreno sobre el que se apoya todo lo de hoy: **para que un algoritmo "aprenda" de un dataset, primero hace falta poder describirlo con estadística.** Esto es exactamente lo que hace el **Bloque 0** del Colab (`Clase07.ipynb`), sobre el dataset real de natalidad del DEIS (25 años, 25 provincias) — acá va la teoría de cada pilar seguida del código real que lo aplica, para no tener que buscarlo aparte.
 
-1. **Limpieza e Integración**. Ningún dataset real llega listo para analizar, y la decisión de qué hacer con un nulo depende del *significado de negocio* detrás de ese vacío, no de una regla mecánica. Ejemplo concreto: en una tabla de clientes, un campo `fecha_baja` vacío no es un error de carga — significa "este cliente todavía está activo". Borrar esa fila, o peor, imputarla con una fecha promedio, inventaría una baja que nunca ocurrió. Por eso la regla no es "todo nulo se imputa" ni "todo nulo se borra": primero hay que preguntarse *por qué* falta el dato.
-   - Si el nulo es **aleatorio** (un sensor que falló una vez): imputar con media/mediana (numéricas) o moda (categóricas) es razonable, porque no altera la historia real del registro.
-   - Si el nulo **significa algo** (como el ejemplo de `fecha_baja`): no se imputa con un promedio — se imputa con una etiqueta de negocio que refleje ese significado (ej. "Activo"), o se crea una columna auxiliar booleana que marque explícitamente ese caso.
-   - **Integrar** es el paso complementario: no alcanza con tener los datos limpios, hay que combinarlos para que digan algo útil — por ejemplo, cruzar fecha de alta y fecha de baja para derivar "antigüedad del cliente", una columna que no existía en el dato crudo pero que sí existe en el negocio.
+### 1. Limpieza e Integración
 
-2. **Medidas de Tendencia Central y Dispersión**. Antes de la fórmula, un ejemplo mental rápido: los sueldos de 5 personas son $10, $12, $11, $13 y $9.000 (una persona gana mucho más que el resto). La **media** de esos 5 números da casi $2.000 — un número que no describe a *nadie* del grupo real. La **mediana** (ordenando: 9, 10, 11, 12, 9000 → el valor del medio es 11) sí describe fielmente a la mayoría. Ese es el mecanismo exacto detrás de la regla "la media es sensible a extremos, la mediana no": la media "reparte" el efecto de cada valor entre todos los demás: un solo valor gigante puede arrastrar el promedio entero. La mediana ignora la *magnitud* del extremo y solo mira su *posición* en el orden. La dispersión (desvío estándar, IQR) responde la pregunta que la tendencia central no puede: dos grupos pueden tener la misma media y ser radicalmente distintos — un salón donde todos ganan casi lo mismo, y otro con extremos de pobreza y riqueza que "promedian" al mismo número.
+Ningún dataset real llega listo para analizar, y la decisión de qué hacer con un nulo depende del *significado de negocio* detrás de ese vacío, no de una regla mecánica. Ejemplo concreto: en una tabla de clientes, un campo `fecha_baja` vacío no es un error de carga — significa "este cliente todavía está activo". Borrar esa fila, o peor, imputarla con una fecha promedio, inventaría una baja que nunca ocurrió. Por eso la regla no es "todo nulo se imputa" ni "todo nulo se borra": primero hay que preguntarse *por qué* falta el dato.
+- Si el nulo es **aleatorio** (un sensor que falló una vez): imputar con media/mediana (numéricas) o moda (categóricas) es razonable, porque no altera la historia real del registro.
+- Si el nulo **significa algo** (como el ejemplo de `fecha_baja`): no se imputa con un promedio — se imputa con una etiqueta de negocio que refleje ese significado (ej. "Activo"), o se crea una columna auxiliar booleana que marque explícitamente ese caso.
+- **Integrar** es el paso complementario: no alcanza con tener los datos limpios, hay que combinarlos para que digan algo útil — por ejemplo, cruzar fecha de alta y fecha de baja para derivar "antigüedad del cliente", una columna que no existía en el dato crudo pero que sí existe en el negocio.
 
-3. **Distribuciones y Correlación**. Sobre la correlación en particular, vale la pena un ejemplo clásico de por qué "no implica causalidad" no es una frase de cajón sino un peligro real: en muchas ciudades, las ventas de helado y los ahogamientos en piletas están altamente correlacionados — suben y bajan juntos durante el año. Nadie diría que el helado *causa* ahogamientos. La variable oculta es el clima: los días de calor generan más consumo de helado *y* más gente en la pileta al mismo tiempo. Cuando dos variables se mueven juntas, siempre conviene preguntarse: ¿hay una tercera variable (el clima, en este caso) que explique a ambas por separado? Esa pregunta es la misma que se va a repetir en el Tema 06 con el ejemplo del protector solar.
+**👉 En el Colab — Bloque 0, celda 1. Qué hace en general**: carga el dataset, audita si tiene nulos o duplicados, y crea una columna nueva de negocio a partir de una columna numérica existente.
+```python
+import pandas as pd
+import numpy as np
 
-4. **Transformación y Reducción de Dimensionalidad**. Por qué escalar es obligatorio y no un capricho: imaginá comparar dos personas usando "edad" (rango típico 0-90) e "ingreso mensual" (rango típico 0-500.000) para decidir cuál es más parecida a un tercer individuo, midiendo la distancia entre sus números tal cual. La diferencia de ingresos (que se mide en decenas de miles) va a dominar completamente el cálculo, aplastando por completo a la diferencia de edad (que como mucho es de unas decenas) — no porque el ingreso sea más importante, sino porque sus números son más grandes en magnitud. `StandardScaler` neutraliza ese efecto llevando todas las columnas a una escala común. **PCA**, en la misma línea, resuelve otro problema: cuando hay demasiadas columnas correlacionadas entre sí (como 25 años de una misma serie), buena parte de esa información es redundante — PCA encuentra las combinaciones de columnas que capturan la mayor variabilidad real, permitiendo describir el dataset con muchas menos dimensiones sin perder la esencia.
+df_raw = pd.read_csv('tasa-natalidad-deis-2000-2024.csv')
+print(f"Filas: {df_raw.shape[0]} (años, de 2000 a 2024) | Columnas: {df_raw.shape[1]} (1 índice de tiempo + 25 provincias)")
+
+nulos = df_raw.isnull().sum().sum()
+duplicados = df_raw.duplicated().sum()
+print(f"Valores nulos totales: {nulos}")
+print(f"Filas duplicadas: {duplicados}")
+
+if nulos == 0 and duplicados == 0:
+    print("👉 Este dataset del DEIS ya llega limpio (0 nulos, 0 duplicados).")
+
+natalidad_2024 = df_raw[df_raw['indice_tiempo'] == '01-01-2024'].drop(columns='indice_tiempo').T
+natalidad_2024.columns = ['natalidad_2024']
+natalidad_2024['categoria_natalidad'] = pd.cut(
+    natalidad_2024['natalidad_2024'],
+    bins=[0, 8.4, 9.7, np.inf],
+    labels=['Baja', 'Media', 'Alta']
+)
+print(natalidad_2024['categoria_natalidad'].value_counts())
+```
+**Línea por línea:** `pd.read_csv(...)` carga el archivo en `df_raw`; el `print` de "Filas" verifica que cargó bien. `df_raw.isnull().sum()` cuenta nulos por columna y `.sum()` los suma en un total; `.duplicated().sum()` cuenta filas repetidas. El `if` imprime "ya llega limpio" solo si ambos conteos dieron cero (lo que efectivamente pasa acá). La parte de **Integración**: se filtra la fila del último año (`== '01-01-2024'`), se saca la columna de fecha (`.drop`) y se transpone (`.T`) para que cada provincia pase a ser una fila. `pd.cut(..., bins=[0, 8.4, 9.7, np.inf], labels=[...])` crea la columna de categoría de negocio nueva, agrupando el valor continuo en 3 franjas — una columna que no existía en el archivo original. `.value_counts()` cuenta cuántas provincias cayeron en cada categoría.
+
+### 2. Medidas de Tendencia Central y Dispersión
+
+Antes de la fórmula, un ejemplo mental rápido: los sueldos de 5 personas son $10, $12, $11, $13 y $9.000 (una persona gana mucho más que el resto). La **media** de esos 5 números da casi $2.000 — un número que no describe a *nadie* del grupo real. La **mediana** (ordenando: 9, 10, 11, 12, 9000 → el valor del medio es 11) sí describe fielmente a la mayoría. Ese es el mecanismo exacto detrás de la regla "la media es sensible a extremos, la mediana no": la media "reparte" el efecto de cada valor entre todos los demás — un solo valor gigante puede arrastrar el promedio entero. La mediana ignora la *magnitud* del extremo y solo mira su *posición* en el orden. La dispersión (desvío estándar, IQR) responde la pregunta que la tendencia central no puede: dos grupos pueden tener la misma media y ser radicalmente distintos.
+
+**👉 En el Colab — Bloque 0, celda 2. Qué hace en general**: calcula los 6 estadísticos básicos (media, mediana, desvío, Q1, Q3, IQR) sobre la serie nacional de 25 años.
+```python
+serie_nacional = df_raw['natalidad_argentina']
+
+media = serie_nacional.mean()
+mediana = serie_nacional.median()
+std = serie_nacional.std()
+q1 = serie_nacional.quantile(0.25)
+q3 = serie_nacional.quantile(0.75)
+iqr = q3 - q1
+
+print(f"Media (natalidad nacional 2000-2024): {media:.2f}")
+print(f"Mediana: {mediana:.2f}")
+print(f"Desvío estándar: {std:.2f}")
+print(f"IQR (Q3 - Q1): {iqr:.2f} (entre {q1:.2f} y {q3:.2f})")
+```
+**Línea por línea:** `df_raw['natalidad_argentina']` selecciona la columna nacional como una Serie. `.mean()`, `.median()` y `.std()` calculan los tres estadísticos básicos; `.quantile(0.25)`/`.quantile(0.75)` dan Q1 y Q3, y `iqr = q3 - q1` el ancho de esa caja central. Los `print` muestran cada resultado con 2 decimales. La deducción real: la mediana (17.9) es más alta que la media (16.35) — no por outliers, sino porque la natalidad viene en caída sostenida (más años "altos" al principio de la serie que "bajos" al final).
+
+### 3. Distribuciones y Correlación
+
+Sobre la correlación en particular, vale la pena un ejemplo clásico de por qué "no implica causalidad" no es una frase de cajón sino un peligro real: en muchas ciudades, las ventas de helado y los ahogamientos en piletas están altamente correlacionados — suben y bajan juntos durante el año. Nadie diría que el helado *causa* ahogamientos. La variable oculta es el clima: los días de calor generan más consumo de helado *y* más gente en la pileta al mismo tiempo. Cuando dos variables se mueven juntas, siempre conviene preguntarse: ¿hay una tercera variable que explique a ambas por separado? Esa pregunta se repite en el Tema 06 con el ejemplo del protector solar.
+
+**👉 En el Colab — Bloque 0, celda 3. Qué hace en general**: grafica la forma de la serie nacional (histograma) y calcula qué tan correlacionadas están 3 provincias entre sí (heatmap).
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+sns.histplot(serie_nacional, kde=True, bins=10, color='teal')
+plt.axvline(media, color='red', linestyle='--', label=f'Media: {media:.1f}')
+plt.axvline(mediana, color='green', linestyle='--', label=f'Mediana: {mediana:.1f}')
+plt.title('Distribución de la natalidad nacional (2000-2024)')
+plt.legend()
+
+plt.subplot(1, 2, 2)
+provincias_comparar = df_raw[['natalidad_buenos_aires', 'natalidad_cordoba', 'natalidad_santa_fe']]
+matriz_corr = provincias_comparar.corr()
+sns.heatmap(matriz_corr, annot=True, fmt='.2f', cmap='coolwarm', vmin=-1, vmax=1, center=0)
+plt.title('Correlación entre provincias')
+
+plt.tight_layout()
+plt.show()
+
+skew = serie_nacional.skew()
+corr_ba_cba = matriz_corr.loc['natalidad_buenos_aires', 'natalidad_cordoba']
+print(f"Asimetría (skew) de la serie nacional: {skew:.2f}")
+print(f"Correlación Buenos Aires vs. Córdoba: {corr_ba_cba:.2f}")
+```
+**Línea por línea:** `plt.figure` abre un lienzo ancho para dos gráficos lado a lado. `plt.subplot(1, 2, 1)` selecciona el primer panel; `sns.histplot(..., kde=True)` dibuja el histograma con una curva suavizada superpuesta; los dos `plt.axvline(...)` marcan media y mediana sobre el mismo gráfico. `plt.subplot(1, 2, 2)` pasa al segundo panel; `.corr()` calcula la matriz de correlación de Pearson entre 3 provincias; `sns.heatmap(..., annot=True, vmin=-1, vmax=1, center=0)` la pinta como cuadrícula de colores con el número exacto adentro y escala fija. `.skew()` calcula la asimetría de la serie; `matriz_corr.loc[...]` extrae puntualmente la correlación Buenos Aires-Córdoba. La deducción: es altísima (>0.95) porque comparten la misma tendencia demográfica nacional — correlación, no causalidad.
+
+### 4. Transformación y Reducción de Dimensionalidad
+
+Por qué escalar es obligatorio y no un capricho: imaginá comparar dos personas usando "edad" (rango típico 0-90) e "ingreso mensual" (rango típico 0-500.000) para decidir cuál es más parecida a un tercer individuo, midiendo la distancia entre sus números tal cual. La diferencia de ingresos (que se mide en decenas de miles) va a dominar completamente el cálculo, aplastando por completo a la diferencia de edad — no porque el ingreso sea más importante, sino porque sus números son más grandes en magnitud. `StandardScaler` neutraliza ese efecto llevando todas las columnas a una escala común. **PCA**, en la misma línea, encuentra las combinaciones de columnas que capturan la mayor variabilidad real, permitiendo describir el dataset con muchas menos dimensiones sin perder la esencia.
+
+**👉 En el Colab — Bloque 0, celda 4. Qué hace en general**: estandariza dos columnas con `StandardScaler`, y comprime las 25 provincias en 2 componentes principales con `PCA`.
+```python
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+columnas_ejemplo = df_raw[['natalidad_buenos_aires', 'natalidad_cordoba']]
+scaler_demo = StandardScaler()
+columnas_escaladas = scaler_demo.fit_transform(columnas_ejemplo)
+
+print("Antes de escalar (media original):")
+print(columnas_ejemplo.mean().round(2).to_dict())
+print("Después de escalar con StandardScaler (media ≈ 0, desvío ≈ 1):")
+print(pd.DataFrame(columnas_escaladas, columns=columnas_ejemplo.columns).describe().loc[['mean', 'std']].round(2))
+
+provincias_T = df_raw.drop(columns='indice_tiempo').T
+X_scaled_demo = StandardScaler().fit_transform(provincias_T)
+pca_demo = PCA(n_components=2)
+pca_demo.fit_transform(X_scaled_demo)
+varianza_total = pca_demo.explained_variance_ratio_.sum() * 100
+
+print(f"Varianza explicada al comprimir 25 años en 2 componentes principales: {varianza_total:.1f}%")
+```
+**Línea por línea:** `columnas_ejemplo = df_raw[[...]]` selecciona 2 columnas. `StandardScaler().fit_transform(...)` aprende media/desvío y estandariza en el mismo paso. Los `print` de "antes"/"después" comparan medias originales contra medias ≈0 tras escalar. Para la reducción: `df_raw.drop(columns='indice_tiempo').T` transpone la tabla (cada provincia pasa a ser una fila, cada año una columna); se escala esa tabla transpuesta (obligatorio antes de PCA, por la misma razón de magnitud); `PCA(n_components=2).fit_transform(...)` comprime a 2 componentes; `explained_variance_ratio_.sum() * 100` da el porcentaje de variabilidad conservada. La deducción: escalar es obligatorio antes de PCA o K-Means porque estos algoritmos miden distancias.
 
 **Por qué este repaso es más que un trámite**: el punto 4 —escalar antes de medir distancias, y ajustar el escalador solo con los datos de entrenamiento— es literalmente la misma regla de oro que se retoma formalmente hoy en el Tema 05 (Data Leakage). No es contenido nuevo disfrazado de repaso: es el mismo concepto, primero en estadística pura y después aplicado a Machine Learning. El ejemplo de la edad vs. el ingreso de este punto es, de hecho, el mismo tipo de razonamiento detrás del ejemplo de la Filmina 39 (por qué no se puede calcular un promedio con todo el dataset antes de dividir en train/test).
 
@@ -53,10 +160,11 @@ Pero ese 1% que falla es exactamente el que importa: son los 10 pacientes enferm
 
 ## Cómo está organizada esta guía
 
-1. **Repaso de Estadística (Clase 06)** — el Bloque 0 del notebook, antes de tocar cualquier filmina.
+1. **Repaso de Estadística (Clase 06)** — teoría de los 4 pilares + el código del Bloque 0 del Colab, intercalados pilar por pilar.
 2. **Introducción con las filminas** — recorrido rápido de portada y mapa general de los 6 temas del día.
 3. **Filminas + teoría del docx, intercaladas** — el cuerpo principal de esta guía: cada uno de los 6 Temas, filmina por filmina, con el texto completo del docx desarrollado debajo de cada una.
-4. **Guía del Notebook** y **Pre-entrega**, al final.
+4. **Código del Colab, intercalado al final de cada Tema** — cada vez que el notebook tiene una celda que corresponde a ese Tema, aparece ahí mismo (marcado con 👉), no en un apéndice aparte.
+5. **Referencia Rápida del Notebook** y **Pre-entrega**, al final, para ubicar todo de un vistazo.
 
 ---
 
@@ -146,6 +254,34 @@ Divisor de sección. La analogía de las matrioskas que trae la filmina es el an
 
 **Nota de cierre del tema**: 📌 *Entregable de este módulo: Pre-entrega — Aplicaciones Prácticas de ML (Del Algoritmo al Impacto Real)*, evaluable, suma al proyecto final. Su consigna llega en el Tema 03.
 
+**👉 En el Colab — Bloque 1, primeras dos celdas.** Acá arranca la parte práctica: setup del notebook y el "rompehielo" que vive en el dataset de propiedades, antes de seguir con el Tema 02.
+
+**Setup inicial. Qué hace en general**: importa todas las librerías que se van a usar en el resto del notebook, y carga el dataset de propiedades.
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_absolute_error, r2_score
+
+sns.set_style("whitegrid")
+
+df = pd.read_csv("propiedades_sueca_ml.csv")
+df.head(10)
+```
+**Línea por línea:** los `import` traen, en orden, Pandas/NumPy (datos), Matplotlib/Seaborn (gráficos), y de `sklearn` puntualmente lo que se va a usar hoy: `train_test_split` (dividir datos), `StandardScaler` (escalar), `LinearRegression` y `DecisionTreeRegressor` (los dos modelos de la clase), y `mean_absolute_error`/`r2_score` (las métricas). `sns.set_style("whitegrid")` fija un estilo visual con grilla suave para todos los gráficos que vengan después. `pd.read_csv(...)` carga el dataset en `df`; `.head(10)` muestra las primeras 10 filas para chequear que cargó bien.
+
+**El "rompehielo". Qué hace en general**: muestra 5 filas del dataset sin la columna que hay que predecir, para que el grupo vea el problema antes de que se lo expliquen.
+```python
+df.drop(columns=["precio_eur", "precio_por_m2", "id_propiedad"]).sample(5, random_state=1)
+```
+**Línea por línea:** `.drop(columns=[...])` saca del DataFrame las columnas que serían la "respuesta" (`precio_eur`, `precio_por_m2`) y el identificador (que no es una feature real); `.sample(5, random_state=1)` muestra 5 filas al azar, pero siempre las mismas 5 gracias a la semilla fija. **Pregunta para el grupo, tal como la trae el notebook**: "si tuviera que escribir un programa con reglas fijas (`SI superficie > 100 Y barrio == Centro, ENTONCES precio > 200.000`) para estimar el precio de estas propiedades, ¿cuántas reglas necesitaría? ¿Alcanzaría alguna vez?" — la misma pregunta que abre este tema, pero vivida en código antes de nombrarla.
+
 ---
 
 # Tema 02 — Tipos de Aprendizaje: Supervisado, No Supervisado y por Refuerzo (Filminas 10-18)
@@ -224,6 +360,14 @@ Las tareas principales:
 Cierra con una reflexión final: cuál de los tres paradigmas parece más complejo de implementar, y por qué.
 
 **Errores comunes a evitar (del docx)**: confundir Clustering (No Supervisado) con Clasificación (Supervisado) — si el problema menciona datos ya "marcados" o "históricos con resultado", es Supervisado. Olvidar que en el Aprendizaje por Refuerzo no hay un dataset estático inicial, sino un proceso de interacción constante.
+
+**👉 En el Colab — cierre del Bloque 1.** Después del mapa IA → ML → DL y de esta teoría de tipos de aprendizaje, el notebook no agrega código nuevo — son celdas de texto que retoman lo ya visto en las Filminas 03-15 (mapa) y en este Tema 02. Sí cierra con un **mini-quiz oral** para resolver en vivo con el grupo, antes de pasar a Scikit-Learn:
+
+- Agrupar clientes de un supermercado por hábitos de compra, sin categorías previas.
+- Predecir si un mail es spam, usando miles de mails ya marcados.
+- Un termostato inteligente que aprende a ahorrar energía probando distintas temperaturas.
+
+**Ojo**: estos son exactamente los 3 casos que después reaparecen como "Tarea 1" en el Solucionario del Bloque 4 (al final del Tema 06) — el notebook los plantea acá sin responder, y da la respuesta recién al cierre de la clase. Si se resuelven ya acá, la Tarea 1 del plenario final queda como repaso en vez de ejercicio nuevo — vale la pena decidir en qué momento conviene resolverlos según el ritmo del grupo.
 
 ---
 
@@ -328,6 +472,54 @@ Cierra con una reflexión final: cuál de los tres paradigmas parece más comple
 
 **Por qué esto conecta directo con el Tema 05**: este mismo error es, en el fondo, una forma de Data Leakage — dejar que el conjunto de test "contamine" el proceso de aprendizaje. El Tema 05 lo retoma con nombre propio y en más profundidad.
 
+**👉 En el Colab — Bloque 2 completo.** Acá es donde este tema deja de ser solo teoría: las 4 celdas de código de Estimators/Transformers/Predictors, sobre el dataset de propiedades.
+
+**División train/test. Qué hace en general**: separa las 4 features y el target, y divide el dataset en 80% train / 20% test.
+```python
+features = ["superficie_m2", "ambientes", "antiguedad_anios", "score_amenities"]
+X = df[features]
+y = df["precio_eur"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print("Filas de entrenamiento:", X_train.shape[0])
+print("Filas de prueba:", X_test.shape[0])
+```
+**Línea por línea:** `features = [...]` define en una lista los 4 nombres de columna que se van a usar como entrada del modelo. `X = df[features]` arma la tabla de features; `y = df["precio_eur"]` selecciona la columna target como una Serie. `train_test_split(X, y, test_size=0.2, random_state=42)` reparte ambas tablas en 4 piezas a la vez (`X_train`, `X_test`, `y_train`, `y_test`), reservando 20% para test y fijando la semilla para que el split sea siempre el mismo. Los dos `print` muestran cuántas filas quedaron de cada lado, usando `.shape[0]`.
+
+**Transformer en acción: StandardScaler. Qué hace en general**: estandariza las 4 features, aprendiendo la media/desvío únicamente del train.
+```python
+scaler = StandardScaler()
+
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+print("Media aprendida por columna:", scaler.mean_.round(1))
+print("Forma de X_train_scaled:", X_train_scaled.shape)
+```
+**Línea por línea:** `StandardScaler()` instancia el transformador. `scaler.fit_transform(X_train)` aprende (fit) la media y el desvío de cada una de las 4 columnas mirando **solo** train, y en el mismo paso las transforma. `scaler.transform(X_test)` aplica esas mismas medias/desvíos ya aprendidos sobre test — nota que acá es solo `.transform()`, no `.fit_transform()`, porque el test nunca debe "enseñarle" nada al scaler. `scaler.mean_` es el atributo aprendido (la media de cada columna, calculada con train); `.shape` confirma que la forma de la matriz escalada no cambió, solo sus valores.
+
+**Estimator + Predictor: LinearRegression. Qué hace en general**: entrena una Regresión Lineal (sin escalar, a propósito) y predice sobre test.
+```python
+modelo = LinearRegression()
+
+modelo.fit(X_train, y_train)
+predicciones = modelo.predict(X_test)
+
+print("Primeras 5 predicciones:", predicciones[:5].round(0))
+print("Primeros 5 precios reales:", y_test.values[:5])
+```
+**Línea por línea:** `LinearRegression()` instancia el modelo. `modelo.fit(X_train, y_train)` es el Estimator "estudiando" la relación entre las 4 features y el precio, usando los datos **sin escalar** (`X_train`, no `X_train_scaled`) — no hace falta escalar para una regresión lineal simple, y así los coeficientes quedan directamente interpretables en euros. `modelo.predict(X_test)` es el Predictor: usa lo aprendido para estimar el precio de las filas de test, que el modelo nunca vio entrenando. Los dos `print` comparan las primeras 5 predicciones contra los 5 precios reales correspondientes.
+
+**Atributos aprendidos. Qué hace en general**: extrae e interpreta los coeficientes que el modelo aprendió.
+```python
+coeficientes = pd.Series(modelo.coef_, index=features).round(1)
+print(coeficientes)
+
+print("\nIntercepto (precio base):", round(modelo.intercept_))
+```
+**Línea por línea:** `modelo.coef_` es el atributo aprendido (termina en `_`) — un array con un coeficiente por feature, en el mismo orden que la lista `features`. `pd.Series(modelo.coef_, index=features)` le pone el nombre de cada feature a su coeficiente correspondiente. `modelo.intercept_` es el otro atributo aprendido: el valor base de la predicción cuando todas las features valen cero. La lectura de negocio: por cada m² adicional el precio sube esa cantidad de euros, manteniendo todo lo demás constante; la antigüedad debería restar valor (conviene revisar el signo en vivo); `score_amenities` suma directo.
+
 ---
 
 # Tema 05 — Entrenar y Evaluar sin Trampas: Train/Test y Sobreajuste (Filminas 34-40)
@@ -391,6 +583,72 @@ Dominar la separación de datos es lo que separa a un programador que usa herram
 **Instrucciones completas (del docx)**: utilizar el dataset con el que se trabajó en las unidades anteriores de Scikit-Learn. El objetivo es transformar el script anterior de entrenamiento simple en un flujo de evaluación profesional. **Preparación del Entorno**: cargar el dataset limpio con Pandas, definir `X` (características) e `y` (target). **La Gran División**: usar `train_test_split` con `test_size=0.2` y `random_state` fijo (ej. 42) para reproducibilidad. **Entrenamiento**: crear una instancia de un modelo (regresor o clasificador simple según el dataset) y entrenarlo **únicamente** con `X_train`/`y_train`. **Evaluación Dual**: calcular el `.score()` del modelo sobre train y sobre test. **Análisis Crítico**: comparar ambos resultados, describir si hay Overfitting (puntaje alto en train, bajo en test) o Underfitting (puntaje bajo en ambos), y proponer una acción correctiva (simplificar el modelo, conseguir más datos).
 
 **Errores comunes a evitar (del docx)**: fuga de datos (no entrenar el modelo con el dataset completo antes de evaluarlo); olvidar el `random_state` (si no se fija, cada vez que se envía el trabajo las métricas podrían variar, dificultando la revisión técnica).
+
+**👉 En el Colab — Bloque 3 completo.** Acá el notebook hace exactamente el ejercicio de la Filmina 40, con las 3 demostraciones centrales del tema.
+
+**Baseline (Regresión Lineal). Qué hace en general**: predice sobre train y test por separado, y compara R²/MAE entre ambos.
+```python
+pred_train = modelo.predict(X_train)
+pred_test = modelo.predict(X_test)
+
+print(f"R² train: {r2_score(y_train, pred_train):.3f}   R² test: {r2_score(y_test, pred_test):.3f}")
+print(f"MAE train: {mean_absolute_error(y_train, pred_train):,.0f} €   MAE test: {mean_absolute_error(y_test, pred_test):,.0f} €")
+```
+**Línea por línea:** `modelo.predict(X_train)` y `modelo.predict(X_test)` generan predicciones **por separado** para cada conjunto — es lo que permite comparar "qué tan bien le fue en lo que ya vio" contra "qué tan bien le fue en lo que nunca vio". `r2_score(y_real, y_predicho)` calcula el R² (cuánta variación explica el modelo, 0 a 1) para cada conjunto; `mean_absolute_error(...)` calcula el error promedio en euros. Train y test dan valores parecidos — señal de que el modelo generalizó bien, no memorizó. Sirve de punto de comparación ("baseline") para lo que sigue.
+
+**Overfitting en acción: árbol sin restricciones. Qué hace en general**: entrena un árbol de decisión que puede crecer sin límite, y mide su R²/MAE en train vs. test.
+```python
+arbol_libre = DecisionTreeRegressor(random_state=42)
+arbol_libre.fit(X_train, y_train)
+
+print(f"R² train: {r2_score(y_train, arbol_libre.predict(X_train)):.3f}   R² test: {r2_score(y_test, arbol_libre.predict(X_test)):.3f}")
+print(f"MAE train: {mean_absolute_error(y_train, arbol_libre.predict(X_train)):,.0f} €   MAE test: {mean_absolute_error(y_test, arbol_libre.predict(X_test)):,.0f} €")
+```
+**Línea por línea:** `DecisionTreeRegressor(random_state=42)` instancia un árbol de decisión **sin** el parámetro `max_depth` — sin ese límite, el árbol puede seguir dividiendo el espacio de datos hasta quedarse con una sola fila por hoja, memorizando el train literalmente. `.fit(X_train, y_train)` lo entrena. Los `print` recalculan R²/MAE igual que en el baseline, pero con `arbol_libre.predict(...)` en vez de `modelo.predict(...)`. Resultado: R² de train prácticamente perfecto (memorizó), pero el error en test mucho más alto que el de la Regresión Lineal — es el "estudiante que se memoriza las respuestas": perfecto en la guía de ejercicios, se derrumba en el examen real.
+
+**La solución: limitar la complejidad. Qué hace en general**: repite el mismo árbol, ahora con profundidad máxima limitada.
+```python
+arbol_limitado = DecisionTreeRegressor(max_depth=4, random_state=42)
+arbol_limitado.fit(X_train, y_train)
+
+print(f"R² train: {r2_score(y_train, arbol_limitado.predict(X_train)):.3f}   R² test: {r2_score(y_test, arbol_limitado.predict(X_test)):.3f}")
+print(f"MAE train: {mean_absolute_error(y_train, arbol_limitado.predict(X_train)):,.0f} €   MAE test: {mean_absolute_error(y_test, arbol_limitado.predict(X_test)):,.0f} €")
+```
+**Línea por línea:** `max_depth=4` es la única diferencia respecto a la celda anterior — limita a 4 la cantidad de veces que el árbol puede dividirse en profundidad, forzándolo a quedarse con los patrones generales en vez de los detalles particulares de cada fila. Resultado esperado: train y test quedan mucho más parecidos entre sí que con el árbol libre.
+
+**Tabla comparativa. Qué hace en general**: arma una tabla con los 3 modelos entrenados hasta acá y calcula el "gap" de cada uno.
+```python
+comparacion = pd.DataFrame({
+    "Modelo": ["Regresión lineal", "Árbol SIN restricción", "Árbol max_depth=4"],
+    "R2_train": [
+        r2_score(y_train, pred_train),
+        r2_score(y_train, arbol_libre.predict(X_train)),
+        r2_score(y_train, arbol_limitado.predict(X_train)),
+    ],
+    "R2_test": [
+        r2_score(y_test, pred_test),
+        r2_score(y_test, arbol_libre.predict(X_test)),
+        r2_score(y_test, arbol_limitado.predict(X_test)),
+    ],
+})
+comparacion["gap"] = (comparacion["R2_train"] - comparacion["R2_test"]).round(3)
+comparacion.round(3)
+```
+**Línea por línea:** `pd.DataFrame({...})` arma una tabla de 3 filas (una por modelo) con el nombre del modelo, su R² de train y su R² de test — reutilizando las predicciones ya calculadas en las celdas anteriores, sin volver a entrenar nada. `comparacion["gap"] = (...).round(3)` agrega una cuarta columna con la diferencia `R2_train - R2_test`: cuanto más grande el gap, más sobreajuste.
+
+**La trampa del Data Leakage. Qué hace en general**: agrega a propósito una feature que "filtra" el target, y muestra cómo el R² se dispara de forma sospechosa.
+```python
+features_con_leakage = features + ["precio_por_m2"]
+X_leak = df[features_con_leakage]
+
+X_train_l, X_test_l, y_train_l, y_test_l = train_test_split(X_leak, y, test_size=0.2, random_state=42)
+
+modelo_leak = LinearRegression()
+modelo_leak.fit(X_train_l, y_train_l)
+
+print("R² test CON data leakage:", round(r2_score(y_test_l, modelo_leak.predict(X_test_l)), 4))
+```
+**Línea por línea:** `features_con_leakage = features + ["precio_por_m2"]` arma una nueva lista de features, agregando `precio_por_m2` a las 4 originales. `X_leak = df[features_con_leakage]` selecciona esa tabla ampliada. `train_test_split(X_leak, y, ...)` divide de nuevo en train/test. `LinearRegression().fit(...)` entrena un modelo nuevo (`modelo_leak`) con esa feature de más. El `print` final calcula el R² en test de este modelo "tramposo". **Por qué es una trampa y no un logro**: `precio_por_m2` se calculó dividiendo `precio_eur` por `superficie_m2` — o sea que contiene casi la respuesta escondida adentro. El R² se dispara de forma sospechosa, y esa sospecha es justamente la señal de alarma a entrenar: en la vida real, ese dato ni siquiera existiría todavía al momento de predecir el precio de una propiedad nueva.
 
 ---
 
@@ -460,276 +718,13 @@ Dominar la separación de datos es lo que separa a un programador que usa herram
 
 Cierre de la clase — espacio abierto antes de que el grupo se ponga a trabajar en la Pre-entrega.
 
----
+**👉 En el Colab — Bloque 4, el cierre de la clase.** El ciclo de vida completo de un proyecto de ML (Definición → Datos → Entrenamiento → Evaluación → Despliegue/Inferencia → Monitoreo) es solo texto, sin código nuevo. Las Tareas 2 y 3 del plenario sí tienen celda propia:
 
-## Guía del Notebook
-
-**Estado actual**: el notebook completo ya está construido en [`Clase07.ipynb`](Clase07.ipynb) — Bloque 0 (repaso de Clase 06) + 4 Bloques prácticos que cubren los 6 Temas de esta guía, con horarios sugeridos de clase (0:00 a 1:55) y un solucionario para el docente al final. Dos datasets conviven en el notebook a propósito: `tasa-natalidad-deis-2000-2024.csv` para el repaso de estadística (Bloque 0), y `propiedades_sueca_ml.csv` (precios de propiedades, ya limpio) como el dataset nuevo para entrenar el primer modelo real de la clase. El notebook viejo en `material/Viejo/Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb` (Pipelines + K-Means) queda obsoleto — no coincide con `Clase07.html` ni con `Clase 07.docx`.
-
-### Bloque 0 — Repaso de la Clase 06 (Estadística y Preprocesamiento)
-
-**Por qué arranca acá**: los seis temas de hoy dan por sentado que ya se sabe leer un dato con estadística (ver la sección "Repaso de la Clase 06" más arriba) — antes de que un algoritmo "aprenda" de un dataset, hace falta poder describirlo. Este bloque lo aplica en código real sobre el dataset de natalidad del DEIS (25 años, 25 provincias). Tiene 4 celdas de código, una por pilar.
-
-**Repaso 1 — Limpieza e Integración. Qué hace en general**: carga el dataset, audita si tiene nulos o duplicados, y crea una columna nueva de negocio a partir de una columna numérica existente.
-```python
-import pandas as pd
-import numpy as np
-
-df_raw = pd.read_csv('tasa-natalidad-deis-2000-2024.csv')
-print(f"Filas: {df_raw.shape[0]} (años, de 2000 a 2024) | Columnas: {df_raw.shape[1]} (1 índice de tiempo + 25 provincias)")
-
-nulos = df_raw.isnull().sum().sum()
-duplicados = df_raw.duplicated().sum()
-print(f"Valores nulos totales: {nulos}")
-print(f"Filas duplicadas: {duplicados}")
-
-if nulos == 0 and duplicados == 0:
-    print("👉 Este dataset del DEIS ya llega limpio (0 nulos, 0 duplicados).")
-
-natalidad_2024 = df_raw[df_raw['indice_tiempo'] == '01-01-2024'].drop(columns='indice_tiempo').T
-natalidad_2024.columns = ['natalidad_2024']
-natalidad_2024['categoria_natalidad'] = pd.cut(
-    natalidad_2024['natalidad_2024'],
-    bins=[0, 8.4, 9.7, np.inf],
-    labels=['Baja', 'Media', 'Alta']
-)
-print(natalidad_2024['categoria_natalidad'].value_counts())
-```
-**Línea por línea:** `pd.read_csv('tasa-natalidad-deis-2000-2024.csv')` carga el archivo en un DataFrame (`df_raw`); el `f"Filas: {df_raw.shape[0]}..."` imprime cuántas filas (años) y columnas (provincias) tiene, para verificar que cargó bien. `df_raw.isnull().sum()` cuenta nulos por columna, y el `.sum()` de afuera los suma todos en un solo número total; `.duplicated().sum()` cuenta cuántas filas completas están repetidas. El `if nulos == 0 and duplicados == 0` imprime el mensaje de "ya llega limpio" solo si ambos conteos dieron cero — que es lo que efectivamente pasa con este dataset. Después viene la parte de **Integración**: `df_raw['indice_tiempo'] == '01-01-2024'` filtra la única fila del último año disponible; `.drop(columns='indice_tiempo')` saca la columna de fecha (ya no hace falta, es la única fila); `.T` transpone esa fila única para que cada provincia pase a ser una fila y el valor de natalidad quede en una columna — así se puede clasificar cada provincia individualmente. `natalidad_2024.columns = ['natalidad_2024']` le pone un nombre entendible a esa única columna. `pd.cut(..., bins=[0, 8.4, 9.7, np.inf], labels=['Baja', 'Media', 'Alta'])` es la Integración en sí: crea una columna de categoría de negocio nueva, agrupando el valor numérico continuo en 3 franjas (0 a 8.4 = "Baja", 8.4 a 9.7 = "Media", 9.7 en adelante = "Alta") — una columna que no existía en el archivo original. `.value_counts()` cuenta cuántas provincias cayeron en cada categoría.
-
-**Repaso 2 — Tendencia Central y Dispersión. Qué hace en general**: calcula los 6 estadísticos básicos (media, mediana, desvío, Q1, Q3, IQR) sobre la serie nacional de 25 años, y deduce qué significan esos números en conjunto.
-```python
-serie_nacional = df_raw['natalidad_argentina']
-
-media = serie_nacional.mean()
-mediana = serie_nacional.median()
-std = serie_nacional.std()
-q1 = serie_nacional.quantile(0.25)
-q3 = serie_nacional.quantile(0.75)
-iqr = q3 - q1
-
-print(f"Media (natalidad nacional 2000-2024): {media:.2f}")
-print(f"Mediana: {mediana:.2f}")
-print(f"Desvío estándar: {std:.2f}")
-print(f"IQR (Q3 - Q1): {iqr:.2f} (entre {q1:.2f} y {q3:.2f})")
-```
-**Línea por línea:** `df_raw['natalidad_argentina']` selecciona la columna nacional como una Serie de Pandas, para no repetir `df_raw[...]` en cada cálculo siguiente. `.mean()`, `.median()` y `.std()` calculan los tres estadísticos básicos sobre esos 25 valores. `.quantile(0.25)` y `.quantile(0.75)` devuelven los valores que dejan el 25% y el 75% de los datos por debajo (Q1 y Q3); `iqr = q3 - q1` es la resta que da el ancho de esa caja central. Los cuatro `print(f"...")` solo muestran cada resultado con 2 decimales (`:.2f`). La deducción real que da el notebook: la mediana (17.9) es más alta que la media (16.35) — no por outliers, sino porque la natalidad viene en caída sostenida (hay más años "altos" al principio de la serie que "bajos" al final, y eso desplaza el promedio hacia abajo más de lo que desplaza al valor central).
-
-**Repaso 3 — Distribuciones y Correlación. Qué hace en general**: grafica la forma de la serie nacional (histograma) y calcula qué tan correlacionadas están 3 provincias entre sí (heatmap).
-```python
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-plt.figure(figsize=(12, 4))
-
-plt.subplot(1, 2, 1)
-sns.histplot(serie_nacional, kde=True, bins=10, color='teal')
-plt.axvline(media, color='red', linestyle='--', label=f'Media: {media:.1f}')
-plt.axvline(mediana, color='green', linestyle='--', label=f'Mediana: {mediana:.1f}')
-plt.title('Distribución de la natalidad nacional (2000-2024)')
-plt.legend()
-
-plt.subplot(1, 2, 2)
-provincias_comparar = df_raw[['natalidad_buenos_aires', 'natalidad_cordoba', 'natalidad_santa_fe']]
-matriz_corr = provincias_comparar.corr()
-sns.heatmap(matriz_corr, annot=True, fmt='.2f', cmap='coolwarm', vmin=-1, vmax=1, center=0)
-plt.title('Correlación entre provincias')
-
-plt.tight_layout()
-plt.show()
-
-skew = serie_nacional.skew()
-corr_ba_cba = matriz_corr.loc['natalidad_buenos_aires', 'natalidad_cordoba']
-print(f"Asimetría (skew) de la serie nacional: {skew:.2f}")
-print(f"Correlación Buenos Aires vs. Córdoba: {corr_ba_cba:.2f}")
-```
-**Línea por línea:** `plt.figure(figsize=(12, 4))` abre un lienzo ancho para poner dos gráficos lado a lado. `plt.subplot(1, 2, 1)` selecciona el primer panel (1 fila, 2 columnas, panel 1); `sns.histplot(..., kde=True, bins=10)` dibuja el histograma de la serie nacional con 10 barras y una curva suavizada (KDE) superpuesta, para ver la forma real de la distribución. Las dos líneas `plt.axvline(...)` dibujan una línea vertical roja en la media y una verde en la mediana, directamente sobre el histograma, para comparar ambas visualmente. `plt.subplot(1, 2, 2)` pasa al segundo panel; `provincias_comparar = df_raw[[...]]` selecciona 3 columnas puntuales (nota el doble corchete, que da un DataFrame); `.corr()` calcula la matriz de correlación de Pearson entre esas 3 provincias; `sns.heatmap(..., annot=True, vmin=-1, vmax=1, center=0)` la pinta como cuadrícula de colores con el número exacto escrito adentro (`annot=True`) y la escala fija entre -1 y 1 para que el color sea siempre comparable. `plt.tight_layout()` acomoda los dos paneles para que no se superpongan; `plt.show()` renderiza la figura. Por último, `.skew()` calcula la asimetría de la serie nacional (un número que confirma si la distribución está sesgada), y `matriz_corr.loc[...]` extrae puntualmente el valor de correlación entre Buenos Aires y Córdoba de la matriz ya calculada. La deducción: la correlación entre provincias es altísima (>0.95) porque comparten la misma tendencia demográfica nacional — remarcando que eso es correlación, no causalidad (ver el ejemplo del helado y las piletas, más arriba en esta guía).
-
-**Repaso 4 — Transformación y Reducción. Qué hace en general**: estandariza dos columnas con `StandardScaler` para que queden en la misma escala, y comprime las 25 provincias en 2 componentes principales con `PCA`.
-```python
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-
-columnas_ejemplo = df_raw[['natalidad_buenos_aires', 'natalidad_cordoba']]
-scaler_demo = StandardScaler()
-columnas_escaladas = scaler_demo.fit_transform(columnas_ejemplo)
-
-print("Antes de escalar (media original):")
-print(columnas_ejemplo.mean().round(2).to_dict())
-print("Después de escalar con StandardScaler (media ≈ 0, desvío ≈ 1):")
-print(pd.DataFrame(columnas_escaladas, columns=columnas_ejemplo.columns).describe().loc[['mean', 'std']].round(2))
-
-provincias_T = df_raw.drop(columns='indice_tiempo').T
-X_scaled_demo = StandardScaler().fit_transform(provincias_T)
-pca_demo = PCA(n_components=2)
-pca_demo.fit_transform(X_scaled_demo)
-varianza_total = pca_demo.explained_variance_ratio_.sum() * 100
-
-print(f"Varianza explicada al comprimir 25 años en 2 componentes principales: {varianza_total:.1f}%")
-```
-**Línea por línea:** `columnas_ejemplo = df_raw[[...]]` selecciona Buenos Aires y Córdoba como un mini-DataFrame de 2 columnas. `StandardScaler()` instancia el transformador; `.fit_transform(...)` aprende la media y el desvío de cada columna y aplica la estandarización en el mismo paso, guardando el resultado en `columnas_escaladas` (un array de NumPy, no un DataFrame). Los `print` de "antes"/"después" comparan: `columnas_ejemplo.mean().round(2).to_dict()` muestra la media original de cada columna (números grandes, distintos entre sí); `pd.DataFrame(columnas_escaladas, columns=...).describe().loc[['mean','std']]` reconstruye un DataFrame con esos mismos nombres de columna para poder leer que, tras escalar, la media de ambas quedó en ≈0 y el desvío en ≈1. Para la reducción: `df_raw.drop(columns='indice_tiempo').T` saca la columna de fecha y transpone la tabla — ahora cada **provincia** es una fila, y cada uno de los 25 años es una columna (25 "features" por provincia). `StandardScaler().fit_transform(provincias_T)` escala esa tabla transpuesta (paso obligatorio antes de PCA, por la misma razón de magnitud vista arriba). `PCA(n_components=2)` instancia el reductor pidiendo que comprima todo a 2 componentes; `.fit_transform(...)` aprende esos 2 componentes y transforma los datos (acá no se guarda el resultado transformado, solo interesa cuánta información se conservó). `pca_demo.explained_variance_ratio_` es el atributo aprendido que dice qué proporción de la variabilidad original quedó capturada en cada componente; `.sum() * 100` los suma y pasa a porcentaje. La deducción: escalar es obligatorio antes de PCA o K-Means porque estos algoritmos miden distancias — sin escalar, una columna con números más grandes "pesaría" más en el resultado solo por su magnitud, no porque sea más importante. Este mismo criterio (dividir train/test, ajustar el escalador solo con train) se retoma formalmente en el Bloque 3, con `train_test_split` de Scikit-Learn.
-
-### Bloque 1 — El Mapa de la IA, ML y DL (Temas 01-02, 0:00-0:30)
-
-**Setup inicial. Qué hace en general**: importa todas las librerías que se van a usar en el resto del notebook, y carga el dataset de propiedades.
-```python
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.metrics import mean_absolute_error, r2_score
-
-sns.set_style("whitegrid")
-
-df = pd.read_csv("propiedades_sueca_ml.csv")
-df.head(10)
-```
-**Línea por línea:** los `import` traen, en orden, Pandas/NumPy (datos), Matplotlib/Seaborn (gráficos), y de `sklearn` puntualmente lo que se va a usar hoy: `train_test_split` (dividir datos), `StandardScaler` (escalar), `LinearRegression` y `DecisionTreeRegressor` (los dos modelos de la clase), y `mean_absolute_error`/`r2_score` (las métricas). `sns.set_style("whitegrid")` fija un estilo visual con grilla suave para todos los gráficos que vengan después. `pd.read_csv(...)` carga el dataset en `df`; `.head(10)` muestra las primeras 10 filas para chequear que cargó bien.
-
-**El "rompehielo". Qué hace en general**: muestra 5 filas del dataset sin la columna que hay que predecir, para que el grupo vea el problema antes de que se lo expliquen.
-```python
-df.drop(columns=["precio_eur", "precio_por_m2", "id_propiedad"]).sample(5, random_state=1)
-```
-**Línea por línea:** `.drop(columns=[...])` saca del DataFrame las columnas que serían la "respuesta" (`precio_eur`, `precio_por_m2`) y el identificador (que no es una feature real); `.sample(5, random_state=1)` muestra 5 filas al azar, pero siempre las mismas 5 gracias a la semilla fija. **Pregunta para el grupo, tal como la trae el notebook**: "si tuviera que escribir un programa con reglas fijas (`SI superficie > 100 Y barrio == Centro, ENTONCES precio > 200.000`) para estimar el precio de estas propiedades, ¿cuántas reglas necesitaría? ¿Alcanzaría alguna vez?" — la misma pregunta que abre el Tema 01, pero vivida en código antes de nombrarla.
-
-Sigue con el mapa IA → ML → DL (matrioskas) y los tipos de aprendizaje, todo referido al mismo dataset de propiedades — sin código nuevo, son celdas de texto que retoman lo ya visto en las Filminas 03-15.
-
-**El mini-quiz de tipos de aprendizaje (para resolver oral en el momento)**: el notebook cierra el Bloque 1 con 3 casos para que el grupo diagnostique en vivo, antes de seguir:
-
-- Agrupar clientes de un supermercado por hábitos de compra, sin categorías previas.
-- Predecir si un mail es spam, usando miles de mails ya marcados.
-- Un termostato inteligente que aprende a ahorrar energía probando distintas temperaturas.
-
-**Ojo**: estos son exactamente los 3 casos que después reaparecen como "Tarea 1" en el Solucionario del Bloque 4 (ver más abajo) — el notebook los plantea acá sin responder, y da la respuesta recién al cierre. Si se resuelven ya en el Bloque 1, la Tarea 1 del plenario final queda como repaso en vez de ejercicio nuevo — vale la pena decidir en qué momento conviene resolverlos según el ritmo del grupo.
-
-### Bloque 2 — Scikit-Learn por Dentro (Tema 04, 0:30-1:00)
-
-**División train/test. Qué hace en general**: separa las 4 features y el target, y divide el dataset en 80% train / 20% test.
-```python
-features = ["superficie_m2", "ambientes", "antiguedad_anios", "score_amenities"]
-X = df[features]
-y = df["precio_eur"]
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-print("Filas de entrenamiento:", X_train.shape[0])
-print("Filas de prueba:", X_test.shape[0])
-```
-**Línea por línea:** `features = [...]` define en una lista los 4 nombres de columna que se van a usar como entrada del modelo. `X = df[features]` arma la tabla de features; `y = df["precio_eur"]` selecciona la columna target como una Serie. `train_test_split(X, y, test_size=0.2, random_state=42)` reparte ambas tablas en 4 piezas a la vez (`X_train`, `X_test`, `y_train`, `y_test`), reservando 20% para test y fijando la semilla para que el split sea siempre el mismo. Los dos `print` muestran cuántas filas quedaron de cada lado, usando `.shape[0]`.
-
-**Transformer en acción: StandardScaler. Qué hace en general**: estandariza las 4 features, aprendiendo la media/desvío únicamente del train.
-```python
-scaler = StandardScaler()
-
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-
-print("Media aprendida por columna:", scaler.mean_.round(1))
-print("Forma de X_train_scaled:", X_train_scaled.shape)
-```
-**Línea por línea:** `StandardScaler()` instancia el transformador. `scaler.fit_transform(X_train)` aprende (fit) la media y el desvío de cada una de las 4 columnas mirando **solo** train, y en el mismo paso las transforma. `scaler.transform(X_test)` aplica esas mismas medias/desvíos ya aprendidos sobre test — nota que acá es solo `.transform()`, no `.fit_transform()`, porque el test nunca debe "enseñarle" nada al scaler (regla de oro contra la fuga de información, Filmina 33). `scaler.mean_` es el atributo aprendido (la media de cada columna, calculada con train); `.shape` confirma que la forma de la matriz escalada no cambió, solo sus valores.
-
-**Estimator + Predictor: LinearRegression. Qué hace en general**: entrena una Regresión Lineal (sin escalar, a propósito) y predice sobre test.
-```python
-modelo = LinearRegression()
-
-modelo.fit(X_train, y_train)
-predicciones = modelo.predict(X_test)
-
-print("Primeras 5 predicciones:", predicciones[:5].round(0))
-print("Primeros 5 precios reales:", y_test.values[:5])
-```
-**Línea por línea:** `LinearRegression()` instancia el modelo. `modelo.fit(X_train, y_train)` es el Estimator "estudiando" la relación entre las 4 features y el precio, usando los datos **sin escalar** (`X_train`, no `X_train_scaled`) — el propio notebook aclara que para una regresión lineal simple no hace falta escalar, y así los coeficientes quedan directamente interpretables en euros. `modelo.predict(X_test)` es el Predictor: usa lo aprendido para estimar el precio de las filas de test, que el modelo nunca vio entrenando. Los dos `print` comparan las primeras 5 predicciones contra los 5 precios reales correspondientes, redondeando para que se lean fácil.
-
-**Atributos aprendidos. Qué hace en general**: extrae e interpreta los coeficientes que el modelo aprendió.
-```python
-coeficientes = pd.Series(modelo.coef_, index=features).round(1)
-print(coeficientes)
-
-print("\nIntercepto (precio base):", round(modelo.intercept_))
-```
-**Línea por línea:** `modelo.coef_` es el atributo aprendido (termina en `_`, como marca la Filmina 29) — un array con un coeficiente por feature, en el mismo orden que la lista `features`. `pd.Series(modelo.coef_, index=features)` le pone el nombre de cada feature a su coeficiente correspondiente, para poder leerlo con `print(coeficientes)` en vez de ver un array anónimo de números. `modelo.intercept_` es el otro atributo aprendido: el valor base de la predicción cuando todas las features valen cero. La lectura de negocio que propone el notebook: por cada m² adicional el precio sube esa cantidad de euros, manteniendo todo lo demás constante; la antigüedad debería restar valor (conviene revisar el signo en vivo); `score_amenities` suma directo.
-
-### Bloque 3 — Entrenar y Evaluar sin Trampas (Tema 05, 1:10-1:35)
-
-**Baseline (Regresión Lineal). Qué hace en general**: predice sobre train y test por separado, y compara R²/MAE entre ambos.
-```python
-pred_train = modelo.predict(X_train)
-pred_test = modelo.predict(X_test)
-
-print(f"R² train: {r2_score(y_train, pred_train):.3f}   R² test: {r2_score(y_test, pred_test):.3f}")
-print(f"MAE train: {mean_absolute_error(y_train, pred_train):,.0f} €   MAE test: {mean_absolute_error(y_test, pred_test):,.0f} €")
-```
-**Línea por línea:** `modelo.predict(X_train)` y `modelo.predict(X_test)` generan predicciones **por separado** para cada conjunto — es lo que permite comparar "qué tan bien le fue en lo que ya vio" contra "qué tan bien le fue en lo que nunca vio". `r2_score(y_real, y_predicho)` calcula el R² (cuánta variación explica el modelo, 0 a 1) para cada conjunto; `mean_absolute_error(...)` calcula el error promedio en euros. Train y test dan valores parecidos — señal de que el modelo generalizó bien, no memorizó. Sirve de punto de comparación ("baseline") para lo que sigue.
-
-**Overfitting en acción: árbol sin restricciones. Qué hace en general**: entrena un árbol de decisión que puede crecer sin límite, y mide su R²/MAE en train vs. test.
-```python
-arbol_libre = DecisionTreeRegressor(random_state=42)
-arbol_libre.fit(X_train, y_train)
-
-print(f"R² train: {r2_score(y_train, arbol_libre.predict(X_train)):.3f}   R² test: {r2_score(y_test, arbol_libre.predict(X_test)):.3f}")
-print(f"MAE train: {mean_absolute_error(y_train, arbol_libre.predict(X_train)):,.0f} €   MAE test: {mean_absolute_error(y_test, arbol_libre.predict(X_test)):,.0f} €")
-```
-**Línea por línea:** `DecisionTreeRegressor(random_state=42)` instancia un árbol de decisión **sin** el parámetro `max_depth` — sin ese límite, el árbol puede seguir dividiendo el espacio de datos hasta quedarse con una sola fila por hoja, memorizando el train literalmente. `.fit(X_train, y_train)` lo entrena. Los `print` recalculan R²/MAE igual que en el baseline, pero con `arbol_libre.predict(...)` en vez de `modelo.predict(...)`. Resultado: R² de train prácticamente perfecto (memorizó), pero el error en test mucho más alto que el de la Regresión Lineal — es el "estudiante que se memoriza las respuestas": perfecto en la guía de ejercicios, se derrumba en el examen real.
-
-**La solución: limitar la complejidad. Qué hace en general**: repite el mismo árbol, ahora con profundidad máxima limitada.
-```python
-arbol_limitado = DecisionTreeRegressor(max_depth=4, random_state=42)
-arbol_limitado.fit(X_train, y_train)
-
-print(f"R² train: {r2_score(y_train, arbol_limitado.predict(X_train)):.3f}   R² test: {r2_score(y_test, arbol_limitado.predict(X_test)):.3f}")
-print(f"MAE train: {mean_absolute_error(y_train, arbol_limitado.predict(X_train)):,.0f} €   MAE test: {mean_absolute_error(y_test, arbol_limitado.predict(X_test)):,.0f} €")
-```
-**Línea por línea:** `max_depth=4` es la única diferencia respecto a la celda anterior — limita a 4 la cantidad de veces que el árbol puede dividirse en profundidad, forzándolo a quedarse con los patrones generales en vez de los detalles particulares de cada fila. El resto de la celda repite exactamente el mismo cálculo de R²/MAE. Resultado esperado: train y test quedan mucho más parecidos entre sí que con el árbol libre.
-
-**Tabla comparativa. Qué hace en general**: arma una tabla con los 3 modelos entrenados hasta acá y calcula el "gap" de cada uno.
-```python
-comparacion = pd.DataFrame({
-    "Modelo": ["Regresión lineal", "Árbol SIN restricción", "Árbol max_depth=4"],
-    "R2_train": [
-        r2_score(y_train, pred_train),
-        r2_score(y_train, arbol_libre.predict(X_train)),
-        r2_score(y_train, arbol_limitado.predict(X_train)),
-    ],
-    "R2_test": [
-        r2_score(y_test, pred_test),
-        r2_score(y_test, arbol_libre.predict(X_test)),
-        r2_score(y_test, arbol_limitado.predict(X_test)),
-    ],
-})
-comparacion["gap"] = (comparacion["R2_train"] - comparacion["R2_test"]).round(3)
-comparacion.round(3)
-```
-**Línea por línea:** `pd.DataFrame({...})` arma una tabla de 3 filas (una por modelo) con el nombre del modelo, su R² de train y su R² de test — reutilizando las predicciones ya calculadas en las celdas anteriores, sin volver a entrenar nada. `comparacion["gap"] = (...).round(3)` agrega una cuarta columna con la diferencia `R2_train - R2_test`: cuanto más grande el gap, más sobreajuste. La última línea muestra la tabla completa redondeada a 3 decimales.
-
-**La trampa del Data Leakage. Qué hace en general**: agrega a propósito una feature que "filtra" el target, y muestra cómo el R² se dispara de forma sospechosa.
-```python
-features_con_leakage = features + ["precio_por_m2"]
-X_leak = df[features_con_leakage]
-
-X_train_l, X_test_l, y_train_l, y_test_l = train_test_split(X_leak, y, test_size=0.2, random_state=42)
-
-modelo_leak = LinearRegression()
-modelo_leak.fit(X_train_l, y_train_l)
-
-print("R² test CON data leakage:", round(r2_score(y_test_l, modelo_leak.predict(X_test_l)), 4))
-```
-**Línea por línea:** `features_con_leakage = features + ["precio_por_m2"]` arma una nueva lista de features, agregando `precio_por_m2` a las 4 originales. `X_leak = df[features_con_leakage]` selecciona esa tabla ampliada. `train_test_split(X_leak, y, ...)` divide de nuevo en train/test (con el mismo `random_state=42`, para que la comparación sea justa). `LinearRegression().fit(...)` entrena un modelo nuevo (`modelo_leak`) con esa feature de más. El `print` final calcula el R² en test de este modelo "tramposo". **Por qué es una trampa y no un logro**: `precio_por_m2` se calculó dividiendo `precio_eur` por `superficie_m2` — o sea que contiene casi la respuesta escondida adentro. El R² se dispara de forma sospechosa, y esa sospecha es justamente la señal de alarma a entrenar: en la vida real, ese dato ni siquiera existiría todavía al momento de predecir el precio de una propiedad nueva.
-
-### Bloque 4 — Consolidación Guiada (Temas 03 y 06, 1:35-1:55)
-
-Cierre con el ciclo de vida completo de un proyecto de ML (Definición → Datos → Entrenamiento → Evaluación → Despliegue/Inferencia → Monitoreo, sin código nuevo, solo texto), y 4 tareas para resolver en plenario. Las tareas 2 y 3 tienen celdas de código propias:
-
-**Tarea 2 — interpretar coeficientes. Qué hace en general**: reordena los coeficientes ya calculados en el Bloque 2, de mayor a menor.
+**Tarea 2 — interpretar coeficientes. Qué hace en general**: reordena los coeficientes ya calculados en el Bloque 2 (Tema 04), de mayor a menor.
 ```python
 coeficientes.sort_values(ascending=False)
 ```
-**Línea por línea:** `coeficientes` es la misma `pd.Series` armada en el Bloque 2; `.sort_values(ascending=False)` la reordena de mayor a menor sin modificar los valores — solo cambia el orden en que se muestran, para que sea más fácil leer cuál feature "pesa" más en la predicción.
+**Línea por línea:** `coeficientes` es la misma `pd.Series` armada en el Tema 04; `.sort_values(ascending=False)` la reordena de mayor a menor sin modificar los valores — solo cambia el orden en que se muestran, para que sea más fácil leer cuál feature "pesa" más en la predicción.
 
 **Tarea 3 — diagnóstico a partir de números dados. Qué hace en general**: arma una tabla con 3 modelos ficticios (no entrenados en esta celda) para practicar el diagnóstico de over/underfitting mirando solo números.
 ```python
@@ -741,16 +736,33 @@ casos = pd.DataFrame({
 casos["gap"] = (casos["R2_train"] - casos["R2_test"]).round(2)
 casos
 ```
-**Línea por línea:** a diferencia de la tabla `comparacion` del Bloque 3 (que usaba resultados reales de modelos ya entrenados), acá los números de `R2_train`/`R2_test` están **escritos a mano** — es un ejercicio de diagnóstico puro, no el resultado de ningún `.fit()` en esta celda. `casos["gap"] = (...).round(2)` calcula la misma columna de diferencia que antes. La consigna para el grupo es decidir, mirando solo esos 3 números por fila, cuál caso es Overfitting, cuál Underfitting y cuál el Sweet Spot — sin correr ningún modelo.
+**Línea por línea:** a diferencia de la tabla `comparacion` del Tema 05 (que usaba resultados reales de modelos ya entrenados), acá los números de `R2_train`/`R2_test` están **escritos a mano** — es un ejercicio de diagnóstico puro, no el resultado de ningún `.fit()` en esta celda. `casos["gap"] = (...).round(2)` calcula la misma columna de diferencia que antes. La consigna para el grupo es decidir, mirando solo esos 3 números por fila, cuál caso es Overfitting, cuál Underfitting y cuál el Sweet Spot — sin correr ningún modelo.
 
 Cierra con un **Solucionario** (uso docente) con las respuestas esperadas de las 4 tareas, para tener a mano mientras se conduce el plenario en vivo:
 
-- **Tarea 1** (los 3 casos del mini-quiz del Bloque 1): agrupar clientes sin categorías previas → **No Supervisado** (clustering); predecir spam con mails ya marcados → **Supervisado** (clasificación); termostato que prueba y aprende de la reacción → **Por Refuerzo**.
-- **Tarea 2** (coeficientes): la lectura esperada es que `superficie_m2` y `score_amenities` suman valor, `antiguedad_anios` resta. `ambientes` puede dar un coeficiente chico o levemente negativo controlando por superficie — el notebook aclara que es un caso de **multicolinealidad** (una propiedad más grande ya "trae" más ambientes, así que la variable superficie ya captura buena parte de esa información).
+- **Tarea 1** (los 3 casos del mini-quiz al cierre del Tema 02): agrupar clientes sin categorías previas → **No Supervisado** (clustering); predecir spam con mails ya marcados → **Supervisado** (clasificación); termostato que prueba y aprende de la reacción → **Por Refuerzo**.
+- **Tarea 2** (coeficientes): la lectura esperada es que `superficie_m2` y `score_amenities` suman valor, `antiguedad_anios` resta. `ambientes` puede dar un coeficiente chico o levemente negativo controlando por superficie — caso de **multicolinealidad** (una propiedad más grande ya "trae" más ambientes, así que la variable superficie ya captura buena parte de esa información).
 - **Tarea 3** (diagnóstico): Modelo A (R² train 0.95, test 0.93, gap 0.02) → **Sweet Spot**, generaliza bien. Modelo B (R² train 0.55, test 0.52, gap 0.03) → **Underfitting** — el gap es chico, pero el error es alto en ambos, señal de que el modelo es demasiado simple. Modelo C (R² train 0.99, test 0.61, gap 0.38) → **Overfitting**, memorizó el train.
 - **Tarea 4** (consigna abierta, próximo paso ante overfitting): no hay una única respuesta correcta — opciones válidas que puede proponer el grupo: reducir la complejidad del modelo (bajar `max_depth`, menos features), conseguir más datos de entrenamiento, aplicar regularización (Ridge/Lasso), usar validación cruzada para elegir mejor los hiperparámetros, o eliminar features irrelevantes o correlacionadas entre sí.
 
 **Nota sobre la Pre-entrega y el Podcast**: el notebook cierra mencionando que en la Pre-entrega de esta semana no se programa un modelo, sino que se "piensa como Data Scientist" (exactamente la Filmina 27) — y recomienda escuchar el Podcast del módulo como repaso antes de encararla. Ese podcast es contenido de audio de `Clase 07.docx` que se decidió **no** convertir en filminas (a diferencia de los 6 Temas, que sí están 1 a 1 en `Clase07.html`) — por eso no tiene una sección propia en esta guía.
+
+---
+
+## Guía del Notebook — Referencia Rápida
+
+**Estado del notebook**: [`Clase07.ipynb`](Clase07.ipynb) — Bloque 0 (repaso de Clase 06) + 4 Bloques prácticos, con horarios sugeridos de clase (0:00 a 1:55) y un solucionario para el docente al final. Dos datasets: `tasa-natalidad-deis-2000-2024.csv` para el repaso de estadística (Bloque 0), y `propiedades_sueca_ml.csv` como el dataset nuevo para entrenar el primer modelo real de la clase. El notebook viejo en `material/Viejo/Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb` (Pipelines + K-Means) queda obsoleto.
+
+**Todo el código ya está explicado, intercalado con la teoría de cada tema** (no repetido acá aparte). Para ubicarlo rápido:
+
+| Bloque del Colab | Dónde está explicado en esta guía |
+|---|---|
+| Bloque 0 (Repaso 1-4) | Sección "Repaso de la Clase 06", al principio |
+| Bloque 1 (Setup + Rompehielo) | Final del Tema 01 |
+| Bloque 1 (Mini-quiz) | Final del Tema 02 |
+| Bloque 2 (Split, Scaler, Regresión, Coeficientes) | Final del Tema 04 |
+| Bloque 3 (Baseline, Árboles, Tabla, Data Leakage) | Final del Tema 05 |
+| Bloque 4 (Tareas 2 y 3 + Solucionario) | Final del Tema 06, justo arriba |
 
 ---
 
