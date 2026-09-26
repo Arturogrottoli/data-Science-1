@@ -28,11 +28,29 @@ Esta guía es el **libreto completo para dictar la Clase 07**: reúne toda la te
 
 ---
 
+## Repaso de la Clase 06 — Estadística y Preprocesamiento
+
+Antes de entrar a la Clase 07, conviene tener fresco lo que se vio en Clase 06 — es el terreno sobre el que se apoya todo lo de hoy: **para que un algoritmo "aprenda" de un dataset, primero hace falta poder describirlo con estadística.** Esto es exactamente lo que hace el Bloque 0 del notebook (ver "Guía del Notebook" más abajo), sobre el dataset real de natalidad del DEIS. Los cuatro pilares que se repasan:
+
+1. **Limpieza e Integración**: ningún dataset real llega listo para analizar. **Limpiar** significa decidir qué hacer con nulos (imputarlos con la media/mediana si son numéricos, con la moda o una etiqueta de negocio si son categóricos) y con duplicados (eliminarlos) — sin borrar a ciegas, porque un nulo puede tener una causa de negocio válida detrás. **Integrar** significa combinar o derivar columnas nuevas a partir de las existentes, para que la información cruda se vuelva accionable.
+
+2. **Medidas de Tendencia Central y Dispersión**: la **tendencia central** responde "¿dónde está el centro de los datos?" — la **media** (sensible a valores extremos), la **mediana** (el valor que deja 50% de los datos a cada lado, no sensible a extremos) y la **moda** (el valor más frecuente). Cuando media y mediana difieren mucho, es señal de asimetría o de outliers. La **dispersión** responde "¿qué tan esparcidos están?" — el **desvío estándar** mide la variación promedio respecto a la media, y el **IQR** (rango intercuartílico, Q3 − Q1) mide el ancho del 50% central de los datos, siendo más robusto frente a outliers.
+
+3. **Distribuciones y Correlación**: la **distribución** es la forma que toman los datos al graficarlos (histograma) — simétrica (campana/Normal) o sesgada a la izquierda/derecha. La **correlación** (coeficiente de Pearson, entre -1 y 1) mide qué tan asociadas linealmente están dos variables numéricas: cerca de 1 suben juntas, cerca de -1 una sube cuando la otra baja, cerca de 0 no hay relación lineal. Regla de oro que se repite todo el curso: **correlación no implica causalidad**.
+
+4. **Transformación y Reducción de Dimensionalidad**: para que un algoritmo matemático procese los datos hace falta **transformarlos** — convertir texto a números y llevar las variables numéricas a una escala comparable (`StandardScaler`), porque los modelos basados en distancias son sensibles a la magnitud de cada columna. Cuando hay muchas columnas, **PCA** permite comprimirlas en unas pocas dimensiones que conservan la mayor parte de la variabilidad original.
+
+**Por qué este repaso es más que un trámite**: el punto (4) —escalar antes de medir distancias, y ajustar el escalador solo con los datos de entrenamiento— es literalmente la misma regla de oro que se retoma formalmente hoy en el Tema 05 (Data Leakage). No es contenido nuevo disfrazado de repaso: es el mismo concepto, primero en estadística pura y después aplicado a Machine Learning.
+
+---
+
 ## Introducción con las Filminas
 
 ## Filmina 01 — Portada
 
 Apertura de la clase. El subtítulo ya anticipa el arco del día: arrancamos con el mapa conceptual completo de la IA (Tema 01) y terminamos con el primer código ejecutable de Scikit-Learn (Temas 04-05) — de la teoría más abstracta a la herramienta más concreta, en una sola clase. Recorrido rápido de los 6 temas antes de arrancar, para que la clase tenga un mapa mental de adónde va cada bloque: **(1)** el mapa de la IA, **(2)** los tres tipos de aprendizaje, **(3)** aplicaciones prácticas y la Pre-entrega, **(4)** Scikit-Learn por dentro, **(5)** train/test y sobreajuste, **(6)** un segundo repaso de aplicaciones, ahora con el ciclo de vida completo de un proyecto.
+
+**La misma introducción, del lado del notebook**: `Clase07.ipynb` abre con su propio resumen del día — *"Dataset: `propiedades_sueca_ml.csv`, la continuación de la 'valija' de la clase pasada, ya limpia y lista para entrenar un primer modelo"* — y un recorrido en 4 bloques que comprime los 6 Temas de las filminas en una lógica de práctica: **(1)** el mapa de la IA/ML/DL y los tipos de aprendizaje, **(2)** Scikit-Learn por dentro, **(3)** entrenar y evaluar sin trampas, **(4)** consolidación y ciclo de vida completo. Vale la pena mostrar esta misma diapositiva de apertura junto con la introducción del notebook, para que quede clara la correspondencia: el notebook no es "otro tema", es la bajada práctica de las mismas 6 paradas, solo que agrupadas de a dos.
 
 ---
 
@@ -425,38 +443,120 @@ Cierre de la clase — espacio abierto antes de que el grupo se ponga a trabajar
 
 ## Guía del Notebook
 
-**Estado actual**: el notebook completo ya está construido en [`Clase07.ipynb`](Clase07.ipynb) — Bloque 0 (repaso de Clase 06) + 4 Bloques prácticos que cubren los 6 Temas de esta guía, con horarios sugeridos de clase (0:00 a 1:55) y un solucionario para el docente al final. Dos datasets conviven en el notebook a propósito: `tasa-natalidad-deis-2000-2024.csv` para el repaso de estadística (Bloque 0, el mismo dataset ya conocido de Clase 06), y `propiedades_sueca_ml.csv` (precios de propiedades, ya limpio) como el dataset nuevo para entrenar el primer modelo real de la clase. El notebook viejo en `material/Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb` (Pipelines + K-Means) queda obsoleto — no coincide con `Clase07.html` ni con `Clase 07.docx`.
+**Estado actual**: el notebook completo ya está construido en [`Clase07.ipynb`](Clase07.ipynb) — Bloque 0 (repaso de Clase 06) + 4 Bloques prácticos que cubren los 6 Temas de esta guía, con horarios sugeridos de clase (0:00 a 1:55) y un solucionario para el docente al final. Dos datasets conviven en el notebook a propósito: `tasa-natalidad-deis-2000-2024.csv` para el repaso de estadística (Bloque 0, el mismo dataset ya conocido de Clase 06), y `propiedades_sueca_ml.csv` (precios de propiedades, ya limpio) como el dataset nuevo para entrenar el primer modelo real de la clase. El notebook viejo en `material/Viejo/Clase_7_Fundamentos_de_Ciencia_de_Datos_1_.ipynb` (Pipelines + K-Means) queda obsoleto — no coincide con `Clase07.html` ni con `Clase 07.docx`.
 
 ### Bloque 0 — Repaso de la Clase 06 (Estadística y Preprocesamiento)
 
-**Por qué arranca acá**: los seis temas de hoy dan por sentado que ya se sabe leer un dato con estadística — antes de que un algoritmo "aprenda" de un dataset, hace falta poder describirlo. Este bloque repasa, sobre el dataset real de natalidad del DEIS, los cuatro pilares de Clase 06:
+**Por qué arranca acá**: los seis temas de hoy dan por sentado que ya se sabe leer un dato con estadística (ver la sección "Repaso de la Clase 06" más arriba) — antes de que un algoritmo "aprenda" de un dataset, hace falta poder describirlo. Este bloque lo aplica en código real sobre el dataset de natalidad del DEIS (25 años, 25 provincias).
 
-1. **Limpieza e Integración**: `isnull().sum()`, `duplicated()`, y una variable derivada de negocio con `pd.cut()`.
-2. **Tendencia Central y Dispersión**: `.mean()`, `.median()`, `.std()`, `.quantile()` e IQR — con una deducción real (la mediana de natalidad nacional es más alta que la media, por la caída sostenida a lo largo de los años, no por outliers).
-3. **Distribuciones y Correlación**: `sns.histplot(kde=True)`, `.skew()`, `.corr()` + `sns.heatmap()` — comparando la natalidad de Buenos Aires, Córdoba y Santa Fe.
-4. **Transformación y Reducción**: `StandardScaler` y `PCA`, cerrando con la regla de oro que se retoma formalmente en el Bloque 3 (Data Leakage): ajustar el escalador solo con train.
+**Ejemplo 1 — Tendencia Central y Dispersión:**
+```python
+serie_nacional = df_raw['natalidad_argentina']
+
+media = serie_nacional.mean()
+mediana = serie_nacional.median()
+std = serie_nacional.std()
+q1 = serie_nacional.quantile(0.25)
+q3 = serie_nacional.quantile(0.75)
+iqr = q3 - q1
+```
+**Línea por línea:** `.mean()`, `.median()` y `.std()` calculan los tres estadísticos básicos sobre la serie completa de 25 años. `.quantile(0.25)` y `.quantile(0.75)` devuelven los valores que dejan el 25% y el 75% de los datos por debajo (Q1 y Q3); `iqr = q3 - q1` es el ancho de esa caja central. La deducción real que da el notebook: la mediana (17.9) es más alta que la media (16.35) — no por outliers, sino porque la natalidad viene en caída sostenida (hay más años "altos" al principio de la serie que "bajos" al final, y eso desplaza el promedio hacia abajo más de lo que desplaza al valor central).
+
+**Ejemplo 2 — Distribuciones y Correlación:**
+```python
+sns.histplot(serie_nacional, kde=True, bins=10, color='teal')
+...
+matriz_corr = provincias_comparar.corr()
+sns.heatmap(matriz_corr, annot=True, fmt='.2f', cmap='coolwarm', vmin=-1, vmax=1, center=0)
+```
+**Línea por línea:** `sns.histplot(..., kde=True)` dibuja el histograma de la serie nacional con una curva suavizada (KDE) superpuesta, para ver la forma real de la distribución. `.corr()` calcula la matriz de correlación de Pearson entre Buenos Aires, Córdoba y Santa Fe; `sns.heatmap(...)` la pinta como cuadrícula de colores, con `vmin=-1, vmax=1` para que la escala de color sea siempre comparable. La deducción: la correlación entre provincias es altísima (>0.95) porque comparten la misma tendencia demográfica nacional — remarcando que eso es correlación, no causalidad.
+
+**Ejemplo 3 — Transformación:**
+```python
+scaler_demo = StandardScaler()
+columnas_escaladas = scaler_demo.fit_transform(columnas_ejemplo)
+```
+**Línea por línea:** `StandardScaler()` instancia el transformador; `.fit_transform(...)` aprende la media y el desvío de cada columna y aplica la estandarización en el mismo paso — dejando cada columna con media ≈ 0 y desvío ≈ 1. Es el mismo objeto (`StandardScaler`) que reaparece en los Bloques 2 y 3, ahora aplicado a un modelo de verdad.
 
 ### Bloque 1 — El Mapa de la IA, ML y DL (Temas 01-02, 0:00-0:30)
 
-Arranca con un "rompehielo": mostrar 5 filas del dataset de propiedades **sin** la columna `precio_eur`, para que el grupo note que sin etiqueta no hay forma de "adivinar" qué se está prediciendo — la misma idea de la Filmina 12 (la Señal de Aprendizaje), pero mostrada antes de nombrarla. Sigue con el mapa IA → ML → DL (matrioskas) y los tipos de aprendizaje, todo referido al mismo dataset de propiedades.
+**El "rompehielo" (código real del notebook):**
+```python
+df.drop(columns=["precio_eur", "precio_por_m2", "id_propiedad"]).sample(5, random_state=1)
+```
+**Línea por línea:** `.drop(columns=[...])` saca del DataFrame las columnas que serían la "respuesta" (`precio_eur`, `precio_por_m2`) y el identificador (que no es una feature real); `.sample(5, random_state=1)` muestra 5 filas al azar, pero fijas gracias a la semilla. **Por qué esto va primero, antes de cualquier definición**: el grupo ve la tabla sin poder adivinar el precio, y ahí se les pregunta "si tuvieran que escribir reglas fijas para estimarlo, ¿cuántas necesitarían?" — la misma pregunta que abre el Tema 01, pero vivida en código antes de nombrarla.
+
+Sigue con el mapa IA → ML → DL (matrioskas) y los tipos de aprendizaje, todo referido al mismo dataset de propiedades — sin código nuevo, son celdas de texto que retoman lo ya visto en las Filminas 03-16.
 
 ### Bloque 2 — Scikit-Learn por Dentro (Tema 04, 0:30-1:00)
 
-Código real: `StandardScaler` como **Transformer** (`fit_transform` en train) y `LinearRegression` como **Estimator/Predictor**, entrenando sobre `superficie_m2`, `ambientes`, `antiguedad_anios` y `score_amenities` para predecir `precio_eur`. Muestra los atributos aprendidos (`modelo.coef_`, `modelo.intercept_`) e interpreta cada coeficiente en términos de negocio ("por cada m² adicional, el precio sube...").
+**División train/test y Transformer:**
+```python
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)   # fit_transform en train
+X_test_scaled = scaler.transform(X_test)         # SOLO transform en test
+```
+**Línea por línea:** igual que en el Bloque 0, pero ahora con la regla de oro explícita en el comentario del propio notebook: `fit_transform` en train (aprende y aplica), `transform` solamente en test (aplica lo ya aprendido, sin volver a "estudiar"). Es la puesta en práctica literal de la Filmina 34 ("Cuidado con el Fit").
+
+**Estimator + Predictor:**
+```python
+modelo = LinearRegression()
+modelo.fit(X_train, y_train)          # fit: el modelo "estudia" la relación entre features y precio
+predicciones = modelo.predict(X_test) # predict: usamos lo aprendido sobre datos nuevos
+```
+**Nota del propio notebook**: para esta Regresión Lineal no se escalan los features — no hace falta, y así los coeficientes quedan directamente interpretables en euros (con KNN o una regresión regularizada sí haría falta escalar).
+
+**Atributos aprendidos:**
+```python
+coeficientes = pd.Series(modelo.coef_, index=features).round(1)
+print(coeficientes)
+print("\nIntercepto (precio base):", round(modelo.intercept_))
+```
+**Línea por línea:** `modelo.coef_` es el atributo aprendido (termina en `_`, como marca la Filmina 30) — un coeficiente por feature; `pd.Series(..., index=features)` le pone nombre a cada número para poder leerlo. La lectura de negocio que propone el notebook: por cada m² adicional el precio sube esa cantidad de euros, manteniendo todo lo demás constante; la antigüedad debería restar valor (conviene revisar el signo en vivo); `score_amenities` suma directo.
 
 ### Bloque 3 — Entrenar y Evaluar sin Trampas (Tema 05, 1:10-1:35)
 
-El bloque más denso, con tres demostraciones en código real:
+**Baseline (Regresión Lineal) — R² y MAE en train vs. test:**
+```python
+print(f"R² train: {r2_score(y_train, pred_train):.3f}   R² test: {r2_score(y_test, pred_test):.3f}")
+```
+Train y test dan valores parecidos — señal de que el modelo generalizó, no memorizó. Sirve de punto de comparación para lo que sigue.
 
-- **R² y MAE** en train vs. test para la Regresión Lineal — como generaliza bien, sirve de punto de comparación ("baseline").
-- **Overfitting en acción**: un `DecisionTreeRegressor` sin `max_depth` (memoriza el train, R² casi perfecto, pero falla en test) contra el mismo árbol con `max_depth=4` — el contraste numérico exacto entre "el estudiante que memoriza" y el "sweet spot", con una tabla comparativa de los 3 modelos.
-- **La trampa del Data Leakage**: usar `precio_por_m2` (calculada a partir del propio `precio_eur`) como feature — el R² se dispara de forma sospechosa, y esa sospecha es justamente la señal de alarma que hay que aprender a reconocer.
+**Overfitting en acción — el contraste central del bloque:**
+```python
+arbol_libre = DecisionTreeRegressor(random_state=42)  # sin max_depth: crece sin límite
+arbol_libre.fit(X_train, y_train)
+# R² train: prácticamente perfecto | R² test: mucho más bajo
+
+arbol_limitado = DecisionTreeRegressor(max_depth=4, random_state=42)
+arbol_limitado.fit(X_train, y_train)
+# R² train y test: mucho más parecidos entre sí
+```
+**Línea por línea:** `DecisionTreeRegressor(random_state=42)` sin `max_depth` puede crecer sin límite hasta memorizar cada fila del train — es el "estudiante que se memoriza las respuestas". `max_depth=4` limita cuántas veces se puede dividir el árbol, forzándolo a quedarse con los patrones generales en vez de los detalles particulares de cada fila. El propio notebook arma después una tabla comparando los 3 modelos (Regresión Lineal, árbol libre, árbol limitado) con una columna `gap` (`R2_train - R2_test`): cuanto más grande el gap, más sobreajuste.
+
+**La trampa del Data Leakage:**
+```python
+# ERROR A PROPÓSITO: precio_por_m2 se calculó A PARTIR de precio_eur
+features_con_leakage = features + ["precio_por_m2"]
+...
+print("R² test CON data leakage:", round(r2_score(y_test_l, modelo_leak.predict(X_test_l)), 4))
+```
+**Por qué es una trampa y no un logro**: `precio_por_m2` se calculó dividiendo `precio_eur` por `superficie_m2` — o sea que contiene casi la respuesta escondida adentro. El R² se dispara de forma sospechosa, y esa sospecha es justamente la señal de alarma a entrenar: en la vida real, ese dato ni siquiera existiría todavía al momento de predecir el precio de una propiedad nueva.
 
 ### Bloque 4 — Consolidación Guiada (Temas 03 y 06, 1:35-1:55)
 
-Cierre con el ciclo de vida completo de un proyecto de ML, y tres tareas guiadas para resolver en plenario: interpretar coeficientes en términos de negocio, diagnosticar overfitting/underfitting/sweet-spot a partir de números dados (3 casos), y proponer el próximo paso ante un modelo sobreajustado. Cierra con un **Solucionario** (uso docente) con las respuestas esperadas de las 4 tareas, para tener a mano mientras se conduce el plenario.
+Cierre con el ciclo de vida completo de un proyecto de ML (Definición → Datos → Entrenamiento → Evaluación → Despliegue/Inferencia → Monitoreo), y 4 tareas para resolver en plenario:
 
-**Nota sobre la Pre-entrega**: el notebook menciona "en la pre-entrega de esta semana..." al cierre — es el mismo entregable "Aplicaciones Prácticas de ML" del Tema 03 de esta guía, no un ejercicio nuevo.
+1. Tipos de aprendizaje sobre 3 mini-casos nuevos.
+2. Interpretar `coeficientes.sort_values(ascending=False)` en términos de negocio.
+3. Diagnosticar Overfitting/Underfitting/Sweet Spot a partir de una tabla de 3 modelos con R² dados (sin volver a entrenar nada — puro diagnóstico de números).
+4. Proponer el próximo paso ante un modelo sobreajustado (consigna abierta).
+
+Cierra con un **Solucionario** (uso docente) con las respuestas esperadas de las 4 tareas — incluye, por ejemplo, la lectura completa de la Tarea 3 (Modelo A: gap 0.02 → Sweet Spot; Modelo B: R² bajo en ambos → Underfitting; Modelo C: gap 0.38 → Overfitting) para tener a mano mientras se conduce el plenario en vivo.
+
+**Nota sobre la Pre-entrega y el Podcast**: el notebook cierra mencionando que en la Pre-entrega de esta semana no se programa un modelo, sino que se "piensa como Data Scientist" (exactamente la Filmina 28) — y recomienda escuchar el Podcast del módulo como repaso antes de encararla. Ese podcast es contenido de audio de `Clase 07.docx` que se decidió **no** convertir en filminas (a diferencia de los 6 Temas, que sí están 1 a 1 en `Clase07.html`) — por eso no tiene una sección propia en esta guía.
 
 ---
 
