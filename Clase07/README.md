@@ -343,6 +343,20 @@ Con este mapa ya armado, el resto de la clase se apoya en él: el Tema 02 profun
 
 **👉 En el Colab — Bloque 1, primeras dos celdas.** Acá arranca la parte práctica: setup del notebook y el "rompehielo" que vive en el dataset de propiedades, antes de seguir con el Tema 02.
 
+**Qué es `propiedades_sueca_ml.csv` (el dataset nuevo de hoy, para tener el contexto antes de ver cualquier número)**: son 300 propiedades en venta en Sueca, una localidad costera de Valencia, España — ya limpio y listo para entrenar (a diferencia del de natalidad, este no se usó en el Repaso, es específico de la parte de Machine Learning). Cada fila es una propiedad, con estas columnas:
+
+| Columna | Qué es |
+|---|---|
+| `id_propiedad` | Identificador único de la propiedad — no es una feature real, solo sirve para referenciar la fila. |
+| `barrio` | La zona dentro de Sueca: Playa, Centro, Mareny, Poble Nou, Els Racons o Estació. |
+| `superficie_m2` | Metros cuadrados de la propiedad (van de 35 a 166 en este dataset). |
+| `ambientes` | Cantidad de ambientes/habitaciones. |
+| `antiguedad_anios` | Antigüedad de la construcción, en años. |
+| `con_cochera` / `con_balcon` | Indicadores 0/1: si la propiedad tiene cochera y/o balcón. |
+| `score_amenities` | Un puntaje de 0 a 2 que resume comodidades (probablemente la suma de `con_cochera` + `con_balcon`). |
+| `precio_eur` | El precio de venta en euros (entre 45.000 y 245.800) — **esta es la columna que se va a predecir** en todo lo que sigue. |
+| `precio_por_m2` | Precio dividido por superficie — **ojo con esta**: se calculó *a partir* del precio, así que usarla como feature sería hacer trampa (es justamente la trampa de Data Leakage que se ve más adelante, en el Tema 05). |
+
 **Antes del código, un repaso de qué es Scikit-Learn** (ya se lo nombró de pasada en el Repaso de Clase 06, con `StandardScaler` y `PCA`): es la librería estándar de Python para Machine Learning — reúne, ya implementados, probados y optimizados, los algoritmos de preprocesamiento (escalado), los **modelos** que hacen predicciones (regresión, clasificación, árboles de decisión) y las **métricas** para medir qué tan bien funcionan, todo bajo la misma lógica de tres pasos que se formaliza recién en el Tema 04: **instanciar** el objeto, **ajustarlo** con `.fit()` (aprende de los datos), y **aplicarlo** con `.transform()` o `.predict()`. Hasta ahora solo se había visto la parte de preprocesamiento de esta librería; en el setup de abajo aparecen, por primera vez, los **modelos** (`LinearRegression`, `DecisionTreeRegressor`) y las **métricas** (`mean_absolute_error`, `r2_score`) — el kit completo que se usa en el resto de la clase.
 
 **Setup inicial. Qué hace en general**: importa todas las librerías que se van a usar en el resto del notebook, y carga el dataset de propiedades.
@@ -383,11 +397,30 @@ df.drop(columns=["precio_eur", "precio_por_m2", "id_propiedad"]).sample(5, rando
 
 **Un cuarto ejemplo de la misma analogía, en un dominio bien distinto al de las frutas**: pensá en tres formas de aprender a jugar al ajedrez. **Supervisado** sería estudiar miles de partidas ya jugadas por grandes maestros, viendo qué jugada siguió a cada posición del tablero. **No Supervisado** sería mirar miles de partidas y notar que ciertos patrones de apertura se repiten, sin que nadie te diga cuáles son "buenos" o "malos" movimientos. **Por Refuerzo** sería jugar partida tras partida contra un rival, ganando o perdiendo, y ajustar la estrategia según el resultado — sin estudiar ninguna partida ajena de antemano. Este último es, de hecho, exactamente cómo aprendió AlphaGo a jugar al Go (se retoma con más detalle en la Filmina 14).
 
+**Dos ejemplos más, cortitos, por si con el de las frutas y el ajedrez todavía no termina de cerrar la idea:**
+
+- **Manejar un auto**: Supervisado es un instructor corrigiéndote en cada maniobra, comparando lo que hiciste contra lo que "hay que hacer". No Supervisado es notar, mirando el tráfico de una ciudad nueva sin que nadie te explique nada, que hay patrones de comportamiento que se repiten. Por Refuerzo es aprender a estacionar en paralelo probando una y otra vez, chocando o no un cono, hasta perfeccionar el movimiento.
+- **Organizar una biblioteca**: Supervisado es recibir una lista con el género ya asignado a cada libro (Ficción, Historia, Ciencia) y aprender a clasificar libros nuevos según esas mismas categorías. No Supervisado es recibir miles de libros sin ninguna etiqueta y agruparlos vos mismo por temas que notás en común. Por Refuerzo es un sistema que prueba distintos ordenamientos de estantería y recibe una señal positiva cada vez que un usuario encuentra rápido lo que busca.
+
 **Pregunta para tirar a la clase, antes de nombrar los tres paradigmas formalmente**: de las tres estrategias con las frutas, ¿cuál te parece que un niño aprendería más rápido? ¿Y cuál requiere más trabajo de preparación *antes* de siquiera empezar a enseñar?
+
+**Respuesta esperada (para tener un esbozo a mano, no solo para que quede abierta)**: probablemente **aprende más rápido** con la manzana señalada y nombrada una y otra vez (el método Supervisado) — tiene una respuesta correcta explícita en cada ejemplo, así que no tiene que inferir nada por su cuenta, solo memorizar la asociación. Agrupar frutas por parecido (No Supervisado) puede ser rápido para notar que "hay grupos", pero el niño todavía no sabe cómo se *llama* cada fruta — aprendió una estructura, no una respuesta. Aprender en el huerto a pura prueba y error (Por Refuerzo) es probablemente el más lento de los tres: exige cometer errores (agarrar una fruta verde o podrida) antes de descubrir el patrón de "qué hace que una fruta esté madura".
+
+Y acá aparece la tensión interesante, la que vale la pena remarcar: **requiere más preparación previa** justo el método que aprende más rápido — el Supervisado. Alguien (un experto) tuvo que juntar y etiquetar cada ejemplo de antemano, diciendo explícitamente "esto ES una manzana" — es el mismo "costo del etiquetado" que se retoma más adelante, en el Tema 03. El No Supervisado, en cambio, no necesita ninguna etiqueta previa: alcanza con juntar la cesta de frutas mezcladas, sin trabajo extra de preparación. El Por Refuerzo tampoco necesita un dataset preparado de antemano, pero sí exige diseñar con cuidado el "entorno" (el huerto) y la regla de premios ("dale algo rico si la fruta está madura") — un tipo distinto de trabajo previo, de diseño y no de etiquetado.
+
+**La conclusión que vale la pena que se lleve la clase**: el método que aprende más rápido no es gratis — exige más trabajo humano antes de arrancar. No hay una estrategia "mejor" en abstracto, hay un trade-off entre cuánto se tarda en preparar el aprendizaje y cuánto se tarda el aprendizaje en sí — la misma decisión que un Data Scientist enfrenta al elegir entre los tres paradigmas en un proyecto real.
 
 ## Filmina 11 — El Concepto de "la Señal de Aprendizaje"
 
 **Teoría completa (1. El concepto de "La Señal de Aprendizaje", del docx)**: antes de profundizar, hace falta entender un concepto clave: la **etiqueta (label)**. En Data Science se suele trabajar con tablas. Imaginá una tabla de datos de departamentos en alquiler: las **Features (Características o Entradas)** son las columnas como metros cuadrados, cantidad de habitaciones, barrio, tiene balcón — la información que se usa para alimentar al modelo. El **Label (Etiqueta o Salida)** es el resultado que se quiere predecir, por ejemplo el precio del alquiler. La presencia o ausencia de esta "etiqueta" es lo que define, en gran medida, ante qué tipo de aprendizaje se está.
+
+**Más ejemplos de Features/Label, en dominios distintos al de los departamentos** (para que el patrón quede claro más allá de un solo caso):
+
+- **Hospital**: Features = edad del paciente, síntomas registrados, resultados de análisis de sangre. Label = si el paciente tiene o no una enfermedad determinada (el caso de la Filmina 19).
+- **E-commerce**: Features = historial de compras, tiempo en el sitio, dispositivo usado. Label = si el usuario compra o no en esa visita.
+- **Nuestro propio dataset de propiedades (Bloque 1 del Colab)**: Features = `superficie_m2`, `ambientes`, `antiguedad_anios`, `score_amenities`. Label = `precio_eur` — el mismo par que se va a usar en el código, del Bloque 2 en adelante.
+
+**Un ejercicio mental rápido para fijar la idea**: en la tabla de propiedades, si en vez de predecir el precio quisiéramos simplemente **agrupar** propiedades parecidas entre sí (sin decirle al modelo cuál es el precio de ninguna), `precio_eur` dejaría de ser el Label — pasaría a ser una feature más, o directamente se podría sacar de la tabla. El **mismo dataset**, con o sin esa columna marcada como "la respuesta", cambia de Supervisado a No Supervisado. La tabla no cambia; lo que cambia es qué se decide hacer con ella.
 
 ## Filmina 12 — Aprendizaje Supervisado: "el Estudiante con Profesor"
 
@@ -396,6 +429,10 @@ df.drop(columns=["precio_eur", "precio_por_m2", "id_propiedad"]).sample(5, rando
 Las dos grandes tareas:
 - **Clasificación**: predice una categoría o clase discreta (Sí/No, A/B/C). Ejemplo real: **Detección de Spam en Gmail** — el "profesor" le dio a Google millones de correos marcados manualmente como "Spam" o "No Spam". El modelo aprendió que palabras como "Gratis", "Gane dinero ya" o remitentes extraños suelen ser Spam.
 - **Regresión**: predice un valor numérico continuo. Ejemplo real: **Precio de una vivienda** — el modelo analiza datos históricos de casas vendidas (m², ubicación, año) y sus precios finales, y estima el precio de una casa nueva.
+
+**Diferenciando Clasificación de Regresión con una pregunta simple**: no depende del algoritmo ni de lo "difícil" que sea el problema — depende únicamente de **qué tipo de valor es el Label**. Si el Label es una de un conjunto cerrado de categorías (Spam/No Spam, Aprobado/Rechazado), es Clasificación. Si el Label es un número que podría tomar, en principio, cualquier valor dentro de un rango (un precio, una temperatura, un tiempo de entrega), es Regresión. El propio dataset de propiedades de la clase de hoy es un ejemplo de Regresión: `precio_eur` no es "categoría A o B", es un número continuo entre 45.000 y 245.800.
+
+**¿Por qué el Aprendizaje Supervisado es, en la práctica, el paradigma más usado en la industria?** Porque casi cualquier decisión de negocio se puede formular como "dado lo que sé hoy (features), ¿qué va a pasar o qué es cierto (label)?" — y eso es exactamente la definición de un problema supervisado. Prácticamente todos los ejemplos que van a ir apareciendo el resto de la clase (bancos, e-commerce, salud, logística) son variantes de esta misma pregunta.
 
 **¿Por qué importa?** Porque la mayoría de las preguntas de negocio son supervisadas: "¿este cliente se va a dar de baja?", "¿cuánto va a vender mi tienda el próximo mes?", "¿es esta transacción un fraude?".
 
@@ -407,6 +444,10 @@ Las tareas principales:
 - **Clustering (Agrupamiento)**: agrupa los datos en "clusters" donde los elementos de un mismo grupo se parecen mucho entre sí y son muy distintos a los de otros grupos. Ejemplo real: **Segmentación de clientes en una app de música** — Spotify agrupa usuarios no por edad, sino por comportamiento: "usuarios que escuchan podcasts de noche", "usuarios que solo escuchan hits del momento". Esto permite campañas de marketing ultra-específicas sin que nadie haya etiquetado previamente a los usuarios.
 - **Reducción de Dimensionalidad**: a veces hay demasiada información (cientos de columnas) y el modelo busca simplificar los datos quedándose solo con lo más importante, sin perder la esencia.
 
+**Diferenciando Clustering de Reducción de Dimensionalidad (las dos tareas de este paradigma)**: aunque las dos son "No Supervisadas", resuelven preguntas distintas. El **Clustering** agrupa **filas** parecidas entre sí (¿qué clientes se parecen?). La **Reducción de Dimensionalidad** combina **columnas** parecidas entre sí (¿qué variables están diciendo, en el fondo, lo mismo?) — es exactamente lo que ya se hizo con `PCA` en el Repaso de Clase 06, comprimiendo 25 columnas de años en 2. Son complementarias: en un proyecto real es común primero reducir dimensiones y después clusterizar sobre ese resultado ya simplificado.
+
+**Otro ejemplo de Clustering, en un dominio distinto a Spotify**: un supermercado con los datos de compra de sus 50.000 clientes (qué compran, cuándo, cuánto gastan) puede agrupar automáticamente a "los que hacen una compra grande semanal", "los que compran de a poco varias veces por semana" y "los que solo compran en oferta" — sin que nadie les haya puesto esas etiquetas de antemano. Recién después, un humano le pone un nombre de negocio a cada grupo que el algoritmo encontró.
+
 **Un error común**: muchos estudiantes creen que el aprendizaje no supervisado no tiene un objetivo. ¡Error! El objetivo es **descubrir**, no predecir. Es como organizar una colección de miles de fotos familiares por colores predominantes sin saber quién aparece en ellas; al final, hay una estructura que antes no se veía.
 
 ## Filmina 14 — Aprendizaje por Refuerzo: "Aprender por Ensayo y Error"
@@ -415,9 +456,12 @@ Las tareas principales:
 
 **¿Cómo funciona?** El agente toma una **Acción**. Dependiendo de si esa acción lo acerca o lo aleja de su objetivo, recibe una **Recompensa** (+) o una **Penalización** (−). El objetivo del agente es maximizar la recompensa acumulada a largo plazo. Es exactamente como se aprende a jugar a un videojuego: no se nace sabiendo que tocar la lava mata; se prueba, se pierden puntos (penalización), y el cerebro aprende a no hacerlo de nuevo.
 
+**Diferenciando los 4 términos clave, con el ejemplo del videojuego**: el **Agente** es el personaje que vos manejás. El **Entorno** es el nivel del juego, con sus reglas y obstáculos. La **Acción** es cada movimiento que el agente decide hacer (saltar, avanzar). La **Recompensa/Penalización** es lo que el juego le devuelve después de esa acción (sumar puntos, perder una vida). Ninguno de los tres paradigmas anteriores tiene estos 4 elementos actuando en conjunto — el Supervisado y el No Supervisado trabajan sobre un dataset ya fijo, mientras que acá el propio agente va generando sus datos de aprendizaje a medida que actúa.
+
 **Ejemplos emblemáticos**:
 - **AlphaGo de Google DeepMind**: aprendió a jugar al Go (un juego de estrategia milenario) jugando millones de partidas contra sí mismo. No tenía un archivo CSV con las "mejores jugadas"; aprendió qué movimientos llevaban a la victoria mediante el refuerzo constante.
 - **Robótica Industrial**: un brazo robótico en una fábrica puede aprender la trayectoria más eficiente para mover una pieza mediante pequeñas recompensas cada vez que el movimiento es fluido y preciso.
+- **Un ejemplo más actual, conectando con la Filmina 06**: ChatGPT (mencionado antes como ejemplo de Deep Learning) no solo se entrenó leyendo texto — en una etapa final se ajustó con Aprendizaje por Refuerzo a partir de feedback humano (la técnica se conoce como RLHF): personas calificaban qué respuestas del modelo eran mejores que otras, y el modelo ajustaba su comportamiento para maximizar esas calificaciones positivas — el mismo patrón Acción → Recompensa, aplicado a generar texto en vez de mover un brazo robótico o jugar al Go.
 
 ## Filmina 15 — Cuadro Comparativo: ¿Cuál Elegir?
 
@@ -429,6 +473,13 @@ Las tareas principales:
 | Objetivo | Predecir resultados / Clasificar | Encontrar patrones / Agrupar | Tomar decisiones secuenciales |
 | Feedback | Directo (Error vs. Respuesta real) | No tiene feedback explícito | Recompensa o Penalización |
 | Analogía | Estudiar con el solucionario | Ordenar un ropero desordenado | Aprender a montar en bicicleta |
+
+**El porqué detrás de cada fila (lo que la tabla no explica por sí sola)**:
+
+- **Datos iniciales**: es la fila que responde la pregunta de diagnóstico más rápida de todas — ¿el dataset tiene una columna marcada como "la respuesta correcta"? Si sí, Supervisado. Si hay datos pero ninguna respuesta marcada, No Supervisado. Si ni siquiera hay un dataset (solo un entorno con el que interactuar), Por Refuerzo.
+- **Objetivo**: en Supervisado y No Supervisado el resultado final es algo relativamente estático (una predicción, un conjunto de grupos). En Por Refuerzo el "resultado" es una **estrategia** — una forma de actuar ante distintas situaciones, no un valor único.
+- **Feedback**: en Supervisado el feedback es inmediato y exacto (se sabe la respuesta correcta de cada ejemplo apenas se entrena). En Por Refuerzo el feedback puede ser tardío — a veces una buena jugada de ajedrez solo se sabe si fue buena varias jugadas después, cuando se gana o se pierde la partida. En No Supervisado directamente no hay ninguna respuesta "correcta" contra la cual comparar.
+- **Analogía**: vale la pena remarcar en voz alta por qué cada analogía es exacta y no solo poética — "estudiar con el solucionario" tiene la respuesta correcta de cada ejercicio a la vista (como el Label); "ordenar un ropero desordenado" no tiene ninguna instrucción de cómo ordenarlo, solo se buscan agrupaciones que tengan sentido (como el Clustering); "aprender a andar en bicicleta" no se resuelve leyendo un manual, sino cayéndose y corrigiendo el equilibrio una y otra vez (como la Recompensa/Penalización).
 
 ## Filmina 16 — Errores y Confusiones Comunes
 
