@@ -571,11 +571,29 @@ Cierra con una reflexión final: cuál de los tres paradigmas parece más comple
 
 **Ojo**: estos son exactamente los 3 casos que después reaparecen como "Tarea 1" en el Solucionario del Bloque 4 (al final del Tema 06) — el notebook los plantea acá sin responder, y da la respuesta recién al cierre de la clase. Si se resuelven ya acá, la Tarea 1 del plenario final queda como repaso en vez de ejercicio nuevo — vale la pena decidir en qué momento conviene resolverlos según el ritmo del grupo.
 
+**5 casos nuevos para jugar en vivo con la clase, con la respuesta ya lista acá (a diferencia del mini-quiz de arriba, estos no se reutilizan después, así que no hay spoiler posible)**: útiles si se quiere repetir la dinámica del diagnóstico con material fresco, sin quemar la sorpresa de la Tarea 1 final. Leerlos a la clase sin mostrar todavía la sección de respuestas:
+
+- **Caso F**: una plataforma de streaming de música quiere anticipar qué usuarios van a dar de baja su suscripción el próximo mes, usando el historial de cuentas que ya se dieron de baja o siguen activas.
+- **Caso G**: una aerolínea tiene los datos de viaje de sus socios del programa de millas (destinos, frecuencia, clase de cabina) y quiere agruparlos para diseñar categorías de fidelización, sin tener categorías previas definidas.
+- **Caso H**: un estudio de videojuegos quiere que un enemigo controlado por la computadora aprenda solo a esquivar los ataques del jugador, sumando puntos cada vez que sobrevive más tiempo y restando puntos cada vez que recibe un golpe.
+- **Caso I**: una empresa agrícola quiere predecir cuántas toneladas exactas va a rendir su próxima cosecha, a partir de datos históricos de humedad del suelo, lluvias y fertilizante usado.
+- **Caso J**: una empresa tiene una encuesta de satisfacción con 200 preguntas y quiere reducirla a un puñado de "factores" que expliquen la mayoría de las respuestas, sin saber de antemano cuáles serían esos factores.
+
+**Respuestas correctas, con la justificación (revelar recién después de que el grupo arriesgue una respuesta)**:
+
+- **Caso F (streaming/cancelación) → Supervisado, Clasificación.** Hay una columna de respuesta ya conocida (¿se dio de baja o no, en el historial?), y es una categoría de dos valores. **Métrica sugerida**: ROC-AUC o Recall — interesa detectar a tiempo a los usuarios en riesgo de baja más que acertar en el caso promedio.
+- **Caso G (aerolínea/fidelización) → No Supervisado, Clustering.** No existe ninguna columna de "categoría de fidelización" en los datos — es justo lo que se busca descubrir agrupando socios parecidos entre sí. **Métrica sugerida**: Silhouette Score.
+- **Caso H (videojuego/enemigo que esquiva) → Por Refuerzo.** No hay un dataset previo de "esquives correctos" — el personaje aprende interactuando con el jugador y recibiendo una recompensa/penalización después de cada intento, igual que el Caso C del auto que se estaciona. **Métrica sugerida**: recompensa acumulada promedio por partida, a medida que entrena.
+- **Caso I (agro/rendimiento de cosecha) → Supervisado, Regresión.** Hay rendimientos históricos reales ya conocidos (la respuesta), y esa respuesta es un número continuo (toneladas), no una categoría. **Métrica sugerida**: MAE (en toneladas, fácil de comunicar) o RMSE.
+- **Caso J (encuesta/200 preguntas) → No Supervisado, Reducción de Dimensionalidad — no Clustering.** Es la trampa a propósito de este grupo: acá no se agrupan *personas* (eso sería Clustering), se combinan *preguntas/columnas* parecidas entre sí en menos factores — exactamente la distinción que se vio en la Filmina 13 entre Clustering y Reducción de Dimensionalidad, y el mismo tipo de técnica (PCA) que ya apareció en el Repaso de Clase 06.
+
 ---
 
 # Tema 03 — Aplicaciones Prácticas de ML: Del Algoritmo al Impacto Real (Filminas 19-27)
 
 ## Filmina 19 — División de Tema
+
+**Divisor de sección — de qué se trata este Tema y por qué importa acá**: hasta ahora la clase estuvo mirando el Machine Learning "desde adentro" — de qué está hecho (Tema 01: dónde vive dentro de la IA) y cómo aprende (Tema 02: los tres paradigmas y cómo distinguirlos). Este Tema 03 da vuelta la cámara: en vez de "¿cómo funciona por dentro?", la pregunta pasa a ser "¿para qué se usa esto en una empresa real, y qué impacto tiene?". Es, a propósito, el tema más aplicado y menos técnico de la clase — no hay código nuevo acá (eso arranca recién en el Tema 04) — y es el que sostiene la Pre-entrega evaluada del módulo, porque para perfilar una solución de ML real primero hace falta poder mirar un problema de negocio y reconocer ahí el mapa del Tema 01 y el paradigma del Tema 02.
 
 **Teoría completa de apertura (del docx)**: imaginá ser el dueño de una tienda de comercio electrónico que crece rápidamente. Al principio se podía saludar a cada cliente y recomendarle productos personalmente, pero con 100.000 clientes diarios es físicamente imposible que una persona (o incluso un equipo grande) analice el comportamiento de cada usuario para ofrecerle lo que busca en el momento justo. Ahí entra el Machine Learning: no como un concepto de ciencia ficción, sino como una herramienta práctica que automatiza la toma de decisiones a escala.
 
