@@ -424,17 +424,39 @@ Y acá aparece la tensión interesante, la que vale la pena remarcar: **requiere
 
 ## Filmina 12 — Aprendizaje Supervisado: "el Estudiante con Profesor"
 
+**Explicación simple, antes de la teoría formal**: pensá en cómo alguien aprende a distinguir perros de gatos de chico. No lee un manual con reglas ("si tiene el hocico corto y maúlla, es un gato"). Alguien más grande le va señalando: "mirá, esto es un perro" — muchas veces, con fotos o animales distintos — hasta que un día el chico ve un perro que nunca vio antes y lo reconoce solo. Eso es exactamente Aprendizaje Supervisado: el modelo ve miles de ejemplos **ya resueltos** (con la respuesta correcta puesta al lado) y, de tanto verlos, aprende el patrón — sin que nadie le programe una regla explícita.
+
 **Teoría completa (2. Aprendizaje Supervisado, del docx)**: el Aprendizaje Supervisado es el paradigma más común en la industria. Se llama así porque el modelo cuenta con un "profesor" (el dataset etiquetado) que le proporciona ejemplos de la vida real junto con su respuesta correcta. Al modelo se le entregan miles de ejemplos con sus respectivas soluciones; el algoritmo intenta encontrar la relación matemática entre las features y la etiqueta. Una vez que "aprende" esa relación, se le entregan datos nuevos (sin etiqueta) para que prediga el resultado.
 
-Las dos grandes tareas:
-- **Clasificación**: predice una categoría o clase discreta (Sí/No, A/B/C). Ejemplo real: **Detección de Spam en Gmail** — el "profesor" le dio a Google millones de correos marcados manualmente como "Spam" o "No Spam". El modelo aprendió que palabras como "Gratis", "Gane dinero ya" o remitentes extraños suelen ser Spam.
-- **Regresión**: predice un valor numérico continuo. Ejemplo real: **Precio de una vivienda** — el modelo analiza datos históricos de casas vendidas (m², ubicación, año) y sus precios finales, y estima el precio de una casa nueva.
+**Dentro de Supervisado hay exactamente dos tareas posibles — nunca una tercera**: la única pregunta que hace falta responder para saber cuál es "¿la respuesta que quiero predecir es una categoría, o es un número?".
 
-**Diferenciando Clasificación de Regresión con una pregunta simple**: no depende del algoritmo ni de lo "difícil" que sea el problema — depende únicamente de **qué tipo de valor es el Label**. Si el Label es una de un conjunto cerrado de categorías (Spam/No Spam, Aprobado/Rechazado), es Clasificación. Si el Label es un número que podría tomar, en principio, cualquier valor dentro de un rango (un precio, una temperatura, un tiempo de entrega), es Regresión. El propio dataset de propiedades de la clase de hoy es un ejemplo de Regresión: `precio_eur` no es "categoría A o B", es un número continuo entre 45.000 y 245.800.
+- **Clasificación → la respuesta es una categoría (una etiqueta de un menú cerrado de opciones).**
+  - *Clasificación binaria (solo 2 opciones)*: Detección de Spam en Gmail — el "profesor" le dio a Google millones de correos marcados manualmente como "Spam" o "No Spam". El modelo aprendió que palabras como "Gratis", "Gane dinero ya" o remitentes extraños suelen ser Spam. Otro ejemplo cotidiano: un banco decidiendo si aprueba o rechaza un préstamo (Aprobado/Rechazado).
+  - *Clasificación multiclase (más de 2 opciones, pero siempre un menú cerrado)*: un sistema que lee una foto de una fruta y dice si es "Manzana", "Banana" o "Naranja" — son 3 categorías posibles, ninguna más, ninguna intermedia. Otro ejemplo: clasificar un ticket de soporte como "Facturación", "Técnico" o "Cuenta".
+- **Regresión → la respuesta es un número que puede tomar cualquier valor dentro de un rango.**
+  - Precio de una vivienda — el modelo analiza datos históricos de casas vendidas (m², ubicación, año) y sus precios finales, y estima el precio de una casa nueva. El propio dataset de propiedades de la clase de hoy es un ejemplo de Regresión: `precio_eur` no es "categoría A o B", es un número continuo entre 45.000 y 245.800.
+  - Otros dos ejemplos para que quede claro que no es solo "plata": predecir la temperatura de mañana (podría dar 18.3°, 18.4°, cualquier decimal) o cuánto va a tardar un Uber en llegar (4 minutos, 4.5, 12).
+
+**El truco para no confundirse nunca más, en una sola frase**: no mires el algoritmo ni la dificultad del problema — mirá únicamente **el Label** (la respuesta que el modelo tiene que aprender a dar). Si esa respuesta viene de una lista cerrada de opciones, es Clasificación. Si esa respuesta es "cualquier número dentro de un rango", es Regresión.
+
+| | Clasificación | Regresión |
+|---|---|---|
+| ¿Qué predice? | Una categoría de un menú cerrado | Un número dentro de un rango |
+| Ejemplo de Label | "Spam" / "No Spam" | `precio_eur` = 187.500 |
+| Pregunta que responde | "¿A cuál de estos grupos pertenece?" | "¿Cuánto?" |
+| Ejemplo de la clase de hoy | Filmina 18 (Caso A: "sano"/"enfermo") | Bloque 2 del Colab (predecir `precio_eur`) |
+
+**¿Solo existen Clasificación y Regresión dentro de Supervisado? Sí** — son las dos únicas tareas de este paradigma, porque ambas necesitan un Label (una respuesta correcta) para poder "enseñarle" al modelo, y la única diferencia entre ellas es de qué tipo es ese Label. El Aprendizaje No Supervisado (Filmina 13) y el Aprendizaje por Refuerzo (Filmina 14) son paradigmas distintos, sin Label, y por lo tanto Clasificación/Regresión no aplican ahí — el No Supervisado tiene sus propias tareas (como el *clustering*, agrupar sin categorías previas) y el Refuerzo funciona con premios/castigos en vez de con ejemplos etiquetados.
 
 **¿Por qué el Aprendizaje Supervisado es, en la práctica, el paradigma más usado en la industria?** Porque casi cualquier decisión de negocio se puede formular como "dado lo que sé hoy (features), ¿qué va a pasar o qué es cierto (label)?" — y eso es exactamente la definición de un problema supervisado. Prácticamente todos los ejemplos que van a ir apareciendo el resto de la clase (bancos, e-commerce, salud, logística) son variantes de esta misma pregunta.
 
-**¿Por qué importa?** Porque la mayoría de las preguntas de negocio son supervisadas: "¿este cliente se va a dar de baja?", "¿cuánto va a vender mi tienda el próximo mes?", "¿es esta transacción un fraude?".
+**¿Por qué importa?** Porque la mayoría de las preguntas de negocio son supervisadas: "¿este cliente se va a dar de baja?" (Clasificación), "¿cuánto va a vender mi tienda el próximo mes?" (Regresión), "¿es esta transacción un fraude?" (Clasificación).
+
+**¿Cuándo usamos Aprendizaje Supervisado, en la práctica?** Cuando se cumplen estas dos condiciones a la vez:
+1. **Ya existe la "respuesta correcta" registrada en los datos históricos** — alguien ya marcó miles de correos como Spam/No Spam, o ya se vendieron miles de casas y se sabe a qué precio. Si no hay ningún Label disponible, Supervisado directamente no es una opción (ahí se necesita No Supervisado, Filmina 13).
+2. **El objetivo es predecir esa misma respuesta para casos nuevos** — no descubrir algo nuevo ni tomar una secuencia de decisiones, sino repetir a escala una decisión que ya se tomó muchas veces en el pasado.
+
+Señal práctica para reconocerlo en un caso real: si alguien puede responder la pregunta *"¿de dónde sacamos el Label?"* señalando una columna que ya existe en una base de datos (o que se puede armar revisando el historial), casi seguro el problema es Supervisado.
 
 ## Filmina 13 — Aprendizaje No Supervisado: "Buscando Estructura en el Caos"
 
@@ -450,6 +472,12 @@ Las tareas principales:
 
 **Un error común**: muchos estudiantes creen que el aprendizaje no supervisado no tiene un objetivo. ¡Error! El objetivo es **descubrir**, no predecir. Es como organizar una colección de miles de fotos familiares por colores predominantes sin saber quién aparece en ellas; al final, hay una estructura que antes no se veía.
 
+**¿Cuándo usamos Aprendizaje No Supervisado, en la práctica?** Cuando pasa lo contrario que en la Filmina 12: **no hay ningún Label disponible** — nadie clasificó previamente a los clientes, ni etiquetó las columnas como "importantes" o "redundantes" — y el objetivo no es predecir una respuesta puntual, sino **entender la estructura de los datos** antes de decidir el siguiente paso. Dos momentos típicos donde aparece:
+- **Al principio de un proyecto**, como exploración: antes de construir cualquier modelo Supervisado, es común usar Clustering para entender "¿qué tipos de clientes/casos tengo en realidad?".
+- **Como paso previo a otra técnica**: reducir dimensionalidad (como el PCA del Repaso de Clase 06) para simplificar cientos de columnas antes de entrenar un modelo Supervisado con ellas, o antes de aplicar Clustering.
+
+Señal práctica para reconocerlo: si la pregunta que alguien hace es *"¿qué grupos hay acá adentro?"* o *"¿cómo simplifico esto sin perder lo importante?"* — sin mencionar en ningún momento una respuesta correcta a predecir — es No Supervisado.
+
 ## Filmina 14 — Aprendizaje por Refuerzo: "Aprender por Ensayo y Error"
 
 **Teoría completa (4. Aprendizaje por Refuerzo, del docx)**: este es el paradigma más distinto de los tres, y es la base de los avances más espectaculares en IA reciente, como los coches autónomos o los sistemas que vencen a campeones mundiales de ajedrez. A diferencia del supervisado (donde hay respuestas) o el no supervisado (donde hay patrones), acá un **Agente** (el algoritmo) interactúa con un **Entorno**.
@@ -462,6 +490,13 @@ Las tareas principales:
 - **AlphaGo de Google DeepMind**: aprendió a jugar al Go (un juego de estrategia milenario) jugando millones de partidas contra sí mismo. No tenía un archivo CSV con las "mejores jugadas"; aprendió qué movimientos llevaban a la victoria mediante el refuerzo constante.
 - **Robótica Industrial**: un brazo robótico en una fábrica puede aprender la trayectoria más eficiente para mover una pieza mediante pequeñas recompensas cada vez que el movimiento es fluido y preciso.
 - **Un ejemplo más actual, conectando con la Filmina 06**: ChatGPT (mencionado antes como ejemplo de Deep Learning) no solo se entrenó leyendo texto — en una etapa final se ajustó con Aprendizaje por Refuerzo a partir de feedback humano (la técnica se conoce como RLHF): personas calificaban qué respuestas del modelo eran mejores que otras, y el modelo ajustaba su comportamiento para maximizar esas calificaciones positivas — el mismo patrón Acción → Recompensa, aplicado a generar texto en vez de mover un brazo robótico o jugar al Go.
+
+**¿Cuándo usamos Aprendizaje por Refuerzo, en la práctica?** Cuando el problema no es "predecir una respuesta" ni "encontrar estructura", sino **tomar una secuencia de decisiones dentro de un entorno que reacciona a cada una de ellas**, y donde el éxito solo se puede medir a lo largo de esa secuencia (no en una sola predicción aislada). Señales típicas:
+- Las decisiones se toman **una tras otra**, y cada una cambia la situación para la próxima (un movimiento en un tablero, un paso de un robot, un giro del volante de un auto).
+- **No existe un dataset fijo de "la respuesta correcta"** para cada situación — nadie puede escribir de antemano "en el minuto 3 del juego, hacé exactamente este movimiento", porque depende de todo lo que pasó antes. El agente tiene que generar su propia experiencia jugando/probando.
+- Hay una noción clara de **recompensa acumulada** a lo largo del tiempo, no un solo acierto puntual (ganar la partida entera importa más que ganar una sola jugada).
+
+**Cuándo NO conviene usar Refuerzo, aunque parezca tentador**: si ya existe un dataset etiquetado y estático con la respuesta correcta para cada caso (por ejemplo, miles de correos ya marcados como spam), conviene resolverlo con Aprendizaje Supervisado — es mucho más simple, rápido y barato de entrenar que armar todo un entorno de simulación para que un agente aprenda por prueba y error algo que ya se sabe de antemano.
 
 ## Filmina 15 — Cuadro Comparativo: ¿Cuál Elegir?
 
