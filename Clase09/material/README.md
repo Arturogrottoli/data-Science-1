@@ -135,6 +135,37 @@ Una aplicación que combina ambas ideas y aparece una y otra vez en esta clase e
 
 Estos son los frentes que recorre el resto de esta clase, cada uno con su propio módulo.
 
+### 👉 En Python — `Clase09_Bloque0_Repaso_Supervisado.ipynb`
+
+Este repaso tiene, además de las filminas, su propio notebook corto — separado por ahora del notebook principal de la clase (`Clase09_aprendizaje no supervisado.ipynb`), para poder mostrarlo como un bloque de arranque independiente.
+
+**Qué hace en general**: entrena un clasificador simple sobre el dataset de **Iris** (150 flores, 4 medidas, 3 especies ya conocidas), para que el grupo vea en código un ejemplo completo de Aprendizaje Supervisado antes de pasar a lo que no tiene etiqueta.
+
+```python
+iris = load_iris()
+X = iris.data   # features: 4 medidas de cada flor
+y = iris.target # label: la especie real (0, 1 o 2)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+```
+```python
+modelo = LogisticRegression(max_iter=200)
+modelo.fit(X_train, y_train)
+
+predicciones = modelo.predict(X_test)
+accuracy = accuracy_score(y_test, predicciones)
+```
+
+**Línea por línea**: `load_iris()` trae el dataset ya cargado desde scikit-learn, sin necesidad de ningún archivo externo — `iris.data` son las 4 features (largo/ancho de sépalo y pétalo) y `iris.target` es la especie real de cada flor, ya codificada como 0/1/2. `train_test_split(..., stratify=y)` separa 80%/20% manteniendo la misma proporción de las 3 especies en ambos conjuntos — el mismo criterio de la Clase 08, para que el test sea representativo y no quede, por mala suerte, con muy pocos ejemplos de alguna especie. `LogisticRegression(max_iter=200)` instancia un clasificador (a pesar del nombre, es un modelo de **Clasificación**, no de Regresión); `.fit(X_train, y_train)` lo entrena mostrándole las flores de train **con** su especie real; `.predict(X_test)` genera una predicción para cada flor de test, que el modelo nunca vio; `accuracy_score(...)` compara esas predicciones contra las especies reales del test y devuelve el porcentaje de aciertos.
+
+**Por qué Iris y no otro dataset**: no es una elección arbitraria — es el mismo dataset que después se reutiliza, **sin la columna de especie**, en el Módulo 4 (PCA) y en el notebook principal para t-SNE. La idea pedagógica es mostrar el mismo conjunto de flores dos veces en la misma clase: primero **con** la respuesta correcta a mano (acá, Supervisado — el modelo aprende a distinguir las 3 especies y acierta en la gran mayoría del test), y más adelante **sin** ella (No Supervisado — un algoritmo de reducción de dimensionalidad o de clustering tiene que encontrar esa misma estructura de 3 grupos por su cuenta, sin que nadie le diga cuántas especies hay ni cuáles son). Ver el mismo dataset resuelto de las dos formas, una al lado de la otra, es mucho más contundente que explicar la diferencia solo con palabras.
+
+**Qué significa el número de accuracy que tira la celda**: Iris es un dataset fácil para un clasificador (las 3 especies están bastante bien separadas por sus medidas), así que es normal y esperable que el accuracy dé muy alto (por encima del 90%) — no es un logro excepcional del modelo, es una propiedad conocida de este dataset en particular. Vale la pena aclararlo en clase para que nadie se lleve la idea de que un 90%+ de accuracy es lo normal en cualquier problema real.
+
+**Pendiente de decidir**: si este Bloque 0 se deja como notebook separado (como está ahora) o se pega al principio de `Clase09_aprendizaje no supervisado.ipynb` para que quede todo en un solo archivo — todavía no se definió.
+
 ---
 
 ## Módulo 1 — ¿Qué es el Aprendizaje No Supervisado?
@@ -709,305 +740,287 @@ El aprendizaje no supervisado da el "qué" (los grupos, los componentes, las ano
 
 ---
 
-## Anexo — Apunte del Notebook Práctico (`Clase_9.ipynb`)
+## Anexo — Apunte del Notebook Práctico (`Clase09_aprendizaje no supervisado.ipynb`)
 
-Esta sección documenta un notebook **aparte**, ya armado y con código funcionando (`Clase_9.ipynb`, en la raíz de la carpeta), que resuelve las cinco técnicas de la clase con un **dataset real de fútbol** en vez de datos sintéticos — 48 selecciones de un torneo, con estadísticas de Ataque, Distribución, Defensa, Portería, Movimiento y Físico. Es un apunte de referencia por si decidís dar la clase directamente desde ese notebook en vez de (o además de) las filminas.
+**Qué notebook es este, y por qué no es `Clase_9.ipynb`**: la carpeta tiene dos notebooks con el mismo propósito. `Clase_9.ipynb` usa un dataset de fútbol (48 selecciones del Mundial) y todavía tiene la estructura vieja (incluye Reglas de Asociación, que ya no está en el docx). `Clase09_aprendizaje no supervisado.ipynb` es el que se usa de ahora en más: no tiene Reglas de Asociación, cubre exactamente K-Means, Jerárquico, DBSCAN, PCA (+ t-SNE de yapa) y cierra con un ejercicio guiado completo de segmentación de clientes — más alineado con el docx nuevo y, en general, más prolijo.
 
-✅ **Los dos problemas que tenía el notebook ya están corregidos**: el nombre del archivo Excel (`'Data-Set-Fifa.xlsx'`, con guiones) y el error de sintaxis en DBSCAN (`DBSCAN(eps=0.5, min_samples=3)`, antes tenía `+=3`, que no es Python válido). El código de abajo ya refleja ambas correcciones.
+**Nota de limpieza ya aplicada**: el notebook tal como se armó originalmente tenía 48 celdas con algunas duplicadas y una celda fuera de lugar (la introducción de "Reducción de Dimensionalidad" aparecía en medio del bloque de código de DBSCAN). Ya se corrigió: se fusionaron las dos introducciones de DBSCAN en una sola, se reordenó la celda de Reducción de Dimensionalidad a su lugar correcto, se sacó una celda de t-SNE duplicada y más corta (quedó la versión más completa), y se sacó una recarga redundante del dataset Iris. El notebook quedó en 44 celdas, con un único hilo narrativo de principio a fin.
 
-### Sobre el dataset: `Data-Set-Fifa.xlsx`
+**Dataset usado en los ejemplos de K-Means/Jerárquico/DBSCAN**: no es un CSV real, sino datos **sintéticos** generados con NumPy — 240 "ciudades" ficticias con dos variables (temperatura promedio anual y humedad relativa media), armadas a propósito en 3 grupos bien diferenciados (tropicales, templadas, áridas) para que el resultado del clustering se pueda comparar contra la "verdad" que se usó para generarlos. Es una elección pedagógica deliberada: al ser datos inventados con grupos conocidos de antemano, se puede confirmar que el algoritmo "encontró lo que tenía que encontrar", algo que no se puede hacer tan fácil con datos reales (donde, precisamente, no se sabe de antemano cuántos grupos hay).
 
-Es una planilla de estadísticas de un torneo de fútbol (48 selecciones), organizada en **6 hojas**, una por familia de métricas — cada hoja tiene una fila por equipo:
+### Configuración Inicial
 
-| Hoja | Qué mide | Algunas columnas |
-|---|---|---|
-| **Ataque** | Producción ofensiva | `Goles`, `Asistencias`, `Remates`, `Efectividad en los remates %`, `Posesión del balón %` |
-| **Distribución** | Circulación de pelota | `Pase`, `Precisión en los pases %`, `Centro`, `Cambios de orientación intentados` |
-| **Defensa** | Solidez defensiva | `Goles recibidos`, `Pérdidas de balón provocadas`, `Presiones ofensivas/defensivas` |
-| **Portería** | En rigor, disciplina (ver nota) | `Faltas recibidas/cometidas`, `Tarjetas Amarillas/Rojas`, `Fueras de juego` |
-| **Movimiento** | Desmarques y recepciones | `Desmarques para recibir`, `Recepciones bajo presión` |
-| **Físico** | Rendimiento físico | `Velocidad Media (Km/h)`, `Esprints`, `Distancia recorrida (m)` |
-
-**Un detalle real para comentar en clase**: la hoja se llama "Portería" pero sus columnas son de **disciplina** (faltas, tarjetas), no de arqueros — un desajuste entre el nombre de la hoja y lo que realmente contiene. Es un buen ejemplo real de por qué nunca hay que confiar en el nombre de una hoja o columna sin abrir los datos y confirmar qué hay adentro (la misma idea que `.info()` y `.head()` en Pandas, Clase 03).
-
-Cada fila es un **equipo del torneo** (no un jugador ni un partido) — a diferencia del dataset de la Clase 04 (FIFA World Cup, jugador-partido), acá el nivel de análisis es "selección completa", lo que lo hace ideal para comparar estilos de juego entre países.
-
-**¿Para qué se puede usar este dataset, más allá de lo que ya hace el notebook?** El notebook actual solo usa un puñado de columnas a la vez (2 para K-Means, 2 para el dendrograma/DBSCAN, 4 para PCA, 4 para Apriori) — pero con 6 hojas completas hay mucho más para explorar:
-
-**Ejemplos de no supervisado (lo que se ve en esta clase) que todavía no están en el notebook:**
-- **Clustering con todas las variables a la vez** (no de a 2): correr K-Means o Jerárquico sobre las ~40 columnas numéricas combinadas (previa reducción con PCA, para evitar la maldición de la dimensionalidad del Módulo 5) — daría un "estilo de juego integral" en vez de un perfil parcial por bloque.
-- **PCA sobre "Distribución"**: reducir `Pase`, `Centro`, `Rupturas de líneas`, `Cambios de orientación` a 2 ejes que resuman el estilo de construcción de juego de cada selección (¿juego directo o de posesión?).
-- **Reglas de asociación sobre "Defensa"**: qué comportamientos defensivos (`Presiones altas`, `Pérdidas provocadas`, `Recuperación rápida`) tienden a darse juntos — el mismo análisis que se hizo con Ataque, aplicado a la otra mitad de la cancha.
-- **DBSCAN sobre el dataset completo**: después de un PCA a 2-3 componentes sobre todas las hojas combinadas, buscar equipos "atípicos" en un sentido más amplio que solo lo defensivo (bloque 4 del notebook).
-
-**Ejemplos de supervisado (lo que se vio en la Clase 08) que se podrían construir con este mismo archivo:**
-- **Clasificación**: predecir si un equipo llega a cuartos de final o más, usando como `X` sus métricas de Ataque/Defensa/Físico y como `y` una etiqueta "avanzó / no avanzó" (habría que conseguir ese dato de resultados, que no está en este Excel).
-- **Regresión**: predecir la cantidad de goles que un equipo va a convertir en el torneo (`y` numérico) a partir de sus métricas de creación de juego (`Remates`, `Asistencias`, `Posesión`) como `X` — un caso de uso análogo al de "precio de una casa" de la Clase 08, pero en fútbol.
-- **Árbol de Decisión o Random Forest**: combinando variables de las 6 hojas para predecir la posición final en la tabla, y de paso ver con `feature_importances_` qué familia de métricas (ataque, defensa, físico) pesa más en el resultado.
-
-La diferencia clave entre estos dos grupos de ejemplos: los de no supervisado se pueden hacer **hoy mismo**, con el archivo tal cual está — los de supervisado necesitarían agregarle una columna con el resultado real de cada equipo en el torneo (`y`), que hoy no está en el dataset.
-
-### Preparación de los datos (celda de inicio)
-
-**🧭 Por qué absolutamente todo proyecto de Machine Learning arranca así**: no importa si el modelo final es supervisado o no supervisado, ni si es un árbol de decisión o K-Means — **ningún algoritmo puede compensar datos mal cargados**. Si una columna numérica quedó como texto, si un mismo equipo aparece con dos nombres distintos por un typo, o si faltan valores sin que nadie lo note, el algoritmo no "se da cuenta" del error: simplemente calcula sobre datos incorrectos y devuelve un resultado que **parece** válido pero no lo es. Por eso la limpieza siempre es el primer paso del flujo de trabajo (Módulo 1, Filmina 09: *Recolección y preparación → Selección del método → Aplicación → Evaluación → Interpretación*) — es la base de la que dependen los otros cuatro.
-
-En términos generales, cualquier proceso de limpieza (no solo este notebook) sigue la misma secuencia lógica, la misma que ya se practicó con Pandas en las Clases 03 y 04:
-1. **Detectar el problema**: ¿hay nulos? ¿tipos de dato incorrectos? ¿nombres duplicados con distinta escritura? ¿encoding roto?
-2. **Decidir una estrategia**: ¿se corrige, se elimina, se imputa? (acá: corregir nombres, imputar con la media los huecos de cruce entre hojas)
-3. **Aplicar la corrección** de forma sistemática — nunca a mano, fila por fila, porque no escala y no es reproducible.
-4. **Verificar el resultado** con un chequeo concreto — acá, que el conteo final dé exactamente 48 equipos, ni uno más ni uno menos.
-
-Este ejemplo puntual es un caso más desprolijo que el promedio (celdas combinadas, encoding roto, columnas basura) precisamente porque así viene un archivo Excel armado a mano por una persona, sin pensar en que después lo iba a leer un programa — el escenario más realista posible, mucho más parecido a lo que se encuentra en un trabajo real que un dataset ya limpio bajado de Kaggle.
-
-🎯 **Para qué usamos este código**: no es un análisis en sí — es el paso obligatorio de "ingesta y saneamiento" (Módulo 1 de esta guía, aplicado ahora a un archivo real y desprolijo) que hay que correr **una sola vez, al principio**, para que las 5 técnicas de los bloques siguientes tengan un solo DataFrame limpio (`df_final`) del cual partir. Lo que queremos ver al final es la confirmación `"¡Exactamente 48!"` — si ese número no cierra, algo en el cruce de las 6 hojas salió mal y no tiene sentido seguir a los bloques de abajo.
-
-El Excel viene con una particularidad: cada equipo ocupa **dos filas** (una con los datos numéricos, la fila siguiente con el nombre real del equipo) — rastro de celdas combinadas en el archivo original.
+**Qué hace en general**: importa todas las librerías que se usan en el resto del notebook, de una sola vez.
 
 ```python
-import warnings
-warnings.filterwarnings('ignore', category=DeprecationWarning)   # silencia warnings de la infraestructura de Jupyter, no de este código
-
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler
 
-archivo_excel = 'Data-Set-Fifa.xlsx'
-xls = pd.ExcelFile(archivo_excel)
-
-def limpiar_nombre_equipo(nombre):
-    if pd.isna(nombre): return nombre
-    s = str(nombre).strip()
-    s = s.replace('Espa帽a', 'España').replace('EspaÃ±a', 'España')
-    # ...más reemplazos de encoding roto, uno por cada país afectado
-    return s
-
-def procesar_hoja_con_glosario(xls_file, nombre_hoja):
-    df_raw = pd.read_excel(xls_file, nombre_hoja)
-    indices_datos = df_raw[df_raw['Puesto'].notna()].index
-
-    registros = []
-    for idx in indices_datos:
-        datos_fila = df_raw.iloc[idx].copy()
-        nombre_real = df_raw.iloc[idx + 1]['Equipo']
-        datos_fila['Equipo'] = limpiar_nombre_equipo(nombre_real)
-        registros.append(datos_fila)
-
-    df_limpio = pd.DataFrame(registros).reset_index(drop=True)
-    cols_validas = [c for c in df_limpio.columns if 'Unnamed' not in str(c) and 'glosario' not in str(c).lower() and c != 'Puesto']
-    return df_limpio[cols_validas]
-
-# 1. Lista maestra basada estrictamente en la primera hoja (Ataque)
-df_maestro = procesar_hoja_con_glosario(xls, 'Ataque')
-lista_48_equipos = df_maestro['Equipo'].dropna().unique()
-
-# 2. DataFrame final arranca con la estructura maestra
-df_final = df_maestro.copy()
-
-# 3. Cruzamos el resto de las hojas de forma relacional permisiva
-for hoja in xls.sheet_names[1:]:
-    df_hoja_limpia = procesar_hoja_con_glosario(xls, hoja)
-    df_final = pd.merge(df_final, df_hoja_limpia, on='Equipo', how='outer')
-
-# 4. Índice provisorio
-df_final = df_final.dropna(subset=['Equipo']).set_index('Equipo')
-
-# 5. Recorte a los 48 equipos oficiales + imputación de huecos
-df_final = df_final.reindex(lista_48_equipos)
-df_final = df_final.fillna(df_final.mean(numeric_only=True))
-
-# 6. Corregimos el nombre mal escrito que trae el Excel original
-df_final = df_final.rename(columns={'Posecion del balon %': 'Posesión del balón %'})
-
-scaler = StandardScaler()
-```
-
-**Línea por línea, qué hace y por qué:**
-- `warnings.filterwarnings('ignore', category=DeprecationWarning)` → puesto **al principio de todo**, antes que cualquier otra cosa. Suprime, para el resto de la ejecución del notebook, una tanda larga de `DeprecationWarning` que tira `jupyter_client` (la infraestructura de mensajería de Jupyter, no código de este notebook) sobre `datetime.utcnow()` — inofensivos, pero ensucian mucho la salida si no se filtran desde el arranque. Antes esta línea estaba recién en el Bloque 2, así que no alcanzaba a cubrir la celda de inicio ni el resto de bloques anteriores a ese.
-- `pd.ExcelFile(archivo_excel)` → abre el Excel una sola vez y permite leer sus 6 hojas (Ataque, Distribución, Defensa, Portería, Movimiento, Físico) sin reabrir el archivo en cada lectura — más eficiente que `pd.read_excel()` suelto por cada hoja.
-- `limpiar_nombre_equipo` → el Excel original tiene nombres de país con **encoding roto** (`Espa帽a` en vez de `España`) — típico de un archivo guardado con una codificación de caracteres distinta a la que se usa para leerlo. La función hace un `.replace()` manual por cada caso conocido, uno por uno, porque no hay una forma automática de "adivinar" qué encoding se usó originalmente una vez que el texto ya se rompió.
-- `df_raw[df_raw['Puesto'].notna()].index` → el truco central de todo el bloque: en el Excel, la fila con los **datos numéricos** de un equipo tiene algo en la columna `Puesto`, pero el **nombre del equipo** está vacío ahí y aparece recién en la fila siguiente (por las celdas combinadas). Esta línea encuentra los índices de las filas "con datos", para después ir a buscar el nombre a la fila de al lado.
-- `df_raw.iloc[idx + 1]['Equipo']` → acá está la clave: agarra el nombre del equipo de la fila **siguiente** (`idx + 1`) a la de los datos — es la corrección concreta del problema de celdas combinadas.
-- `cols_validas = [...]` → descarta tres tipos de columnas basura que trae el Excel original: las que Pandas nombró automáticamente `Unnamed: N` (columnas vacías sin encabezado), la columna `glosario` (texto explicativo pegado en la misma hoja, no es un dato) y `Puesto` (ya cumplió su función de "marcador de fila con datos", no aporta nada al análisis).
-- `lista_48_equipos = df_maestro['Equipo'].dropna().unique()` → la hoja "Ataque" se toma como la **hoja de referencia**: los 48 equipos que aparecen ahí son "la verdad" sobre cuáles son los 48 equipos del torneo, para usar como base al cruzar el resto de las hojas.
-- El `for hoja in xls.sheet_names[1:]` con `merge(..., how="outer")` → cruza cada una de las otras 5 hojas contra el DataFrame acumulado, usando `Equipo` como clave. `how="outer"` es "permisivo": conserva equipos aunque no crucen perfectamente en alguna hoja (por ejemplo, si un nombre quedó escrito distinto en una hoja puntual), en vez de perderlos silenciosamente con un `how="inner"`.
-- `df_final.reindex(lista_48_equipos)` → fuerza al DataFrame final a tener **exactamente** esos 48 equipos, ni uno más ni uno menos, ordenados según la lista maestra — corrige cualquier duplicado o "sobrante" que se haya colado en los merges.
-- `df_final.fillna(df_final.mean(numeric_only=True))` → si algún equipo quedó con un hueco puntual en alguna columna (por un cruce imperfecto entre hojas), lo rellena con el promedio de esa columna — la misma técnica de imputación por media que se vio en el Módulo 1 de esta clase, aplicada acá para no perder ningún equipo por un problema menor de cruce.
-- `df_final.rename(columns={'Posecion del balon %': 'Posesión del balón %'})` → el Excel original trae ese nombre de columna mal escrito (sin la "s" de "Posesión" y sin el acento de "balón") — se corrige acá, **una sola vez**, para que el resto del notebook (Bloques 2 y 3) ya trabaje con el nombre correcto en vez de arrastrar el error en cada referencia.
-
-### Bloque 1 — Intro al Aprendizaje No Supervisado (sin código, solo teoría)
-
-Mismo concepto que el Módulo 1 de esta guía, con la analogía puntual del notebook: *"No sabemos quién ganó el torneo, ni qué táctica es la correcta; queremos que los datos nos digan de forma natural cómo se agrupan o se comportan los equipos de fútbol por sí solos."*
-
-### Bloque 2 — Reglas de Asociación (Apriori con `mlxtend`)
-
-**🧭 Por qué este es el segundo paso, y no el primero**: con los datos ya limpios (bloque anterior), este es el primer bloque que corresponde a la fase "Selección del método" y "Aplicación del algoritmo" del flujo general (Módulo 1, Filmina 09). Un patrón que se repite en **cualquier** proyecto de reglas de asociación, no solo en este: los datos casi nunca vienen ya en formato de "transacciones" — hay que **transformarlos** primero (acá, convertir 4 métricas numéricas continuas en categorías Alto/Bajo), porque Apriori no entiende números continuos, entiende presencia/ausencia de un ítem. Ese paso de "traducir tus datos al formato que pide el algoritmo" es previo a cualquier algoritmo de esta clase, y cambia según la técnica: acá son categorías binarias, en K-Means van a ser variables numéricas escaladas, en PCA también.
-
-🎯 **Qué queremos ver y para qué sirve**: la pregunta de negocio es *"¿qué métricas ofensivas suelen destacarse juntas en un mismo equipo?"* — este código la responde de forma automática, cruzando `Goles`, `Asistencias`, `Remates` y `Posesión del balón %` sin tener que compararlas manualmente de a pares. Importante: acá **no** aparecen "estilos" distintos que se asocian entre sí (como si un estilo A implicara un estilo B) — lo que el resultado real muestra es que estas 4 métricas ofensivas tienden a aparecer **todas juntas, como un solo paquete**, en los mismos equipos. Lo que buscamos al final no es la tabla completa de reglas (pueden salir decenas), sino **las 2-3 reglas con mayor lift**: esas son las que valen la pena comentar en clase, porque muestran una asociación real y no una coincidencia estadística (Módulo 2 de esta guía).
-
-```python
-import warnings
-warnings.filterwarnings('ignore', category=DeprecationWarning)
-from mlxtend.frequent_patterns import apriori, association_rules
-
-# 1. Transacciones booleanas (True/False), para evitar el Warning
-features_rules = ['Goles', 'Asistencias', 'Remates', 'Posesión del balón %']
-df_binario = df_final[features_rules].apply(lambda x: x > x.median()).astype(bool)
-
-# 2. Apriori
-frequent_itemsets = apriori(df_binario, min_support=0.3, use_colnames=True)
-
-# 3. Reglas de asociación
-reglas = association_rules(frequent_itemsets, metric="confidence", min_threshold=0.7)
-
-# Top 3 ordenado por Lift
-print(reglas[['antecedents', 'consequents', 'support', 'confidence', 'lift']].sort_values(by='lift', ascending=False).head(3))
-```
-
-**Línea por línea:**
-- `warnings.filterwarnings('ignore', category=DeprecationWarning)` → silencia un aviso conocido de la librería `mlxtend` sobre un cambio de tipo de dato pendiente en una versión futura — no afecta el resultado, solo evita que se imprima una advertencia irrelevante en medio de la clase.
-- `df_final[features_rules].apply(lambda x: x > x.median())` → convierte cada una de las 4 columnas numéricas en una columna de `True`/`False`, comparando cada valor contra la **mediana de esa misma columna**. Esto es necesario porque Apriori (el algoritmo del Módulo 2 de esta guía) trabaja con **transacciones de ítems presentes/ausentes**, no con números continuos — "Alto" (por encima de la mediana) es el equivalente acá a "el ítem está en la transacción".
-- `.astype(bool)` → fuerza el tipo de dato a booleano explícito; algunas versiones de `mlxtend` piden este tipo puntual para evitar el warning que se silenció arriba.
-- `apriori(df_binario, min_support=0.3, use_colnames=True)` → encuentra todos los conjuntos de columnas "Altas" que aparecen juntas en al menos el 30% de los equipos (`min_support=0.3`); `use_colnames=True` hace que el resultado muestre los nombres reales de las columnas en vez de números de índice.
-- `association_rules(frequent_itemsets, metric="confidence", min_threshold=0.7)` → a partir de esos conjuntos frecuentes, arma las reglas `A → B` y descarta las que tengan menos de 70% de confidence — el umbral de "qué tan seguido se cumple B, dado que se cumplió A" definido en el Módulo 2.
-- `.sort_values(by='lift', ascending=False).head(3)` → de todas las reglas que pasaron el filtro de confidence, se queda con las 3 de mayor lift — la métrica que, como se explicó en el Módulo 2, distingue una asociación real de una coincidencia estadística.
-- **Resultado real del notebook**: las 3 reglas con mayor lift combinan siempre `{Remates, Asistencias}` con `{Goles, Posesión del balón %}` — todas con lift entre 2,49 y 2,65, y support 0,3125 (15 de los 48 equipos cumplen la regla completa). Conclusión del notebook: *"en el fútbol moderno el éxito ofensivo es un ecosistema interconectado"* — no se puede aislar la posesión del gol, ni los remates de las asistencias.
-
-### Bloque 3 — K-Means (Posesión vs. Efectividad en los remates)
-
-**🧭 Los pasos generales de cualquier clustering con K-Means, no solo este**: (1) elegir qué variables numéricas describen mejor el fenómeno que se quiere agrupar — acá dos, pero podrían ser veinte; (2) escalarlas siempre, sin excepción; (3) probar varios valores de `k` y elegir uno con un criterio objetivo (el codo, y si hace falta el silhouette del Módulo 3 de la teoría); (4) entrenar el modelo final con ese `k`; (5) el paso que ningún algoritmo hace por vos: **interpretar** cada cluster y ponerle un nombre que tenga sentido para quien va a usar el resultado — acá "Los Contundentes", "Bloque Bajo", "Posesión Inofensiva". Ese último paso es el que separa un ejercicio técnico de un análisis útil para un cuerpo técnico real.
-
-🎯 **Qué queremos ver y para qué sirve**: primero, el **gráfico del codo** — para decidir, con criterio y no a ojo, cuántos perfiles tácticos distintos tiene sentido buscar (acá da `k=3`). Después, con el modelo ya entrenado, lo que realmente importa mostrar en clase es el **perfil promedio de cada cluster** y la lista de equipos que cayó en cada uno — es la forma de convertir "3 grupos numéricos" en "3 estilos de juego con nombre y sentido futbolístico", que es en definitiva lo que un cuerpo técnico o analista se llevaría de este análisis.
-
-```python
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-import matplotlib.pyplot as plt
-
-# 1. Selección y escalado
-X_kmeans = df_final[['Posesión del balón %', 'Efectividad en los remates %']].dropna()
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X_kmeans)
-
-# 2. Método del codo
-inercias = []
-for k in range(1, 8):
-    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-    kmeans.fit(X_scaled)
-    inercias.append(kmeans.inertia_)
-
-plt.plot(range(1, 8), inercias, marker='o')
-plt.show()
-
-# Modelo final con 3 clusters
-kmeans_opt = KMeans(n_clusters=3, random_state=42, n_init=10)
-X_kmeans['Cluster'] = kmeans_opt.fit_predict(X_scaled)
-
-print(X_kmeans.groupby('Cluster').mean())
-
-# Equipos por cluster
-equipos_por_cluster = X_kmeans.groupby('Cluster').apply(lambda df: list(df.index), include_groups=False)
-for num_cluster, lista_paises in equipos_por_cluster.items():
-    print(f"CLUSTER {num_cluster}: ({len(lista_paises)} equipos)")
-    print(", ".join(lista_paises))
-```
-
-**Línea por línea:**
-- `df_final[[...]].dropna()` → selecciona solo las 2 columnas que interesan para este análisis puntual (`Posesión del balón %` y `Efectividad en los remates %`) y descarta cualquier equipo con hueco en esas dos — K-Means no puede calcular distancias con valores faltantes.
-- `StandardScaler().fit_transform(X_kmeans)` → escala las dos columnas a media 0 y desvío 1 — imprescindible porque K-Means usa distancia Euclidiana (Módulo 3), y "posesión" y "efectividad" están en escalas distintas.
-- El `for k in range(1, 8)` con `.inertia_` → calcula el WCSS (Módulo 3, Filmina 18) para cada valor de `k` de 1 a 7, guardando cada resultado en la lista `inercias` para después graficar el método del codo.
-- `random_state=42` → fija la semilla aleatoria de la inicialización de centroides, para que el resultado sea **reproducible**: correr la celda dos veces da exactamente los mismos clusters, en vez de resultados ligeramente distintos cada vez.
-- `n_init=10` → corre el algoritmo completo 10 veces con inicializaciones distintas (Módulo 3, k-means++) y se queda con la mejor — reduce el riesgo de quedar atrapado en un mínimo local malo.
-- `kmeans_opt = KMeans(n_clusters=3, ...)` → el modelo final ya con el `k` decidido tras mirar el gráfico del codo.
-- `X_kmeans['Cluster'] = kmeans_opt.fit_predict(X_scaled)` → ajusta el modelo **con los datos escalados** (`X_scaled`), pero guarda el resultado en el DataFrame **sin escalar** (`X_kmeans`) — para poder leer los promedios de cada cluster en las unidades originales (porcentajes reales), no en unidades de desvío estándar.
-- `X_kmeans.groupby('Cluster').mean()` → el mismo patrón de `groupby` de las clases de Pandas: agrupa por el número de cluster asignado y promedia las columnas originales dentro de cada grupo — así se arma el "perfil promedio" de cada cluster.
-- `.groupby('Cluster').apply(lambda df: list(df.index), include_groups=False)` → para cada cluster, arma la lista de nombres de equipo (que viven en el índice del DataFrame, por el `set_index('Equipo')` de la celda de inicio); `include_groups=False` evita un warning de versiones nuevas de Pandas al usar `apply` sobre un `groupby`.
-- **Resultado real** (ya resumido más arriba en esta guía): 3 clusters — "Los Contundentes" (efectividad 19,44%, posesión media), "Bloque Bajo" (posesión y efectividad bajas), "Posesión Inofensiva" (posesión alta, efectividad la más baja del torneo).
-
-### Bloque 4 — Clustering Jerárquico y DBSCAN (Goles recibidos vs. Pérdidas de balón provocadas)
-
-**🧭 Por qué este bloque usa dos algoritmos y no solo K-Means**: en cualquier proyecto real, K-Means no siempre es la herramienta correcta — este bloque existe para mostrar en vivo **cuándo conviene cambiar de algoritmo**. La secuencia general (no específica de este notebook) es: si no sabés cuántos grupos hay, o si te interesa ver la estructura completa antes de decidir, recurrís a jerárquico; si sospechás que hay "ruido" real en los datos (casos que no deberían forzarse a ningún grupo), recurrís a DBSCAN. Ninguno de los dos pide `k` de antemano — esa es la diferencia de fondo con el bloque anterior, y el motivo por el que en la práctica conviene tener más de un algoritmo de clustering en la caja de herramientas, no solo el más popular.
-
-**¿Qué es un dendrograma?** (repaso rápido, ya desarrollado en el Módulo 4 de esta guía) Es un diagrama en forma de árbol que muestra **todo el proceso de agrupamiento a la vez**, no un único resultado. Cada "hoja" del árbol (en la punta) es un equipo individual; a medida que subís, las hojas se van fusionando de a pares en ramas más grandes, hasta terminar todas juntas en una sola raíz. La **altura** a la que dos ramas se unen indica qué tan distintas son entre sí: cuanto más abajo se fusionan, más se parecen; cuanto más arriba, más diferentes son. No hace falta elegir un número de clusters de antemano (a diferencia de K-Means) — se elige **después**, mirando el árbol completo y decidiendo a qué altura "cortarlo" con una línea imaginaria: cuantas más ramas cruce esa línea, más clusters resultan.
-
-🎯 **Qué queremos ver y para qué sirve**: acá se usan **dos algoritmos con objetivos distintos sobre las mismas variables defensivas**, a propósito, para que se note la diferencia en vivo. Del dendrograma queremos ver la **altura a la que se separan las ramas principales** (a qué distancia dejan de parecerse los grupos de equipos). De DBSCAN queremos ver algo totalmente distinto: no clusters, sino la **lista de equipos que quedaron como ruido** — los que tienen un comportamiento defensivo tan atípico que no encajan bien en ningún grupo denso.
-
-```python
-import scipy.cluster.hierarchy as sch
-from sklearn.cluster import DBSCAN
-
-# 1. Dendrograma
-X_defensa = scaler.fit_transform(df_final[['Goles recibidos', 'Pérdidas de balon provocadas']].dropna())
-dendrograma = sch.dendrogram(sch.linkage(X_defensa, method='ward'))
-plt.show()
-
-# 2. DBSCAN
-dbscan = DBSCAN(eps=0.5, min_samples=3)   # corregido: el original tenía "+=3", un error de sintaxis
-clusters_db = dbscan.fit_predict(X_defensa)
-print(f"Equipos catalogados como Outliers/Ruido (-1): {np.sum(clusters_db == -1)}")
-
-df_final['DBSCAN_Cluster'] = clusters_db
-outliers = df_final[df_final['DBSCAN_Cluster'] == -1]
-print(outliers[['Goles recibidos', 'Pérdidas de balon provocadas']])
-```
-
-**Línea por línea:**
-- `scaler.fit_transform(df_final[[...]].dropna())` → reutiliza el mismo `scaler` creado en la celda de inicio (no crea uno nuevo); escala las 2 variables defensivas antes de medir cualquier distancia o similitud, la misma regla de siempre.
-- `sch.linkage(X_defensa, method='ward')` → calcula la estructura completa del árbol de fusiones con el criterio Ward (Módulo 4: minimiza el incremento de varianza en cada fusión); el resultado es la matriz `Z` que describe todo el dendrograma.
-- `sch.dendrogram(...)` → dibuja el árbol a partir de esa matriz.
-- `DBSCAN(eps=0.5, min_samples=3)` → los dos parámetros del Módulo 4: `eps` es el radio de vecindad, `min_samples` la cantidad mínima de vecinos para considerar una zona "densa". Acá se usaron directamente sin pasar por el `k-distance plot` que se vio en la teoría — una simplificación válida para una demo rápida, aunque en un análisis más riguroso convendría estimar `eps` con esa técnica.
-- `dbscan.fit_predict(X_defensa)` → ajusta el modelo y devuelve, para cada equipo, el número de cluster asignado o `-1` si quedó como ruido.
-- `np.sum(clusters_db == -1)` → cuenta cuántos equipos quedaron marcados como ruido — el mismo truco de "sumar una máscara booleana" que se usó en Pandas para contar nulos, aplicado acá a un array de NumPy.
-- `df_final[df_final['DBSCAN_Cluster'] == -1]` → filtro booleano estándar: se queda solo con las filas de los equipos marcados como outliers, para poder inspeccionar sus valores puntuales.
-- **Resultado real**: el dendrograma muestra 3 macro-clusters al cortar a la altura ~5,5; DBSCAN marcó **11 equipos** como outliers — estadísticas defensivas en los extremos del torneo, no necesariamente "peores".
-
-### Bloque 5 — PCA (bloque de variables físicas)
-
-**🧭 Por qué PCA suele ser el último paso, no el primero**: a diferencia de los bloques 2 a 4 (que agrupan o buscan reglas), PCA no agrupa nada — **simplifica** para que otro paso (un gráfico, un clustering, un modelo supervisado) funcione mejor o sea posible de mostrar. Es, en general, una herramienta de **preprocesamiento**, no de análisis final: se aplica cuando el problema real (agrupar, predecir, visualizar) tiene demasiadas variables como para resolverse de forma directa. La secuencia general que se repite en cualquier uso de PCA: identificar el grupo de variables relacionadas que se quiere simplificar → escalarlas → decidir cuántas componentes conservar (mirando la varianza explicada) → aplicar → e **interpretar** qué representa cada componente en términos del problema original (acá, "intensidad de carrera" y "velocidad pura"), no solo mirar los números sueltos.
-
-🎯 **Qué queremos ver y para qué sirve**: no podemos graficar 4 variables físicas a la vez en un plano — PCA las comprime a 2 sin perder casi nada (eso es lo primero que hay que mirar: el % de varianza acumulada, para justificar que la simplificación vale la pena). Con esas 2 componentes ya calculadas, lo que realmente queremos ver es el **mapa interactivo**: dónde cae cada uno de los 48 equipos, para detectar a simple vista quiénes corren mucho volumen, quiénes priorizan la velocidad puntual y quiénes rinden poco en lo físico — una lectura visual que sería imposible con las 4 variables originales por separado.
-
-```python
+from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.decomposition import PCA
-import plotly.express as px
+from sklearn.manifold import TSNE
+from sklearn.metrics import silhouette_score
 
-# Seleccionar bloque Físico
-cols_fisico = ['Velocidad Media (Km/h)', 'Esprint a gran velocidad', 'Esprints', 'Distancia recorrida (m)']
-X_fisico = scaler.fit_transform(df_final[cols_fisico].dropna())
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# PCA
+from scipy.cluster.hierarchy import dendrogram, linkage
+```
+
+**Línea por línea**: Pandas/NumPy para datos; de `sklearn.cluster` los 3 algoritmos de clustering de la clase (`KMeans`, `AgglomerativeClustering` para el Jerárquico, `DBSCAN`); `StandardScaler` para escalar (obligatorio en todo lo que mide distancias) y `OneHotEncoder` por si hiciera falta codificar alguna variable categórica (no se termina usando en este notebook, queda importado por si se necesita); `PCA` y `TSNE` para reducción de dimensionalidad; `silhouette_score` para la métrica de validación de clusters; Matplotlib/Seaborn para gráficos; `dendrogram`/`linkage` de SciPy, específicas para dibujar el árbol del clustering jerárquico (`scikit-learn` no trae una función de dendrograma propia).
+
+---
+
+## Módulo 2 en código — K-Means
+
+### Ejemplo ilustrativo: datos climáticos sintéticos
+
+**Qué hace en general**: genera 240 "ciudades" ficticias repartidas en 3 grupos climáticos conocidos de antemano (tropical, templado, árido), y las grafica **sin mostrar a qué grupo pertenece cada una** — el mismo punto de partida que tendría K-Means en la vida real, donde no hay colores ni etiquetas previas.
+
+```python
+np.random.seed(42)
+n = 80  # ciudades por grupo
+
+tropicales = np.random.multivariate_normal([29, 78], [[4, 3], [3, 12]], n)
+templadas  = np.random.multivariate_normal([14, 55], [[6, -2], [-2, 10]], n)
+aridas     = np.random.multivariate_normal([26, 18], [[5, 1], [1, 8]], n)
+
+X_clima = np.vstack([tropicales, templadas, aridas])
+X_clima[:, 1] = np.clip(X_clima[:, 1], 0, 100)
+```
+
+**Línea por línea**: `np.random.multivariate_normal([media_temp, media_hum], matriz_covarianza, n)` genera 80 puntos al azar alrededor de un centro dado (ej. 29°C/78% para el grupo tropical), con una dispersión que define la matriz de covarianza — es la forma de "simular" un grupo real sin tener que salir a medir 80 ciudades de verdad. `np.vstack([...])` apila los 3 grupos de 80 en una única tabla de 240 filas. `np.clip(X_clima[:, 1], 0, 100)` recorta la columna de humedad para que ningún valor quede fuera del rango físicamente posible (0% a 100%), porque una distribución normal puede generar, por puro azar, algún valor absurdo como -3% o 105%.
+
+**Por qué este dataset en particular, y no uno real desde el arranque**: al conocer de antemano los 3 grupos "verdaderos" (porque los generó el propio código), se puede comparar el resultado de K-Means contra esa verdad y confirmar que el algoritmo hizo bien su trabajo — algo que con un dataset real nunca se puede chequear con la misma certeza, porque ahí es K-Means quien *define* qué son los grupos.
+
+### Escalado y aplicación de K-Means
+
+**Qué hace en general**: estandariza las 2 variables (para que la escala de la temperatura, en decenas, no le gane de entrada a la escala de la humedad, en unidades porcentuales) y entrena K-Means con `k=3`.
+
+```python
+scaler_clima = StandardScaler()
+X_clima_scaled = scaler_clima.fit_transform(X_clima)
+
+kmeans_clima = KMeans(n_clusters=3, random_state=42, n_init=10)
+kmeans_clima.fit(X_clima_scaled)
+y_kmeans_clima = kmeans_clima.predict(X_clima_scaled)
+
+centers_clima = scaler_clima.inverse_transform(kmeans_clima.cluster_centers_)
+```
+
+**Línea por línea**: `StandardScaler().fit_transform(X_clima)` estandariza las 2 columnas (media 0, desvío 1) — el mismo criterio de la Filmina 14/Módulo 2 del repaso teórico. `KMeans(n_clusters=3, random_state=42, n_init=10)` instancia el modelo con `k=3` fijo (porque ya se sabe, en este ejemplo armado, que hay 3 grupos); `n_init=10` corre el algoritmo completo 10 veces con distintas inicializaciones al azar y se queda con la mejor (para esquivar el problema del "mínimo local" visto en la Filmina 13). `.fit(...)` entrena, `.predict(...)` asigna cada ciudad a un cluster (0, 1 o 2). `scaler_clima.inverse_transform(kmeans_clima.cluster_centers_)` es un paso sutil pero importante: los centroides que aprendió el modelo están en la escala **escalada** (media 0, desvío 1) — `inverse_transform` los devuelve a la escala original (°C y %), para que los números impresos tengan sentido real ("Cluster 0: Temperatura = 28.9°C") en vez de números abstractos como "-0.03".
+
+### Gráfico de clusters y Método del Codo
+
+**Qué hace en general**: dos piezas separadas — primero un gráfico de dispersión coloreado por cluster (con los centroides marcados con una X), después el cálculo del WCSS para `k` de 1 a 10, para ilustrar el método del codo con datos reales.
+
+```python
+for k in k_range:
+    km_elbow = KMeans(n_clusters=k, random_state=42, n_init=10)
+    km_elbow.fit(X_clima_scaled)
+    inertia.append(km_elbow.inertia_)
+```
+
+**Línea por línea**: el loop entrena un K-Means **distinto** para cada valor de `k` entre 1 y 10, y guarda el `.inertia_` (el WCSS) de cada uno en la lista `inertia` — exactamente el procedimiento descripto en la Filmina 14 (Módulo 2), ahora con números reales en vez de solo la explicación teórica. El resultado esperado: la curva cae fuerte hasta `k=3` y después se aplana — el "codo" coincide con los 3 climas reales que se usaron para generar los datos.
+
+### Validación con Coeficiente Silhouette
+
+**Qué hace en general**: repite el mismo barrido de `k` (esta vez de 2 a 10, porque Silhouette no se puede calcular con un solo cluster) y compara, en un gráfico de 2 paneles, el Codo contra el Silhouette — para ver si las dos métricas coinciden en el mismo `k` recomendado.
+
+```python
+for k in k_sil_range:
+    km = KMeans(n_clusters=k, random_state=42, n_init=10)
+    labels_k = km.fit_predict(X_clima_scaled)
+    silhouette_avgs.append(silhouette_score(X_clima_scaled, labels_k))
+```
+
+**Línea por línea**: `fit_predict(...)` entrena y asigna clusters en un solo paso; `silhouette_score(X, labels)` calcula el Silhouette promedio de **todo** el dataset para ese `k` puntual (no punto por punto, el promedio general). `np.argmax(silhouette_avgs)` identifica el `k` con el Silhouette más alto. El mensaje final del notebook ("cuando Codo y Silhouette coinciden en el mismo k → mayor confianza en la elección") es la bajada práctica de la Filmina 15: ninguna de las dos métricas es "la verdad absoluta" por sí sola, pero si ambas apuntan al mismo número, es una señal mucho más confiable que cualquiera de las dos por separado.
+
+---
+
+## Módulo 2 en código (continuación) — Clustering Jerárquico
+
+### Dendrograma sobre una muestra
+
+**Qué hace en general**: toma una submuestra de 60 ciudades (de las 240 totales) del mismo dataset climático, y construye un dendrograma con linkage `ward` — menos puntos que con K-Means, a propósito, para que el árbol sea legible.
+
+```python
+idx_sample = np.random.choice(len(X_clima), 60, replace=False)
+X_demo_small = X_clima[idx_sample]
+
+linked_clima = linkage(X_demo_small, method='ward')
+```
+
+**Línea por línea**: `np.random.choice(..., replace=False)` elige 60 índices al azar sin repetir, para tomar una submuestra representativa. `linkage(X_demo_small, method='ward')` calcula, paso a paso, qué par de clusters fusionar en cada nivel, usando el criterio Ward (minimizar el incremento de varianza interna al fusionar) — el resultado `linked_clima` es la estructura completa que describe todo el árbol de fusiones, lista para graficar con `dendrogram(...)`. El `color_threshold=25` del gráfico pinta de distinto color las ramas que quedan por debajo de esa altura, ayudando a ver a simple vista dónde "cortar" el árbol en 3 grupos.
+
+### AgglomerativeClustering y comparación con K-Means
+
+**Qué hace en general**: aplica el clustering jerárquico sobre **todas** las 240 ciudades (ya no solo la submuestra de 60), pidiéndole directamente 3 clusters, y compara cuantitativamente ese resultado contra el de K-Means.
+
+```python
+agg_clima = AgglomerativeClustering(n_clusters=3, linkage='ward')
+y_agg_clima = agg_clima.fit_predict(X_clima)
+
+ari = adjusted_rand_score(y_kmeans_clima, y_agg_clima)
+```
+
+**Línea por línea**: `AgglomerativeClustering(n_clusters=3, linkage='ward')` — a diferencia del dendrograma (que no necesita saber `k` de antemano), acá sí se le pide un número fijo de clusters, porque `.fit_predict()` necesita devolver una asignación concreta, no un árbol completo. `adjusted_rand_score(y_kmeans_clima, y_agg_clima)` es una métrica que compara dos particiones distintas del mismo dataset y dice qué tan parecidas son, **sin importar qué número de cluster le puso cada algoritmo a cada grupo** (K-Means podría llamar "Cluster 0" a lo que el Jerárquico llama "Cluster 2", y el ARI lo detecta igual). Un ARI cercano a 1.0 significa que, aunque usan lógicas internas distintas (centroides vs. fusiones), los dos algoritmos llegaron prácticamente al mismo resultado — un buen chequeo de que el agrupamiento encontrado es robusto, no un capricho de un solo algoritmo.
+
+**Nota importante no mencionada en el notebook**: el Jerárquico corre acá sobre `X_clima` **sin escalar** (a diferencia de K-Means, que sí usó `X_clima_scaled`) — una inconsistencia menor del notebook original. En este dataset puntual el resultado no cambia demasiado porque ambas variables ya están en rangos parecidos, pero en un dataset real con escalas muy distintas, esto sí podría cambiar el resultado del Jerárquico — vale la pena mencionarlo en clase como ejemplo de un error común (Filmina 13/Módulo 2 del repaso teórico) que se puede colar incluso en un notebook ya armado.
+
+---
+
+## Módulo 3 en código — DBSCAN
+
+### Generar datos con forma de "lunas"
+
+**Qué hace en general**: genera un dataset con 2 grupos en forma de medialuna entrelazada — a propósito, porque son formas que K-Means (que asume grupos esféricos) no puede separar bien, y DBSCAN sí.
+
+```python
+X_moons, y_moons_true = make_moons(n_samples=250, noise=0.1, random_state=42)
+X_moons_scaled = StandardScaler().fit_transform(X_moons)
+```
+
+**Línea por línea**: `make_moons(n_samples=250, noise=0.1)` es una función de scikit-learn pensada específicamente para generar este tipo de forma no convexa; `noise=0.1` agrega algo de dispersión aleatoria a cada punto, para que no sean dos líneas perfectas sino algo más parecido a datos reales.
+
+### Aplicar DBSCAN y graficar
+
+**Qué hace en general**: corre DBSCAN sobre las lunas, y separa visualmente los puntos que quedaron en algún cluster de los que quedaron marcados como ruido.
+
+```python
+dbscan = DBSCAN(eps=0.3, min_samples=5)
+y_dbscan = dbscan.fit_predict(X_moons_scaled)
+```
+
+**Línea por línea**: `DBSCAN(eps=0.3, min_samples=5)` fija los dos parámetros clave de la Filmina 19/Módulo 3 "a ojo" en este ejemplo (el notebook no corre acá un k-distance plot para estimarlo, a diferencia de lo que sugiere la teoría — queda como posible mejora). `.fit_predict(...)` devuelve, para cada punto, el número de cluster al que pertenece, o `-1` si quedó como ruido. En el gráfico, `noise_mask = y_dbscan == -1` separa los puntos de ruido (dibujados con una X roja) del resto (coloreados por cluster) — el resultado esperado es que las dos lunas queden separadas en 2 clusters bien definidos, algo que K-Means con `k=2` no lograría (tendería a cortar cada luna por la mitad).
+
+---
+
+## Módulo 4 en código — PCA y t-SNE
+
+### Cargar y escalar Iris
+
+**Qué hace en general**: carga el dataset de **Iris** (el mismo que se usó, con etiqueta, en el Bloque 0 de repaso de Supervisado) y lo escala, como paso previo obligatorio antes de aplicar PCA.
+
+```python
+iris = load_iris()
+X_iris = iris.data
+y_iris = iris.target
+
+X_iris_scaled = StandardScaler().fit_transform(X_iris)
+```
+
+**Línea por línea**: `load_iris()` trae las 4 features y la especie real (`y_iris`) de cada una de las 150 flores. Acá es importante notar algo: `y_iris` se carga igual, pero **no se usa para entrenar nada** en esta sección — queda disponible únicamente para, más adelante, colorear el gráfico y poder *verificar* si el agrupamiento que encuentra PCA (sin mirar la especie) coincide con la especie real. Es exactamente la continuidad pedagógica con el Bloque 0: ahí se usó `y_iris` para entrenar un clasificador; acá se la guarda aparte, como "respuesta correcta" para comparar después, pero el algoritmo en sí (PCA) nunca la ve.
+
+### Aplicar PCA
+
+**Qué hace en general**: reduce las 4 features originales a 2 Componentes Principales, y mide cuánta varianza conservan esas 2 componentes.
+
+```python
 pca = PCA(n_components=2)
-componentes = pca.fit_transform(X_fisico)
+X_pca = pca.fit_transform(X_iris_scaled)
 
 print(f"Varianza explicada por componente: {pca.explained_variance_ratio_}")
-print(f"Varianza explicada acumulada: {np.sum(pca.explained_variance_ratio_):.2%}")
-
-df_pca_plot = pd.DataFrame({
-    'PC1_Intensidad': componentes[:, 0],
-    'PC2_Velocidad': componentes[:, 1],
-    'Equipo': df_final.index
-})
-
-fig = px.scatter(df_pca_plot, x='PC1_Intensidad', y='PC2_Velocidad', hover_name='Equipo')
-fig.show()
+print(f"Varianza explicada acumulada: {np.sum(pca.explained_variance_ratio_)}")
 ```
 
-**Línea por línea:**
-- `cols_fisico = [...]` → las 4 variables físicas que se van a comprimir: velocidad media, esprint a gran velocidad, cantidad de esprints, distancia recorrida.
-- `scaler.fit_transform(...)` → escalado obligatorio antes de PCA (Módulo 5): sin esto, `Distancia recorrida (m)` (números grandes) dominaría por completo la varianza frente a `Velocidad Media (Km/h)` (números chicos).
-- `PCA(n_components=2)` → pide quedarse con las 2 primeras componentes principales — la reducción de 4 variables a 2, elegida acá para poder graficar en un plano 2D.
-- `pca.fit_transform(X_fisico)` → calcula las componentes principales (Módulo 5: los eigenvectores de la matriz de covarianza) y proyecta cada equipo sobre esas 2 nuevas direcciones; el resultado `componentes` es una matriz de 48 filas × 2 columnas.
-- `pca.explained_variance_ratio_` → el atributo de scikit-learn que ya trae calculado qué porcentaje de la varianza total explica cada componente — no hace falta calcularlo a mano con eigenvalores, como sí se hizo en el ejemplo teórico del Módulo 5.
-- `componentes[:, 0]` y `componentes[:, 1]` → las columnas 0 y 1 de la matriz de componentes — PC1 y PC2 para cada equipo, respectivamente.
-- `'Equipo': df_final.index` → como el índice del DataFrame son los nombres de los equipos (desde la celda de inicio), esto arma la columna de nombres alineada fila a fila con sus componentes.
-- `px.scatter(..., hover_name='Equipo')` → gráfico interactivo de Plotly; `hover_name` hace que, al pasar el mouse sobre un punto, se muestre el nombre del equipo en vez de solo las coordenadas numéricas.
-- **Resultado real**: PC1 explica **80,60%** de la varianza (interpretado como "Intensidad de carrera") y PC2 explica **16,69%** ("Velocidad pura") — 97,29% acumulado entre las dos. Reducir de 4 variables a 2 casi no pierde información.
+**Línea por línea**: `PCA(n_components=2)` fija de antemano que se quieren solo 2 componentes (porque el objetivo acá es graficar en 2D, no explicar un umbral de varianza — la razón que la Filmina 23/Módulo 4 menciona como el caso típico donde "el límite no es estadístico, es que un gráfico no tiene más de 3 ejes"). `pca.fit_transform(X_iris_scaled)` aprende las direcciones de máxima varianza y proyecta los datos sobre ellas en el mismo paso. `pca.explained_variance_ratio_` es un array con el porcentaje de varianza que capturó cada componente — el resultado real da algo como `[0.73, 0.23]`, o sea que con solo 2 de las 4 variables originales ya se conserva más del 95% de la información total.
 
-### Bloque 6 — Panorama de Métodos y Cierre
+### Graficar PCA en 2D, coloreado por especie real
 
-La regla rápida que resume el notebook, útil como diapositiva mental de cierre:
+**Qué hace en general**: grafica las 150 flores en el plano de las 2 Componentes Principales, pero coloreando cada punto según su especie **real** (`y_iris`) — el primer momento del notebook donde se puede *ver* si la estructura que encontró PCA (sin mirar la especie) coincide con las 3 especies reales.
 
-- **Reglas de Asociación**: patrones lógicos de coocurrencia (canastas de compra, sinergias de eventos).
-- **K-Means**: grupos claros y circulares, cuando ya tenés una idea de cuántos querés.
-- **Jerárquico**: cuando importa entender la taxonomía/árbol de relación entre los datos, no solo el grupo final.
-- **DBSCAN**: datos con formas complejas, o necesidad de aislar ruido/anomalías con precisión.
-- **PCA**: antes de modelar o graficar, para sacar la redundancia (correlación) y simplificar el problema.
+**Por qué esto es más una demostración que un ejercicio no supervisado "puro"**: en un escenario 100% no supervisado no se tendría `y_iris` para colorear — acá se la usa a propósito, solo para **validar** visualmente el resultado de PCA, no para entrenarlo. Vale la pena aclarar esta distinción en clase: el momento en que aparecen los 3 colores separados en el gráfico es la confirmación visual de que, incluso sin que nadie le dijera la especie, la reducción de dimensionalidad conservó la estructura que separa a las 3 especies — es el mismo "cierre de círculo" con el Bloque 0 de Supervisado mencionado más arriba.
+
+### Aplicar t-SNE
+
+**Qué hace en general**: reduce las mismas 4 features de Iris a 2 dimensiones, pero con una técnica **no lineal** (t-SNE) en vez de PCA, reutilizando `X_iris_scaled` ya calculado.
+
+```python
+tsne = TSNE(n_components=2)
+X_tsne = tsne.fit_transform(X_iris_scaled)
+```
+
+**Línea por línea**: a diferencia de PCA, acá no hay un `.transform()` separado — t-SNE no aprende una transformación reusable, cada corrida calcula el mapa 2D desde cero para ese dataset puntual (por eso no tiene sentido "aplicar" un t-SNE ya entrenado a datos nuevos, a diferencia de PCA). No se fija `random_state`, así que correr esta celda dos veces puede dar mapas visualmente distintos (aunque la estructura de grupos que revele debería ser parecida) — vale la pena mencionarlo en vivo si alguien nota que el gráfico cambió al re-ejecutar.
+
+---
+
+## Ejercicio Práctico — Segmentación de Clientes (Mall Customers)
+
+**Contexto del ejercicio**: a diferencia de los ejemplos anteriores (con datos sintéticos o el clásico Iris), acá se usa un dataset **real y público**: 200 clientes de un centro comercial, con edad, ingreso anual y un "Spending Score" (un puntaje de 1 a 100 que el propio shopping ya calculó para medir cuánto gasta cada cliente). Es el ejercicio más cercano, de todo el notebook, al Módulo 6 de Customer Profiling — termina pidiéndole explícitamente al alumno que le **ponga nombre** a cada cluster encontrado, la misma traducción de dato a negocio que se desarrolla en la teoría.
+
+### Paso 1 — Cargar los datos
+
+```python
+url = 'https://raw.githubusercontent.com/erkansirin78/datasets/master/Mall_Customers.csv'
+df = pd.read_csv(url)
+```
+
+**Línea por línea**: `pd.read_csv(url)` carga el CSV directamente desde una URL pública de GitHub — no hace falta tener el archivo descargado localmente. Columnas: `CustomerID` (no es una feature real, solo identificador), `Gender`, `Age`, `AnnualIncome`, `SpendingScore`.
+
+### Pasos 2 y 3 — Exploración y distribución
+
+**Qué hace en general**: antes de clusterizar nada, mira el tamaño del dataset, sus estadísticas descriptivas (`df.describe()`) y la distribución de cada variable numérica con 3 histogramas — el mismo primer paso de "entender los datos antes de tocarlos" que ya se vio en el Repaso de la Clase 08 y en la Clase 06/07 del curso.
+
+### Paso 4 — Selección de features y escalado
+
+**Qué hace en general**: de las 4 variables numéricas disponibles (`Age`, `AnnualIncome`, `SpendingScore`), elige deliberadamente solo 2 (`AnnualIncome` y `SpendingScore`) para poder graficar el resultado en un plano 2D simple, y las escala.
+
+```python
+X = df[['AnnualIncome', 'SpendingScore']].values
+X_scaled = StandardScaler().fit_transform(X)
+```
+
+**Por qué solo 2 de las 4 variables**: el propio notebook lo aclara — simplicidad para visualizar, y el Spending Score ya es en sí mismo un resumen del comportamiento de compra. Vale la pena usarlo como gancho para mencionar en clase que, en un caso real con más variables, acá es exactamente donde entraría PCA (Módulo 4) antes de clusterizar, para no tener que elegir "a mano" solo 2 de muchas variables disponibles.
+
+### Pasos 5 y 6 — Método del codo y elección de K
+
+**Qué hace en general**: corre el mismo barrido de `k` de 1 a 10 ya visto con los datos climáticos, pero ahora sobre los clientes reales — y, a diferencia del ejemplo anterior (donde `k=3` ya estaba decidido de antemano), acá el notebook le pide explícitamente al alumno que **mire el gráfico y decida** su propio valor de `K` antes de seguir.
+
+```python
+K = 5  # <-- CAMBIÁ ESTE VALOR si elegís otro K
+kmeans = KMeans(n_clusters=K, random_state=42, n_init=10)
+kmeans.fit(X_scaled)
+labels = kmeans.labels_
+```
+
+**Para el docente**: con este dataset en particular, el codo del gráfico suele verse bastante claro en `k=5` — y da pie a mostrar en vivo qué pasa si alguien elige un `k` distinto (por ejemplo `k=3` o `k=8`) y cómo cambian los clusters resultantes, conectando directo con la Filmina 14/15 (Módulo 2) sobre que no hay un único "k correcto", solo un rango razonable.
+
+### Pasos 7 y 8 — Visualizar y analizar cada cluster
+
+**Qué hace en general**: grafica los 200 clientes coloreados por cluster (con los centroides marcados), y después arma una tabla con el promedio de edad/ingreso/gasto de cada cluster — la materia prima para poder interpretarlos.
+
+```python
+cluster_stats = df.groupby('Cluster').agg({
+    'Cluster': 'count', 'Age': 'mean',
+    'AnnualIncome': 'mean', 'SpendingScore': 'mean'
+})
+```
+
+**Línea por línea**: `df.groupby('Cluster').agg({...})` agrupa las 200 filas por el cluster que les asignó K-Means (no agrupa por algo que el analista decidió a mano, sino por el resultado del algoritmo), y calcula el promedio de cada variable dentro de cada grupo — es, literalmente, el "centroide" expresado en términos de negocio en vez de en coordenadas abstractas.
+
+### Paso 9 — Clasificar los clusters (la parte más importante)
+
+**Qué hace en general**: le pide al alumno completar un diccionario poniéndole un **nombre de negocio** a cada cluster, basándose en las estadísticas del paso anterior — no hay una respuesta ya resuelta en el código, es deliberadamente una celda para completar en vivo.
+
+```python
+clasificacion = {
+    0: ('PONÉ TU NOMBRE AQUÍ', 'Escribí por qué elegiste este nombre...'),
+    ...
+}
+```
+
+**Por qué esta celda es la bisagra pedagógica de todo el ejercicio**: es la puesta en práctica exacta del Módulo 6 (Customer Profiling) — el algoritmo entregó 5 grupos con sus promedios de ingreso/gasto/edad, pero **nunca** dice "este es el segmento Premium" o "estos son los Conservadores" — ese paso de ponerle nombre, decidir qué hacer con cada grupo, es 100% criterio humano. Vale la pena, en vivo, pedirle al grupo que proponga nombres para los 5 clusters mirando la tabla de estadísticas del paso anterior, antes de mostrar cualquier respuesta sugerida.
+
+**Respuesta orientativa para el docente** (con `K=5`, los números van a variar levemente según la semilla y el hardware, pero la lógica general se mantiene): un cluster de **ingreso alto + gasto alto** → "Clientes VIP/Premium" (el segmento más rentable, foco de retención); uno de **ingreso alto + gasto bajo** → "Clientes Conservadores de Alto Poder Adquisitivo" (tienen plata pero no la gastan ahí — una oportunidad de marketing específica); uno de **ingreso bajo + gasto alto** → "Clientes Entusiastas" (gastan por encima de lo que su ingreso sugeriría — cuidado con ofrecerles crédito sin análisis adicional); uno de **ingreso bajo + gasto bajo** → "Clientes de Bajo Potencial"; y uno de **ingreso medio + gasto medio** → "Clientes Estándar" (el grueso de la base, sin un patrón extremo en ningún sentido).
+
+### Paso 10 — Reflexión final
+
+Cierra el notebook sin código nuevo, con una síntesis de los 5 pasos recorridos y una pregunta abierta para el grupo ("¿cómo cambiarían las clasificaciones si eligieras otro K?") — buen gancho para conectar con la Pre-entrega del Módulo 7, que le pide al alumno hacer exactamente este mismo ejercicio de interpretación, pero sobre un dataset distinto (usuarios de una app de streaming) y de forma completamente escrita, sin código.
+
+---
+
+## Pendiente de documentar
+
+El notebook de repaso de Supervisado (`Clase09_Bloque0_Repaso_Supervisado.ipynb`) ya está documentado más arriba, en la sección "👉 En Python" del Módulo 0. La demo de "PCA mejorando un modelo real" (dataset de cáncer de mama + 300 columnas de ruido + KNN) que describe la Filmina 30 (Módulo 5) **todavía no tiene celda propia** en ninguno de los dos notebooks — por ahora solo está documentada en el README como texto, igual que viene del docx. Si se decide correrla en vivo, habría que agregarla como notebook nuevo o como bloque adicional.
