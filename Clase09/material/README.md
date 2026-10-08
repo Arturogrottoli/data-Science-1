@@ -2,10 +2,10 @@
 
 Esta guía es el **libreto de apoyo para dictar la Clase 09**. Reúne, en un solo lugar y con más profundidad de la que entra en una diapositiva, toda la teoría que aparece en:
 
-- **`Clase 09_teoria.pdf`** — el material teórico oficial de la unidad (6 secciones: de la introducción al aprendizaje no supervisado hasta el panorama comparativo de métodos).
-- **`Clase09.html`** — las diapositivas que se proyectan en clase (39 filminas).
+- **`Clase 09_fixed.docx`** — el material teórico oficial de la unidad (reemplaza a `Clase 09_teoria.pdf`, que queda obsoleto).
+- **`Clase09.html`** — las diapositivas que se proyectan en clase (36 filminas).
 
-> **Estado de esta guía**: por ahora cubre teoría (PDF + filminas) y el repaso de aprendizaje supervisado como puente desde la Clase 08. Todavía no incorpora el notebook de la clase ni un dataset real propio — eso queda para una próxima iteración.
+> **Estado de esta guía**: actualizada para seguir el nuevo `Clase 09_fixed.docx`. Se sacaron Reglas de Asociación (Apriori/FP-Growth), Clustering Jerárquico y la base matemática de PCA (covarianza/eigenvectores) porque el docx nuevo ya no los trae; se agregó Customer Profiling, Ética y Sesgos, y la Pre-entrega, que sí trae. El notebook de la clase (`Clase_9.ipynb`) todavía refleja la estructura vieja — queda pendiente para una próxima iteración.
 
 ---
 
@@ -14,30 +14,33 @@ Esta guía es el **libreto de apoyo para dictar la Clase 09**. Reúne, en un sol
 - [Mapa rápido de la clase](#mapa-rápido-de-la-clase)
 - [Módulo 0 — Repaso: Aprendizaje Supervisado](#módulo-0--repaso-aprendizaje-supervisado-puente-desde-la-clase-08)
 - [Módulo 1 — ¿Qué es el Aprendizaje No Supervisado?](#módulo-1--qué-es-el-aprendizaje-no-supervisado)
-- [Módulo 2 — Reglas de Asociación](#módulo-2--reglas-de-asociación)
-- [Módulo 3 — K-Means y la Elección de k](#módulo-3--k-means-y-la-elección-de-k)
-- [Módulo 4 — Clustering Jerárquico y DBSCAN](#módulo-4--clustering-jerárquico-y-dbscan)
-- [Módulo 5 — PCA: Reducción de Dimensionalidad](#módulo-5--pca-reducción-de-dimensionalidad)
-- [Módulo 6 — Panorama de Métodos (Síntesis)](#módulo-6--panorama-de-métodos-síntesis)
+- [Módulo 2 — K-Means y la Elección de k](#módulo-2--k-means-y-la-elección-de-k)
+- [Módulo 3 — DBSCAN: Clustering Basado en Densidad](#módulo-3--dbscan-clustering-basado-en-densidad)
+- [Módulo 4 — PCA: Reducción de Dimensionalidad](#módulo-4--pca-reducción-de-dimensionalidad)
+- [Módulo 5 — Panorama de Métodos (Síntesis)](#módulo-5--panorama-de-métodos-síntesis)
+- [Módulo 6 — Customer Profiling](#módulo-6--customer-profiling)
+- [Módulo 7 — Ética, Sesgos y Cierre](#módulo-7--ética-sesgos-y-cierre)
+- [Pre-entrega: Aprendizaje No Supervisado](#pre-entrega-aprendizaje-no-supervisado)
 
 ---
 
 ## Mapa rápido de la clase
 
-Para seguir la clase en paralelo con `Clase09.html` (39 filminas) sin perderte:
+Para seguir la clase en paralelo con `Clase09.html` (36 filminas) sin perderte:
 
 | # | Módulo | Slides | Idea central |
 |---|---|---|---|
 | — | Portada | 01 | Presentación de la clase |
 | 0 | Repaso: Aprendizaje Supervisado | 02–04 | Solo los nombres — la explicación completa vive en esta guía, no en la filmina |
-| 1 | ¿Qué es el Aprendizaje No Supervisado? | 05–09 | Sin etiquetas: clustering, reducción de dimensionalidad, reglas de asociación |
-| 2 | Reglas de Asociación | 10–13 | Apriori, FP-Growth, y las métricas support/confidence/lift |
-| 3 | K-Means y la Elección de k | 14–20 | El algoritmo de clustering más usado, y cómo elegir bien su parámetro clave |
-| — | Break del Coder | 21 | Corte de ~10 minutos |
-| 4 | Clustering Jerárquico y DBSCAN | 22–27 | Dendrogramas, linkage, densidad, ruido |
-| 5 | PCA: Reducción de Dimensionalidad | 28–33 | Covarianza, eigenvectores/eigenvalores, varianza explicada |
-| 6 | Panorama de Métodos (Síntesis) | 34–38 | Comparación de las 5 técnicas + demo real de PCA mejorando un modelo |
-| — | ¿Dudas? | 39 | Cierre y preguntas |
+| 1 | ¿Qué es el Aprendizaje No Supervisado? | 05–09 | Sin etiquetas: clustering, reducción de dimensionalidad, detección de anomalías |
+| 2 | K-Means y la Elección de k | 10–16 | El algoritmo de clustering más usado, y cómo elegir bien su parámetro clave |
+| — | Break del Coder | 17 | Corte de ~10 minutos |
+| 3 | DBSCAN: Clustering Basado en Densidad | 18–21 | Densidad, ruido, y comparación directa contra K-Means |
+| 4 | PCA: Reducción de Dimensionalidad | 22–25 | Varianza explicada, limitaciones, aplicación en la industria |
+| 5 | Panorama de Métodos (Síntesis) | 26–30 | Comparación de K-Means/DBSCAN/PCA + demo real de PCA mejorando un modelo |
+| 6 | Customer Profiling | 31–32 | Traducir clústeres matemáticos en perfiles de cliente accionables |
+| 7 | Ética, Sesgos y Cierre | 33–35 | Interpretación responsable, sin Ground Truth, y la Pre-entrega del módulo |
+| — | ¿Dudas? | 36 | Cierre y preguntas |
 
 ---
 
@@ -123,13 +126,14 @@ Confiar en un único `train_test_split` tiene un problema: el resultado de la ev
 
 ### Lo que cambia hoy
 
-El aprendizaje no supervisado parte de datos **sin `y`** — sin una respuesta correcta conocida de antemano. El objetivo deja de ser predecir y pasa a ser **descubrir estructura**, por tres caminos distintos (cada uno se desarrolla en profundidad más adelante en esta guía, esto es solo la idea de arranque):
+El aprendizaje no supervisado parte de datos **sin `y`** — sin una respuesta correcta conocida de antemano. El objetivo deja de ser predecir y pasa a ser **descubrir estructura**, por dos caminos distintos (cada uno se desarrolla en profundidad más adelante en esta guía, esto es solo la idea de arranque):
 
 - **Clustering** (agrupamiento): armar grupos de observaciones parecidas entre sí, sin que nadie le diga de antemano cuáles son esos grupos ni cuántos hay — por ejemplo, agrupar clientes con comportamientos de compra similares, dejando que el propio algoritmo descubra los perfiles, en vez de definirlos a mano.
 - **Reducción de dimensionalidad**: cuando un dataset tiene muchísimas columnas (variables), resumir esa información en unas pocas "columnas nuevas" que capturan lo esencial, para poder analizarla o graficarla sin perder demasiado en el camino.
-- **Reglas de asociación**: encontrar qué cosas suelen aparecer juntas con frecuencia dentro de muchos registros — el ejemplo clásico es "¿qué productos se compran juntos en un supermercado?".
 
-Estos son los tres frentes que recorre el resto de esta clase, cada uno con su propio módulo.
+Una aplicación que combina ambas ideas y aparece una y otra vez en esta clase es la **detección de anomalías**: usar clustering (o la distancia a los grupos "normales") para encontrar los puntos que no se parecen a nada — el ejemplo típico es una transacción bancaria fraudulenta, que no encaja en ningún patrón de compra habitual.
+
+Estos son los frentes que recorre el resto de esta clase, cada uno con su propio módulo.
 
 ---
 
@@ -144,7 +148,7 @@ Esta filmina es la divisoria que abre el Módulo 1 — el título en pantalla ("
 
 Una forma de presentar el contraste en clase, con un ejemplo cotidiano: un supervisado es como aprender a distinguir perros de gatos porque alguien te mostró miles de fotos ya etiquetadas "perro"/"gato"; un no supervisado es como que te den una pila de miles de fotos de animales sin ningún cartel, y tengas que agruparlas vos mismo por similitud, sin que nadie te haya dicho de antemano cuántos grupos hay ni cómo se llaman. El resultado del segundo ejercicio puede coincidir con "perros" y "gatos" — pero el algoritmo llegó ahí solo por semejanza visual, no porque alguien le haya enseñado esas categorías.
 
-Conviene remarcar en voz alta, antes de pasar a la Filmina 06, los cuatro bloques que anuncia esta diapositiva y que se van a recorrer en orden: (1) una definición formal de qué es el aprendizaje no supervisado, (2) los tres tipos de problemas que lo componen, (3) ejemplos concretos de la industria, y (4) el flujo de trabajo típico que se va a repetir, con variaciones, en cada módulo siguiente de la clase.
+Conviene remarcar en voz alta, antes de pasar a la Filmina 06, los cuatro bloques que anuncia esta diapositiva y que se van a recorrer en orden: (1) una definición formal de qué es el aprendizaje no supervisado, (2) los tipos de problemas que lo componen, (3) ejemplos concretos de la industria, y (4) el flujo de trabajo típico que se va a repetir, con variaciones, en cada módulo siguiente de la clase.
 
 ### Definición y diferencias con el aprendizaje supervisado *(Filmina 06)*
 
@@ -158,50 +162,50 @@ Otra forma de plantear la diferencia, útil para la clase: en el aprendizaje sup
 |---|---|---|
 | Datos de entrada | Con etiquetas o respuestas | Sin etiquetas |
 | Objetivo | Predecir o clasificar | Encontrar patrones o estructuras |
-| Ejemplos de problemas | Clasificación, regresión | Clustering, reducción de dimensionalidad, reglas de asociación |
+| Ejemplos de problemas | Clasificación, regresión | Clustering, reducción de dimensionalidad, detección de anomalías |
 
 **Un matiz que vale la pena mencionar en clase** (aunque se profundiza en cursos más avanzados): la frontera entre ambos mundos no siempre es absoluta. Existen enfoques intermedios — el aprendizaje **semi-supervisado** (una pequeña porción de datos etiquetados, mucha data sin etiquetar) y el aprendizaje **autosupervisado** (el propio dataset genera sus etiquetas, por ejemplo tapando parte de una imagen y pidiéndole al modelo que la reconstruya). No forman parte del temario de hoy, pero saber que existen ayuda a entender que "supervisado vs. no supervisado" es más un espectro que una dicotomía cerrada.
 
 ### Tres grandes tipos de problemas *(Filmina 07)*
-resumen
+
 1. **Clustering (agrupamiento)**: agrupa datos similares en clusters. Ejemplo: segmentar clientes según comportamiento de compra.
 2. **Reducción de dimensionalidad**: simplifica datos complejos con muchas variables a representaciones más manejables. Ejemplo: usar PCA para visualizar datos en 2D o 3D.
-3. **Reglas de asociación**: encuentra relaciones frecuentes entre variables. Ejemplo: identificar productos que se compran juntos en retail.
+3. **Detección de anomalías**: encuentra la "aguja en el pajar" — puntos que no se parecen a ningún grupo normal. Ejemplo: una transacción bancaria que no encaja con el comportamiento habitual del usuario.
 
 Estas tres categorías se exploran en detalle en los Módulos 2 a 5 de esta clase, cada una con sus algoritmos y métricas propias.
 
 **Material para desarrollar cada punto en clase, antes de pasar a la Filmina 08:**
 
-- **Clustering** responde a la pregunta *"¿quién se parece a quién?"*. No hay un número de grupos predefinido de antemano (salvo que el algoritmo lo pida como parámetro, como K-Means) — el propio proceso de agrupar es el resultado que se busca. Vale la pena anticipar acá que en esta clase se van a ver **tres** algoritmos distintos de clustering (K-Means, Jerárquico, DBSCAN), y que ninguno es "el mejor" en términos absolutos: cada uno asume cosas distintas sobre la forma de los grupos, y esa es la razón por la que hace falta conocer más de uno.
+- **Clustering** responde a la pregunta *"¿quién se parece a quién?"*. No hay un número de grupos predefinido de antemano (salvo que el algoritmo lo pida como parámetro, como K-Means) — el propio proceso de agrupar es el resultado que se busca. Vale la pena anticipar acá que en esta clase se van a ver **dos** algoritmos distintos de clustering (K-Means y DBSCAN), y que ninguno es "el mejor" en términos absolutos: cada uno asume cosas distintas sobre la forma de los grupos, y esa es la razón por la que hace falta conocer más de uno.
   - Segmentar clientes de un e-commerce por comportamiento de compra (frecuencia, monto, categorías) para armar campañas distintas por perfil.
   - Agrupar canciones de una plataforma de streaming por "sonido" (tempo, energía, instrumentación) para armar playlists automáticas sin que nadie las arme a mano.
   - Agrupar pacientes de un hospital por perfil de síntomas, para descubrir subtipos de una enfermedad que la clasificación clínica tradicional no distinguía.
   - Agrupar barrios de una ciudad por patrones de tráfico y movilidad, para decidir dónde priorizar inversión en transporte público.
-- **Reducción de dimensionalidad** responde a *"¿puedo decir lo mismo con menos variables?"*. Es fácil de subestimar si nunca se trabajó con un dataset de verdad ancho — pero es común encontrar tablas con cientos de columnas (encuestas, datos genómicos, sensores IoT), donde ni siquiera es posible graficar todas las relaciones a la vez. PCA, que se ve en el Módulo 5, es la técnica de referencia acá — pero el concepto general ("comprimir información sin perder lo esencial") es más amplio que un solo algoritmo.
+- **Reducción de dimensionalidad** responde a *"¿puedo decir lo mismo con menos variables?"*. Es fácil de subestimar si nunca se trabajó con un dataset de verdad ancho — pero es común encontrar tablas con cientos de columnas (encuestas, datos genómicos, sensores IoT), donde ni siquiera es posible graficar todas las relaciones a la vez. PCA, que se ve en el Módulo 4, es la técnica de referencia acá — pero el concepto general ("comprimir información sin perder lo esencial") es más amplio que un solo algoritmo.
   - Comprimir una encuesta de 50 preguntas de satisfacción a 3 o 4 "factores" de fondo (ej. "satisfacción con el producto", "satisfacción con la atención"), en vez de mirar las 50 por separado.
   - En un estudio genómico, reducir miles de genes medidos a un puñado de componentes que expliquen la mayor parte de la variabilidad entre pacientes.
   - Simplificar decenas de indicadores financieros de una empresa a 2 o 3 ejes, para poder graficarla y compararla visualmente contra sus competidores.
   - Comprimir las variables de sensores de una máquina industrial (temperatura, vibración, presión, decenas de mediciones) a pocos indicadores que resuman su "estado de salud" general.
-- **Reglas de asociación** responde a *"¿qué suele pasar junto con qué?"*. A diferencia de las otras dos, no trabaja con "puntos en un espacio" sino con **transacciones** (listas de ítems que ocurrieron juntos) — es la técnica más ligada al mundo del retail y el e-commerce de las tres, y la única que no requiere que los datos sean numéricos para funcionar.
-  - El clásico de supermercado: pañales y cerveza los viernes por la tarde — dos productos sin relación obvia, que aparecen juntos con más frecuencia de la esperada.
-  - "Los usuarios que vieron esta serie también vieron..." en una plataforma de streaming — reglas de asociación calculadas sobre millones de historiales de reproducción.
-  - Combos de comida rápida: si "papas" y "gaseosa" se piden juntas con muchísima frecuencia, tiene sentido armar un combo y no vender cada una por separado.
-  - En una historia clínica, qué síntomas o diagnósticos co-ocurren con frecuencia — una alerta útil para que un médico revise una comorbilidad que no estaba buscando activamente.
+- **Detección de anomalías** responde a *"¿qué no encaja acá?"*. No es un algoritmo nuevo con su propio módulo — es una **forma de usar** el clustering (sobre todo DBSCAN, en el Módulo 3): en vez de preguntarse a qué grupo pertenece un punto, se busca a los puntos que no pertenecen bien a ninguno.
+  - Detección de fraude bancario: el algoritmo aprende el "comportamiento normal" de cada tarjeta, y marca como sospechosa cualquier transacción que se aleje demasiado de ese patrón.
+  - Mantenimiento predictivo industrial: la mayoría de los sensores de un motor muestran lecturas en una zona "normal" (alta densidad); cuando el motor empieza a fallar, sus datos se desplazan a zonas de baja densidad.
+  - Ciberseguridad: modelar el tráfico de red "saludable" y marcar como anomalía cualquier patrón de tráfico que se desvíe (un ataque DDoS, una infiltración).
+  - Control de calidad industrial: piezas que salen de la línea de producción con medidas que no se parecen a las del lote habitual.
 
 Un ejercicio útil para la clase: para cada uno de los tres tipos, pedirle al grupo un ejemplo propio (no el que ya está en la filmina) de un problema de su día a día que encajaría en esa categoría — ayuda a consolidar la diferencia antes de entrar en el detalle técnico de cada algoritmo.
 
 ### Ejemplos de aplicación en la industria *(Filmina 08)*
 
-- **Retail y E-commerce**: segmentación de clientes para campañas personalizadas, análisis de cesta de la compra con reglas de asociación.
+- **Retail y E-commerce**: segmentación de clientes para campañas personalizadas, detección de fraude en devoluciones.
 - **Tecnología y Big Data**: detección de anomalías en redes, agrupamiento de documentos o imágenes.
 - **Analítica de negocios**: reducción de variables para simplificar reportes y visualizaciones.
 
-Estos ejemplos muestran cómo el aprendizaje no supervisado ayuda a extraer valor de datos sin necesidad de etiquetas previas, facilitando la toma de decisiones basada en patrones reales — en retail, por ejemplo, saber cómo se agrupan los clientes o qué productos se compran juntos puede mejorar significativamente las estrategias de marketing y ventas.
+Estos ejemplos muestran cómo el aprendizaje no supervisado ayuda a extraer valor de datos sin necesidad de etiquetas previas, facilitando la toma de decisiones basada en patrones reales — en retail, por ejemplo, saber cómo se agrupan los clientes puede mejorar significativamente las estrategias de marketing y ventas.
 
 **Para ampliar cada rubro con más detalle antes de la filmina:**
 
-- **Retail y E-commerce**: además de la segmentación y la cesta de compra, el no supervisado se usa para detectar **fraude de devoluciones** (agrupando patrones de compra-devolución atípicos) y para el **diseño de layout de tiendas físicas** — qué productos ubicar cerca de cuáles, a partir de qué se compra junto en la práctica, no de la intuición del gerente.
-- **Tecnología y Big Data**: en ciberseguridad, la detección de anomalías en redes es en esencia un problema de clustering "al revés" — en vez de buscar el grupo al que pertenece un punto, se busca a los puntos que **no** encajan bien en ningún grupo (muy cerca del concepto de "ruido" que va a aparecer con DBSCAN en el Módulo 4). En NLP, agrupar documentos por similitud de contenido es la base de los sistemas de recomendación de artículos o noticias.
+- **Retail y E-commerce**: además de la segmentación de clientes, el no supervisado se usa para detectar **fraude de devoluciones** (agrupando patrones de compra-devolución atípicos) y para el **diseño de layout de tiendas físicas** — qué productos ubicar cerca de cuáles, a partir de patrones de compra reales, no de la intuición del gerente.
+- **Tecnología y Big Data**: en ciberseguridad, la detección de anomalías en redes es en esencia un problema de clustering "al revés" — en vez de buscar el grupo al que pertenece un punto, se busca a los puntos que **no** encajan bien en ningún grupo (muy cerca del concepto de "ruido" que va a aparecer con DBSCAN en el Módulo 3). En NLP, agrupar documentos por similitud de contenido es la base de los sistemas de recomendación de artículos o noticias.
 - **Analítica de negocios**: cuando un dashboard tiene 40 métricas y nadie sabe cuáles mirar primero, reducir dimensionalidad ayuda a identificar qué puñado de "meta-indicadores" resume la mayor parte de la variabilidad del negocio — un uso de PCA orientado a la comunicación con gerencia, no solo al preprocesamiento técnico.
 
 Un cuarto sector que vale la pena mencionar aunque no esté explícito en la filmina: **salud**, donde el clustering se usa para descubrir subtipos de una enfermedad (pacientes que responden de forma distinta a un mismo tratamiento) sin que existiera antes una clasificación clínica formal para esos subgrupos.
@@ -219,148 +223,32 @@ Este flujo es la base para las prácticas y análisis de toda la clase — cambi
 **Desarrollo de cada paso, para presentar antes de la filmina:**
 
 1. **Recolección y preparación**: acá es donde más se apoya esta clase en la Clase 03/04 (Pandas) — sin datos limpios y bien tipados, ningún algoritmo de esta clase da resultados confiables. El **escalado** merece mención aparte: casi todas las técnicas de hoy (K-Means, Jerárquico, DBSCAN, PCA) miden distancias o varianza, y una variable en una escala mucho mayor que las demás (ingresos en miles vs. edad en años) puede dominar el resultado por completo si no se estandariza antes.
-2. **Selección del método**: no existe "el" algoritmo de aprendizaje no supervisado — la elección depende de si se conoce de antemano cuántos grupos se esperan, si los datos tienen ruido, si las relaciones son lineales o no. Este paso es, en buena medida, el contenido de los Módulos 3, 4 y 5 de hoy.
+2. **Selección del método**: no existe "el" algoritmo de aprendizaje no supervisado — la elección depende de si se conoce de antemano cuántos grupos se esperan, si los datos tienen ruido, si las relaciones son lineales o no. Este paso es, en buena medida, el contenido de los Módulos 2, 3 y 4 de hoy.
 3. **Aplicación del algoritmo**: a diferencia del supervisado, acá casi siempre hay al menos un **hiperparámetro crítico** que hay que decidir antes de correr el modelo (el `k` de K-Means, el `eps` de DBSCAN, el número de componentes de PCA) — y a diferencia también del supervisado, muchas veces no hay una única respuesta "correcta" para ese parámetro.
-4. **Evaluación y validación**: sin `y`, no se puede usar Accuracy ni R². Por eso el Módulo 3 introduce el **coeficiente silhouette** y el **método del codo** — las métricas propias de este mundo, que evalúan qué tan bien separados y compactos quedaron los grupos, en vez de comparar contra una respuesta conocida.
+4. **Evaluación y validación**: sin `y`, no se puede usar Accuracy ni R². Por eso el Módulo 2 introduce el **coeficiente silhouette** y el **método del codo** — las métricas propias de este mundo, que evalúan qué tan bien separados y compactos quedaron los grupos, en vez de comparar contra una respuesta conocida.
 5. **Interpretación y uso**: el paso que más distingue a esta rama del Machine Learning. Un modelo supervisado "sabe" si acertó (comparando contra `y`); un modelo no supervisado nunca sabe si el agrupamiento que encontró "tiene sentido" para el negocio — esa interpretación siempre requiere a una persona que conozca el dominio, mirando los grupos resultantes y poniéndoles nombre y sentido.
 
 ---
 
-## Módulo 2 — Reglas de Asociación
-
-**Contexto**: ¿alguna vez te preguntaste cómo las tiendas en línea saben qué productos recomendarte juntos? Las reglas de asociación son la técnica detrás de eso — descubrir patrones frecuentes en grandes conjuntos de transacciones.
-
-Otros disparadores para abrir el módulo, si el ejemplo de la tienda en línea no engancha al grupo:
-- ¿Por qué Spotify arma una playlist automática que "tiene sentido", combinando canciones que nunca elegirías vos mismo en ese orden?
-- ¿Por qué el supermercado pone las papas fritas cerca de las gaseosas, o el pan cerca de la manteca?
-- ¿Por qué una farmacia podría querer saber qué medicamentos se recetan juntos con frecuencia, más allá de lo que dice el manual?
-- ¿Por qué una tarjeta de crédito detecta como sospechosa una compra que, aislada, parece normal, pero combinada con otra reciente no encaja con el patrón habitual del cliente?
-
-### Apertura del módulo *(Filmina 10)*
-
-Esta filmina divisoria anuncia el segundo bloque temático de la clase, con el subtítulo "Apriori, FP-Growth y las métricas support, confidence y lift". A diferencia del Módulo 1 (que fue conceptual, sin algoritmos concretos), acá arranca el primero de los cinco algoritmos específicos que se recorren hoy.
-
-**Contexto para presentar antes de entrar al contenido**: las reglas de asociación son, históricamente, una de las aplicaciones de Machine Learning más ligadas al negocio de retail — nacieron en los años 90 a partir del llamado *"market basket analysis"* (análisis de la canasta de mercado), motivado por una pregunta muy concreta de las cadenas de supermercados: "si un cliente ya puso tal producto en el carrito, ¿qué otro producto tiene sentido sugerirle?". El caso más citado (aunque parcialmente mítico y discutido en su veracidad exacta) es el de "pañales y cerveza": un análisis de canasta habría encontrado que los viernes por la tarde, los clientes que compraban pañales también compraban cerveza con mayor frecuencia de la esperada — la hipótesis de negocio fue que padres jóvenes, encargados de comprar pañales para el fin de semana, aprovechaban la salida para comprarse también una cerveza. Se use o no ese ejemplo puntual, ilustra bien la idea central del módulo: encontrar relaciones **que nadie pidió explícitamente buscar**, pero que aparecen solas al mirar el volumen de transacciones.
-
-Antes de pasar a la Filmina 11, conviene aclarar que este módulo trabaja con un tipo de dato distinto al resto de la clase: no son "puntos en un espacio" con coordenadas numéricas (como sí lo van a ser en K-Means, Jerárquico, DBSCAN o PCA), sino **listas de ítems por transacción** — un formato de datos categórico y desordenado, más parecido a una lista de compras que a una tabla de números.
-
-### Apriori y FP-Growth *(Filmina 11)*
-
-- **Apriori**: método clásico para encontrar conjuntos frecuentes de ítems. Genera candidatos de conjuntos y evalúa su frecuencia, descartando los que no cumplen un umbral mínimo (*support*). Intuitivo y fácil de implementar, pero computacionalmente costoso en bases grandes por la generación masiva de candidatos.
-- **FP-Growth** (*Frequent Pattern Growth*): más eficiente, evita generar candidatos explícitos. Construye una estructura llamada **árbol FP** que compacta la información de las transacciones y extrae patrones frecuentes directamente. Más rápido y escalable que Apriori, aunque su implementación es más compleja.
-
-**Para profundizar antes de mostrar la filmina:**
-
-El nombre "Apriori" viene de un principio muy intuitivo, conocido como la **propiedad Apriori** o **propiedad de monotonía**: *si un conjunto de ítems es frecuente, entonces todos sus subconjuntos también son frecuentes*. Dicho al revés (que es como realmente se usa): *si un conjunto pequeño de ítems ya es poco frecuente, cualquier conjunto más grande que lo contenga también lo va a ser* — no hace falta ni probarlo. Esa propiedad es lo que le permite al algoritmo "podar" candidatos sin evaluarlos todos: arranca calculando el *support* de ítems individuales, descarta los infrecuentes, y solo combina los que sobrevivieron para formar pares; de los pares que sobreviven arma tríos, y así sucesivamente. Sin esta poda, el número de combinaciones posibles de ítems crece exponencialmente con el tamaño del catálogo, y se vuelve intratable incluso para un supermercado mediano (unos pocos miles de productos ya generan millones de combinaciones posibles).
-
-FP-Growth ataca el mismo problema desde otro ángulo: en vez de generar y descartar candidatos (el paso más costoso de Apriori), comprime **todas** las transacciones en una única estructura de árbol (el árbol FP), donde los caminos compartidos entre transacciones parecidas se superponen. Una vez construido el árbol, extraer los conjuntos frecuentes es un recorrido sobre esa estructura, sin volver a generar combinaciones desde cero. Es el motivo por el que FP-Growth es el algoritmo preferido en la industria cuando el catálogo de productos es grande (miles o decenas de miles de ítems) — Apriori sigue siendo el más usado en contextos educativos y en catálogos chicos, precisamente porque su lógica es mucho más fácil de explicar y depurar paso a paso.
-
-**Ejemplos concretos de cuándo usar cada uno:**
-- **Apriori** — un almacén de barrio con 200 productos, una farmacia chica analizando qué medicamentos se venden juntos, o cualquier ejercicio de clase como el de esta guía (48 equipos, 4 métricas): catálogos chicos, donde la claridad de la lógica pesa más que la velocidad.
-- **FP-Growth** — un marketplace como Mercado Libre o Amazon con millones de productos y millones de transacciones diarias; una telco analizando patrones de consumo sobre millones de líneas; una plataforma de streaming buscando combinaciones de contenido entre un catálogo de decenas de miles de títulos. En estos casos, Apriori directamente no terminaría de correr en un tiempo razonable.
-
-### Métricas clave: support, confidence y lift *(Filmina 12)*
-
-| Métrica | Definición | Interpretación |
-|---|---|---|
-| **Support** | `P(A ∩ B)` — proporción de transacciones que contienen A **y** B | Indica la frecuencia con la que ocurre la regla en el conjunto de datos |
-| **Confidence** | `support(A∩B) / support(A)` — probabilidad de que B ocurra dado que ocurrió A | Indica la fuerza de la regla, condicionada a A |
-| **Lift** | `confidence(A→B) / support(B)` | Valores > 1 sugieren una relación positiva real entre A y B, no azar |
-
-**Nota clave**: una regla con alto *support* y *confidence* es frecuente y confiable, pero el *lift* es el que dice si la asociación es significativa o simplemente casual. Una regla con alto *support* pero bajo *lift* puede no ser interesante, porque la asociación podría ser casual.
-
-**Para desarrollar cada métrica en detalle, antes del ejemplo de código:**
-
-- **Support** responde "¿qué tan común es esta combinación en general?". Es la métrica más básica de las tres, y también la que se usa como filtro inicial: antes de calcular *confidence* o *lift* de nada, Apriori descarta directamente los conjuntos con *support* por debajo de un umbral mínimo (`min_support`), porque una regla que ocurre en el 0,001% de las transacciones rara vez es útil para una decisión de negocio, sea cual sea su fuerza de asociación.
-- **Confidence** responde "dado que ya pasó A, ¿qué tan seguido pasa B también?". Es una probabilidad condicional — matemáticamente idéntica a `P(B|A)` en estadística — y por eso **no es simétrica**: `confidence(pan → manteca)` y `confidence(manteca → pan)` casi nunca dan el mismo número, porque dependen de qué tan frecuente es cada ítem por separado. Es un error común de quien recién empieza con reglas de asociación asumir que la flecha "no importa" — sí importa, y mucho.
-- **Lift** responde la pregunta más sutil de las tres: "¿A y B aparecen juntos más de lo que aparecerían si fueran totalmente independientes entre sí?". Un lift de exactamente 1 significa que no hay ninguna relación — A y B ocurrirían juntos esa misma cantidad de veces aunque no tuvieran nada que ver el uno con el otro, solo por pura probabilidad de que ambos son frecuentes por separado. Por eso el lift es la métrica que de verdad filtra el ruido estadístico: *support* y *confidence* pueden estar altos simplemente porque uno de los dos ítems es muy popular (como se ve en el ejemplo de código de abajo, con `leche`), y solo el lift lo deja en evidencia.
-
-**Más ejemplos rápidos para ilustrar cada métrica en otros dominios, sin hacer la cuenta completa:**
-- **Support bajo, pero igual interesante**: en una farmacia, la combinación "antibiótico X + protector gástrico Y" puede tener support bajo (pocas transacciones totales la incluyen, porque no todos compran antibióticos), pero seguir siendo clínicamente relevante — un caso donde el umbral de `min_support` hay que fijarlo con criterio de negocio, no solo matemático.
-- **Confidence asimétrica en la práctica**: en Netflix, `confidence(ver "Serie A" → ver "Serie B")` puede ser alta (quien ve A casi siempre termina viendo B), pero `confidence(ver "Serie B" → ver "Serie A")` puede ser baja si B es mucho más popular en general y la mayoría de su audiencia nunca vio A — la misma asimetría que "pan → manteca" vs. "manteca → pan".
-- **Lift altísimo con support bajísimo**: dos productos muy nicho (por ejemplo, un accesorio específico para un modelo de bicicleta poco común) pueden tener un lift enorme entre sí, pero un support tan bajo que la regla, aunque estadísticamente "fortísima", afecte a muy pocos clientes como para justificar una campaña — hay que mirar las tres métricas juntas, nunca una sola aislada.
-
-🎯 **Ejemplo**: calcular las tres métricas a mano, sobre una canasta de compras chica — sin librerías especializadas, para ver exactamente qué hay detrás de cada fórmula.
-
-```python
-# 10 transacciones de ejemplo (cada lista es la compra de un cliente)
-transacciones = [
-    ["pan", "leche", "manteca"],
-    ["pan", "leche"],
-    ["leche", "huevos"],
-    ["pan", "manteca", "cafe"],
-    ["pan", "leche", "manteca", "huevos"],
-    ["leche", "cafe"],
-    ["pan", "leche", "manteca"],
-    ["pan", "cafe"],
-    ["leche", "huevos", "cafe"],
-    ["pan", "leche", "huevos"],
-]
-n = len(transacciones)
-
-def support(itemset):
-    itemset = set(itemset)
-    return sum(1 for t in transacciones if itemset.issubset(t)) / n
-
-def regla(a, b):
-    sup_a, sup_b = support([a]), support([b])
-    sup_ab = support([a, b])
-    confidence = sup_ab / sup_a
-    lift = confidence / sup_b
-    print(f"{a} -> {b}: support={sup_ab:.2f}, confidence={confidence:.2f}, lift={lift:.2f}")
-
-regla("pan", "manteca")
-regla("pan", "leche")
-```
-
-**Línea por línea:**
-- `support(itemset)` → `issubset(t)` chequea si **todos** los ítems del conjunto están en la transacción `t`; contar cuántas transacciones cumplen eso, dividido por el total, es exactamente la definición de *support*.
-- `regla(a, b)` → aplica las tres fórmulas de la tabla de arriba en orden: primero los *supports* individuales y conjunto, después *confidence* (`sup_ab / sup_a`), después *lift* (`confidence / sup_b`).
-- **Resultado real**: `pan -> manteca` da `support=0.40, confidence=0.57, lift=1.43` — lift > 1, asociación real. `pan -> leche` da `support=0.50, confidence=0.71, lift=0.89` — a pesar de tener *support* y *confidence* más altos que la regla anterior, el lift menor a 1 revela que la asociación es más débil de lo que parece: `leche` es tan frecuente por sí sola (80% de las transacciones) que aparece junto con casi cualquier cosa, sin que eso signifique una relación real con `pan`.
-
-### ¿Cuándo usar reglas de asociación en retail? *(Filmina 13)*
-
-- Para descubrir productos que se compran juntos y diseñar promociones cruzadas.
-- Para optimizar la disposición de productos en tiendas físicas o virtuales.
-- Para personalizar recomendaciones en plataformas de e-commerce.
-
-**Importante**: estas reglas transforman datos transaccionales en insights accionables, pero expresan **co-ocurrencia, no causalidad** — un *support* y *confidence* altos no prueban que A "cause" B.
-
-**Para cerrar el módulo con más contexto de aplicación:**
-
-- **Promociones cruzadas**: una vez identificada una regla fuerte (alto *lift*), la decisión de negocio típica no es necesariamente "poner ambos productos en oferta juntos" — muchas veces es lo contrario: si A y B ya se compran juntos naturalmente, tiene más sentido poner en oferta solo uno de los dos (el de menor margen) para atraer al cliente, sabiendo que probablemente compre el otro a precio completo. Es un matiz que conviene discutir en clase, porque muestra que la regla de asociación es un insumo para la decisión, no la decisión en sí misma.
-- **Disposición de productos**: en supermercados físicos, productos con alto *lift* a veces se colocan **lejos** uno del otro a propósito, no cerca — para que el cliente tenga que recorrer más pasillos (y estar expuesto a más productos) en el trayecto entre uno y otro. Es la misma lógica de las reglas de asociación puesta al servicio de un objetivo distinto (maximizar exposición) en vez de la comodidad de compra.
-- **Recomendaciones en e-commerce**: los sistemas de "quienes compraron esto también compraron..." de sitios como Amazon o Mercado Libre son, en su forma más simple, reglas de asociación calculadas sobre millones de transacciones — aunque en producción suelen combinarse con técnicas más sofisticadas de sistemas de recomendación (filtrado colaborativo, embeddings) para mejorar la personalización.
-
-**Más allá del retail — la misma técnica en otros rubros:**
-- **Banca y fintech**: qué productos financieros contratan juntos los clientes (tarjeta de crédito + seguro, caja de ahorro + plazo fijo), para armar paquetes u ofertas cruzadas sin tener que adivinar qué combinar.
-- **Streaming y contenidos**: qué géneros o títulos se consumen juntos dentro de una misma cuenta, para decidir qué producir o licenciar a continuación.
-- **Salud**: qué síntomas, diagnósticos o medicamentos aparecen juntos con frecuencia en las historias clínicas — un insumo para protocolos de atención, no un diagnóstico automático.
-- **Telecomunicaciones**: qué servicios adicionales (streaming, roaming, minutos extra) suelen contratar juntos los clientes de un mismo plan, para diseñar combos que de verdad se ajusten a un uso real.
-
-**El punto de cierre más importante para remarcar**: co-ocurrencia no es causalidad. Que `pan` y `manteca` tengan un lift alto no prueba que comprar pan **cause** comprar manteca — podría haber una tercera variable en común (ambos se compran más los fines de semana, por ejemplo) que explique la asociación sin que exista una relación causal directa entre los dos productos. Es el mismo principio de "correlación no implica causalidad" que aparece en estadística general, aplicado al mundo de las transacciones.
-
----
-
-## Módulo 3 — K-Means y la Elección de k
+## Módulo 2 — K-Means y la Elección de k
 
 **Contexto**: ¿cómo agrupar datos sin etiquetas? K-Means es el algoritmo más usado de clustering — divide un conjunto de datos en grupos naturales basándose en similitud.
 
-### Apertura del módulo *(Filmina 14)*
+### Apertura del módulo *(Filmina 10)*
 
 La divisoria de este módulo trae el subtítulo "El algoritmo de clustering más usado, y cómo elegir bien su parámetro clave" — y es, en términos de duración, el módulo más largo de la clase (7 filminas), lo cual tiene sentido: K-Means es probablemente el algoritmo de aprendizaje no supervisado más usado en la industria, por su simplicidad conceptual y su bajo costo computacional.
 
-**Para presentar antes del contenido técnico**: conviene retomar acá, en voz alta, la definición general de clustering del Módulo 1 ("agrupar datos similares en clusters") y anticipar que K-Means la resuelve con una idea muy visual: imaginar que cada cluster tiene un "centro de gravedad" (el centroide), y que cada punto del dataset "cae" naturalmente hacia el centro más cercano. Es una buena metáfora para instalar antes de entrar en el detalle algorítmico de la Filmina 15, porque todo el resto del módulo (los 4 pasos, los problemas de convergencia, la elección de k) gira alrededor de esa única idea: minimizar qué tan lejos está, en promedio, cada punto de su centro asignado.
+**Para presentar antes del contenido técnico**: conviene retomar acá, en voz alta, la definición general de clustering del Módulo 1 ("agrupar datos similares en clusters") y anticipar que K-Means la resuelve con una idea muy visual: imaginar que cada cluster tiene un "centro de gravedad" (el centroide), y que cada punto del dataset "cae" naturalmente hacia el centro más cercano. Es una buena metáfora para instalar antes de entrar en el detalle algorítmico de la Filmina 11, porque todo el resto del módulo (los 4 pasos, los problemas de convergencia, la elección de k) gira alrededor de esa única idea: minimizar qué tan lejos está, en promedio, cada punto de su centro asignado.
 
-### Qué es y cómo funciona *(Filmina 15)*
+### Qué es y cómo funciona *(Filmina 11)*
 
 K-Means es un **algoritmo de partición**: divide un conjunto de datos en `k` grupos (clusters) según la similitud de sus características. El objetivo es minimizar la suma de las distancias entre cada punto y el **centroide** (promedio) de su cluster asignado. Se apoya en las métricas de distancia (Euclidiana, Manhattan, Coseno) que ya se usaron en clases anteriores para definir "similitud".
 
-**Para ampliar antes de mostrar la filmina**: el nombre completo del algoritmo, "K-Means" (K-Medias), ya describe su mecánica — la "K" es la cantidad de grupos a formar, y "Means" (medias) es literalmente cómo se calcula cada centroide: el promedio de todos los puntos que pertenecen a ese cluster en un momento dado. Formalmente, el algoritmo minimiza una función llamada **inercia** o **WCSS** (que se retoma en la Filmina 18): la suma, sobre todos los puntos, de la distancia al cuadrado entre cada punto y el centroide de su cluster. Elevar al cuadrado la distancia (en vez de usarla directa) tiene una razón matemática concreta: penaliza mucho más fuerte a los puntos lejanos que a los cercanos, lo que empuja al algoritmo a formar grupos compactos en vez de tolerar unos pocos puntos muy alejados de su centro.
+**Para ampliar antes de mostrar la filmina**: el nombre completo del algoritmo, "K-Means" (K-Medias), ya describe su mecánica — la "K" es la cantidad de grupos a formar, y "Means" (medias) es literalmente cómo se calcula cada centroide: el promedio de todos los puntos que pertenecen a ese cluster en un momento dado. Formalmente, el algoritmo minimiza una función llamada **inercia** o **WCSS** (que se retoma en la Filmina 14): la suma, sobre todos los puntos, de la distancia al cuadrado entre cada punto y el centroide de su cluster. Elevar al cuadrado la distancia (en vez de usarla directa) tiene una razón matemática concreta: penaliza mucho más fuerte a los puntos lejanos que a los cercanos, lo que empuja al algoritmo a formar grupos compactos en vez de tolerar unos pocos puntos muy alejados de su centro.
 
 Sobre las métricas de distancia: K-Means usa por defecto la distancia **Euclidiana** (la "línea recta" entre dos puntos, el teorema de Pitágoras aplicado a más de dos dimensiones) — es la que mejor encaja con la definición de centroide como promedio aritmético. Usar Manhattan (la suma de diferencias absolutas, como moverse en cuadras de una ciudad) o Coseno (el ángulo entre dos vectores, típico en texto) requeriría, estrictamente, variantes del algoritmo (K-Medoids es la alternativa más conocida cuando se necesita otra métrica de distancia).
 
-### Los 4 pasos del algoritmo *(Filmina 16)*
+### Los 4 pasos del algoritmo *(Filmina 12)*
 
 1. **Inicialización**: se eligen `k` centroides iniciales — al azar o con **k-means++** para mejorar la convergencia.
 2. **Asignación**: cada punto se asigna al cluster cuyo centroide esté más cerca (distancia Euclidiana, típicamente).
@@ -369,11 +257,11 @@ Sobre las métricas de distancia: K-Means usa por defecto la distancia **Euclidi
 
 **Desarrollo paso a paso, para acompañar la animación de la filmina en vivo:**
 
-Este algoritmo también se conoce como **"Lloyd's algorithm"** en la literatura técnica, y es un buen ejemplo de un procedimiento **iterativo**: no calcula la respuesta de una vez, sino que la va refinando en rondas sucesivas, cada una un poco mejor que la anterior. Vale la pena remarcar en clase que los pasos 2 y 3 son, en esencia, un ciclo de "adivinar y corregir": el paso 2 (Asignación) responde "con los centroides que tengo ahora, ¿cuál es la mejor partición posible?"; el paso 3 (Actualización) responde "con esta partición, ¿cuáles son los mejores centroides posibles?". Cada ronda del ciclo garantiza matemáticamente que el WCSS total **nunca aumenta** — por eso el algoritmo siempre termina convergiendo (ver Filmina 17), aunque no siempre al mejor resultado posible.
+Este algoritmo también se conoce como **"Lloyd's algorithm"** en la literatura técnica, y es un buen ejemplo de un procedimiento **iterativo**: no calcula la respuesta de una vez, sino que la va refinando en rondas sucesivas, cada una un poco mejor que la anterior. Vale la pena remarcar en clase que los pasos 2 y 3 son, en esencia, un ciclo de "adivinar y corregir": el paso 2 (Asignación) responde "con los centroides que tengo ahora, ¿cuál es la mejor partición posible?"; el paso 3 (Actualización) responde "con esta partición, ¿cuáles son los mejores centroides posibles?". Cada ronda del ciclo garantiza matemáticamente que el WCSS total **nunca aumenta** — por eso el algoritmo siempre termina convergiendo (ver Filmina 13), aunque no siempre al mejor resultado posible.
 
 Sobre la Inicialización: la opción "al azar" simplemente elige `k` puntos cualquiera del dataset como primeros centroides — es simple pero puede arrancar en una posición muy mala. **k-means++** (el default en la implementación de scikit-learn) es más inteligente: elige el primer centroide al azar, y cada centroide siguiente lo elige con una probabilidad proporcional a qué tan lejos está de los centroides ya elegidos — favoreciendo que los `k` puntos de arranque queden bien repartidos por el espacio de datos, en vez de agrupados por casualidad en una sola zona.
 
-### Convergencia, inicialización y problemas comunes *(Filmina 17)*
+### Convergencia, inicialización y problemas comunes *(Filmina 13)*
 
 - K-Means **siempre converge**, pero a un **mínimo local**, no necesariamente al óptimo global.
 - La inicialización de los centroides afecta la calidad y velocidad de convergencia; **k-means++** ayuda a elegir centroides iniciales más representativos, reduciendo la probabilidad de resultados pobres.
@@ -382,21 +270,21 @@ Sobre la Inicialización: la opción "al azar" simplemente elige `k` puntos cual
 
 **Para desarrollar cada punto con más profundidad:**
 
-- **Mínimo local vs. global**: como el resultado final depende de dónde arrancaron los centroides, correr K-Means dos veces con inicializaciones distintas puede dar dos particiones **distintas**, ambas "válidas" en el sentido de que el algoritmo convergió correctamente en las dos, pero una puede ser mejor que la otra. La solución práctica que usa scikit-learn (y que aparece en el ejemplo de código de la Filmina 19, con el parámetro `n_init=10`) es correr el algoritmo completo varias veces con distintas inicializaciones al azar, y quedarse con el resultado que dio el WCSS más bajo de todos los intentos.
+- **Mínimo local vs. global**: como el resultado final depende de dónde arrancaron los centroides, correr K-Means dos veces con inicializaciones distintas puede dar dos particiones **distintas**, ambas "válidas" en el sentido de que el algoritmo convergió correctamente en las dos, pero una puede ser mejor que la otra. La solución práctica que usa scikit-learn (y que aparece en el ejemplo de código de la Filmina 15, con el parámetro `n_init=10`) es correr el algoritmo completo varias veces con distintas inicializaciones al azar, y quedarse con el resultado que dio el WCSS más bajo de todos los intentos.
 - **Sensibilidad a outliers**: como el centroide es un **promedio**, un solo punto muy alejado del resto puede "arrastrar" el centroide entero hacia él, distorsionando la posición de todo el cluster — el mismo fenómeno por el que la media aritmética es sensible a valores extremos (visto en clases anteriores de estadística descriptiva). Es una de las razones por las que suele convenir revisar y tratar outliers **antes** de correr K-Means, no después.
   - *Ejemplo concreto*: segmentando clientes por gasto mensual, un solo cliente corporativo que gasta 100 veces más que el resto puede correr el centroide de "clientes premium" tan lejos que termine agrupando mal a los clientes premium "reales" — conviene revisar outliers (Módulo 1) antes de clusterizar, no después.
 - **Formas no esféricas**: como K-Means asigna cada punto según distancia al centroide más cercano, la "frontera" natural entre dos clusters siempre termina siendo una línea recta (o un plano, en más dimensiones) — geométricamente, solo puede separar bien grupos que tengan forma redondeada y tamaño parecido. Con clusters alargados, en forma de luna, o de tamaños muy distintos entre sí, K-Means directamente separa mal — y ese es exactamente el problema que resuelve DBSCAN, que se ve en el Módulo 4.
   - *Ejemplo concreto*: agrupar comercios por ubicación geográfica a lo largo de una costa o de un río da un cluster alargado y curvo — K-Means tiende a "cortarlo" en pedazos artificiales con fronteras rectas, en vez de respetar la forma real alargada de la zona.
 
-### Elegir k: método del codo (Elbow Method) *(Filmina 18)*
+### Elegir k: método del codo (Elbow Method) *(Filmina 14)*
 
 Para cada valor de `k` se calcula el **WCSS** (*Within-Cluster Sum of Squares*): la suma de las distancias al cuadrado entre cada punto y el centroide de su cluster. Un WCSS más bajo indica clusters más compactos.
 
 Se grafica WCSS en función de `k` — la curva baja a medida que `k` crece, porque agrupar en más clusters siempre reduce la distancia interna. El objetivo es identificar el punto donde la tasa de disminución se frena notablemente, formando un **"codo"**: a partir de ahí, agregar más clusters no mejora significativamente la calidad de la agrupación. Balancea complejidad del modelo (muchos clusters) contra calidad de la agrupación (pocos clusters, cada uno con sentido) — evitando tanto el subajuste como el sobreajuste.
 
-**Para ampliar antes de mostrar el gráfico**: vale la pena mencionar el caso extremo para que la lógica quede clara — si `k` fuera igual a la cantidad total de puntos del dataset, cada punto sería su propio cluster, y el WCSS daría exactamente `0` (cada punto coincide con su propio centroide). Ese extremo es matemáticamente "perfecto" pero completamente inútil para el negocio: no agrupa nada. El método del codo es, en el fondo, una forma visual de encontrar el compromiso entre ese extremo inútil (`k` = cantidad de puntos, WCSS = 0) y el otro extremo igual de inútil (`k` = 1, todo en un solo grupo, WCSS máximo). Conviene aclarar también que la ubicación del "codo" no siempre es tan clara como en el ejemplo de esta clase — en datasets reales, la curva a veces baja de forma más gradual, sin un quiebre visualmente obvio, y ahí es donde el coeficiente silhouette (Filmina 19) aporta una segunda opinión más cuantitativa.
+**Para ampliar antes de mostrar el gráfico**: vale la pena mencionar el caso extremo para que la lógica quede clara — si `k` fuera igual a la cantidad total de puntos del dataset, cada punto sería su propio cluster, y el WCSS daría exactamente `0` (cada punto coincide con su propio centroide). Ese extremo es matemáticamente "perfecto" pero completamente inútil para el negocio: no agrupa nada. El método del codo es, en el fondo, una forma visual de encontrar el compromiso entre ese extremo inútil (`k` = cantidad de puntos, WCSS = 0) y el otro extremo igual de inútil (`k` = 1, todo en un solo grupo, WCSS máximo). Conviene aclarar también que la ubicación del "codo" no siempre es tan clara como en el ejemplo de esta clase — en datasets reales, la curva a veces baja de forma más gradual, sin un quiebre visualmente obvio, y ahí es donde el coeficiente silhouette (Filmina 15) aporta una segunda opinión más cuantitativa.
 
-### Elegir k: coeficiente silhouette *(Filmina 19)*
+### Elegir k: coeficiente silhouette *(Filmina 15)*
 
 Para cada punto, compara su **cohesión** (distancia promedio a los demás puntos de su propio cluster) contra su **separación** (distancia promedio al cluster más cercano al que no pertenece). El resultado es un valor entre **-1 y 1**:
 
@@ -453,7 +341,7 @@ etiquetas = kmeans_final.fit_predict(X_scaled)
 - `max(mejores, key=lambda par: par[1])` → de la lista de tuplas `(k, silhouette)`, se queda con la que tiene el silhouette más alto.
 - **Resultado real**: el WCSS cae de 600 (`k=1`) a 74.6 (`k=3`) y a 20.9 (`k=4`) — ahí está el "codo", porque de `k=4` en adelante la mejora es marginal (18.7, 16.6, 14.7...). El silhouette confirma lo mismo de otra forma: da su valor más alto (0.778) exactamente en `k=4` — el mismo número de centros que usamos para generar los datos, recuperado sin haberlo usado en ningún momento del cálculo.
 
-### Aplicación práctica y relevancia en la industria *(Filmina 20)*
+### Aplicación práctica y relevancia en la industria *(Filmina 16)*
 
 - **Retail**: segmentar clientes por frecuencia de compra, monto gastado y preferencia de categorías, para diseñar campañas de marketing personalizadas.
 - **Finanzas**: identificar grupos de clientes con perfiles de riesgo similares, mejorando la gestión de cartera y la detección de fraudes.
@@ -477,94 +365,17 @@ La correcta elección de `k` evita tanto la **sobresegmentación** (demasiados c
 
 ---
 
-## Módulo 4 — Clustering Jerárquico y DBSCAN
+## Módulo 3 — DBSCAN: Clustering Basado en Densidad
 
-**Contexto**: dos alternativas a K-Means, para cuando no querés (o no podés) definir `k` de antemano, o cuando tus datos tienen ruido y formas irregulares.
+**Contexto**: una alternativa a K-Means, para cuando no querés (o no podés) definir `k` de antemano, o cuando tus datos tienen ruido y formas irregulares.
 
-### Apertura del módulo, después del Break *(Filmina 22)*
+### Apertura del módulo, después del Break *(Filmina 18)*
 
-Esta divisoria llega justo después del corte de 10 minutos (Filmina 21) — conviene arrancar retomando brevemente dónde había quedado la clase antes del break: K-Means resuelve bien el clustering cuando los grupos son razonablemente esféricos, de tamaño parecido, y se conoce (o se puede estimar) el número `k` de antemano. Este módulo presenta **dos alternativas** que relajan, cada una a su manera, esas mismas condiciones.
+Esta divisoria llega justo después del corte de 10 minutos (Filmina 17) — conviene arrancar retomando brevemente dónde había quedado la clase antes del break: K-Means resuelve bien el clustering cuando los grupos son razonablemente esféricos, de tamaño parecido, y se conoce (o se puede estimar) el número `k` de antemano. Este módulo presenta una **alternativa** que relaja esas mismas condiciones.
 
-**Para presentar antes de entrar al contenido**: es útil anticipar la pregunta que motiva a ambos algoritmos, aunque la resuelven de formas completamente distintas: *"¿qué hago cuando no sé cuántos grupos hay, o cuando mis grupos no tienen forma de círculo?"*. El clustering **jerárquico** responde con una idea de "no elegir un solo k, sino construir todas las particiones posibles a la vez, y decidir después". **DBSCAN** responde con una idea distinta: en vez de definir clusters por cercanía a un centro (como K-Means) o por una jerarquía de fusiones (como el jerárquico), los define por **densidad** — dónde hay muchos puntos juntos versus dónde hay pocos. Instalar esta distinción de entrada ayuda a que el resto del módulo se entienda como "dos soluciones a problemas parecidos, con lógicas de fondo distintas" y no como una lista de algoritmos sueltos.
+**Para presentar antes de entrar al contenido**: es útil anticipar la pregunta que motiva al algoritmo: *"¿qué hago cuando no sé cuántos grupos hay, o cuando mis grupos no tienen forma de círculo?"*. **DBSCAN** responde con una idea distinta a K-Means: en vez de definir clusters por cercanía a un centro, los define por **densidad** — dónde hay muchos puntos juntos versus dónde hay pocos. Instalar esta distinción de entrada ayuda a que el resto del módulo se entienda como "una solución a un problema que K-Means no resuelve bien" y no como un algoritmo suelto.
 
-### Clustering jerárquico: aglomerativo y divisivo *(Filmina 23)*
-
-El clustering jerárquico construye una jerarquía de clusters, sin necesidad de definir el número de clusters de antemano:
-
-- **Aglomerativo** (el más usado en la práctica): comienza con cada punto como un cluster individual, y fusiona iterativamente los dos clusters más parecidos, hasta que todos quedan combinados en uno solo.
-- **Divisivo**: el enfoque inverso — parte de un único cluster con todos los datos, y lo va dividiendo progresivamente.
-
-El resultado se visualiza en un **dendrograma**: un diagrama en forma de árbol donde cada hoja es un punto individual, y la altura donde dos clusters se unen indica su grado de disimilitud (cuanto más abajo se unen, más similares son). Cortar el dendrograma a distintas alturas da distintos números de clusters, sin tener que volver a correr el algoritmo.
-
-**Para desarrollar antes del ejemplo de código:**
-
-El enfoque **aglomerativo** ("bottom-up", de abajo hacia arriba) es, con mucha diferencia, el más usado en la práctica frente al divisivo ("top-down") — la razón es principalmente de costo computacional: en cada paso, el aglomerativo solo necesita encontrar el par de clusters más parecido entre los que ya existen y fusionarlos, mientras que el divisivo necesitaría evaluar **todas** las formas posibles de partir un cluster grande en dos, un problema combinatorio mucho más costoso. Por eso, cuando en la práctica se habla de "clustering jerárquico" sin más aclaración, casi siempre se refiere al aglomerativo.
-
-La gran ventaja pedagógica del dendrograma es que muestra **toda la estructura de agrupamiento posible** en una sola imagen — desde `k=1` (todo en la raíz del árbol) hasta `k = cantidad de puntos` (cada hoja individual). Elegir el número de clusters se convierte, visualmente, en elegir a qué altura "cortar" el árbol con una línea horizontal: cuantos más nodos verticales cruce esa línea, más clusters resultan. Es una diferencia de fondo respecto a K-Means, donde `k` hay que decidirlo **antes** de correr el algoritmo (con el codo o el silhouette del Módulo 3) — acá se puede correr el algoritmo una sola vez y decidir `k` **después**, mirando el árbol completo.
-
-**¿Para qué usarías esto en la práctica, y en qué casos conviene más que K-Means?**
-- **Taxonomías biológicas**: el uso histórico del método — agrupar especies por similitud genética, mostrando no solo los grupos finales sino **cómo se relacionan entre sí** en distintos niveles (géneros dentro de familias, familias dentro de órdenes).
-- **Estructura organizacional de un mercado**: agrupar empresas de un sector por similitud financiera, donde interesa ver tanto los grandes bloques (industria) como las subdivisiones dentro de cada uno (sub-industria, nicho) — algo que K-Means, al dar un único nivel de `k` grupos, no puede mostrar de una sola vez.
-- **Análisis exploratorio inicial**: cuando todavía no se tiene ninguna intuición de cuántos segmentos de clientes existen en un dataset nuevo, correr un dendrograma es una forma barata de "mirar la estructura completa" antes de comprometerse con un `k` fijo para K-Means.
-- **Sistemas de recomendación jerárquicos**: agrupar productos de un catálogo en categorías y subcategorías automáticas, en vez de depender de que alguien las arme a mano.
-
-🎯 **Ejemplo del PDF**: construir un dendrograma sobre un dataset sintético de clientes (Ingresos, Gasto Mensual, Edad), usando el método de linkage `ward` (minimiza la varianza dentro de los clusters).
-
-```python
-import pandas as pd
-import numpy as np
-from sklearn.preprocessing import StandardScaler
-from scipy.cluster.hierarchy import dendrogram, linkage
-import matplotlib.pyplot as plt
-
-# 1) Dataset de ejemplo con variables continuas
-np.random.seed(42)
-data = pd.DataFrame({
-    "Ingresos": np.random.randint(20000, 150000, 50),
-    "Gasto_Mensual": np.random.randint(5000, 40000, 50),
-    "Edad": np.random.randint(18, 70, 50),
-})
-
-# 2) Estandarización: obligatoria antes de medir distancias
-scaler = StandardScaler()
-data_scaled = scaler.fit_transform(data)
-
-# 3) Linkage con método Ward (minimiza la varianza dentro de los clusters)
-Z = linkage(data_scaled, method="ward")
-
-# 4) Dendrograma
-plt.figure(figsize=(12, 7))
-plt.title("Dendrograma - Clustering Jerárquico")
-dendrogram(Z, leaf_rotation=90, leaf_font_size=10)
-plt.show()
-```
-
-**Línea por línea:**
-- `StandardScaler().fit_transform(data)` → estandariza las 3 columnas (media 0, desvío 1); imprescindible porque `Ingresos` y `Edad` tienen escalas completamente distintas, y sin escalar, `Ingresos` dominaría por completo el cálculo de distancias.
-- `linkage(data_scaled, method="ward")` → calcula, paso a paso, qué par de clusters fusionar en cada nivel; el resultado `Z` es la estructura que describe todo el árbol de fusiones.
-- `dendrogram(Z, ...)` → dibuja el árbol; `leaf_rotation=90` rota las etiquetas del eje X para que no se superpongan.
-
-### Parámetro clave: el linkage *(Filmina 24)*
-
-El método de linkage determina cómo se mide la distancia entre dos clusters para decidir si conviene fusionarlos:
-
-| Linkage | Criterio |
-|---|---|
-| **Single** | Distancia mínima entre puntos de dos clusters |
-| **Complete** | Distancia máxima entre puntos de dos clusters |
-| **Average** | Promedio de todas las distancias entre pares de puntos |
-
-Cada criterio afecta la forma y el tamaño de los clusters resultantes — no hay una elección "correcta" universal, depende de la estructura de los datos.
-
-**Para profundizar cada criterio antes de mostrar la tabla:**
-
-- **Single linkage** (también llamado "vecino más cercano"): como usa la distancia **mínima**, alcanza con que dos clusters tengan **un solo par** de puntos muy cercanos para que se fusionen — aunque el resto de los puntos de ambos clusters estén lejos entre sí. Esto le permite detectar clusters de forma alargada o irregular, pero lo vuelve propenso a un problema conocido como *"chaining"* (encadenamiento): una fila de puntos equiespaciados puede terminar uniendo dos grupos que, intuitivamente, deberían quedar separados, solo porque hay un "puente" de puntos intermedios.
-- **Complete linkage** (o "vecino más lejano"): usa la distancia **máxima**, así que exige que **todos** los puntos de ambos clusters estén razonablemente cerca antes de fusionarlos — tiende a formar clusters más compactos y de tamaño parecido entre sí, el opuesto casi exacto de single linkage.
-- **Average linkage**: un punto intermedio entre los dos anteriores, promediando todas las distancias par a par — suele ser una opción "segura" cuando no hay una razón clara para preferir uno de los dos extremos.
-
-El ejemplo de código de la filmina anterior usó un cuarto criterio, **Ward**, que no aparece en esta tabla del PDF pero es el más usado en la práctica con datos numéricos: en vez de basarse directamente en distancias entre puntos, fusiona en cada paso el par de clusters que produce el **menor incremento posible en la varianza interna total** — conceptualmente, es el mismo objetivo que minimiza K-Means (WCSS), pero aplicado paso a paso dentro de la lógica jerárquica.
-
-### DBSCAN: clustering basado en densidad *(Filminas 25–26)*
+### DBSCAN: clustering basado en densidad *(Filminas 19–20)*
 
 **DBSCAN** (*Density-Based Spatial Clustering of Applications with Noise*) identifica clusters como regiones **densas** separadas por regiones de baja densidad, y detecta puntos aislados como **ruido** en vez de forzarlos a pertenecer a algún cluster.
 
@@ -583,7 +394,7 @@ DBSCAN es especialmente útil para detectar clusters de **forma arbitraria** (no
 
 El nombre completo, *Density-Based Spatial Clustering of Applications with Noise*, ya resume la idea central: en vez de preguntarse "¿a qué centro está más cerca este punto?" (la pregunta de K-Means), DBSCAN se pregunta **"¿este punto está en una zona densamente poblada?"**. Un cluster, para DBSCAN, no es más que una región conectada de puntos densos: si el punto A es vecino denso del punto B, y B es vecino denso de C, entonces A y C terminan en el mismo cluster aunque A y C no sean vecinos directos entre sí — es un criterio de conectividad "en cadena" (transitivo), muy distinto a la idea de "cercanía a un centro único" de K-Means.
 
-Los dos parámetros son las dos preguntas que hay que responder para definir "denso": `eps` responde *"¿qué tan cerca hay que estar para contar como vecino?"*, y `min_samples` responde *"¿cuántos vecinos hacen falta para considerar la zona densa?"*. Ajustar estos dos números cambia radicalmente el resultado: un `eps` muy chico deja casi todo como ruido (porque casi nada tiene suficientes vecinos tan cerca); un `eps` muy grande termina fusionando clusters que deberían quedar separados (porque "casi todo" pasa a ser vecino de "casi todo"). Por eso la Filmina 25 trae la técnica del **k-distance plot** (que se ve en el ejemplo de código): una forma sistemática de estimar un buen valor de `eps` a partir de los propios datos, en vez de adivinarlo a prueba y error.
+Los dos parámetros son las dos preguntas que hay que responder para definir "denso": `eps` responde *"¿qué tan cerca hay que estar para contar como vecino?"*, y `min_samples` responde *"¿cuántos vecinos hacen falta para considerar la zona densa?"*. Ajustar estos dos números cambia radicalmente el resultado: un `eps` muy chico deja casi todo como ruido (porque casi nada tiene suficientes vecinos tan cerca); un `eps` muy grande termina fusionando clusters que deberían quedar separados (porque "casi todo" pasa a ser vecino de "casi todo"). Por eso esta misma filmina trae la técnica del **k-distance plot** (que se ve en el ejemplo de código): una forma sistemática de estimar un buen valor de `eps` a partir de los propios datos, en vez de adivinarlo a prueba y error.
 
 Sobre los tres tipos de punto: la distinción entre **core** y **border** es sutil pero importante — un border point sí forma parte de un cluster (queda "adentro" de la región densa por estar cerca de un core point), pero no tiene la densidad suficiente **por sí mismo** como para ser considerado el corazón de esa densidad. Es la diferencia entre "vivir en un barrio poblado" (border) y "ser, vos mismo, uno de los puntos que hace que el barrio esté poblado" (core). Solo el **noise point** queda completamente afuera de cualquier cluster — y a diferencia de K-Means, donde **todo** punto es forzado a pertenecer a algún cluster (incluso un outlier extremo), en DBSCAN el ruido es un resultado legítimo y esperado, no un error.
 
@@ -633,117 +444,54 @@ print(f"Clusters encontrados: {n_clusters} | Puntos de ruido: {n_ruido}")
 - `DBSCAN(eps=0.20, min_samples=4).fit_predict(X_scaled)` → corre el algoritmo; devuelve un array de etiquetas, una por punto, donde `-1` es ruido.
 - Corriendo este ejemplo en la práctica: **4 clusters** detectados (las dos lunas y los dos blobs) y **60 puntos** marcados como ruido — exactamente los que se generaron como ruido disperso a propósito.
 
-### Comparación: Jerárquico vs. Particional vs. DBSCAN *(Filmina 27)*
+### Comparación: K-Means vs. DBSCAN *(Filmina 21)*
 
-| Característica | Jerárquico | Particional (K-Means) | DBSCAN |
-|---|---|---|---|
-| **Forma de clusters** | Jerarquía flexible | Convexa, esférica | Arbitraria |
-| **Número de clusters** | No requiere definirlo | Requiere definir `k` | No requiere definirlo |
-| **Manejo de ruido** | No explícito | No explícito | Sí, lo detecta |
-| **Parámetros clave** | Linkage | Número de clusters (`k`) | `eps`, `min_samples` |
+| Característica | K-Means | DBSCAN |
+|---|---|---|
+| **Forma de clusters** | Convexa, esférica | Arbitraria |
+| **Número de clusters** | Requiere definir `k` | No requiere definirlo |
+| **Manejo de ruido** | No explícito (fuerza a cada punto dentro de un cluster) | Sí, lo detecta y lo marca como `-1` |
+| **Parámetros clave** | Número de clusters (`k`) | `eps`, `min_samples` |
 
-La elección del método depende del tipo de datos, la forma esperada de los clusters y la presencia de ruido — el clustering jerárquico es útil para **explorar** la estructura antes de decidir un número de clusters; DBSCAN es ideal para detectar grupos irregulares y manejar ruido (por ejemplo, zonas de alta concentración de clientes en un análisis geoespacial).
+La elección del método depende del tipo de datos, la forma esperada de los clusters y la presencia de ruido — si esperás clusters esféricos y sabés (o podés estimar) cuántos hay, K-Means; si sospechás que hay ruido real (outliers, posibles fraudes) y formas irregulares, DBSCAN.
 
 **Guía práctica para cerrar el módulo, útil como resumen para dictar de memoria:**
 
-- Si el dataset es **grande** (cientos de miles de puntos o más): K-Means, por lejos el más rápido de los tres — el clustering jerárquico tiene un costo computacional que crece muy rápido con la cantidad de puntos (calcular y actualizar distancias entre todos los pares), lo que lo vuelve poco práctico a esa escala.
-- Si **no se sabe cuántos grupos hay** y se quiere explorar visualmente antes de decidir: clustering jerárquico, por el dendrograma.
-- Si los datos tienen **ruido real** (sensores con lecturas erróneas, usuarios anómalos, fraude) que no debería forzarse a ningún cluster: DBSCAN, el único de los tres pensado explícitamente para separar señal de ruido.
-- Si los clusters esperados tienen **formas irregulares** (no convexas, tamaños muy distintos): DBSCAN; K-Means y, en menor medida, el jerárquico con linkage `complete`/`ward`, tienden a fallar en ese escenario.
+- Si el dataset es **grande** (cientos de miles de puntos o más): K-Means, el más rápido de los dos.
+- Si los datos tienen **ruido real** (sensores con lecturas erróneas, usuarios anómalos, fraude) que no debería forzarse a ningún cluster: DBSCAN, el único de los dos pensado explícitamente para separar señal de ruido.
+- Si los clusters esperados tienen **formas irregulares** (no convexas, tamaños muy distintos): DBSCAN; K-Means tiende a fallar en ese escenario.
 
 Un caso de uso muy citado en clase para DBSCAN es el análisis geoespacial: agrupar coordenadas GPS de usuarios o eventos para encontrar "zonas calientes" de actividad (por ejemplo, dónde se concentran los pedidos de una app de delivery en determinado horario) — un escenario donde el número de zonas no se conoce de antemano, y donde puntos aislados (un pedido en una zona rural sin actividad alrededor) deberían quedar como ruido, no forzados dentro de la zona caliente más cercana.
 
 ---
 
-## Módulo 5 — PCA: Reducción de Dimensionalidad
+## Módulo 4 — PCA: Reducción de Dimensionalidad
 
 **Contexto**: ¿cómo simplificar un dataset con decenas o cientos de variables sin perder lo esencial? El Análisis de Componentes Principales (PCA) es la técnica fundamental para reducir dimensionalidad, facilitando la visualización y el análisis.
 
-### Apertura del módulo *(Filmina 28)*
+### Apertura del módulo *(Filmina 22)*
 
-Esta divisoria trae el subtítulo "Covarianza, eigenvectores/eigenvalores, varianza explicada" — y anuncia el módulo más matemático de la clase. A diferencia de los tres módulos de clustering (donde la matemática de fondo se puede dejar bastante implícita y trabajar con la intuición geométrica de "puntos que se agrupan"), PCA requiere presentar un mínimo de álgebra lineal para que las filminas siguientes tengan sentido.
+Esta divisoria anuncia el módulo de PCA: "simplificar datos complejos sin perder lo esencial: el arte de resumir". A diferencia de la versión anterior de esta guía (apoyada en el PDF viejo), el docx actual no pide desarrollar la matemática de covarianza ni eigenvectores/eigenvalores — se queda en la intuición geométrica, igual que los módulos de clustering.
 
-**Para presentar antes del contenido técnico**: conviene arrancar retomando la Filmina 07 (Módulo 1), donde la reducción de dimensionalidad se definió como "simplificar datos complejos con muchas variables a representaciones más manejables". PCA es la técnica de referencia para resolver ese problema, y su lógica se puede resumir en una sola idea, sin fórmulas todavía: encontrar las direcciones **nuevas** (no necesariamente las variables originales) a lo largo de las cuales los datos varían más — porque ahí es donde vive la mayor parte de la información. Es una buena analogía para instalar acá: sacarle una foto a una escultura 3D desde el ángulo que muestra más detalle en una sola imagen 2D, en vez de desde un ángulo que la aplana y esconde su forma. PCA busca, matemáticamente, ese "mejor ángulo" para los datos.
+**Para presentar antes del contenido técnico**: conviene arrancar retomando la Filmina 07 (Módulo 1), donde la reducción de dimensionalidad se definió como "simplificar datos complejos con muchas variables a representaciones más manejables". PCA es la técnica de referencia para resolver ese problema, y su lógica se puede resumir en una sola idea, sin fórmulas: encontrar las direcciones **nuevas** (no necesariamente las variables originales) a lo largo de las cuales los datos varían más — porque ahí es donde vive la mayor parte de la información. Es una buena analogía para instalar acá: PCA es como tomar una escultura en tres dimensiones y proyectar su sombra en una pared — si se elige bien el ángulo, esa sombra dice casi todo lo que hace falta saber de la escultura, pero de forma mucho más simple.
 
-### Covarianza: la relación entre variables *(Filmina 29)*
+**Qué es cada Componente Principal, sin álgebra lineal**: la Primera Componente Principal (PC1) es la dirección donde los datos varían más; la Segunda Componente (PC2) es la segunda dirección con más variación, y es perpendicular a la primera. Por ejemplo, la PC1 podría explicar el 70% de la variación total de un dataset, la PC2 el 20%, y juntas el 90% — dos números nuevos que resumen casi toda la información de las variables originales.
 
-La covarianza mide cómo varían **juntas** dos variables: si ambas tienden a subir o bajar a la vez, es positiva; si una sube mientras la otra baja, es negativa.
+### Varianza explicada y selección de componentes *(Filmina 23)*
 
-$$Cov(X,Y) = E[(X - \mu_X)(Y - \mu_Y)]$$
+Cada Componente Principal captura una porción de la "información total" (varianza) del dataset original. Esto ayuda a decidir cuántos componentes conservar:
 
-En PCA, la **matriz de covarianza** resume esas relaciones entre **todas** las variables del dataset a la vez, y es la base para identificar las direcciones de mayor variabilidad.
-
-**Para desarrollar antes de mostrar la fórmula:**
-
-Vale la pena recordar primero qué es la **varianza** (el caso particular de covarianza de una variable consigo misma, `Cov(X,X)`) antes de saltar a la covarianza entre dos variables distintas: la varianza mide qué tan dispersos están los valores de una única variable respecto a su propio promedio. La covarianza extiende esa misma idea a un **par** de variables: en vez de preguntar "¿qué tan lejos está cada valor de X de su propio promedio?", pregunta "¿cuándo X se aleja de su promedio hacia arriba, Y también tiende a alejarse del suyo hacia arriba (covarianza positiva), hacia abajo (covarianza negativa), o no hay ningún patrón (covarianza cercana a cero)?".
-
-La razón por la que PCA construye una **matriz** de covarianza (y no solo un número) es que un dataset real casi nunca tiene 2 variables, sino muchas — la matriz de covarianza es simplemente la tabla que junta, en una sola estructura, la covarianza de **cada par posible** de variables (más la varianza de cada una consigo misma, en la diagonal). Para 3 variables, es una matriz de 3×3; para 75 variables (como el dataset de la Clase 04), sería una matriz de 75×75. Esa matriz completa es el punto de partida matemático de todo lo que sigue en el módulo: PCA busca, dentro de esa matriz, las direcciones donde la variabilidad conjunta es máxima.
-
-### Eigenvectores y eigenvalores: direcciones y magnitudes *(Filmina 30)*
-
-Un **eigenvector** es un vector que, al aplicarle una transformación lineal (como la matriz de covarianza), solo cambia en magnitud, no en dirección. El factor por el que cambia esa magnitud es el **eigenvalor** correspondiente.
-
-En PCA:
-- Los **eigenvectores** de la matriz de covarianza son las **Componentes Principales** — las nuevas direcciones ortogonales sobre las que se proyectan los datos.
-- Los **eigenvalores** indican la **varianza** que explica cada componente — un eigenvalor alto significa que esa dirección captura mucha variabilidad de los datos.
-
-**Para desarrollar el concepto de eigenvector/eigenvalor con más profundidad, antes del ejemplo de código:**
-
-Es probablemente el concepto más abstracto de toda la clase, y merece una explicación intuitiva antes de la definición formal. Pensá en la matriz de covarianza como una transformación que "estira" el espacio en distintas direcciones, más en las direcciones donde los datos varían más, menos donde varían poco. La mayoría de los vectores, al pasar por esa transformación, no solo cambian de tamaño sino también de **dirección** — apuntan "torcido" respecto a como apuntaban antes. Los eigenvectores son la excepción: son las pocas direcciones especiales que la transformación **no tuerce**, solo estira o encoge a lo largo de esa misma dirección. Por eso son las direcciones "naturales" de esa matriz — los ejes a lo largo de los cuales tiene sentido describir cómo varían los datos.
-
-En el contexto específico de PCA, el eigenvector con el eigenvalor más alto es literalmente la dirección de **máxima varianza** posible en los datos — la "primera Componente Principal". El segundo eigenvector (siempre ortogonal, es decir perpendicular, al primero) es la dirección de máxima varianza que queda **después** de descontar la que ya explicó el primero. Y así sucesivamente: cada componente principal explica la mayor variabilidad posible que las componentes anteriores todavía no explicaron. Esa es la propiedad que hace útil a PCA para reducir dimensionalidad: las primeras componentes concentran la mayor parte de la información, así que se pueden descartar las últimas (las que explican poca varianza) sin perder demasiado.
-
-🎯 **Ejemplo**: calcular la matriz de covarianza y sus eigenvalores "a mano" con NumPy, y confirmar que da exactamente lo mismo que el `PCA` de scikit-learn — para que quede claro que no es magia, es álgebra lineal.
-
-```python
-import numpy as np
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-
-# Dataset sintético: x2 correlacionada con x1 a propósito, x3 independiente (ruido)
-np.random.seed(42)
-n = 200
-x1 = np.random.normal(0, 1, n)
-x2 = x1 * 0.9 + np.random.normal(0, 0.3, n)
-x3 = np.random.normal(0, 1, n)
-datos_escalados = StandardScaler().fit_transform(np.column_stack([x1, x2, x3]))
-
-# Matriz de covarianza "a mano"
-matriz_cov = np.cov(datos_escalados.T)
-print(matriz_cov.round(2))
-
-# Eigenvalores y eigenvectores (eigh: para matrices simétricas, como la de covarianza)
-autovalores, autovectores = np.linalg.eigh(matriz_cov)
-autovalores = np.sort(autovalores)[::-1]                       # orden de mayor a menor
-varianza_explicada = autovalores / autovalores.sum() * 100
-print(f"Varianza explicada (a mano): {varianza_explicada.round(1)}")
-
-# Confirmación con PCA de scikit-learn
-pca = PCA().fit(datos_escalados)
-print(f"Varianza explicada (sklearn): {(pca.explained_variance_ratio_ * 100).round(1)}")
-```
-
-**Línea por línea:**
-- `x2 = x1 * 0.9 + ruido` → construye a propósito una variable fuertemente correlacionada con `x1`, para que el ejemplo tenga una dirección de varianza claramente dominante.
-- `np.cov(datos_escalados.T)` → la matriz de covarianza 3×3; en el resultado real, la covarianza entre `x1` y `x2` da `0.95` (muy alta), mientras que `x3` queda casi en `0` con las otras dos.
-- `np.linalg.eigh(...)` → variante de `eig` pensada para matrices **simétricas** (la de covarianza siempre lo es); a diferencia de `eig`, devuelve los autovalores ya como números reales, sin parte imaginaria residual.
-- **Resultado real**: la varianza explicada da `[66.1%, 32.1%, 1.8%]` calculada a mano, y **exactamente los mismos tres números** con `PCA()` de scikit-learn — el primer componente concentra dos tercios de toda la variabilidad, justamente porque resume la relación compartida entre `x1` y `x2`.
-
-### Varianza explicada y selección de componentes *(Filmina 31)*
-
-La suma de todos los eigenvalores es la varianza total de los datos. La varianza explicada por cada componente es el porcentaje que representa su eigenvalor respecto a esa suma total. Esto ayuda a decidir cuántos componentes conservar:
-
-- Conservar los primeros componentes que expliquen un porcentaje significativo (ej. 90%) de la varianza acumulada.
+- Conservar los primeros componentes que expliquen un porcentaje significativo (entre 70% y 95%) de la varianza acumulada.
 - Un gráfico de codo (misma lógica que en K-Means) ayuda a ver dónde agregar más componentes deja de aportar varianza relevante.
 - En algunos casos conviene priorizar **menos** componentes para simplificar el modelo, aunque se pierda algo de varianza — es una decisión de compromiso, no una regla fija.
 
 **Para desarrollar antes de la filmina:**
 
-Vale la pena remarcar el paralelismo explícito con el método del codo de K-Means (Módulo 3, Filmina 18): en los dos casos se grafica una curva (WCSS en un caso, varianza explicada acumulada en el otro) en función de un número entero que hay que elegir (`k` clusters, o cantidad de componentes), y en los dos casos se busca el punto donde agregar "una unidad más" deja de aportar una mejora proporcional. Es el mismo patrón de decisión — "¿cuánta complejidad adicional se justifica por la mejora que trae?" — aplicado a dos problemas distintos.
+Vale la pena remarcar el paralelismo explícito con el método del codo de K-Means (Módulo 2, Filmina 14): en los dos casos se grafica una curva (WCSS en un caso, varianza explicada acumulada en el otro) en función de un número entero que hay que elegir (`k` clusters, o cantidad de componentes), y en los dos casos se busca el punto donde agregar "una unidad más" deja de aportar una mejora proporcional. Es el mismo patrón de decisión — "¿cuánta complejidad adicional se justifica por la mejora que trae?" — aplicado a dos problemas distintos.
 
-Un umbral común en la práctica profesional es conservar los componentes que expliquen el **95%** de la varianza acumulada (a veces 90%, según qué tan crítico sea no perder información) — pero ese número no es una ley matemática, es una convención razonable. Si el objetivo final es solo **visualizar** los datos, casi siempre se usan exactamente 2 o 3 componentes, sin importar qué porcentaje de varianza expliquen — porque el límite ahí no es estadístico, es que un gráfico no puede tener más de 3 ejes.
+Esto permite, por ejemplo, pasar de 20 variables a solo 3, perdiendo muy poca información pero ganando muchísima claridad y velocidad. Si el objetivo final es solo **visualizar** los datos, casi siempre se usan exactamente 2 o 3 componentes, sin importar qué porcentaje de varianza expliquen — porque el límite ahí no es estadístico, es que un gráfico no puede tener más de 3 ejes.
 
-### Limitaciones de PCA *(Filmina 32)*
+### Limitaciones de PCA *(Filmina 24)*
 
 - **Linealidad**: PCA solo captura relaciones **lineales** entre variables; con estructuras no lineales complejas, puede no ser suficiente.
 - **Escalado**: es sensible a la escala de las variables — por eso es común normalizar o estandarizar los datos antes de aplicarlo (igual que en clustering).
@@ -755,7 +503,7 @@ Un umbral común en la práctica profesional es conservar los componentes que ex
 - **Escalado**: si no se estandariza antes, una variable con valores en millones (como `market_value_eur` del dataset de la Clase 04) tendría una varianza numéricamente gigantesca comparada con una variable en unidades chicas (como `age`) — y como PCA busca **maximizar varianza**, terminaría armando la primera componente casi exclusivamente a partir de esa única variable de escala grande, ignorando de hecho a todas las demás. Es la misma razón por la que el escalado es obligatorio en K-Means y DBSCAN, aplicada acá a un problema distinto (varianza en vez de distancia).
 - **Interpretabilidad**: cuando la primera componente principal resulta ser, por ejemplo, `0.6 × ingresos + 0.5 × gasto_mensual - 0.3 × edad + ...`, explicarle a un directorio "qué es" esa componente en términos de negocio no es trivial — a diferencia de una variable original como "edad", que se entiende sin esfuerzo. Por eso, en contextos donde la explicabilidad ante un público no técnico es prioritaria, a veces se prefiere sacrificar algo de la reducción de dimensionalidad y quedarse con un subconjunto de variables originales, más fáciles de comunicar aunque menos eficientes matemáticamente.
 
-### Aplicación práctica y relevancia en la industria *(Filmina 33)*
+### Aplicación práctica y relevancia en la industria *(Filmina 25)*
 
 - **Visualización**: reducir dimensiones a 2 o 3 para graficar y detectar patrones o segmentos de clientes a simple vista.
 - **Preprocesamiento**: simplificar datos antes de aplicar clustering o clasificación, mejorando el rendimiento y reduciendo ruido.
@@ -764,8 +512,8 @@ Por ejemplo, un analista puede usar PCA para transformar variables de comportami
 
 **Para cerrar el módulo con más contexto de uso:**
 
-- **Visualización**: un flujo de trabajo muy habitual en la práctica es aplicar PCA para reducir un dataset de muchas variables a 2 componentes, graficar esos 2 componentes en un scatter plot, y **después** colorear cada punto según el cluster que le asignó K-Means (Módulo 3) — combinando las dos técnicas de la clase para poder "ver" en un gráfico 2D una segmentación que en realidad vive en un espacio de muchas más dimensiones, imposible de graficar directamente.
-- **Preprocesamiento**: además de mejorar rendimiento (como se ve en el Módulo 6, con la demo de PCA + KNN), reducir dimensionalidad antes de clustering también ayuda a esquivar la llamada **"maldición de la dimensionalidad"** — un fenómeno donde, en espacios de muchísimas dimensiones, la noción misma de "distancia" empieza a perder sentido (todos los puntos terminan pareciendo casi igual de lejos unos de otros), lo que degrada la calidad de algoritmos como K-Means o DBSCAN que dependen exactamente de medir distancias.
+- **Visualización**: un flujo de trabajo muy habitual en la práctica es aplicar PCA para reducir un dataset de muchas variables a 2 componentes, graficar esos 2 componentes en un scatter plot, y **después** colorear cada punto según el cluster que le asignó K-Means (Módulo 2) — combinando las dos técnicas de la clase para poder "ver" en un gráfico 2D una segmentación que en realidad vive en un espacio de muchas más dimensiones, imposible de graficar directamente.
+- **Preprocesamiento**: además de mejorar rendimiento (como se ve en el Módulo 5, con la demo de PCA + KNN), reducir dimensionalidad antes de clustering también ayuda a esquivar la llamada **"maldición de la dimensionalidad"** — un fenómeno donde, en espacios de muchísimas dimensiones, la noción misma de "distancia" empieza a perder sentido (todos los puntos terminan pareciendo casi igual de lejos unos de otros), lo que degrada la calidad de algoritmos como K-Means o DBSCAN que dependen exactamente de medir distancias.
 - Un tercer uso, no mencionado explícitamente en la filmina pero común en la industria: la **compresión de datos** — guardar solo las primeras componentes principales de un dataset (en vez de todas las variables originales) para ahorrar espacio de almacenamiento, aceptando una pérdida controlada de información a cambio.
 
 **Más sectores donde PCA es la técnica de referencia:**
@@ -776,37 +524,35 @@ Por ejemplo, un analista puede usar PCA para transformar variables de comportami
 
 ---
 
-## Módulo 6 — Panorama de Métodos (Síntesis)
+## Módulo 5 — Panorama de Métodos (Síntesis)
 
-**Contexto**: cierre conceptual de la clase — comparar las cinco técnicas vistas, entender sus límites, y ver PCA mejorando el rendimiento de un modelo real, no solo en teoría.
+**Contexto**: cierre conceptual de la clase — comparar las técnicas vistas, entender sus límites, y ver PCA mejorando el rendimiento de un modelo real, no solo en teoría.
 
-### Apertura del módulo de cierre *(Filmina 34)*
+### Apertura del módulo de cierre *(Filmina 26)*
 
-La última divisoria de la clase trae el subtítulo "Tu superpoder analítico: consolidando el flujo de trabajo profesional completo" — y funciona como el cierre conceptual de las casi dos horas de clase. A esta altura ya se recorrieron cinco algoritmos concretos (Apriori/FP-Growth, K-Means, Jerárquico, DBSCAN, PCA); este módulo no agrega un sexto algoritmo, sino que da un paso atrás para mirarlos **a todos juntos**.
+La última divisoria técnica de la clase funciona como el cierre conceptual de las casi dos horas de clase. A esta altura ya se recorrieron tres algoritmos concretos (K-Means, DBSCAN, PCA); este módulo no agrega un cuarto algoritmo, sino que da un paso atrás para mirarlos **a todos juntos**.
 
-**Para presentar antes del contenido**: es un buen momento para pedirle al grupo, antes de mostrar ninguna tabla, que intente recordar de memoria los cinco algoritmos vistos y a qué familia pertenece cada uno (clustering: K-Means, Jerárquico, DBSCAN; reducción de dimensionalidad: PCA; reglas de asociación: Apriori/FP-Growth) — es un buen chequeo rápido de qué quedó instalado de la clase antes de pasar al repaso formal de las Filminas 35 a 35. También es el momento de anticipar que el módulo cierra con algo distinto a las clases anteriores: una demostración con números reales de que la elección de técnica (PCA en este caso) no es solo una cuestión teórica, sino que **cambia el resultado de un modelo posterior** de forma medible.
+**Para presentar antes del contenido**: es un buen momento para pedirle al grupo, antes de mostrar ninguna tabla, que intente recordar de memoria los tres algoritmos vistos y a qué familia pertenece cada uno (clustering: K-Means, DBSCAN; reducción de dimensionalidad: PCA) — es un buen chequeo rápido de qué quedó instalado de la clase antes de pasar al repaso formal de las próximas filminas. También es el momento de anticipar que el módulo cierra con algo distinto a las clases anteriores: una demostración con números reales de que la elección de técnica (PCA en este caso) no es solo una cuestión teórica, sino que **cambia el resultado de un modelo posterior** de forma medible.
 
-### Decisiones de diseño y parámetros clave *(Filmina 35)*
+### Decisiones de diseño y parámetros clave *(Filmina 27)*
 
 | Técnica | Parámetros clave | Consideración principal |
 |---|---|---|
 | **K-Means** | Número de clusters `k` | Elegir `k` adecuado; sensible a valores atípicos |
-| **Clustering jerárquico** | Método de linkage (single, complete...) | Interpretación del dendrograma; escalabilidad |
 | **DBSCAN** | `eps`, `min_samples` | Detecta ruido; adecuado para formas arbitrarias |
 | **PCA** | Número de componentes a conservar | Balance entre reducción y pérdida de información |
-| **Apriori** | Soporte mínimo, confianza mínima | Controla cantidad y calidad de reglas generadas |
 
 **Para desarrollar esta tabla en clase, columna por columna:**
 
-Vale la pena remarcar un patrón que atraviesa las cinco filas: **todas** las técnicas de hoy tienen al menos un hiperparámetro que hay que decidir a mano antes de correr el algoritmo, y en **ninguno** de los cinco casos existe una fórmula única que lo calcule automáticamente — solo heurísticas (el codo, el silhouette, el k-distance plot, el umbral de varianza explicada) que ayudan a acercarse a un buen valor. Es una diferencia de fondo respecto al aprendizaje supervisado de la Clase 08, donde muchos hiperparámetros se pueden ajustar de forma más sistemática con `GridSearchCV` comparando contra una métrica objetiva como Accuracy — acá, al no existir una `y` contra la cual medir "qué tan bien salió", la elección de parámetros conserva siempre un componente de criterio humano.
+Vale la pena remarcar un patrón que atraviesa las tres filas: **todas** las técnicas de hoy tienen al menos un hiperparámetro que hay que decidir a mano antes de correr el algoritmo, y en **ninguno** de los tres casos existe una fórmula única que lo calcule automáticamente — solo heurísticas (el codo, el silhouette, el k-distance plot, el umbral de varianza explicada) que ayudan a acercarse a un buen valor. Es una diferencia de fondo respecto al aprendizaje supervisado de la Clase 08, donde muchos hiperparámetros se pueden ajustar de forma más sistemática con `GridSearchCV` comparando contra una métrica objetiva como Accuracy — acá, al no existir una `y` contra la cual medir "qué tan bien salió", la elección de parámetros conserva siempre un componente de criterio humano.
 
-También vale la pena conectar la columna "Consideración principal" con lo ya visto: la sensibilidad de K-Means a valores atípicos (Filmina 17), la escalabilidad limitada del jerárquico con datasets grandes (Filmina 23), la capacidad de DBSCAN de manejar formas arbitrarias (Filmina 25-23), el balance de PCA entre reducción y pérdida de información (Filmina 31), y el control de calidad de reglas de Apriori vía soporte/confianza (Filmina 12) — esta tabla es, en esencia, un resumen de una idea clave por módulo, y sirve como buena guía de repaso rápido antes de un examen o de aplicar estas técnicas en un proyecto real.
+También vale la pena conectar la columna "Consideración principal" con lo ya visto: la sensibilidad de K-Means a valores atípicos (Filmina 13), la capacidad de DBSCAN de manejar formas arbitrarias (Filminas 19-20), y el balance de PCA entre reducción y pérdida de información (Filmina 23) — esta tabla es, en esencia, un resumen de una idea clave por módulo, y sirve como buena guía de repaso rápido antes de un examen o de aplicar estas técnicas en un proyecto real.
 
-### Limitaciones y supuestos básicos *(Filmina 36)*
+### Limitaciones y supuestos básicos *(Filmina 28)*
 
 - El **clustering** asume que la similitud/diferencia entre puntos es significativa y que los datos pueden agruparse con claridad.
 - **PCA** asume relaciones lineales y que la varianza es una medida adecuada de "información".
-- Las **reglas de asociación** requieren datos transaccionales y pueden generar muchas reglas irrelevantes sin filtros adecuados.
+- Ningún algoritmo "sabe" si `k` (o los grupos encontrados) tiene sentido real — un K-Means forzado a 3 grupos en ruido aleatorio los va a encontrar igual, aunque no signifiquen nada.
 
 **Para reflexionar en clase**: ¿qué pasaría si aplicás K-Means a datos con clusters de formas muy irregulares? ¿O PCA a datos con relaciones fuertemente no lineales? (Spoiler: en ambos casos, conviene DBSCAN o técnicas no lineales en vez de forzar el método "de siempre".)
 
@@ -814,23 +560,21 @@ También vale la pena conectar la columna "Consideración principal" con lo ya v
 
 El hilo conductor de esta filmina es que **ninguna técnica de hoy funciona "a ciegas"** — cada una parte de un supuesto sobre cómo son los datos, y cuando ese supuesto no se cumple, el resultado puede ser engañoso sin que el algoritmo avise del error. El clustering, por ejemplo, siempre va a devolver **algún** agrupamiento, incluso si se le pasan datos generados completamente al azar sin ninguna estructura real — el algoritmo no tiene forma de "darse cuenta" de que no había nada que agrupar, y es responsabilidad de quien lo usa evaluar (con silhouette, por ejemplo) si el resultado tiene sentido real o es ruido estadístico disfrazado de grupos.
 
-Sobre PCA: además de asumir linealidad (ya visto en la Filmina 32), asume que **más varianza significa más información relevante** — un supuesto razonable en la mayoría de los casos, pero que puede fallar si, por ejemplo, una variable tiene mucha varianza justamente por errores de medición (ruido de sensor) y no por señal real; en ese escenario, PCA podría terminar priorizando una dirección que en realidad es puro ruido.
+Sobre PCA: además de asumir linealidad, asume que **más varianza significa más información relevante** — un supuesto razonable en la mayoría de los casos, pero que puede fallar si, por ejemplo, una variable tiene mucha varianza justamente por errores de medición (ruido de sensor) y no por señal real; en ese escenario, PCA podría terminar priorizando una dirección que en realidad es puro ruido.
 
-Sobre reglas de asociación: generar reglas sin ningún filtro de soporte/confianza mínimos en un catálogo grande puede producir literalmente millones de reglas técnicamente válidas pero comercialmente inútiles (asociaciones triviales, coincidencias estadísticas) — el criterio de negocio para decidir los umbrales mínimos es tan importante como el algoritmo en sí.
-
-### Aplicaciones prácticas por escenario *(Filmina 37)*
+### Aplicaciones prácticas por escenario *(Filmina 29)*
 
 - **Clustering**: segmentación de clientes, detección de fraude agrupando comportamientos atípicos, análisis de patrones en sensores industriales.
 - **PCA**: visualización de datos complejos, reducción de ruido antes de un modelo supervisado, compresión de datos para almacenamiento eficiente.
-- **Reglas de asociación**: productos que se compran juntos, optimización de layout de tienda, análisis de comportamiento de compra.
+- **Detección de anomalías**: fraude bancario, fallos de motores industriales — el algoritmo aprende el "comportamiento normal" y marca lo que no encaja.
 
 En la práctica, la elección depende del contexto de negocio: en un e-commerce con datos ruidosos y clusters de forma compleja, DBSCAN suele ganarle a K-Means.
 
 **Para cerrar con un caso integrador, combinando varias técnicas de la clase:**
 
-Un flujo de trabajo realista en una empresa de e-commerce podría combinar **las tres familias en una sola cadena de análisis**: primero, PCA para reducir docenas de variables de comportamiento de cada cliente (frecuencia de compra, categorías preferidas, monto gastado, dispositivo usado, horario de navegación...) a un puñado de componentes principales que resuman lo esencial; segundo, K-Means o DBSCAN sobre esas componentes reducidas para segmentar a los clientes en grupos con comportamientos similares (más rápido y con mejores resultados que clusterizar sobre las variables originales sin reducir, por la maldición de la dimensionalidad mencionada en el Módulo 5); y tercero, reglas de asociación aplicadas **dentro de cada segmento** por separado, para encontrar patrones de compra específicos de cada grupo de clientes, en vez de patrones genéricos que mezclan comportamientos muy distintos entre sí. Es un buen ejemplo para cerrar la clase mostrando que estas técnicas no compiten entre sí — se combinan.
+Un flujo de trabajo realista en una empresa de e-commerce podría combinar **dos técnicas en una sola cadena de análisis**: primero, PCA para reducir docenas de variables de comportamiento de cada cliente (frecuencia de compra, categorías preferidas, monto gastado, dispositivo usado, horario de navegación...) a un puñado de componentes principales que resuman lo esencial; segundo, K-Means o DBSCAN sobre esas componentes reducidas para segmentar a los clientes en grupos con comportamientos similares (más rápido y con mejores resultados que clusterizar sobre las variables originales sin reducir, por la maldición de la dimensionalidad mencionada en el Módulo 4). Es un buen ejemplo para cerrar la clase mostrando que estas técnicas no compiten entre sí — se combinan.
 
-### Demostración: PCA mejorando un modelo real *(Filmina 38)*
+### Demostración: PCA mejorando un modelo real *(Filmina 30)*
 
 El PDF cierra con un ejemplo didáctico controlado que demuestra, con números, que PCA puede **mejorar** el rendimiento de un modelo — no solo "comprimir" datos:
 
@@ -843,7 +587,7 @@ El PDF cierra con un ejemplo didáctico controlado que demuestra, con números, 
 
 Vale la pena explicar por qué el experimento está armado exactamente así, porque el diseño es parte de lo que hace convincente la demostración. El dataset de cáncer de mama (`load_breast_cancer`) ya viene con 30 variables reales y significativas (medidas de núcleos celulares). Agregarle 300 columnas de **ruido gaussiano puro** — números aleatorios sin ninguna relación con si el tumor es maligno o benigno — simula, de forma controlada y medible, algo que pasa todo el tiempo en datasets reales: una tabla con muchas columnas donde solo una fracción de ellas realmente importa para el problema, y el resto es "ruido" (variables mal elegidas, redundantes, o simplemente irrelevantes para la pregunta puntual que se está resolviendo).
 
-La elección de **KNN** como clasificador no es casual: KNN clasifica un punto nuevo mirando literalmente qué tan cerca está de sus vecinos ya clasificados — y esa noción de "cerca" se calcula con distancia sobre **todas** las columnas por igual, ruido incluido. Con 300 columnas de ruido contra solo 30 de señal real, la distancia entre dos puntos queda dominada casi por completo por coincidencias aleatorias en las columnas de ruido, y el vecino "más cercano" deja de ser realmente el más parecido en términos clínicos. Es la manifestación concreta de la maldición de la dimensionalidad mencionada en el Módulo 5. Un modelo como Random Forest, en cambio, sería mucho menos sensible a este mismo experimento — porque puede aprender a ignorar variables irrelevantes; la elección de KNN está pensada a propósito para que el efecto de PCA se note con claridad.
+La elección de **KNN** como clasificador no es casual: KNN clasifica un punto nuevo mirando literalmente qué tan cerca está de sus vecinos ya clasificados — y esa noción de "cerca" se calcula con distancia sobre **todas** las columnas por igual, ruido incluido. Con 300 columnas de ruido contra solo 30 de señal real, la distancia entre dos puntos queda dominada casi por completo por coincidencias aleatorias en las columnas de ruido, y el vecino "más cercano" deja de ser realmente el más parecido en términos clínicos. Es la manifestación concreta de la maldición de la dimensionalidad mencionada en el Módulo 4. Un modelo como Random Forest, en cambio, sería mucho menos sensible a este mismo experimento — porque puede aprender a ignorar variables irrelevantes; la elección de KNN está pensada a propósito para que el efecto de PCA se note con claridad.
 
 ```python
 from sklearn.datasets import load_breast_cancer
@@ -897,7 +641,71 @@ print(f"Accuracy CON PCA: {acc_con_pca:.4f}")
 - `pca.fit_transform(X_train_s)` / `pca.transform(X_test_s)` → **regla de oro** (la misma que en imputación/escalado): el PCA se ajusta (`fit`) solo con datos de entrenamiento, y se aplica (`transform`) a ambos conjuntos — nunca se ajusta sobre test.
 - **Resultado real, corriendo este código**: `Accuracy SIN PCA: 0.8531` vs. `Accuracy CON PCA: 0.9161` — una mejora de más de 6 puntos porcentuales. La razón: KNN mide distancias, y con 300 columnas de ruido esas distancias quedan "contaminadas"; PCA concentra la señal real en pocas componentes y descarta gran parte del ruido, mejorando la relación señal/ruido que ve el clasificador.
 
-> **Con esto cierra la clase.** El panorama completo: cinco técnicas (K-Means, Jerárquico, DBSCAN, PCA, Apriori), cada una con su caso de uso, sus parámetros y sus límites — y una prueba concreta de que elegir bien la técnica de preprocesamiento (PCA) puede ser la diferencia entre un modelo mediocre y uno bueno, incluso antes de tocar el algoritmo de predicción en sí.
+> **Con esto cierra la parte técnica de la clase.** El panorama completo: tres técnicas (K-Means, DBSCAN, PCA), cada una con su caso de uso, sus parámetros y sus límites — y una prueba concreta de que elegir bien la técnica de preprocesamiento (PCA) puede ser la diferencia entre un modelo mediocre y uno bueno, incluso antes de tocar el algoritmo de predicción en sí. Lo que sigue (Módulos 6 y 7) ya no es sobre algoritmos nuevos, sino sobre cómo traducir estos resultados en decisiones de negocio responsables.
+
+---
+
+## Módulo 6 — Customer Profiling
+
+**Contexto**: a un gerente de marketing no le interesa el valor de la Inercia o del Epsilon por sí solos — le interesa "¿quiénes son estas personas y qué hacemos con ellas?". Este módulo es el puente entre el resultado técnico de K-Means/DBSCAN y una decisión de negocio real.
+
+### Perfil vs. Comportamiento *(Filmina 31)*
+
+Para diferenciar clústeres con sentido de negocio, conviene separar dos familias de variables:
+
+- **Variables de perfil** (quién es): edad, ciudad de residencia — datos socio-demográficos, relativamente estáticos.
+- **Variables de comportamiento** (qué hace): frecuencia de compra, categorías de productos visitadas — acciones que cambian con el tiempo.
+
+La segmentación efectiva casi siempre combina ambas familias — saber "quién es" sin saber "qué hace" (o viceversa) deja la mitad de la foto incompleta.
+
+**Qué caracteriza a un buen segmento**: alta **cohesión** interna (los puntos del grupo se parecen entre sí) y alta **separación** respecto a los demás grupos — el mismo principio de calidad que ya apareció con el coeficiente silhouette (Módulo 2), ahora aplicado a la lectura de negocio, no solo al número.
+
+### De clúster a decisión: un ejemplo completo *(Filmina 32)*
+
+Un K-Means identifica un clúster con **alto gasto histórico** pero **sin compras en los últimos 6 meses**. El algoritmo no sabe qué significa eso — esa interpretación es 100% trabajo humano.
+
+- **Interpretación de negocio**: "Clientes en Riesgo" — tuvieron valor real en el pasado, y el patrón sugiere que se están por ir.
+- **Acción**: diseñar una campaña de reactivación con descuentos especiales dirigida específicamente a ese grupo.
+- **Lo que NO hay que hacer**: ignorar el grupo asumiendo que "ya se fueron" (perder una oportunidad de negocio detectada), ni eliminar esos datos pensando que son un error (K-Means no garantiza que el comportamiento sea permanente — es una "foto" del estado actual).
+
+**Por qué la traducción importa tanto como el algoritmo**: un centroide es un promedio matemático; decir "el clúster 2 tiene gasto promedio de $500.000 mientras los demás promedian $50.000" es un dato. Decir "el clúster 2 es nuestro segmento Premium, y necesita un trato distinto" es la traducción a negocio que un algoritmo nunca va a hacer solo.
+
+---
+
+## Módulo 7 — Ética, Sesgos y Cierre
+
+**Contexto**: el cierre de la clase, y el más importante en términos de responsabilidad profesional. Sin `y`, no hay una "verdad" contra la cual comparar — por eso toda la responsabilidad de interpretar bien recae en la persona, no en el algoritmo.
+
+### Interpretación responsable: riesgos y sesgos *(Filmina 33)*
+
+- **No hay Ground Truth**: el algoritmo encontrará patrones porque esa es su función — no valida si son reales, útiles o si esconden sesgos peligrosos. Que un K-Means encuentre 3 grupos no prueba que "existan" 3 tipos reales de clientes: si se le pide 10, va a dar 10.
+- **Proyectar prejuicios propios**: al no haber etiquetas, es muy fácil interpretar un clúster con el propio sesgo en vez de con el dato real detrás.
+- **El riesgo legal y ético, no solo técnico**: si un clúster separa personas por un patrón que refleja una desigualdad social (por ejemplo, una zona geográfica correlacionada con nivel socioeconómico) y ese resultado se usa ciegamente para decidir a quién otorgar un crédito, hay un problema serio — el modelo no es "racista" ni "injusto" por sí mismo, simplemente es un espejo de los datos con los que se construyó, pero usarlo sin ese criterio tiene consecuencias reales.
+
+**Para desarrollar en clase, antes de la Pre-entrega:**
+
+El aprendizaje no supervisado da el "qué" (los grupos, los componentes, las anomalías) — el criterio humano pone el "por qué" y el "para qué". Un buen ejercicio de cierre es preguntarle al grupo: de todo lo visto hoy (K-Means, DBSCAN, PCA, Customer Profiling), ¿en qué paso puntual se cuela más fácilmente un sesgo sin que nadie lo note? La respuesta esperada apunta casi siempre al mismo lugar: el momento de ponerle **nombre** a un clúster — ahí es donde la interpretación humana reemplaza al dato, y donde conviene pedir una segunda opinión antes de tomar una decisión que afecte personas reales.
+
+---
+
+## Pre-entrega: Aprendizaje No Supervisado
+
+✅ **Entregable evaluado del módulo.**
+
+**Escenario**: una aplicación de streaming de música (similar a Spotify) con 500.000 usuarios, sin etiquetas — no se sabe de antemano quién es "premium" ni qué "estilo de oyente" tiene cada uno. Los datos disponibles incluyen géneros más escuchados, horas de escucha al día, número de listas de reproducción creadas, edad y ubicación.
+
+**Lo que hay que entregar, en un documento de análisis (PDF)**:
+
+1. **Estrategia de clustering**: ¿K-Means o DBSCAN para segmentar a estos usuarios? Justificar comparando cómo cada uno maneja el ruido y las formas de los grupos.
+2. **Reducción de dimensionalidad**: si hay 100 variables por usuario, ¿cómo se usaría PCA antes de clusterizar, y qué beneficio trae en términos de visualización y costo computacional?
+3. **Interpretación de negocio**: una vez que el algoritmo devuelve 5 grupos de usuarios, ¿qué pasos seguirías para "ponerles nombre" y asegurar que esos grupos son útiles para el equipo de Marketing?
+4. **Ética y sesgos**: mencionar un posible sesgo que podría ocurrir al agrupar usuarios sin supervisión humana, y cómo se intentaría mitigarlo.
+
+**No se requiere código ejecutable** — sí una propuesta técnica y analítica bien fundamentada, con la terminología correcta del módulo (cohesión, separación, ruido, varianza explicada, Ground Truth).
+
+**Criterios de evaluación**: claridad técnica en la distinción de algoritmos; razonamiento lógico sobre el uso de PCA; enfoque orientado a resultados de negocio; uso correcto de la terminología del módulo.
+
+**Nota sobre el Podcast**: `Clase 09_fixed.docx` incluye, al cierre del módulo, un Podcast transcripto (diálogo entre dos presentadores repasando todo el recorrido: K-Means, DBSCAN, PCA, Customer Profiling y ética). Siguiendo el mismo criterio que en Clase 07, ese contenido de audio **no** se convierte en filmina — queda como material de repaso sugerido para los alumnos antes de encarar la Pre-entrega, sin sección propia en `Clase09.html`.
 
 ---
 
