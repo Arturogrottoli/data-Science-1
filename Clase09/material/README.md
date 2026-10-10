@@ -54,13 +54,34 @@ Antes de meternos en "supervisado" puntualmente, vale la pena bajar un escalón 
 
 **Machine Learning (aprendizaje automático)** resuelve eso de otra manera: en vez de programarle las reglas a la máquina, se le muestran muchos ejemplos y se deja que ella misma **encuentre los patrones** y arme sus propias reglas internas, a base de repetición y ajuste. Es parecido a cómo un chico aprende a reconocer animales: nadie le da una lista de reglas escritas ("un perro tiene 4 patas, pelo, y ladra") — simplemente ve muchos perros distintos, y con el tiempo su cerebro arma solo el patrón que le permite reconocer un perro nuevo que nunca vio.
 
+**Ejemplos de Machine Learning que el grupo ya usa todos los días, sin saberlo:**
+- **Filtro de spam de Gmail**: nadie escribió a mano la lista de todas las frases sospechosas — el modelo aprendió mirando millones de mails que los usuarios marcaron como spam.
+- **Recomendaciones de Netflix / YouTube / Spotify**: "porque viste X, te puede gustar Y" no sale de una regla escrita por una persona, sino de patrones aprendidos sobre lo que miró o escuchó gente con gustos parecidos.
+- **Desbloqueo facial del celular**: el teléfono aprendió a reconocer tu cara a partir de varias fotos tomadas en la configuración inicial, y la reconoce aunque cambie la luz, tengas anteojos o no te hayas afeitado.
+- **Tiempo estimado de llegada en Google Maps / Uber**: el modelo aprende de millones de viajes anteriores cuánto se tarda en cada tramo según la hora, el día y el tráfico.
+- **Autocorrector y texto predictivo del teclado**: aprende qué palabra suele venir después de otra mirando enormes cantidades de texto escrito.
+
 Dentro de Machine Learning hay distintas formas de "dejar que la máquina aprenda sola", según qué tipo de datos y qué tipo de ayuda se le da durante ese aprendizaje. La que ya se vio en la Clase 08 —y la que se repasa a continuación— es el **aprendizaje supervisado**; la que arranca hoy es el **aprendizaje no supervisado**, con una diferencia central que se explica más abajo.
 
 ### ¿Qué es el aprendizaje supervisado? *(Filmina 02)*
 
 La idea de fondo es muy parecida a cómo aprende una persona con ejemplos resueltos: si querés aprender a distinguir mails de spam, lo más fácil es que alguien te muestre miles de mails **ya marcados** como "spam" o "no spam", y con el tiempo empezás a notar patrones (ciertas palabras, remitentes raros, exceso de mayúsculas) que te ayudan a clasificar un mail nuevo que nunca viste. Eso es exactamente lo que hace un modelo de aprendizaje supervisado: se le muestran muchos ejemplos donde la respuesta correcta **ya se conoce**, y el modelo va ajustando sus parámetros internos hasta encontrar una regla (una función matemática) que relacione los datos de entrada con esa respuesta. Una vez entrenado, se usa esa regla para predecir la respuesta de casos **nuevos**, donde no se conoce de antemano.
 
+Otros ejemplos del mismo mecanismo ("aprender de casos ya resueltos"):
+- **Diagnóstico por imágenes**: miles de radiografías de tórax ya revisadas por médicos y marcadas como "neumonía" / "sana" → el modelo aprende a marcar radiografías nuevas.
+- **Tasación de propiedades**: miles de casas ya vendidas, con su precio final conocido → el modelo estima el precio de una casa que recién sale a la venta.
+- **Scoring crediticio**: el historial de clientes a los que el banco ya les prestó y se sabe si pagaron o no → el modelo estima el riesgo de un cliente nuevo que pide un préstamo.
+- **Reconocimiento de dígitos escritos a mano**: miles de imágenes de números escritos por personas distintas, cada una con el dígito correcto anotado → el modelo lee códigos postales o cheques.
+
 En la notación que se usa en la jerga de Machine Learning: a las variables de entrada (edad, ingresos, antigüedad laboral, cantidad de habitaciones de una casa...) se las llama `X`; a la respuesta que se quiere predecir (spam o no, precio de la casa) se la llama `y`. Entrenar un modelo supervisado es, ni más ni menos, buscar una función `f` tal que `f(X)` se parezca lo más posible a `y`, usando los ejemplos históricos donde ambas cosas ya se conocen.
+
+| Problema | `X` (lo que se sabe de entrada) | `y` (lo que se quiere predecir) |
+|---|---|---|
+| Spam | Remitente, asunto, palabras del mail, cantidad de links | `spam` / `no spam` |
+| Precio de una casa | Metros cuadrados, barrio, habitaciones, antigüedad | Precio en dólares |
+| Préstamo bancario | Edad, ingresos, antigüedad laboral, deudas previas | `paga` / `no paga` |
+| Demanda de un supermercado | Día de la semana, feriado sí/no, clima, promociones activas | Unidades vendidas de un producto |
+| Abandono de clientes (*churn*) | Meses como cliente, reclamos, uso mensual del servicio | `se va` / `se queda` |
 
 Existen dos grandes familias, según qué tipo de dato es `y`:
 
@@ -73,15 +94,40 @@ Existen dos grandes familias, según qué tipo de dato es `y`:
 - **Clasificación**: la respuesta que se quiere predecir es una **etiqueta**, elegida entre un grupo cerrado de opciones — "paga" o "no paga", "spam" o "no spam". No hay término medio: la predicción es una de esas categorías, no un número.
 - **Regresión**: la respuesta que se quiere predecir es un **número** que puede tomar cualquier valor — el precio de una casa (podría ser $150.234 o $150.987, cualquier cifra), la temperatura de mañana. Acá sí hay término medio: el modelo puede acertar "más o menos", no es todo o nada.
 
+**Más ejemplos de cada familia, para que el grupo practique distinguirlas:**
+
+| Clasificación (`y` es una categoría) | Regresión (`y` es un número) |
+|---|---|
+| ¿Este mail es spam? (sí / no) | ¿Cuánto va a costar este departamento? |
+| ¿Qué dígito (0-9) está escrito en esta imagen? | ¿Cuántos grados va a hacer mañana? |
+| ¿Este tumor es maligno o benigno? | ¿Cuántas unidades de yerba se van a vender la semana que viene? |
+| ¿Este cliente se va a dar de baja este mes? | ¿Cuántos minutos va a tardar este pedido de delivery? |
+| ¿Este comentario es positivo, negativo o neutro? | ¿Cuánto va a gastar este cliente en los próximos 12 meses? |
+
+Un truco para la clase: preguntar "¿la respuesta se puede promediar?". El promedio de dos precios ($100 y $200 → $150) tiene sentido — es regresión. El promedio de "spam" y "no spam" no tiene sentido — es clasificación.
+
 **Cómo se mide si un modelo de clasificación es bueno** — con un ejemplo concreto: un banco evalúa el modelo sobre 100 clientes a los que ya les prestó dinero en el pasado, así que ya se sabe qué pasó realmente con cada uno (90 pagaron a tiempo, 10 no pagaron / entraron en mora).
 - **Accuracy** es lo más simple de entender: de esos 100 casos, ¿en cuántos acertó el modelo (predijo "no paga" cuando efectivamente no pagó, o "paga" cuando efectivamente pagó)? Si acertó en 92, el Accuracy es 92%.
 - El problema de quedarse solo con Accuracy: si el modelo fuera tan vago que dijera **siempre** "va a pagar", sin analizar nada, igual acertaría en los 90 clientes que sí pagaron y solo fallaría en los 10 que no — un Accuracy del 90%, que suena bien pero es un modelo completamente inútil para el banco (nunca detecta a un cliente riesgoso, que es justo el caso que importa detectar antes de prestarle plata).
+  - La misma trampa aparece en cualquier problema donde un caso es mucho más raro que el otro:
+    - **Fraude con tarjeta**: si el 99,8% de las transacciones son legítimas, un modelo que dice "nunca es fraude" tiene 99,8% de Accuracy y no detecta ni un solo fraude.
+    - **Enfermedad poco frecuente**: si 1 de cada 1.000 pacientes la tiene, un modelo que dice "todos sanos" tiene 99,9% de Accuracy y no le sirve a ningún médico.
+    - **Fallas de una máquina**: si una turbina falla 2 días al año, un modelo que dice "hoy no falla" acierta 363 de 365 días (99,5%) — y se pierde justo los 2 días que importaban.
 - Por eso existe **F1**, que en realidad combina dos métricas más chicas y específicas. Sigamos con el ejemplo: supongamos que el modelo marca a **12 clientes** como "riesgosos" (predijo que no van a pagar). De esos 12, después se descubre que **8 realmente no pagaron** y **4 sí pagaron** (el modelo se equivocó con ellos). Y de los 10 clientes que en la realidad no pagaron, el modelo solo llegó a detectar a 8 de ellos (se le escaparon 2).
   - **Precision** ("precisión"): de los que el modelo marcó como riesgosos, ¿cuántos realmente lo eran? → 8 de 12 = **67%**. Si la Precision es baja, el modelo está siendo "alarmista": marca a mucha gente como riesgosa sin serlo (eso tiene un costo — por ejemplo, rechazarle el préstamo a un buen cliente).
   - **Recall** ("exhaustividad" o "sensibilidad"): de los que realmente no iban a pagar, ¿a cuántos detectó el modelo? → 8 de 10 = **80%**. Si el Recall es bajo, el modelo está siendo "distraído": deja pasar casos riesgosos de verdad sin detectarlos (ese es el error más caro para el banco — prestarle plata a alguien que no va a pagar).
   - **F1** es un promedio especial entre Precision y Recall (técnicamente se llama "media armónica", pero para la intuición alcanza con pensarlo como un promedio) que tiene una propiedad importante: si **cualquiera** de las dos (Precision o Recall) es mala, el F1 también sale malo — no alcanza con que una de las dos sea excelente para "tapar" a la otra. En este ejemplo, con Precision 67% y Recall 80%, el F1 da aproximadamente **73%**.
   - Comparado con el modelo "vago" de antes (el que siempre dice "va a pagar", sin marcar a nadie como riesgoso): ese modelo tiene Recall = 0% (no detecta ni un solo caso riesgoso real) — y ahí el F1 se derrumba a 0%, aunque su Accuracy fuera 90%. Ese es justamente el contraste que hace útil a F1: expone a los modelos que "hacen trampa" con Accuracy sin detectar nada de lo que realmente importa.
   - Nota sobre el nombre: a diferencia de AUC-ROC (que sí es una sigla con significado, ver abajo), "F1" no es la abreviatura de ninguna frase — es simplemente el nombre técnico de esta fórmula puntual (también se la llama "F1-score" o "F-measure"). No hace falta buscarle un significado oculto al nombre, solo recordar que combina Precision y Recall.
+  - **¿Cuándo importa más cada una?** Depende de qué error sale más caro:
+
+    | Situación | Métrica que más importa | Por qué |
+    |---|---|---|
+    | Filtro de spam | **Precision** | Mandar a spam un mail importante (una oferta de trabajo) es peor que dejar pasar un spam más. |
+    | Detección de cáncer en un screening | **Recall** | Dejar pasar a un paciente enfermo es mucho más grave que pedirle un estudio extra a uno sano. |
+    | Detección de fraude con tarjeta | **Recall** (con un piso de Precision) | Se quiere atrapar la mayoría de los fraudes, pero si se bloquean demasiadas tarjetas legítimas los clientes se enojan. |
+    | Recomendación de un video en YouTube | **Precision** | Mostrar algo que no le interesa al usuario lo aburre; no mostrarle *todos* los videos que le gustarían no es grave. |
+    | Búsqueda de sospechosos en un aeropuerto | **Recall** | Es preferible revisar de más que dejar pasar a alguien peligroso. |
 
 - Una tercera métrica que se mencionó en la Clase 08 es **AUC-ROC** — acá sí conviene desglosar la sigla completa: **AUC** es *Area Under the Curve* (Área Bajo la Curva) de la **ROC**, que es *Receiver Operating Characteristic* (algo así como "Característica Operativa del Receptor" — un nombre que viene de la ingeniería de radares de mediados del siglo XX y que hoy no aporta ninguna intuición; no hace falta memorizar por qué se llama así, solo entender qué mide).
 
@@ -91,31 +137,59 @@ Existen dos grandes familias, según qué tipo de dato es `y`:
 
   Los dos valores de referencia para interpretarlo: **AUC = 1** sería un modelo perfecto — existe un umbral donde separa completamente a un grupo del otro, sin ningún error. **AUC = 0,5** es lo mismo que decidir tirando una moneda al aire — el modelo no tiene ninguna capacidad real de distinguir un cliente riesgoso de uno confiable, por más ajustes de umbral que se prueben. En la práctica, un AUC de 0,8-0,9 ya se considera bastante bueno para la mayoría de los problemas reales.
 
+  Tres lecturas de ejemplo, para practicar en clase:
+  - **AUC = 0,95** en un modelo de detección de fraude → si se toma al azar una transacción fraudulenta y una legítima, en el 95% de los casos el modelo le asigna más probabilidad de fraude a la fraudulenta. Excelente.
+  - **AUC = 0,75** en un modelo que predice si un cliente va a abandonar una suscripción → separa bastante mejor que el azar, pero se le escapan muchos casos; útil para priorizar a quién llamar, no para tomar decisiones automáticas.
+  - **AUC = 0,52** en un modelo que intenta predecir si una acción va a subir o bajar mañana → prácticamente una moneda al aire; el modelo no encontró ningún patrón real.
+
 **Cómo se mide si un modelo de regresión es bueno** — con otro ejemplo: un modelo que predice precios de casas.
 - **MAE** (Error Absoluto Medio): agarra la diferencia entre lo que predijo el modelo y el precio real de cada casa, y promedia esas diferencias (sin importar si se equivocó "de más" o "de menos"). Si el MAE da $10.000, quiere decir que, en promedio, el modelo se equivoca por $10.000 en cada predicción — un número fácil de interpretar porque está en la misma unidad (dólares) que lo que se está prediciendo.
 - **RMSE**: muy parecido al MAE, pero antes de promediar los errores los eleva al cuadrado (y al final saca la raíz cuadrada del resultado). El efecto práctico: un error grande pesa mucho más que varios errores chicos — un modelo que casi siempre acierta bien pero se equivoca feo en un par de casas raras va a tener un RMSE bastante peor que su MAE, mientras que un modelo con errores parejos y moderados va a tener MAE y RMSE parecidos entre sí.
 - **R²**: en vez de dar un error en dólares, da un número entre 0 y 1 (a veces se explica como porcentaje) que responde "¿qué tan bien el modelo explica por qué el precio de cada casa es el que es?". Un R² de 1 sería un modelo perfecto (acierta el precio exacto siempre); un R² de 0 significa que el modelo no es mejor que simplemente decir siempre "el precio promedio de todas las casas", sin mirar ninguna variable en particular.
 
+**Las mismas métricas, en otros problemas** (para que no queden atadas solo al ejemplo de casas):
+- **MAE**:
+  - App de delivery que predice el tiempo de entrega: MAE = 6 minutos → "en promedio, el horario que le mostramos al cliente le erra por 6 minutos".
+  - Pronóstico del clima: MAE = 1,8 °C → "en promedio, la temperatura pronosticada difiere 1,8 grados de la real".
+  - Supermercado que predice ventas diarias de leche: MAE = 40 unidades → "en promedio, el pedido al proveedor queda corto o largo por 40 cartones".
+- **RMSE vs. MAE**, con dos modelos que predicen el tiempo de entrega de 4 pedidos:
+  - Modelo A, errores de 5, 5, 5 y 5 minutos → MAE = 5, RMSE = 5 (errores parejos, los dos números coinciden).
+  - Modelo B, errores de 0, 0, 0 y 20 minutos → MAE = 5, RMSE = 10 (mismo MAE, pero el RMSE se dispara por el único error grande).
+  - Modelo C, errores de 1, 2, 3 y 14 minutos → MAE = 5, RMSE ≈ 7,2 (en el medio).
+  - Moraleja: si un cliente esperando 20 minutos de más es un desastre para el negocio, conviene mirar RMSE; si solo importa el error promedio, alcanza con MAE.
+- **R²**:
+  - R² = 0,92 en un modelo de precio de autos usados → el modelo explica el 92% de las diferencias de precio entre autos (año, kilometraje, marca hacen casi todo el trabajo).
+  - R² = 0,45 en un modelo que predice el gasto mensual de un cliente → explica menos de la mitad; hay mucho comportamiento que las variables disponibles no capturan.
+  - R² = 0,05 en un modelo que predice el resultado de un partido de fútbol por la diferencia de goles → prácticamente igual a decir "siempre el promedio".
+
 ### Los modelos que se vieron en la Clase 08 *(Filmina 03)*
 
 Estos cinco modelos son las herramientas concretas con las que se resuelven los problemas de clasificación y regresión. Repasarlos uno por uno, con una idea intuitiva de cómo funciona cada uno:
 
-- **Regresión Lineal**: el modelo más simple de todos — busca la "mejor línea recta" (o, con más de una variable de entrada, el mejor plano) que pase lo más cerca posible de todos los puntos de entrenamiento. Ejemplo: predecir el precio de una casa a partir de sus metros cuadrados — a más metros cuadrados, más precio, y la Regresión Lineal encuentra la relación numérica exacta ("cada metro cuadrado extra suma, en promedio, tantos dólares"). Es un modelo de **regresión** (predice un número), muy fácil de interpretar, pero limitado cuando la relación entre las variables no es una línea recta.
-- **Árbol de Decisión**: funciona como un juego de "20 preguntas" — va haciendo preguntas de sí/no sobre los datos ("¿el ingreso es mayor a $50.000?", "¿tiene más de 30 años?"), y según las respuestas va bajando por ramas del árbol hasta llegar a una predicción final en una "hoja". Se puede usar tanto para clasificación ("¿el cliente paga el préstamo o no?") como para regresión ("¿cuánto va a gastar este cliente?"). Su gran ventaja es que es muy fácil de visualizar y explicar — literalmente se puede dibujar el árbol de preguntas y mostrárselo a alguien sin conocimientos técnicos.
-- **Random Forest**: en vez de confiar en un único Árbol de Decisión (que puede memorizar demasiado los datos de entrenamiento y funcionar mal con datos nuevos), Random Forest entrena **muchos** árboles distintos — cada uno viendo una porción distinta, al azar, de los datos y de las variables — y después promedia (en regresión) o vota por mayoría (en clasificación) las predicciones de todos ellos. La idea es la misma que "preguntarle a un grupo de expertos en vez de a uno solo": el resultado grupal suele ser más confiable que el de un único árbol, porque los errores individuales de cada árbol tienden a cancelarse entre sí.
-- **Regresión Logística**: a pesar del nombre (que confunde a todo el mundo la primera vez), **no es un modelo de regresión sino de clasificación**. Se usa para predecir la probabilidad de que algo pertenezca a una categoría — por ejemplo, la probabilidad de que un cliente no pague un préstamo, entre 0% y 100% — y después esa probabilidad se convierte en una predicción final ("riesgoso" si la probabilidad supera 50%, por ejemplo). El nombre viene de que matemáticamente usa una función llamada "logística" para convertir un cálculo interno en un número entre 0 y 1.
-- **KNN (K-Nearest Neighbors, "K vecinos más cercanos")**: la idea más intuitiva de las cinco — para predecir la categoría (o el valor) de un caso nuevo, mira cuáles son los `K` casos **ya conocidos** más parecidos a él (los "vecinos más cercanos", midiendo distancia entre sus variables), y les copia la respuesta mayoritaria. Ejemplo: para adivinar si a alguien le va a gustar una película, KNN mira a los `K` usuarios con gustos más parecidos a los suyos, y se fija qué opinaron ellos de esa película. No necesita "entrenarse" en el sentido tradicional — simplemente guarda todos los datos y compara en el momento de predecir.
+- **Regresión Lineal**: el modelo más simple de todos — busca la "mejor línea recta" (o, con más de una variable de entrada, el mejor plano) que pase lo más cerca posible de todos los puntos de entrenamiento. Ejemplos: predecir el precio de una casa a partir de sus metros cuadrados — a más metros cuadrados, más precio, y la Regresión Lineal encuentra la relación numérica exacta ("cada metro cuadrado extra suma, en promedio, tantos dólares"); predecir las ventas de una heladería según la temperatura del día ("cada grado extra suma tantos helados"); estimar el consumo de nafta de un auto según su peso y cilindrada. Es un modelo de **regresión** (predice un número), muy fácil de interpretar, pero limitado cuando la relación entre las variables no es una línea recta.
+- **Árbol de Decisión**: funciona como un juego de "20 preguntas" — va haciendo preguntas de sí/no sobre los datos ("¿el ingreso es mayor a $50.000?", "¿tiene más de 30 años?"), y según las respuestas va bajando por ramas del árbol hasta llegar a una predicción final en una "hoja". Se puede usar tanto para clasificación ("¿el cliente paga el préstamo o no?", "¿este paciente que llega a la guardia es urgente o puede esperar?") como para regresión ("¿cuánto va a gastar este cliente?", "¿cuántos días va a durar la internación de este paciente?"). Su gran ventaja es que es muy fácil de visualizar y explicar — literalmente se puede dibujar el árbol de preguntas y mostrárselo a alguien sin conocimientos técnicos.
+- **Random Forest**: en vez de confiar en un único Árbol de Decisión (que puede memorizar demasiado los datos de entrenamiento y funcionar mal con datos nuevos), Random Forest entrena **muchos** árboles distintos — cada uno viendo una porción distinta, al azar, de los datos y de las variables — y después promedia (en regresión) o vota por mayoría (en clasificación) las predicciones de todos ellos. La idea es la misma que "preguntarle a un grupo de expertos en vez de a uno solo": el resultado grupal suele ser más confiable que el de un único árbol, porque los errores individuales de cada árbol tienden a cancelarse entre sí. Ejemplos de uso típicos: detección de fraude en transacciones, predicción de abandono de clientes en una telefónica, y estimación del rinde de un cultivo a partir de datos de suelo y clima.
+- **Regresión Logística**: a pesar del nombre (que confunde a todo el mundo la primera vez), **no es un modelo de regresión sino de clasificación**. Se usa para predecir la probabilidad de que algo pertenezca a una categoría — por ejemplo, la probabilidad de que un cliente no pague un préstamo, entre 0% y 100% — y después esa probabilidad se convierte en una predicción final ("riesgoso" si la probabilidad supera 50%, por ejemplo). El nombre viene de que matemáticamente usa una función llamada "logística" para convertir un cálculo interno en un número entre 0 y 1. Otros ejemplos: la probabilidad de que un usuario haga clic en un anuncio, la probabilidad de que un paciente tenga diabetes según sus análisis, la probabilidad de que un alumno abandone el curso según su asistencia y entregas.
+- **KNN (K-Nearest Neighbors, "K vecinos más cercanos")**: la idea más intuitiva de las cinco — para predecir la categoría (o el valor) de un caso nuevo, mira cuáles son los `K` casos **ya conocidos** más parecidos a él (los "vecinos más cercanos", midiendo distancia entre sus variables), y les copia la respuesta mayoritaria. Ejemplo: para adivinar si a alguien le va a gustar una película, KNN mira a los `K` usuarios con gustos más parecidos a los suyos, y se fija qué opinaron ellos de esa película. Otros dos ejemplos: estimar el precio de un departamento mirando el precio de los 5 departamentos más parecidos (mismo barrio, metros, ambientes) que se vendieron hace poco; o clasificar un vino como "bueno"/"regular" comparándolo con los vinos de composición química más parecida ya catados por expertos. No necesita "entrenarse" en el sentido tradicional — simplemente guarda todos los datos y compara en el momento de predecir.
 
 ### Buenas prácticas: evitar el Data Leakage *(Filmina 04)*
 
 Uno de los errores más peligrosos (porque no siempre se nota) en Machine Learning es el ***Data Leakage*** ("fuga de datos"): que información del conjunto de **test** (los datos que se supone el modelo nunca vio, usados solo para evaluar qué tan bien predice) se "filtre" de alguna forma hacia el proceso de entrenamiento. Cuando eso pasa, el modelo parece funcionar excelente durante la evaluación, pero en la vida real (con datos genuinamente nuevos) rinde mucho peor — porque en el fondo "hizo trampa" viendo pistas que no debería haber visto.
 
-Un ejemplo concreto de cómo ocurre sin querer: si se calcula el promedio y el desvío estándar de una columna usando **todo** el dataset (entrenamiento + test juntos) para escalar los datos, y **después** se separa en train/test, el modelo ya "vio" información estadística de los datos de test (su promedio, su dispersión) antes de ser evaluado con ellos. Es una fuga sutil, fácil de cometer sin darse cuenta, y por eso la Clase 08 insistió en dos herramientas concretas para evitarla:
+Un ejemplo concreto de cómo ocurre sin querer: si se calcula el promedio y el desvío estándar de una columna usando **todo** el dataset (entrenamiento + test juntos) para escalar los datos, y **después** se separa en train/test, el modelo ya "vio" información estadística de los datos de test (su promedio, su dispersión) antes de ser evaluado con ellos. Es una fuga sutil, fácil de cometer sin darse cuenta.
 
-- **`StandardScaler`**: el nombre está compuesto de dos palabras en inglés — *"standard"* (estándar) y *"scaler"* (algo que escala, que cambia de tamaño/escala). Literalmente es "el escalador que lleva todo a una escala estándar". Y eso es exactamente lo que hace: reescala las variables numéricas para que todas queden en una escala comparable (en general, restando el promedio y dividiendo por el desvío estándar, de forma que la variable termine con promedio 0 y desvío 1 — esa combinación de promedio 0 y desvío 1 es, por convención estadística, "la escala estándar"). Es necesario porque muchos modelos (KNN es el caso más claro, ya que mide distancias) se ven distorsionados si una variable está en una escala mucho más grande que otra — por ejemplo, "ingresos" en miles de dólares vs. "edad" en años: sin escalar, la variable "ingresos" dominaría por completo cualquier cálculo de distancia o similitud, aunque "edad" fuera igual de importante para el problema.
+Otros casos típicos de fuga de datos, para mostrar que no es solo un problema del escalado:
+- **Imputar con todo el dataset**: rellenar los valores faltantes de "ingresos" con el promedio calculado sobre train + test juntos — mismo problema que el escalado, el promedio "ya vio" los datos de test.
+- **Una variable que se conoce recién después del resultado**: para predecir si un cliente se va a dar de baja, usar la columna `fecha_de_baja` o `motivo_de_baja` — en el entrenamiento el modelo parece perfecto, pero en la vida real esa columna está vacía en el momento de predecir.
+- **Filas duplicadas entre train y test**: si el mismo paciente aparece dos veces (dos consultas), y una cae en train y la otra en test, el modelo "reconoce" al paciente en vez de aprender el patrón.
+- **Mezclar el tiempo en series temporales**: para predecir las ventas de diciembre, entrenar con datos de enero del año siguiente — el modelo usa el futuro para predecir el pasado.
+
+Por eso la Clase 08 insistió en dos herramientas concretas para evitarla:
+
+- **`StandardScaler`**: el nombre está compuesto de dos palabras en inglés — *"standard"* (estándar) y *"scaler"* (algo que escala, que cambia de tamaño/escala). Literalmente es "el escalador que lleva todo a una escala estándar". Y eso es exactamente lo que hace: reescala las variables numéricas para que todas queden en una escala comparable (en general, restando el promedio y dividiendo por el desvío estándar, de forma que la variable termine con promedio 0 y desvío 1 — esa combinación de promedio 0 y desvío 1 es, por convención estadística, "la escala estándar"). Es necesario porque muchos modelos (KNN es el caso más claro, ya que mide distancias) se ven distorsionados si una variable está en una escala mucho más grande que otra — por ejemplo, "ingresos" en miles de dólares vs. "edad" en años: sin escalar, la variable "ingresos" dominaría por completo cualquier cálculo de distancia o similitud, aunque "edad" fuera igual de importante para el problema. Otros pares típicos donde pasa lo mismo: "superficie en m²" (decenas o cientos) contra "cantidad de baños" (1 a 3) en un dataset de casas; "precio en pesos" (miles o millones) contra "calificación del producto" (1 a 5 estrellas) en un e-commerce; "pasos diarios" (miles) contra "horas de sueño" (5 a 9) en datos de un reloj inteligente.
 - **`Pipeline`**: en inglés, *"pipeline"* es literalmente un **caño** o **tubería** — el mismo término que se usa para un oleoducto. La imagen mental es la de un líquido que entra por un extremo y va pasando por una serie de tramos conectados hasta salir transformado por el otro extremo; en informática se usa esa misma palabra para nombrar cualquier secuencia de pasos conectados, donde la salida de un paso es la entrada del siguiente. En scikit-learn, un `Pipeline` encadena todos los pasos (escalado, y después el modelo) en un único objeto — los datos "entran" por el escalador y "salen" ya transformados y clasificados/predichos, sin pasos sueltos en el medio. La ventaja concreta: cuando se usa `Pipeline` correctamente (ajustando el escalador **solo** con los datos de entrenamiento, nunca con los de test), es mucho más difícil cometer el error de fuga de datos por accidente — el `Pipeline` fuerza a que cada paso se aplique en el orden correcto, sin mezclar información de test dentro del entrenamiento.
 
-**`train_test_split` con `stratify`**: el nombre de la función es literal en inglés — *"train"* (entrenar) + *"test"* (probar/evaluar) + *"split"* (dividir, partir en dos) — es, sin vueltas, "dividir en entrenamiento y prueba". Antes de entrenar cualquier modelo, se separa el dataset en dos partes usando esta función — una porción (típicamente 70-80%) para **entrenar** el modelo, y el resto para **evaluarlo** con datos que no vio durante el entrenamiento (simulando qué tan bien funcionaría con casos reales nuevos). El parámetro `stratify` viene de la palabra **estrato** (una capa o subgrupo dentro de una población) — en estadística, "muestreo estratificado" significa dividir a la población en subgrupos (estratos) y asegurarse de tomar una porción proporcional de **cada uno**, en vez de tomar una muestra completamente al azar que podría (por mala suerte) dejar algún subgrupo sub-representado. Acá los "estratos" son las categorías de `y`: si solo el 5% de los clientes del dataset no pagaron su préstamo, un split al azar (sin `stratify`) podría dejar casi ningún caso de impago en el conjunto de test, haciendo que la evaluación no sea representativa. `stratify=y` le asegura al split que mantenga la misma proporción de cada categoría (5% no paga / 95% paga) tanto en entrenamiento como en test.
+**`train_test_split` con `stratify`**: el nombre de la función es literal en inglés — *"train"* (entrenar) + *"test"* (probar/evaluar) + *"split"* (dividir, partir en dos) — es, sin vueltas, "dividir en entrenamiento y prueba". Antes de entrenar cualquier modelo, se separa el dataset en dos partes usando esta función — una porción (típicamente 70-80%) para **entrenar** el modelo, y el resto para **evaluarlo** con datos que no vio durante el entrenamiento (simulando qué tan bien funcionaría con casos reales nuevos). El parámetro `stratify` viene de la palabra **estrato** (una capa o subgrupo dentro de una población) — en estadística, "muestreo estratificado" significa dividir a la población en subgrupos (estratos) y asegurarse de tomar una porción proporcional de **cada uno**, en vez de tomar una muestra completamente al azar que podría (por mala suerte) dejar algún subgrupo sub-representado. Acá los "estratos" son las categorías de `y`: si solo el 5% de los clientes del dataset no pagaron su préstamo, un split al azar (sin `stratify`) podría dejar casi ningún caso de impago en el conjunto de test, haciendo que la evaluación no sea representativa. `stratify=y` le asegura al split que mantenga la misma proporción de cada categoría (5% no paga / 95% paga) tanto en entrenamiento como en test. Otros casos donde `stratify` es casi obligatorio: detección de fraude (0,2% de transacciones fraudulentas — sin estratificar, el test podría quedar con 0 fraudes y no habría nada que evaluar); diagnóstico de una enfermedad rara (2% de positivos); clasificación de especies con un grupo minoritario (en un dataset de 1.000 aves donde una especie tiene solo 30 ejemplares).
 
 ### Validación: por qué un solo split no alcanza *(Filmina 04)*
 
@@ -124,14 +198,19 @@ Confiar en un único `train_test_split` tiene un problema: el resultado de la ev
 - **`StratifiedKFold`**: el nombre junta tres piezas — *"Stratified"* (estratificado, la misma idea de "muestra proporcional por subgrupo" que `stratify`), *"K"* (la cantidad de partes en las que se divide, un número que se elige — 5 y 10 son los valores más comunes) y *"Fold"* (en inglés, "pliegue" o "doblez" — como doblar una hoja de papel varias veces; cada doblez es una de las particiones del dataset, un "fold"). Entero, el nombre dice "dividir en K pliegues, de forma estratificada". En vez de partir el dataset en un solo par entrenamiento/test, lo divide en `K` partes iguales (folds) — por ejemplo, 5 partes. El proceso entrena y evalúa el modelo `K` veces distintas: en cada vuelta, usa una parte distinta como test y las `K-1` restantes como entrenamiento. Al final, se tienen `K` mediciones de la métrica elegida, no una sola. Que sea "Stratified" garantiza que cada uno de esos `K` folds mantenga la misma proporción de categorías que el dataset completo.
 - **`cross_val_score`**: el nombre es la forma abreviada (típica en programación, para no escribir nombres kilométricos) de *"cross validation score"* — *"cross"* (cruzado/cruzada, en el sentido de que los folds se van intercambiando el rol de test), *"validation"* (validación, el proceso de comprobar qué tan bien funciona el modelo) y *"score"* (puntaje, el resultado numérico de esa validación). Es la función de scikit-learn que automatiza todo el proceso de `StratifiedKFold` — entrena y evalúa el modelo las `K` veces, y devuelve las `K` métricas resultantes, listas para promediar. En vez de reportar un único número ("el modelo tuvo 85% de Accuracy"), la buena práctica es reportar el promedio **y** la dispersión de esas `K` mediciones ("85% ± 3%") — un desvío chico entre folds indica que el modelo es estable y confiable; un desvío grande es una señal de alerta de que el resultado depende mucho de qué datos le tocaron, y que probablemente no generalice bien a casos nuevos.
 
+  Tres resultados de ejemplo con 5 folds, para leer en clase:
+  - Folds `[0.86, 0.84, 0.85, 0.87, 0.83]` → **85% ± 1,4%**: modelo estable, el resultado es confiable.
+  - Folds `[0.95, 0.70, 0.88, 0.92, 0.80]` → **85% ± 9%**: mismo promedio, pero muy inestable — en algún fold le fue mal de verdad; conviene investigar por qué antes de confiar.
+  - Folds `[0.99, 0.98, 0.99, 0.99, 0.98]` → **99% ± 0,5%**: estable pero "demasiado bueno para ser cierto" — en un problema real difícil, es una señal típica de Data Leakage que hay que revisar.
+
 ### Lo que cambia hoy
 
 El aprendizaje no supervisado parte de datos **sin `y`** — sin una respuesta correcta conocida de antemano. El objetivo deja de ser predecir y pasa a ser **descubrir estructura**, por dos caminos distintos (cada uno se desarrolla en profundidad más adelante en esta guía, esto es solo la idea de arranque):
 
-- **Clustering** (agrupamiento): armar grupos de observaciones parecidas entre sí, sin que nadie le diga de antemano cuáles son esos grupos ni cuántos hay — por ejemplo, agrupar clientes con comportamientos de compra similares, dejando que el propio algoritmo descubra los perfiles, en vez de definirlos a mano.
-- **Reducción de dimensionalidad**: cuando un dataset tiene muchísimas columnas (variables), resumir esa información en unas pocas "columnas nuevas" que capturan lo esencial, para poder analizarla o graficarla sin perder demasiado en el camino.
+- **Clustering** (agrupamiento): armar grupos de observaciones parecidas entre sí, sin que nadie le diga de antemano cuáles son esos grupos ni cuántos hay — por ejemplo, agrupar clientes con comportamientos de compra similares, dejando que el propio algoritmo descubra los perfiles, en vez de definirlos a mano; agrupar noticias del día por tema sin tener una lista previa de temas; o agrupar alumnos por su forma de estudiar en una plataforma online.
+- **Reducción de dimensionalidad**: cuando un dataset tiene muchísimas columnas (variables), resumir esa información en unas pocas "columnas nuevas" que capturan lo esencial, para poder analizarla o graficarla sin perder demasiado en el camino — por ejemplo, resumir las 30 materias de un plan de estudios en 2 ejes ("rendimiento general" y "perfil ciencias vs. humanidades"), resumir 50 preguntas de una encuesta en 3 factores, o resumir 100 indicadores económicos de cada país en 2 números para poder graficarlos en un mapa.
 
-Una aplicación que combina ambas ideas y aparece una y otra vez en esta clase es la **detección de anomalías**: usar clustering (o la distancia a los grupos "normales") para encontrar los puntos que no se parecen a nada — el ejemplo típico es una transacción bancaria fraudulenta, que no encaja en ningún patrón de compra habitual.
+Una aplicación que combina ambas ideas y aparece una y otra vez en esta clase es la **detección de anomalías**: usar clustering (o la distancia a los grupos "normales") para encontrar los puntos que no se parecen a nada — el ejemplo típico es una transacción bancaria fraudulenta, que no encaja en ningún patrón de compra habitual; otros son un inicio de sesión desde un país donde el usuario nunca estuvo, o un sensor de temperatura de una heladera industrial que de golpe marca valores fuera de lo habitual.
 
 Estos son los frentes que recorre el resto de esta clase, cada uno con su propio módulo.
 
@@ -179,15 +258,20 @@ Esta filmina es la divisoria que abre el Módulo 1 — el título en pantalla ("
 
 Una forma de presentar el contraste en clase, con un ejemplo cotidiano: un supervisado es como aprender a distinguir perros de gatos porque alguien te mostró miles de fotos ya etiquetadas "perro"/"gato"; un no supervisado es como que te den una pila de miles de fotos de animales sin ningún cartel, y tengas que agruparlas vos mismo por similitud, sin que nadie te haya dicho de antemano cuántos grupos hay ni cómo se llaman. El resultado del segundo ejercicio puede coincidir con "perros" y "gatos" — pero el algoritmo llegó ahí solo por semejanza visual, no porque alguien le haya enseñado esas categorías.
 
+Más analogías del mismo contraste, por si la primera no termina de "caer" en el grupo:
+- **Botones mezclados en una caja**: supervisado sería tener un cajón ya ordenado con carteles ("rojos", "grandes", "de 4 agujeros") y aprender a guardar cada botón nuevo en el cajón correcto; no supervisado es vaciar la caja sobre la mesa y armar montoncitos por parecido, decidiendo vos mismo el criterio sobre la marcha.
+- **Llegar a una fiesta donde no conocés a nadie**: sin que nadie te lo explique, a los pocos minutos detectás "grupitos" (los compañeros de trabajo del anfitrión, la familia, los amigos del club) solo mirando quién habla con quién — eso es clustering.
+- **Una biblioteca sin catálogo**: si te dan 5.000 libros sin clasificar, podés agruparlos por tema mirando su contenido, aunque nadie te haya dado la lista de secciones ("Historia", "Novela", "Cocina") de antemano.
+
 Conviene remarcar en voz alta, antes de pasar a la Filmina 06, los cuatro bloques que anuncia esta diapositiva y que se van a recorrer en orden: (1) una definición formal de qué es el aprendizaje no supervisado, (2) los tipos de problemas que lo componen, (3) ejemplos concretos de la industria, y (4) el flujo de trabajo típico que se va a repetir, con variaciones, en cada módulo siguiente de la clase.
 
 ### Definición y diferencias con el aprendizaje supervisado *(Filmina 06)*
 
 El aprendizaje no supervisado es un conjunto de técnicas de Machine Learning que buscan identificar estructuras, patrones o relaciones en datos que **no cuentan con etiquetas o respuestas conocidas**. A diferencia del aprendizaje supervisado (Módulo 0), donde el modelo aprende a partir de ejemplos con etiquetas, acá el objetivo es descubrir información oculta sin guía explícita.
 
-**Para desarrollar antes de mostrar la tabla comparativa**: en la Clase 08 el flujo siempre fue el mismo — separar `X` (variables) de `y` (la respuesta a predecir), entrenar un modelo que aprenda esa relación, y medir qué tan bien predice sobre datos nuevos. Ese flujo depende por completo de que `y` exista y esté bien etiquetada — conseguir ese etiquetado en la vida real casi siempre implica un costo (alguien tuvo que revisar cada transacción y marcarla "fraude"/"no fraude", cada imagen y marcarla "gato"/"no gato"). El aprendizaje no supervisado nace, en parte, como respuesta a ese costo: la enorme mayoría de los datos que genera cualquier empresa **no tienen etiqueta**, y etiquetarlos a mano no siempre es viable en tiempo o presupuesto. Estas técnicas permiten extraer valor de esos datos "tal como vienen", sin la etapa previa de etiquetado.
+**Para desarrollar antes de mostrar la tabla comparativa**: en la Clase 08 el flujo siempre fue el mismo — separar `X` (variables) de `y` (la respuesta a predecir), entrenar un modelo que aprenda esa relación, y medir qué tan bien predice sobre datos nuevos. Ese flujo depende por completo de que `y` exista y esté bien etiquetada — conseguir ese etiquetado en la vida real casi siempre implica un costo (alguien tuvo que revisar cada transacción y marcarla "fraude"/"no fraude", cada imagen y marcarla "gato"/"no gato", un radiólogo tuvo que mirar cada tomografía y anotar si había un tumor, un operador de call center tuvo que escuchar cada llamada y clasificar el motivo del reclamo). El aprendizaje no supervisado nace, en parte, como respuesta a ese costo: la enorme mayoría de los datos que genera cualquier empresa **no tienen etiqueta**, y etiquetarlos a mano no siempre es viable en tiempo o presupuesto. Estas técnicas permiten extraer valor de esos datos "tal como vienen", sin la etapa previa de etiquetado.
 
-Otra forma de plantear la diferencia, útil para la clase: en el aprendizaje supervisado el científico de datos sabe de antemano **qué pregunta** está respondiendo el modelo ("¿es spam?", "¿cuánto va a costar?"). En el no supervisado, muchas veces ni siquiera se sabe con precisión qué se va a encontrar — el algoritmo puede revelar una segmentación de clientes que nadie había considerado, o una relación entre productos que el equipo de marketing no había notado. Por eso al aprendizaje no supervisado también se lo asocia con el **análisis exploratorio**: se usa tanto para resolver un problema puntual como para "conocer" un dataset nuevo antes de decidir qué hacer con él.
+Otra forma de plantear la diferencia, útil para la clase: en el aprendizaje supervisado el científico de datos sabe de antemano **qué pregunta** está respondiendo el modelo ("¿es spam?", "¿cuánto va a costar?"). En el no supervisado, muchas veces ni siquiera se sabe con precisión qué se va a encontrar — el algoritmo puede revelar una segmentación de clientes que nadie había considerado, una relación entre productos que el equipo de marketing no había notado, o un grupo de sucursales que, sin estar cerca geográficamente, tienen exactamente el mismo patrón de ventas a lo largo de la semana. Por eso al aprendizaje no supervisado también se lo asocia con el **análisis exploratorio**: se usa tanto para resolver un problema puntual como para "conocer" un dataset nuevo antes de decidir qué hacer con él.
 
 | Característica | Aprendizaje Supervisado | Aprendizaje No Supervisado |
 |---|---|---|
@@ -196,6 +280,9 @@ Otra forma de plantear la diferencia, útil para la clase: en el aprendizaje sup
 | Ejemplos de problemas | Clasificación, regresión | Clustering, reducción de dimensionalidad, detección de anomalías |
 
 **Un matiz que vale la pena mencionar en clase** (aunque se profundiza en cursos más avanzados): la frontera entre ambos mundos no siempre es absoluta. Existen enfoques intermedios — el aprendizaje **semi-supervisado** (una pequeña porción de datos etiquetados, mucha data sin etiquetar) y el aprendizaje **autosupervisado** (el propio dataset genera sus etiquetas, por ejemplo tapando parte de una imagen y pidiéndole al modelo que la reconstruya). No forman parte del temario de hoy, pero saber que existen ayuda a entender que "supervisado vs. no supervisado" es más un espectro que una dicotomía cerrada.
+
+- Ejemplos de **semi-supervisado**: Google Fotos te pide que le pongas nombre a 3 o 4 fotos de una persona y después reconoce sola a esa persona en otras miles de fotos; un hospital con 200 radiografías diagnosticadas y 50.000 sin diagnosticar; un banco con unas pocas transacciones confirmadas como fraude y millones sin revisar.
+- Ejemplos de **autosupervisado**: el texto predictivo que aprende a adivinar la palabra siguiente usando el propio texto como "respuesta"; un modelo que aprende a colorear fotos en blanco y negro usando fotos a color (se les saca el color y se le pide reconstruirlo); los grandes modelos de lenguaje, entrenados tapando palabras de un texto y pidiéndole al modelo que las adivine.
 
 ### Tres grandes tipos de problemas *(Filmina 07)*
 
@@ -237,9 +324,12 @@ Estos ejemplos muestran cómo el aprendizaje no supervisado ayuda a extraer valo
 
 - **Retail y E-commerce**: además de la segmentación de clientes, el no supervisado se usa para detectar **fraude de devoluciones** (agrupando patrones de compra-devolución atípicos) y para el **diseño de layout de tiendas físicas** — qué productos ubicar cerca de cuáles, a partir de patrones de compra reales, no de la intuición del gerente.
 - **Tecnología y Big Data**: en ciberseguridad, la detección de anomalías en redes es en esencia un problema de clustering "al revés" — en vez de buscar el grupo al que pertenece un punto, se busca a los puntos que **no** encajan bien en ningún grupo (muy cerca del concepto de "ruido" que va a aparecer con DBSCAN en el Módulo 3). En NLP, agrupar documentos por similitud de contenido es la base de los sistemas de recomendación de artículos o noticias.
-- **Analítica de negocios**: cuando un dashboard tiene 40 métricas y nadie sabe cuáles mirar primero, reducir dimensionalidad ayuda a identificar qué puñado de "meta-indicadores" resume la mayor parte de la variabilidad del negocio — un uso de PCA orientado a la comunicación con gerencia, no solo al preprocesamiento técnico.
+- **Analítica de negocios**: cuando un dashboard tiene 40 métricas y nadie sabe cuáles mirar primero, reducir dimensionalidad ayuda a identificar qué puñado de "meta-indicadores" resume la mayor parte de la variabilidad del negocio — un uso de PCA orientado a la comunicación con gerencia, no solo al preprocesamiento técnico. Otros dos usos en el mismo rubro: agrupar sucursales de una cadena por su patrón de ventas (en vez de por región geográfica) para definir metas comparables entre sucursales "parecidas", y detectar meses o días atípicos en las ventas que merecen una explicación antes de presentar un reporte.
 
-Un cuarto sector que vale la pena mencionar aunque no esté explícito en la filmina: **salud**, donde el clustering se usa para descubrir subtipos de una enfermedad (pacientes que responden de forma distinta a un mismo tratamiento) sin que existiera antes una clasificación clínica formal para esos subgrupos.
+Más sectores que vale la pena mencionar aunque no estén explícitos en la filmina:
+- **Salud**: el clustering se usa para descubrir subtipos de una enfermedad (pacientes que responden de forma distinta a un mismo tratamiento) sin que existiera antes una clasificación clínica formal para esos subgrupos; también para agrupar hospitales por tipo de casos que atienden, y para detectar recetas o facturaciones anómalas a una obra social.
+- **Telecomunicaciones**: agrupar antenas por patrón de tráfico horario para planificar mantenimiento, segmentar clientes por uso de datos/llamadas para diseñar planes, y detectar líneas con comportamiento de llamadas anómalo (fraude de SIM).
+- **Agro**: agrupar lotes de un campo por características de suelo e imágenes satelitales para aplicar fertilizante de forma diferenciada, detectar zonas del cultivo con un comportamiento anómalo (posible plaga), y resumir decenas de variables climáticas en pocos índices.
 
 ### Flujo típico de trabajo *(Filmina 09)*
 
@@ -259,6 +349,16 @@ Este flujo es la base para las prácticas y análisis de toda la clase — cambi
 4. **Evaluación y validación**: sin `y`, no se puede usar Accuracy ni R². Por eso el Módulo 2 introduce el **coeficiente silhouette** y el **método del codo** — las métricas propias de este mundo, que evalúan qué tan bien separados y compactos quedaron los grupos, en vez de comparar contra una respuesta conocida.
 5. **Interpretación y uso**: el paso que más distingue a esta rama del Machine Learning. Un modelo supervisado "sabe" si acertó (comparando contra `y`); un modelo no supervisado nunca sabe si el agrupamiento que encontró "tiene sentido" para el negocio — esa interpretación siempre requiere a una persona que conozca el dominio, mirando los grupos resultantes y poniéndoles nombre y sentido.
 
+**Los mismos 5 pasos, aplicados a tres casos distintos** (útil para mostrar que el flujo no cambia aunque cambie el problema):
+
+| Paso | Supermercado: segmentar clientes | Banco: detectar transacciones raras | App de música: resumir gustos |
+|---|---|---|---|
+| 1. Preparación | Calcular por cliente frecuencia, ticket promedio y categorías compradas; escalar | Calcular por transacción monto, hora, país, comercio; escalar | Calcular por usuario % de escucha de cada uno de 80 géneros; escalar |
+| 2. Método | K-Means (se buscan segmentos para campañas) | DBSCAN (interesa el ruido, no los grupos) | PCA (hay demasiadas columnas) |
+| 3. Aplicación | Probar `k` entre 2 y 10 | Ajustar `eps` y `min_samples` | Elegir cuántas componentes conservar |
+| 4. Evaluación | Codo + silhouette | Cantidad de puntos marcados como ruido, revisión manual de una muestra | Varianza explicada acumulada |
+| 5. Interpretación | "Familias de compra grande semanal", "Compradores de último momento"... | Un analista de fraude revisa las transacciones marcadas | "Eje 1 = mainstream vs. nicho", "Eje 2 = música tranquila vs. enérgica" |
+
 ---
 
 ## Módulo 2 — K-Means y la Elección de k
@@ -271,6 +371,11 @@ La divisoria de este módulo trae el subtítulo "El algoritmo de clustering más
 
 **Para presentar antes del contenido técnico**: conviene retomar acá, en voz alta, la definición general de clustering del Módulo 1 ("agrupar datos similares en clusters") y anticipar que K-Means la resuelve con una idea muy visual: imaginar que cada cluster tiene un "centro de gravedad" (el centroide), y que cada punto del dataset "cae" naturalmente hacia el centro más cercano. Es una buena metáfora para instalar antes de entrar en el detalle algorítmico de la Filmina 11, porque todo el resto del módulo (los 4 pasos, los problemas de convergencia, la elección de k) gira alrededor de esa única idea: minimizar qué tan lejos está, en promedio, cada punto de su centro asignado.
 
+Tres imágenes cotidianas de "cada punto va al centro más cercano", para elegir la que mejor funcione con el grupo:
+- **Escuelas de un barrio**: cada chico se anota en la escuela que le queda más cerca de su casa; las escuelas son los centroides y los "radios escolares" son los clusters.
+- **Antenas de celular**: tu teléfono se conecta automáticamente a la antena más cercana; el mapa de qué zona atiende cada antena es literalmente una partición tipo K-Means.
+- **Sucursales de una cadena de pizzerías**: cada pedido lo despacha la sucursal más cercana; si la empresa pudiera mover sus sucursales al "centro" de sus clientes, estaría haciendo el paso de Actualización del algoritmo.
+
 ### Qué es y cómo funciona *(Filmina 11)*
 
 K-Means es un **algoritmo de partición**: divide un conjunto de datos en `k` grupos (clusters) según la similitud de sus características. El objetivo es minimizar la suma de las distancias entre cada punto y el **centroide** (promedio) de su cluster asignado. Se apoya en las métricas de distancia (Euclidiana, Manhattan, Coseno) que ya se usaron en clases anteriores para definir "similitud".
@@ -278,6 +383,16 @@ K-Means es un **algoritmo de partición**: divide un conjunto de datos en `k` gr
 **Para ampliar antes de mostrar la filmina**: el nombre completo del algoritmo, "K-Means" (K-Medias), ya describe su mecánica — la "K" es la cantidad de grupos a formar, y "Means" (medias) es literalmente cómo se calcula cada centroide: el promedio de todos los puntos que pertenecen a ese cluster en un momento dado. Formalmente, el algoritmo minimiza una función llamada **inercia** o **WCSS** (que se retoma en la Filmina 14): la suma, sobre todos los puntos, de la distancia al cuadrado entre cada punto y el centroide de su cluster. Elevar al cuadrado la distancia (en vez de usarla directa) tiene una razón matemática concreta: penaliza mucho más fuerte a los puntos lejanos que a los cercanos, lo que empuja al algoritmo a formar grupos compactos en vez de tolerar unos pocos puntos muy alejados de su centro.
 
 Sobre las métricas de distancia: K-Means usa por defecto la distancia **Euclidiana** (la "línea recta" entre dos puntos, el teorema de Pitágoras aplicado a más de dos dimensiones) — es la que mejor encaja con la definición de centroide como promedio aritmético. Usar Manhattan (la suma de diferencias absolutas, como moverse en cuadras de una ciudad) o Coseno (el ángulo entre dos vectores, típico en texto) requeriría, estrictamente, variantes del algoritmo (K-Medoids es la alternativa más conocida cuando se necesita otra métrica de distancia).
+
+Las tres distancias con números concretos, entre el punto A = (0, 0) y el punto B = (3, 4):
+- **Euclidiana**: √(3² + 4²) = √25 = **5** → la distancia "a vuelo de pájaro", como mide un dron.
+- **Manhattan**: |3| + |4| = **7** → la distancia caminando por cuadras: 3 cuadras para un lado y 4 para el otro, sin poder cruzar en diagonal.
+- **Coseno**: mira el ángulo, no el largo. Los vectores (1, 1) y (10, 10) tienen distancia coseno **0** (apuntan exactamente para el mismo lado) aunque la Euclidiana entre ellos sea grande.
+
+Y un ejemplo de dónde conviene cada una:
+- **Euclidiana**: clientes descriptos por edad e ingreso (ya escalados) — las variables son continuas y "la línea recta" tiene sentido.
+- **Manhattan**: repartos en una ciudad con calles en cuadrícula, o datos con muchas variables donde se quiere que un solo valor extremo no pese tanto (no se eleva al cuadrado).
+- **Coseno**: textos — un mail de 100 palabras y uno de 1.000 que hablan del mismo tema tienen "perfiles" de palabras que apuntan en la misma dirección, aunque uno tenga diez veces más palabras.
 
 ### Los 4 pasos del algoritmo *(Filmina 12)*
 
@@ -292,6 +407,15 @@ Este algoritmo también se conoce como **"Lloyd's algorithm"** en la literatura 
 
 Sobre la Inicialización: la opción "al azar" simplemente elige `k` puntos cualquiera del dataset como primeros centroides — es simple pero puede arrancar en una posición muy mala. **k-means++** (el default en la implementación de scikit-learn) es más inteligente: elige el primer centroide al azar, y cada centroide siguiente lo elige con una probabilidad proporcional a qué tan lejos está de los centroides ya elegidos — favoreciendo que los `k` puntos de arranque queden bien repartidos por el espacio de datos, en vez de agrupados por casualidad en una sola zona.
 
+**Un ejemplo a mano, en una sola dimensión, para hacer en el pizarrón** — 6 clientes según su gasto mensual (en miles): `1, 2, 3, 10, 11, 12`, con `k = 2`:
+1. Inicialización (mala a propósito): centroides en `1` y `2`.
+2. Asignación: el `1` va al centroide 1; todos los demás (`2, 3, 10, 11, 12`) están más cerca del `2`.
+3. Actualización: centroide 1 = promedio de `{1}` = `1`; centroide 2 = promedio de `{2, 3, 10, 11, 12}` = `7,6`.
+4. Nueva asignación: `1, 2, 3` quedan más cerca del `1`; `10, 11, 12` más cerca del `7,6`. Nueva actualización: centroides `2` y `11`.
+5. Otra vuelta: nadie cambia de grupo → el algoritmo terminó. Dos clusters: "gasto bajo" `{1, 2, 3}` y "gasto alto" `{10, 11, 12}`.
+
+Para variar en clase, el mismo ejercicio funciona con otros datos de una dimensión: edades de los asistentes a un evento (`18, 20, 22, 60, 63, 65`), o tiempos de entrega de pedidos en minutos (`15, 18, 20, 55, 58, 62`).
+
 ### Convergencia, inicialización y problemas comunes *(Filmina 13)*
 
 - K-Means **siempre converge**, pero a un **mínimo local**, no necesariamente al óptimo global.
@@ -303,9 +427,14 @@ Sobre la Inicialización: la opción "al azar" simplemente elige `k` puntos cual
 
 - **Mínimo local vs. global**: como el resultado final depende de dónde arrancaron los centroides, correr K-Means dos veces con inicializaciones distintas puede dar dos particiones **distintas**, ambas "válidas" en el sentido de que el algoritmo convergió correctamente en las dos, pero una puede ser mejor que la otra. La solución práctica que usa scikit-learn (y que aparece en el ejemplo de código de la Filmina 15, con el parámetro `n_init=10`) es correr el algoritmo completo varias veces con distintas inicializaciones al azar, y quedarse con el resultado que dio el WCSS más bajo de todos los intentos.
 - **Sensibilidad a outliers**: como el centroide es un **promedio**, un solo punto muy alejado del resto puede "arrastrar" el centroide entero hacia él, distorsionando la posición de todo el cluster — el mismo fenómeno por el que la media aritmética es sensible a valores extremos (visto en clases anteriores de estadística descriptiva). Es una de las razones por las que suele convenir revisar y tratar outliers **antes** de correr K-Means, no después.
-  - *Ejemplo concreto*: segmentando clientes por gasto mensual, un solo cliente corporativo que gasta 100 veces más que el resto puede correr el centroide de "clientes premium" tan lejos que termine agrupando mal a los clientes premium "reales" — conviene revisar outliers (Módulo 1) antes de clusterizar, no después.
-- **Formas no esféricas**: como K-Means asigna cada punto según distancia al centroide más cercano, la "frontera" natural entre dos clusters siempre termina siendo una línea recta (o un plano, en más dimensiones) — geométricamente, solo puede separar bien grupos que tengan forma redondeada y tamaño parecido. Con clusters alargados, en forma de luna, o de tamaños muy distintos entre sí, K-Means directamente separa mal — y ese es exactamente el problema que resuelve DBSCAN, que se ve en el Módulo 4.
+  - *Ejemplo concreto*: segmentando clientes por gasto mensual, un solo cliente corporativo que gasta 100 veces más que el resto puede correr el centroide de "clientes premium" tan lejos que termine agrupando mal a los clientes premium "reales" — conviene revisar outliers antes de clusterizar, no después.
+  - *Ejemplo inmobiliario*: agrupando propiedades por precio y superficie, una sola mansión de 2.000 m² arrastra el centroide del grupo "casas grandes" y hace que casas de 200 m² terminen agrupadas con departamentos chicos.
+  - *Ejemplo de sensores*: un sensor que por una falla registra `9999 °C` una sola vez puede llevarse un centroide entero a una zona donde no hay ningún dato real.
+  - *Ejemplo de usuarios web*: un bot que visita 50.000 páginas por día, mezclado con usuarios humanos que visitan 20, deforma el centroide de "usuarios muy activos" — y de paso es justo el tipo de caso que DBSCAN dejaría como ruido.
+- **Formas no esféricas**: como K-Means asigna cada punto según distancia al centroide más cercano, la "frontera" natural entre dos clusters siempre termina siendo una línea recta (o un plano, en más dimensiones) — geométricamente, solo puede separar bien grupos que tengan forma redondeada y tamaño parecido. Con clusters alargados, en forma de luna, o de tamaños muy distintos entre sí, K-Means directamente separa mal — y ese es exactamente el problema que resuelve DBSCAN, que se ve en el Módulo 3.
   - *Ejemplo concreto*: agrupar comercios por ubicación geográfica a lo largo de una costa o de un río da un cluster alargado y curvo — K-Means tiende a "cortarlo" en pedazos artificiales con fronteras rectas, en vez de respetar la forma real alargada de la zona.
+  - *Ejemplo de anillos*: puntos dispuestos en dos círculos concéntricos (por ejemplo, locales en el centro de una ciudad y locales sobre una avenida de circunvalación) — K-Means los corta "como una pizza" en porciones, en vez de separar el anillo interior del exterior.
+  - *Ejemplo de tamaños muy distintos*: 50 clientes corporativos frente a 10.000 clientes particulares — K-Means tiende a partir el grupo grande en varios pedazos y a "comerse" el grupo chico, porque busca clusters de tamaño parecido.
 
 ### Elegir k: método del codo (Elbow Method) *(Filmina 14)*
 
@@ -314,6 +443,11 @@ Para cada valor de `k` se calcula el **WCSS** (*Within-Cluster Sum of Squares*):
 Se grafica WCSS en función de `k` — la curva baja a medida que `k` crece, porque agrupar en más clusters siempre reduce la distancia interna. El objetivo es identificar el punto donde la tasa de disminución se frena notablemente, formando un **"codo"**: a partir de ahí, agregar más clusters no mejora significativamente la calidad de la agrupación. Balancea complejidad del modelo (muchos clusters) contra calidad de la agrupación (pocos clusters, cada uno con sentido) — evitando tanto el subajuste como el sobreajuste.
 
 **Para ampliar antes de mostrar el gráfico**: vale la pena mencionar el caso extremo para que la lógica quede clara — si `k` fuera igual a la cantidad total de puntos del dataset, cada punto sería su propio cluster, y el WCSS daría exactamente `0` (cada punto coincide con su propio centroide). Ese extremo es matemáticamente "perfecto" pero completamente inútil para el negocio: no agrupa nada. El método del codo es, en el fondo, una forma visual de encontrar el compromiso entre ese extremo inútil (`k` = cantidad de puntos, WCSS = 0) y el otro extremo igual de inútil (`k` = 1, todo en un solo grupo, WCSS máximo). Conviene aclarar también que la ubicación del "codo" no siempre es tan clara como en el ejemplo de esta clase — en datasets reales, la curva a veces baja de forma más gradual, sin un quiebre visualmente obvio, y ahí es donde el coeficiente silhouette (Filmina 15) aporta una segunda opinión más cuantitativa.
+
+Tres curvas de WCSS de ejemplo (k = 1 a 6), para practicar la lectura del codo:
+- `1000, 400, 120, 100, 90, 82` → **codo clarísimo en k = 3**: de 2 a 3 la caída es enorme (280), de 3 a 4 casi nada (20).
+- `1000, 750, 560, 420, 320, 250` → **sin codo visible**: la curva baja de forma pareja; probablemente los datos no tienen grupos bien marcados, y conviene mirar el silhouette o cuestionar si tiene sentido clusterizar.
+- `1000, 300, 250, 120, 110, 105` → **dos codos posibles (k = 2 y k = 4)**: puede haber una estructura en dos niveles (2 grandes grupos, cada uno con 2 subgrupos); la decisión depende de qué nivel de detalle necesita el negocio.
 
 ### Elegir k: coeficiente silhouette *(Filmina 15)*
 
@@ -327,6 +461,16 @@ Se calcula el promedio del coeficiente para todos los puntos, para cada `k` cand
 **Para desarrollar el mecanismo con más detalle antes del ejemplo de código:**
 
 El coeficiente silhouette de un punto se calcula, formalmente, como `(b - a) / max(a, b)`, donde `a` es la distancia promedio del punto a los demás puntos de **su propio** cluster (la cohesión — cuanto más chica, mejor) y `b` es la distancia promedio a los puntos del cluster **vecino más cercano** al que no pertenece (la separación — cuanto más grande, mejor). Un valor cercano a **0** (no solo los extremos -1 y 1) también es informativo: significa que el punto está prácticamente sobre el límite entre dos clusters, ni claramente adentro de uno ni del otro — una zona ambigua que suele señalar que, en esa región del espacio, tal vez `k` no está bien elegido.
+
+Tres puntos de ejemplo, con la fórmula aplicada:
+- `a = 1`, `b = 4` → (4 − 1) / 4 = **0,75**: el punto está mucho más cerca de su grupo que del vecino. Bien asignado.
+- `a = 2`, `b = 2` → (2 − 2) / 2 = **0**: el punto está a la misma distancia de los dos grupos, justo en la frontera.
+- `a = 3`, `b = 1` → (1 − 3) / 3 = **−0,67**: el punto está más cerca del grupo vecino que del suyo. Casi seguro está mal asignado.
+
+Y tres lecturas del silhouette **promedio** de un modelo completo, como referencia orientativa:
+- Mayor a ~0,7 → estructura fuerte, grupos bien separados (como el ejemplo de `make_blobs` de abajo, que da 0,78).
+- Entre ~0,5 y 0,7 → estructura razonable, típica de datos reales "buenos" (el ejercicio de Mall Customers del Anexo cae acá).
+- Menor a ~0,25 → estructura débil o artificial: los grupos se solapan mucho, o directamente no hay grupos reales.
 
 A diferencia del método del codo (que es una lectura visual, algo subjetiva, de dónde "se frena" una curva), el silhouette da un **número único y objetivo** para comparar entre valores de `k` — por eso en la práctica se suelen usar los dos métodos en conjunto: el codo da una intuición rápida, y el silhouette confirma (o contradice) esa intuición con un criterio cuantitativo. Cuando ambos coinciden en el mismo `k` (como en el ejemplo de código de abajo, donde los dos señalan `k=4`), la elección queda mucho más respaldada que si se hubiera usado un solo criterio.
 
@@ -392,7 +536,13 @@ La correcta elección de `k` evita tanto la **sobresegmentación** (demasiados c
 - **Logística**: agrupar puntos de entrega por ubicación geográfica para diseñar zonas de reparto eficientes — el mismo problema que resuelve, con matices, cualquier app de delivery.
 - **Recursos Humanos**: agrupar empleados por perfil de desempeño y compromiso (encuestas de clima, antigüedad, ausentismo) para detectar patrones de rotación antes de que se conviertan en renuncias.
 
-**Sobre la sobresegmentación y subsegmentación**: en términos de negocio, la sobresegmentación tiene un costo operativo real — si marketing tiene que diseñar 15 campañas distintas para 15 microsegmentos de clientes, el costo de gestionar esa complejidad puede superar el beneficio de la personalización. La subsegmentación, en cambio, tiene un costo de oportunidad: agrupar en pocos clusters muy amplios puede esconder un segmento pequeño pero muy rentable dentro de un grupo más grande y menos interesante. No existe una regla matemática que resuelva esta tensión — el método del codo y el silhouette dan candidatos razonables de `k`, pero la decisión final casi siempre involucra also una restricción práctica del negocio (cuántos segmentos puede gestionar realmente el equipo de marketing, por ejemplo).
+**Sobre la sobresegmentación y subsegmentación**: en términos de negocio, la sobresegmentación tiene un costo operativo real — si marketing tiene que diseñar 15 campañas distintas para 15 microsegmentos de clientes, el costo de gestionar esa complejidad puede superar el beneficio de la personalización. La subsegmentación, en cambio, tiene un costo de oportunidad: agrupar en pocos clusters muy amplios puede esconder un segmento pequeño pero muy rentable dentro de un grupo más grande y menos interesante. No existe una regla matemática que resuelva esta tensión — el método del codo y el silhouette dan candidatos razonables de `k`, pero la decisión final casi siempre involucra también una restricción práctica del negocio (cuántos segmentos puede gestionar realmente el equipo de marketing, por ejemplo).
+
+| | Sobresegmentación (`k` demasiado grande) | Subsegmentación (`k` demasiado chico) |
+|---|---|---|
+| **Supermercado** | 20 segmentos de clientes → 20 folletos distintos que nadie tiene tiempo de diseñar | 2 segmentos ("compra mucho" / "compra poco") → se pierde el grupo de clientes veganos que respondería muy bien a una promo específica |
+| **Banco** | 15 perfiles de riesgo → los analistas no logran definir una política distinta para cada uno | 2 perfiles → los emprendedores jóvenes con ingresos variables quedan mezclados con los clientes de alto riesgo y se les niega crédito |
+| **Escuela / plataforma educativa** | 12 grupos de alumnos → imposible armar 12 planes de refuerzo | 2 grupos ("aprueba" / "no aprueba") → no se distingue al alumno que no entiende el tema del que entiende pero no entrega |
 
 ---
 
@@ -428,6 +578,19 @@ El nombre completo, *Density-Based Spatial Clustering of Applications with Noise
 Los dos parámetros son las dos preguntas que hay que responder para definir "denso": `eps` responde *"¿qué tan cerca hay que estar para contar como vecino?"*, y `min_samples` responde *"¿cuántos vecinos hacen falta para considerar la zona densa?"*. Ajustar estos dos números cambia radicalmente el resultado: un `eps` muy chico deja casi todo como ruido (porque casi nada tiene suficientes vecinos tan cerca); un `eps` muy grande termina fusionando clusters que deberían quedar separados (porque "casi todo" pasa a ser vecino de "casi todo"). Por eso esta misma filmina trae la técnica del **k-distance plot** (que se ve en el ejemplo de código): una forma sistemática de estimar un buen valor de `eps` a partir de los propios datos, en vez de adivinarlo a prueba y error.
 
 Sobre los tres tipos de punto: la distinción entre **core** y **border** es sutil pero importante — un border point sí forma parte de un cluster (queda "adentro" de la región densa por estar cerca de un core point), pero no tiene la densidad suficiente **por sí mismo** como para ser considerado el corazón de esa densidad. Es la diferencia entre "vivir en un barrio poblado" (border) y "ser, vos mismo, uno de los puntos que hace que el barrio esté poblado" (core). Solo el **noise point** queda completamente afuera de cualquier cluster — y a diferencia de K-Means, donde **todo** punto es forzado a pertenecer a algún cluster (incluso un outlier extremo), en DBSCAN el ruido es un resultado legítimo y esperado, no un error.
+
+Los tres tipos de punto, con tres analogías distintas:
+
+| Analogía | Core point | Border point | Noise point |
+|---|---|---|---|
+| **Una ciudad** | Vecino del centro, rodeado de edificios por todos lados | Casa en el último barrio antes del campo: tiene vecinos de un lado, pero no alrededor | Una chacra aislada a 30 km de cualquier pueblo |
+| **Una fiesta** | Persona en el medio de la ronda de baile | Persona parada en el borde de la ronda, mirando | Persona sola en la barra, sin hablar con ningún grupo |
+| **Transacciones de una tarjeta** | Compras en el súper del barrio, de montos habituales, todas las semanas | Una compra en un comercio nuevo, pero de monto y horario parecidos a los habituales | Una compra de USD 3.000 a las 4 de la mañana en otro país |
+
+Y tres ejemplos del efecto de los parámetros, usando pedidos de delivery en un mapa:
+- `eps = 50 metros`, `min_samples = 5` → casi todo queda como ruido; solo aparecen como cluster dos o tres esquinas con muchísimos pedidos.
+- `eps = 500 metros`, `min_samples = 5` → aparecen los barrios con mucha actividad como clusters separados, y los pedidos sueltos quedan como ruido. Probablemente el punto justo.
+- `eps = 5 km`, `min_samples = 5` → toda la ciudad se fusiona en un único cluster gigante; el resultado no sirve para nada.
 
 **¿Para qué usarías DBSCAN en la práctica, y en qué casos conviene más que los otros dos?**
 - **Detección de fraude**: transacciones o comportamientos que no encajan en ningún patrón habitual son exactamente lo que DBSCAN marca como ruido — a diferencia de K-Means, que forzaría esa transacción rara a pertenecer al cluster más cercano aunque no se parezca en nada.
@@ -494,6 +657,13 @@ La elección del método depende del tipo de datos, la forma esperada de los clu
 
 Un caso de uso muy citado en clase para DBSCAN es el análisis geoespacial: agrupar coordenadas GPS de usuarios o eventos para encontrar "zonas calientes" de actividad (por ejemplo, dónde se concentran los pedidos de una app de delivery en determinado horario) — un escenario donde el número de zonas no se conoce de antemano, y donde puntos aislados (un pedido en una zona rural sin actividad alrededor) deberían quedar como ruido, no forzados dentro de la zona caliente más cercana.
 
+**Mini-ejercicio para la clase: ¿K-Means o DBSCAN?** (respuestas sugeridas entre paréntesis)
+1. Una cadena de gimnasios quiere dividir a sus 20.000 socios en 4 grupos para diseñar 4 tipos de plan. (**K-Means**: el número de grupos ya está definido por el negocio, y todo socio tiene que caer en algún plan.)
+2. Una empresa de logística quiere encontrar zonas de la ciudad donde se concentran los robos a camiones, sin saber cuántas hay. (**DBSCAN**: número de zonas desconocido, formas irregulares, y los robos aislados deberían quedar como ruido.)
+3. Un banco quiere marcar transacciones sospechosas entre millones de compras normales. (**DBSCAN**: lo que interesa es justamente el ruido.)
+4. Una tienda online con 5 millones de clientes quiere segmentarlos todas las noches de forma automática. (**K-Means**: con ese volumen, la velocidad pesa mucho.)
+5. Un sismólogo quiere agrupar epicentros de terremotos que siguen la forma de una falla geológica alargada. (**DBSCAN**: los grupos tienen forma alargada, no esférica.)
+
 ---
 
 ## Módulo 4 — PCA: Reducción de Dimensionalidad
@@ -506,7 +676,17 @@ Esta divisoria anuncia el módulo de PCA: "simplificar datos complejos sin perde
 
 **Para presentar antes del contenido técnico**: conviene arrancar retomando la Filmina 07 (Módulo 1), donde la reducción de dimensionalidad se definió como "simplificar datos complejos con muchas variables a representaciones más manejables". PCA es la técnica de referencia para resolver ese problema, y su lógica se puede resumir en una sola idea, sin fórmulas: encontrar las direcciones **nuevas** (no necesariamente las variables originales) a lo largo de las cuales los datos varían más — porque ahí es donde vive la mayor parte de la información. Es una buena analogía para instalar acá: PCA es como tomar una escultura en tres dimensiones y proyectar su sombra en una pared — si se elige bien el ángulo, esa sombra dice casi todo lo que hace falta saber de la escultura, pero de forma mucho más simple.
 
+Otras tres analogías de la misma idea:
+- **Sacarle una foto a un auto**: un auto es un objeto en 3D, pero una buena foto de costado (2D) alcanza para reconocer el modelo; una foto desde arriba, en cambio, pierde mucha información. PCA busca automáticamente "el mejor ángulo para la foto".
+- **El promedio general de un alumno**: en vez de mirar las 12 notas de cada materia, el promedio resume todo en un solo número que ya dice mucho (quién rinde bien y quién no). Es, en esencia, una "primera componente principal" hecha a mano.
+- **El índice de inflación**: el INDEC no publica el precio de cada uno de los cientos de productos de la canasta como titular — los resume en un solo número que captura hacia dónde se mueven todos juntos.
+
 **Qué es cada Componente Principal, sin álgebra lineal**: la Primera Componente Principal (PC1) es la dirección donde los datos varían más; la Segunda Componente (PC2) es la segunda dirección con más variación, y es perpendicular a la primera. Por ejemplo, la PC1 podría explicar el 70% de la variación total de un dataset, la PC2 el 20%, y juntas el 90% — dos números nuevos que resumen casi toda la información de las variables originales.
+
+Tres ejemplos de cómo podría verse esto en datasets reales:
+- **Notas de 10 materias de un colegio**: PC1 ≈ 55% ("rendimiento general": sube en todas las materias a la vez), PC2 ≈ 15% ("perfil ciencias vs. letras": sube en Matemática/Física y baja en Lengua/Historia).
+- **Medidas corporales (altura, peso, largo de brazos, talle de calzado, contorno de cintura)**: PC1 ≈ 80% ("tamaño general" de la persona — todas las medidas crecen juntas), PC2 ≈ 10% ("contextura": más ancha o más delgada para una misma altura).
+- **Datos de 200 países (PBI per cápita, esperanza de vida, alfabetización, mortalidad infantil...)**: PC1 ≈ 65% ("nivel de desarrollo"), PC2 ≈ 12% (por ejemplo, "tamaño de la economía vs. calidad de vida").
 
 ### Varianza explicada y selección de componentes *(Filmina 23)*
 
@@ -520,7 +700,14 @@ Cada Componente Principal captura una porción de la "información total" (varia
 
 Vale la pena remarcar el paralelismo explícito con el método del codo de K-Means (Módulo 2, Filmina 14): en los dos casos se grafica una curva (WCSS en un caso, varianza explicada acumulada en el otro) en función de un número entero que hay que elegir (`k` clusters, o cantidad de componentes), y en los dos casos se busca el punto donde agregar "una unidad más" deja de aportar una mejora proporcional. Es el mismo patrón de decisión — "¿cuánta complejidad adicional se justifica por la mejora que trae?" — aplicado a dos problemas distintos.
 
-Esto permite, por ejemplo, pasar de 20 variables a solo 3, perdiendo muy poca información pero ganando muchísima claridad y velocidad. Si el objetivo final es solo **visualizar** los datos, casi siempre se usan exactamente 2 o 3 componentes, sin importar qué porcentaje de varianza expliquen — porque el límite ahí no es estadístico, es que un gráfico no puede tener más de 3 ejes.
+Esto permite, por ejemplo, pasar de 20 variables a solo 3, perdiendo muy poca información pero ganando muchísima claridad y velocidad.
+
+Tres ejemplos de cómo leer la varianza acumulada para decidir:
+- Acumulada `[0.62, 0.85, 0.93, 0.96, 0.98, ...]` → con **3 componentes** ya se pasa el 90%; es una elección natural.
+- Acumulada `[0.20, 0.35, 0.47, 0.57, 0.65, 0.72, ...]` → la varianza está muy repartida; hacen falta muchas componentes para llegar al 90%, lo que sugiere que PCA no va a comprimir tanto en este dataset (las variables están poco correlacionadas entre sí).
+- Acumulada `[0.97, 0.98, 0.99, ...]` → **una sola componente** explica casi todo; probablemente casi todas las variables miden "lo mismo" (por ejemplo, el mismo precio expresado en pesos, dólares y euros).
+
+Si el objetivo final es solo **visualizar** los datos, casi siempre se usan exactamente 2 o 3 componentes, sin importar qué porcentaje de varianza expliquen — porque el límite ahí no es estadístico, es que un gráfico no puede tener más de 3 ejes.
 
 ### Limitaciones de PCA *(Filmina 24)*
 
@@ -530,9 +717,13 @@ Esto permite, por ejemplo, pasar de 20 variables a solo 3, perdiendo muy poca in
 
 **Para ampliar cada limitación con más ejemplos:**
 
-- **Linealidad**: el ejemplo clásico para ilustrar esta limitación en clase es un dataset con forma de espiral o de "S" en el espacio — PCA, al buscar solo direcciones **rectas** de máxima varianza, no puede "desenroscar" esa estructura y termina proyectando puntos que estaban lejos en la espiral original muy cerca entre sí en el resultado. Para esos casos existen alternativas no lineales (t-SNE, UMAP, autoencoders) que quedan fuera del temario de hoy, pero vale la pena que quien pregunte sepa que existen.
-- **Escalado**: si no se estandariza antes, una variable con valores en millones (como `market_value_eur` del dataset de la Clase 04) tendría una varianza numéricamente gigantesca comparada con una variable en unidades chicas (como `age`) — y como PCA busca **maximizar varianza**, terminaría armando la primera componente casi exclusivamente a partir de esa única variable de escala grande, ignorando de hecho a todas las demás. Es la misma razón por la que el escalado es obligatorio en K-Means y DBSCAN, aplicada acá a un problema distinto (varianza en vez de distancia).
+- **Linealidad**: el ejemplo clásico para ilustrar esta limitación en clase es un dataset con forma de espiral o de "S" en el espacio — PCA, al buscar solo direcciones **rectas** de máxima varianza, no puede "desenroscar" esa estructura y termina proyectando puntos que estaban lejos en la espiral original muy cerca entre sí en el resultado. Otros dos casos donde pasa lo mismo: dos círculos concéntricos (cualquier proyección recta los superpone, no hay "ángulo de sombra" que separe el anillo de adentro del de afuera); y la relación entre temperatura y consumo eléctrico de una ciudad, que tiene forma de "U" (se consume mucho con mucho frío por la calefacción y con mucho calor por el aire acondicionado) — PCA, que busca tendencias lineales, puede llegar a concluir que temperatura y consumo "no tienen relación". Para esos casos existen alternativas no lineales (t-SNE, UMAP, autoencoders) que quedan fuera del temario de hoy, pero vale la pena que quien pregunte sepa que existen.
+- **Escalado**: si no se estandariza antes, una variable con valores en millones (como `market_value_eur` del dataset de la Clase 04) tendría una varianza numéricamente gigantesca comparada con una variable en unidades chicas (como `age`) — y como PCA busca **maximizar varianza**, terminaría armando la primera componente casi exclusivamente a partir de esa única variable de escala grande, ignorando de hecho a todas las demás. Es la misma razón por la que el escalado es obligatorio en K-Means y DBSCAN, aplicada acá a un problema distinto (varianza en vez de distancia). Otros dos ejemplos: en un dataset de casas, "precio en pesos" (millones) taparía por completo a "cantidad de ambientes" (1 a 5); en datos de un smartwatch, "pasos diarios" (miles) taparía a "horas de sueño" (5 a 9), y la PC1 sería en la práctica solo "cuánto caminó la persona". Un tercer caso, más sutil: la misma variable medida en distintas unidades cambia el resultado — la altura en milímetros pesa 1.000 veces más que en metros, aunque la información sea idéntica.
 - **Interpretabilidad**: cuando la primera componente principal resulta ser, por ejemplo, `0.6 × ingresos + 0.5 × gasto_mensual - 0.3 × edad + ...`, explicarle a un directorio "qué es" esa componente en términos de negocio no es trivial — a diferencia de una variable original como "edad", que se entiende sin esfuerzo. Por eso, en contextos donde la explicabilidad ante un público no técnico es prioritaria, a veces se prefiere sacrificar algo de la reducción de dimensionalidad y quedarse con un subconjunto de variables originales, más fáciles de comunicar aunque menos eficientes matemáticamente.
+  - Tres niveles de dificultad para interpretar una componente:
+    - **Fácil**: en notas escolares, PC1 = `0.32 × Matemática + 0.31 × Lengua + 0.30 × Historia + ...` (todos los pesos parecidos y positivos) → se lee sin problema como "rendimiento general".
+    - **Intermedia**: PC2 = `0.5 × Matemática + 0.4 × Física − 0.4 × Lengua − 0.5 × Historia` → con un poco de esfuerzo se lee como "perfil de ciencias vs. humanidades".
+    - **Difícil**: PC3 = `0.4 × edad − 0.3 × cantidad_de_reclamos + 0.35 × uso_app_nocturno − 0.2 × antigüedad + ...` → mezcla variables sin relación evidente entre sí, y no hay un nombre de negocio honesto para ponerle. Ahí la interpretabilidad se pierde.
 
 ### Aplicación práctica y relevancia en la industria *(Filmina 25)*
 
@@ -591,7 +782,12 @@ También vale la pena conectar la columna "Consideración principal" con lo ya v
 
 El hilo conductor de esta filmina es que **ninguna técnica de hoy funciona "a ciegas"** — cada una parte de un supuesto sobre cómo son los datos, y cuando ese supuesto no se cumple, el resultado puede ser engañoso sin que el algoritmo avise del error. El clustering, por ejemplo, siempre va a devolver **algún** agrupamiento, incluso si se le pasan datos generados completamente al azar sin ninguna estructura real — el algoritmo no tiene forma de "darse cuenta" de que no había nada que agrupar, y es responsabilidad de quien lo usa evaluar (con silhouette, por ejemplo) si el resultado tiene sentido real o es ruido estadístico disfrazado de grupos.
 
-Sobre PCA: además de asumir linealidad, asume que **más varianza significa más información relevante** — un supuesto razonable en la mayoría de los casos, pero que puede fallar si, por ejemplo, una variable tiene mucha varianza justamente por errores de medición (ruido de sensor) y no por señal real; en ese escenario, PCA podría terminar priorizando una dirección que en realidad es puro ruido.
+Tres situaciones donde el supuesto de "los datos se pueden agrupar con claridad" falla sin que el algoritmo avise:
+- **Ingresos de una población**: suelen formar un continuo (de muy bajo a muy alto, sin saltos). Un K-Means con `k = 3` va a devolver igual "bajo / medio / alto", pero los cortes son arbitrarios — no hay tres grupos reales, hay una sola curva cortada en tres.
+- **Edades de los clientes de un supermercado**: hay clientes de todas las edades repartidos de forma bastante pareja; pedirle 4 clusters solo por edad da 4 franjas etarias que no dicen nada nuevo.
+- **Variables mal elegidas**: agrupar clientes por "número de DNI" y "código postal" produce clusters perfectamente válidos en lo matemático, pero que no significan nada para el negocio — la similitud entre puntos no es significativa.
+
+Sobre PCA: además de asumir linealidad, asume que **más varianza significa más información relevante** — un supuesto razonable en la mayoría de los casos, pero que puede fallar si, por ejemplo, una variable tiene mucha varianza justamente por errores de medición (ruido de sensor) y no por señal real; en ese escenario, PCA podría terminar priorizando una dirección que en realidad es puro ruido. Otros dos ejemplos del mismo problema: en una encuesta, una pregunta mal redactada que cada persona entiende distinto genera respuestas muy dispersas (mucha varianza) que no reflejan ninguna opinión real; y en datos de ventas, una variable como "descuento aplicado" puede variar muchísimo por promociones puntuales sin decir nada del comportamiento de fondo del cliente, mientras que una variable de poca varianza (por ejemplo, "compró alguna vez un producto premium": casi todos dicen que no) puede ser justo la más valiosa para el negocio.
 
 ### Aplicaciones prácticas por escenario *(Filmina 29)*
 
@@ -604,6 +800,11 @@ En la práctica, la elección depende del contexto de negocio: en un e-commerce 
 **Para cerrar con un caso integrador, combinando varias técnicas de la clase:**
 
 Un flujo de trabajo realista en una empresa de e-commerce podría combinar **dos técnicas en una sola cadena de análisis**: primero, PCA para reducir docenas de variables de comportamiento de cada cliente (frecuencia de compra, categorías preferidas, monto gastado, dispositivo usado, horario de navegación...) a un puñado de componentes principales que resuman lo esencial; segundo, K-Means o DBSCAN sobre esas componentes reducidas para segmentar a los clientes en grupos con comportamientos similares (más rápido y con mejores resultados que clusterizar sobre las variables originales sin reducir, por la maldición de la dimensionalidad mencionada en el Módulo 4). Es un buen ejemplo para cerrar la clase mostrando que estas técnicas no compiten entre sí — se combinan.
+
+Dos cadenas más, en otros rubros:
+- **Banco — PCA + DBSCAN para fraude**: cada transacción tiene 40 variables (monto, hora, comercio, distancia al domicilio, tiempo desde la última compra...). PCA las reduce a 8 componentes; DBSCAN sobre esas 8 encuentra las zonas densas de "comportamiento normal", y lo que queda como ruido (`label = -1`) pasa a la cola de revisión del equipo de fraude.
+- **Hospital — PCA + K-Means para pacientes crónicos**: cada paciente tiene 60 resultados de laboratorio. PCA los resume en 5 componentes; K-Means con `k = 4` arma grupos de pacientes con perfiles parecidos; un equipo médico revisa cada grupo y decide si alguno merece un protocolo de seguimiento distinto.
+- **App de música — PCA para visualizar + K-Means para segmentar** (el mismo escenario de la Pre-entrega): 100 variables de escucha por usuario → PCA a 10 componentes → K-Means → PCA a 2 componentes solo para dibujar el gráfico de los grupos y mostrárselo a Marketing.
 
 ### Demostración: PCA mejorando un modelo real *(Filmina 30)*
 
@@ -689,6 +890,18 @@ Para diferenciar clústeres con sentido de negocio, conviene separar dos familia
 
 La segmentación efectiva casi siempre combina ambas familias — saber "quién es" sin saber "qué hace" (o viceversa) deja la mitad de la foto incompleta.
 
+| Rubro | Variables de perfil (quién es) | Variables de comportamiento (qué hace) |
+|---|---|---|
+| **E-commerce** | Edad, género, provincia, dispositivo principal | Frecuencia de compra, ticket promedio, categorías visitadas, carritos abandonados |
+| **Banco** | Edad, ocupación, nivel de ingresos declarado, antigüedad como cliente | Uso de tarjeta, transferencias por mes, uso de la app vs. sucursal, productos contratados |
+| **Streaming de música** | Edad, país, tipo de plan (gratis/pago) | Horas de escucha por día, géneros, horario de escucha, playlists creadas, canciones salteadas |
+| **Gimnasio** | Edad, barrio, objetivo declarado al inscribirse | Días de asistencia por semana, horario, clases grupales vs. sala de musculación |
+
+Tres ejemplos de por qué hace falta combinar las dos familias:
+- Dos mujeres de 35 años de Córdoba (mismo perfil) pueden ser una que compra todas las semanas y otra que compró una sola vez hace dos años — necesitan campañas completamente distintas.
+- Un chico de 19 y un señor de 65 (perfiles opuestos) pueden escuchar exactamente los mismos géneros y en los mismos horarios — para recomendar música, se parecen más entre sí que a gente de su misma edad.
+- Un cliente que compra mucho en la categoría "bebés" (comportamiento) se interpreta distinto si es un abuelo de 70 años (regalos) o una persona de 30 (padre o madre reciente) — el perfil le da contexto al comportamiento.
+
 **Qué caracteriza a un buen segmento**: alta **cohesión** interna (los puntos del grupo se parecen entre sí) y alta **separación** respecto a los demás grupos — el mismo principio de calidad que ya apareció con el coeficiente silhouette (Módulo 2), ahora aplicado a la lectura de negocio, no solo al número.
 
 ### De clúster a decisión: un ejemplo completo *(Filmina 32)*
@@ -699,7 +912,15 @@ Un K-Means identifica un clúster con **alto gasto histórico** pero **sin compr
 - **Acción**: diseñar una campaña de reactivación con descuentos especiales dirigida específicamente a ese grupo.
 - **Lo que NO hay que hacer**: ignorar el grupo asumiendo que "ya se fueron" (perder una oportunidad de negocio detectada), ni eliminar esos datos pensando que son un error (K-Means no garantiza que el comportamiento sea permanente — es una "foto" del estado actual).
 
-**Por qué la traducción importa tanto como el algoritmo**: un centroide es un promedio matemático; decir "el clúster 2 tiene gasto promedio de $500.000 mientras los demás promedian $50.000" es un dato. Decir "el clúster 2 es nuestro segmento Premium, y necesita un trato distinto" es la traducción a negocio que un algoritmo nunca va a hacer solo.
+**Tres ejemplos más del mismo recorrido "clúster → interpretación → acción"**, para que el grupo practique:
+
+| Lo que muestra el clúster | Interpretación de negocio | Acción | Lo que NO hay que hacer |
+|---|---|---|---|
+| Compran solo cuando hay descuento, ticket bajo, muchas visitas a la sección "ofertas" | "Cazadores de ofertas" | Avisarles primero de las liquidaciones; no gastar en publicidad de productos a precio lleno con ellos | Asumir que son "malos clientes" — pueden ser muy fieles mientras haya promociones |
+| Pocas compras pero de ticket altísimo, casi siempre en la categoría electrónica | "Compradores de alto valor ocasional" | Programa de garantía extendida y atención preferencial; recomendaciones de accesorios | Bombardearlos con mails semanales — compran poco por naturaleza, no por falta de estímulo |
+| Usuarios de una app de streaming que escuchan solo de noche, siempre playlists de música tranquila | "Oyentes para dormir/relajarse" | Playlists automáticas de relajación, recordatorio nocturno | Interpretarlo como "usuarios poco activos" y ofrecerles un plan más barato — escuchan todos los días |
+
+**Por qué la traducción importa tanto como el algoritmo**: un centroide es un promedio matemático; decir "el clúster 2 tiene gasto promedio de $500.000 mientras los demás promedian $50.000" es un dato. Decir "el clúster 2 es nuestro segmento Premium, y necesita un trato distinto" es la traducción a negocio que un algoritmo nunca va a hacer solo. Lo mismo vale para otros números: "el clúster 4 tiene 0,3 compras por mes y 18 meses de antigüedad promedio" es un dato; "el clúster 4 son clientes fieles pero de baja frecuencia: no los perdamos con cambios de precio bruscos" es una decisión. Y "el clúster 1 visita la app 9 veces por día pero nunca compra" es un dato; "el clúster 1 son curiosos que comparan precios: probemos mostrarles un cupón de primera compra" es una acción.
 
 ---
 
@@ -709,9 +930,15 @@ Un K-Means identifica un clúster con **alto gasto histórico** pero **sin compr
 
 ### Interpretación responsable: riesgos y sesgos *(Filmina 33)*
 
-- **No hay Ground Truth**: el algoritmo encontrará patrones porque esa es su función — no valida si son reales, útiles o si esconden sesgos peligrosos. Que un K-Means encuentre 3 grupos no prueba que "existan" 3 tipos reales de clientes: si se le pide 10, va a dar 10.
-- **Proyectar prejuicios propios**: al no haber etiquetas, es muy fácil interpretar un clúster con el propio sesgo en vez de con el dato real detrás.
-- **El riesgo legal y ético, no solo técnico**: si un clúster separa personas por un patrón que refleja una desigualdad social (por ejemplo, una zona geográfica correlacionada con nivel socioeconómico) y ese resultado se usa ciegamente para decidir a quién otorgar un crédito, hay un problema serio — el modelo no es "racista" ni "injusto" por sí mismo, simplemente es un espejo de los datos con los que se construyó, pero usarlo sin ese criterio tiene consecuencias reales.
+- **No hay Ground Truth**: el algoritmo encontrará patrones porque esa es su función — no valida si son reales, útiles o si esconden sesgos peligrosos. Que un K-Means encuentre 3 grupos no prueba que "existan" 3 tipos reales de clientes: si se le pide 10, va a dar 10. Lo mismo con DBSCAN: que marque 500 transacciones como ruido no prueba que sean fraude (pueden ser compras legítimas de un viaje); y con PCA: que la PC1 explique el 60% de la varianza no prueba que esa dirección sea la más importante para el negocio.
+- **Proyectar prejuicios propios**: al no haber etiquetas, es muy fácil interpretar un clúster con el propio sesgo en vez de con el dato real detrás. Ejemplos:
+  - Un clúster con mayoría de mujeres que compra en la categoría "hogar" se bautiza "amas de casa" — cuando el dato real solo dice "compran productos de hogar"; muchas pueden trabajar fuera de casa, y hay varones en el mismo grupo.
+  - Un clúster de clientes mayores de 60 con poco uso de la app se bautiza "no saben usar tecnología" — cuando tal vez prefieren la sucursal por la atención personalizada.
+  - Un clúster de usuarios jóvenes con muchos pagos atrasados se bautiza "irresponsables" — cuando el patrón puede explicarse por ingresos variables (trabajos temporales), algo que pide otro tipo de producto, no un castigo.
+- **El riesgo legal y ético, no solo técnico**: si un clúster separa personas por un patrón que refleja una desigualdad social (por ejemplo, una zona geográfica correlacionada con nivel socioeconómico) y ese resultado se usa ciegamente para decidir a quién otorgar un crédito, hay un problema serio — el modelo no es "racista" ni "injusto" por sí mismo, simplemente es un espejo de los datos con los que se construyó, pero usarlo sin ese criterio tiene consecuencias reales. Otros ejemplos del mismo riesgo:
+  - **Seguros**: segmentar asegurados y cobrarle más a un clúster que, en la práctica, coincide casi exactamente con un barrio de bajos ingresos.
+  - **Selección de personal**: agrupar CVs por similitud con "los empleados exitosos actuales" — si históricamente la empresa contrató casi solo varones para un puesto, el clúster "perfil ideal" reproduce ese desequilibrio.
+  - **Precios dinámicos**: mostrar precios más altos al clúster de usuarios que entra desde celulares caros o desde ciertas zonas, sin que nadie haya decidido explícitamente "cobrarle más a esa gente".
 
 **Para desarrollar en clase, antes de la Pre-entrega:**
 
@@ -976,6 +1203,11 @@ X_scaled = StandardScaler().fit_transform(X)
 
 **Por qué solo 2 de las 4 variables**: el propio notebook lo aclara — simplicidad para visualizar, y el Spending Score ya es en sí mismo un resumen del comportamiento de compra. Vale la pena usarlo como gancho para mencionar en clase que, en un caso real con más variables, acá es exactamente donde entraría PCA (Módulo 4) antes de clusterizar, para no tener que elegir "a mano" solo 2 de muchas variables disponibles.
 
+Tres variantes para proponer como ejercicio extra, cambiando solo la línea de `X = df[[...]]`:
+- **`['Age', 'SpendingScore']`** → los grupos se leen por etapa de vida ("jóvenes que gastan mucho", "adultos mayores moderados"...).
+- **`['Age', 'AnnualIncome']`** → los grupos dicen poco del comportamiento de compra; es un buen ejemplo de segmentar solo por variables de **perfil** (Módulo 6) y ver que la lectura de negocio queda pobre.
+- **`['Age', 'AnnualIncome', 'SpendingScore']`** → ya no se puede graficar directo en 2D: es el momento natural para aplicar PCA a 2 componentes solo para dibujar el resultado.
+
 ### Pasos 5 y 6 — Método del codo y elección de K
 
 **Qué hace en general**: corre el mismo barrido de `k` de 1 a 10 ya visto con los datos climáticos, pero ahora sobre los clientes reales — y, a diferencia del ejemplo anterior (donde `k=3` ya estaba decidido de antemano), acá el notebook le pide explícitamente al alumno que **mire el gráfico y decida** su propio valor de `K` antes de seguir.
@@ -988,6 +1220,11 @@ labels = kmeans.labels_
 ```
 
 **Para el docente**: con este dataset en particular, el codo del gráfico suele verse bastante claro en `k=5` — y da pie a mostrar en vivo qué pasa si alguien elige un `k` distinto (por ejemplo `k=3` o `k=8`) y cómo cambian los clusters resultantes, conectando directo con la Filmina 14/15 (Módulo 2) sobre que no hay un único "k correcto", solo un rango razonable.
+
+Qué esperar, a grandes rasgos, si en vivo se cambia `K`:
+- **`K = 3`**: los clientes de ingreso alto quedan separados en "gastan mucho" y "gastan poco", pero los de ingreso bajo y medio se mezclan en un único grupo grande — se pierde la diferencia entre "Entusiastas" y "Bajo potencial" (subsegmentación).
+- **`K = 5`**: aparecen los 5 perfiles clásicos (ver Paso 9) — cada grupo tiene una lectura de negocio clara.
+- **`K = 8`**: algunos de los 5 grupos se parten en dos (por ejemplo, "VIP jóvenes" vs. "VIP un poco mayores" según la posición dentro del gráfico) — matemáticamente válido, pero difícil de justificar como segmentos distintos para Marketing (sobresegmentación).
 
 ### Pasos 7 y 8 — Visualizar y analizar cada cluster
 
