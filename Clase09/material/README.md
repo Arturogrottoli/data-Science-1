@@ -1015,7 +1015,7 @@ El aprendizaje no supervisado da el "qué" (los grupos, los componentes, las ano
 
 ### Configuración Inicial
 
-**Qué hace en general**: importa todas las librerías que se usan en el resto del notebook, de una sola vez.
+**Para qué sirve esta parte del código, para explicarle al grupo antes de mostrarla**: antes de poder usar cualquier herramienta, hay que "traerla" con `import` — esta celda no calcula nada todavía, solo prepara el terreno trayendo de una sola vez todo lo que se va a necesitar en el resto del notebook (los 3 algoritmos de clustering, las 2 técnicas de reducción de dimensionalidad, y las librerías de gráficos).
 
 ```python
 import pandas as pd
@@ -1033,7 +1033,16 @@ import seaborn as sns
 from scipy.cluster.hierarchy import dendrogram, linkage
 ```
 
-**Línea por línea**: Pandas/NumPy para datos; de `sklearn.cluster` los 3 algoritmos de clustering de la clase (`KMeans`, `AgglomerativeClustering` para el Jerárquico, `DBSCAN`); `StandardScaler` para escalar (obligatorio en todo lo que mide distancias) y `OneHotEncoder` por si hiciera falta codificar alguna variable categórica (no se termina usando en este notebook, queda importado por si se necesita); `PCA` y `TSNE` para reducción de dimensionalidad; `silhouette_score` para la métrica de validación de clusters; Matplotlib/Seaborn para gráficos; `dendrogram`/`linkage` de SciPy, específicas para dibujar el árbol del clustering jerárquico (`scikit-learn` no trae una función de dendrograma propia).
+**Qué hace cada línea, y para qué sirve cada librería que trae**:
+- `import pandas as pd`: Pandas maneja datos en forma de tabla (filas y columnas) — se usa más adelante para cargar el CSV de clientes del ejercicio final.
+- `import numpy as np`: NumPy es la librería base de Python para cálculo numérico y arrays — se usa para generar los datos sintéticos (climáticos) y para varias cuentas auxiliares a lo largo del notebook.
+- `from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN`: trae los **3 algoritmos de clustering** de la clase en una sola línea — `KMeans` (Módulo 2), `AgglomerativeClustering` (el Jerárquico, que ya no tiene módulo teórico propio pero sigue en el notebook) y `DBSCAN` (Módulo 3).
+- `from sklearn.preprocessing import StandardScaler, OneHotEncoder`: `StandardScaler` escala variables numéricas (obligatorio antes de cualquier algoritmo que mida distancias — K-Means, Jerárquico, DBSCAN y PCA, los 4 lo necesitan); `OneHotEncoder` serviría para convertir una variable categórica (como texto) en números, pero **no se termina usando en este notebook** — queda importada por si hiciera falta más adelante.
+- `from sklearn.decomposition import PCA`: trae la técnica de reducción de dimensionalidad lineal del Módulo 4.
+- `from sklearn.manifold import TSNE`: trae t-SNE, la técnica de reducción de dimensionalidad no lineal (contenido "bonus", sin módulo teórico propio).
+- `from sklearn.metrics import silhouette_score`: trae la métrica para medir qué tan bien separados y compactos quedan los clusters — la misma Filmina 15 (Módulo 2), ahora en código.
+- `import matplotlib.pyplot as plt` / `import seaborn as sns`: las dos librerías de gráficos que se usan en todo el notebook — Matplotlib es la base, Seaborn le agrega estilos más prolijos por defecto (`sns.set(style="whitegrid")`, un poco más abajo, es lo que le da el fondo con grilla a todos los gráficos).
+- `from scipy.cluster.hierarchy import dendrogram, linkage`: específicas para el clustering Jerárquico — `linkage` calcula la estructura de fusiones, `dendrogram` la dibuja como árbol. Vienen de SciPy y no de Scikit-Learn porque **Scikit-Learn no tiene una función propia para dibujar dendrogramas** (solo trae `AgglomerativeClustering` para calcular los clusters finales, no para visualizar el árbol completo).
 
 ---
 
@@ -1041,7 +1050,7 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 
 ### Ejemplo ilustrativo: datos climáticos sintéticos
 
-**Qué hace en general**: genera 240 "ciudades" ficticias repartidas en 3 grupos climáticos conocidos de antemano (tropical, templado, árido), y las grafica **sin mostrar a qué grupo pertenece cada una** — el mismo punto de partida que tendría K-Means en la vida real, donde no hay colores ni etiquetas previas.
+**Para qué sirve esta parte del código**: genera 240 "ciudades" ficticias repartidas en 3 grupos climáticos conocidos de antemano (tropical, templado, árido), y las grafica **sin mostrar a qué grupo pertenece cada una** — el mismo punto de partida que tendría K-Means en la vida real, donde no hay colores ni etiquetas previas.
 
 ```python
 np.random.seed(42)
@@ -1061,7 +1070,7 @@ X_clima[:, 1] = np.clip(X_clima[:, 1], 0, 100)
 
 ### Escalado y aplicación de K-Means
 
-**Qué hace en general**: estandariza las 2 variables (para que la escala de la temperatura, en decenas, no le gane de entrada a la escala de la humedad, en unidades porcentuales) y entrena K-Means con `k=3`.
+**Para qué sirve esta parte del código**: estandariza las 2 variables (para que la escala de la temperatura, en decenas, no le gane de entrada a la escala de la humedad, en unidades porcentuales) y entrena K-Means con `k=3`.
 
 ```python
 scaler_clima = StandardScaler()
@@ -1078,7 +1087,7 @@ centers_clima = scaler_clima.inverse_transform(kmeans_clima.cluster_centers_)
 
 ### Gráfico de clusters y Método del Codo
 
-**Qué hace en general**: dos piezas separadas — primero un gráfico de dispersión coloreado por cluster (con los centroides marcados con una X), después el cálculo del WCSS para `k` de 1 a 10, para ilustrar el método del codo con datos reales.
+**Para qué sirve esta parte del código**: dos piezas separadas — primero un gráfico de dispersión coloreado por cluster (con los centroides marcados con una X), después el cálculo del WCSS para `k` de 1 a 10, para ilustrar el método del codo con datos reales.
 
 ```python
 for k in k_range:
@@ -1091,7 +1100,7 @@ for k in k_range:
 
 ### Validación con Coeficiente Silhouette
 
-**Qué hace en general**: repite el mismo barrido de `k` (esta vez de 2 a 10, porque Silhouette no se puede calcular con un solo cluster) y compara, en un gráfico de 2 paneles, el Codo contra el Silhouette — para ver si las dos métricas coinciden en el mismo `k` recomendado.
+**Para qué sirve esta parte del código**: repite el mismo barrido de `k` (esta vez de 2 a 10, porque Silhouette no se puede calcular con un solo cluster) y compara, en un gráfico de 2 paneles, el Codo contra el Silhouette — para ver si las dos métricas coinciden en el mismo `k` recomendado.
 
 ```python
 for k in k_sil_range:
@@ -1108,7 +1117,7 @@ for k in k_sil_range:
 
 ### Dendrograma sobre una muestra
 
-**Qué hace en general**: toma una submuestra de 60 ciudades (de las 240 totales) del mismo dataset climático, y construye un dendrograma con linkage `ward` — menos puntos que con K-Means, a propósito, para que el árbol sea legible.
+**Para qué sirve esta parte del código**: toma una submuestra de 60 ciudades (de las 240 totales) del mismo dataset climático, y construye un dendrograma con linkage `ward` — menos puntos que con K-Means, a propósito, para que el árbol sea legible.
 
 ```python
 idx_sample = np.random.choice(len(X_clima), 60, replace=False)
@@ -1121,7 +1130,7 @@ linked_clima = linkage(X_demo_small, method='ward')
 
 ### AgglomerativeClustering y comparación con K-Means
 
-**Qué hace en general**: aplica el clustering jerárquico sobre **todas** las 240 ciudades (ya no solo la submuestra de 60), pidiéndole directamente 3 clusters, y compara cuantitativamente ese resultado contra el de K-Means.
+**Para qué sirve esta parte del código**: aplica el clustering jerárquico sobre **todas** las 240 ciudades (ya no solo la submuestra de 60), pidiéndole directamente 3 clusters, y compara cuantitativamente ese resultado contra el de K-Means.
 
 ```python
 agg_clima = AgglomerativeClustering(n_clusters=3, linkage='ward')
@@ -1140,7 +1149,7 @@ ari = adjusted_rand_score(y_kmeans_clima, y_agg_clima)
 
 ### Generar datos con forma de "lunas"
 
-**Qué hace en general**: genera un dataset con 2 grupos en forma de medialuna entrelazada — a propósito, porque son formas que K-Means (que asume grupos esféricos) no puede separar bien, y DBSCAN sí.
+**Para qué sirve esta parte del código**: genera un dataset con 2 grupos en forma de medialuna entrelazada — a propósito, porque son formas que K-Means (que asume grupos esféricos) no puede separar bien, y DBSCAN sí.
 
 ```python
 X_moons, y_moons_true = make_moons(n_samples=250, noise=0.1, random_state=42)
@@ -1151,7 +1160,7 @@ X_moons_scaled = StandardScaler().fit_transform(X_moons)
 
 ### Aplicar DBSCAN y graficar
 
-**Qué hace en general**: corre DBSCAN sobre las lunas, y separa visualmente los puntos que quedaron en algún cluster de los que quedaron marcados como ruido.
+**Para qué sirve esta parte del código**: corre DBSCAN sobre las lunas, y separa visualmente los puntos que quedaron en algún cluster de los que quedaron marcados como ruido.
 
 ```python
 dbscan = DBSCAN(eps=0.3, min_samples=5)
@@ -1166,7 +1175,7 @@ y_dbscan = dbscan.fit_predict(X_moons_scaled)
 
 ### Cargar y escalar Iris
 
-**Qué hace en general**: carga el dataset de **Iris** (el mismo que se usó, con etiqueta, en el Bloque 0 de repaso de Supervisado) y lo escala, como paso previo obligatorio antes de aplicar PCA.
+**Para qué sirve esta parte del código**: carga el dataset de **Iris** (el mismo que se usó, con etiqueta, en el Bloque 0 de repaso de Supervisado) y lo escala, como paso previo obligatorio antes de aplicar PCA.
 
 ```python
 iris = load_iris()
@@ -1180,7 +1189,7 @@ X_iris_scaled = StandardScaler().fit_transform(X_iris)
 
 ### Aplicar PCA
 
-**Qué hace en general**: reduce las 4 features originales a 2 Componentes Principales, y mide cuánta varianza conservan esas 2 componentes.
+**Para qué sirve esta parte del código**: reduce las 4 features originales a 2 Componentes Principales, y mide cuánta varianza conservan esas 2 componentes.
 
 ```python
 pca = PCA(n_components=2)
@@ -1194,13 +1203,13 @@ print(f"Varianza explicada acumulada: {np.sum(pca.explained_variance_ratio_)}")
 
 ### Graficar PCA en 2D, coloreado por especie real
 
-**Qué hace en general**: grafica las 150 flores en el plano de las 2 Componentes Principales, pero coloreando cada punto según su especie **real** (`y_iris`) — el primer momento del notebook donde se puede *ver* si la estructura que encontró PCA (sin mirar la especie) coincide con las 3 especies reales.
+**Para qué sirve esta parte del código**: grafica las 150 flores en el plano de las 2 Componentes Principales, pero coloreando cada punto según su especie **real** (`y_iris`) — el primer momento del notebook donde se puede *ver* si la estructura que encontró PCA (sin mirar la especie) coincide con las 3 especies reales.
 
 **Por qué esto es más una demostración que un ejercicio no supervisado "puro"**: en un escenario 100% no supervisado no se tendría `y_iris` para colorear — acá se la usa a propósito, solo para **validar** visualmente el resultado de PCA, no para entrenarlo. Vale la pena aclarar esta distinción en clase: el momento en que aparecen los 3 colores separados en el gráfico es la confirmación visual de que, incluso sin que nadie le dijera la especie, la reducción de dimensionalidad conservó la estructura que separa a las 3 especies — es el mismo "cierre de círculo" con el Bloque 0 de Supervisado mencionado más arriba.
 
 ### Aplicar t-SNE
 
-**Qué hace en general**: reduce las mismas 4 features de Iris a 2 dimensiones, pero con una técnica **no lineal** (t-SNE) en vez de PCA, reutilizando `X_iris_scaled` ya calculado.
+**Para qué sirve esta parte del código**: reduce las mismas 4 features de Iris a 2 dimensiones, pero con una técnica **no lineal** (t-SNE) en vez de PCA, reutilizando `X_iris_scaled` ya calculado.
 
 ```python
 tsne = TSNE(n_components=2)
@@ -1226,11 +1235,11 @@ df = pd.read_csv(url)
 
 ### Pasos 2 y 3 — Exploración y distribución
 
-**Qué hace en general**: antes de clusterizar nada, mira el tamaño del dataset, sus estadísticas descriptivas (`df.describe()`) y la distribución de cada variable numérica con 3 histogramas — el mismo primer paso de "entender los datos antes de tocarlos" que ya se vio en el Repaso de la Clase 08 y en la Clase 06/07 del curso.
+**Para qué sirve esta parte del código**: antes de clusterizar nada, mira el tamaño del dataset, sus estadísticas descriptivas (`df.describe()`) y la distribución de cada variable numérica con 3 histogramas — el mismo primer paso de "entender los datos antes de tocarlos" que ya se vio en el Repaso de la Clase 08 y en la Clase 06/07 del curso.
 
 ### Paso 4 — Selección de features y escalado
 
-**Qué hace en general**: de las 4 variables numéricas disponibles (`Age`, `AnnualIncome`, `SpendingScore`), elige deliberadamente solo 2 (`AnnualIncome` y `SpendingScore`) para poder graficar el resultado en un plano 2D simple, y las escala.
+**Para qué sirve esta parte del código**: de las 4 variables numéricas disponibles (`Age`, `AnnualIncome`, `SpendingScore`), elige deliberadamente solo 2 (`AnnualIncome` y `SpendingScore`) para poder graficar el resultado en un plano 2D simple, y las escala.
 
 ```python
 X = df[['AnnualIncome', 'SpendingScore']].values
@@ -1246,7 +1255,7 @@ Tres variantes para proponer como ejercicio extra, cambiando solo la línea de `
 
 ### Pasos 5 y 6 — Método del codo y elección de K
 
-**Qué hace en general**: corre el mismo barrido de `k` de 1 a 10 ya visto con los datos climáticos, pero ahora sobre los clientes reales — y, a diferencia del ejemplo anterior (donde `k=3` ya estaba decidido de antemano), acá el notebook le pide explícitamente al alumno que **mire el gráfico y decida** su propio valor de `K` antes de seguir.
+**Para qué sirve esta parte del código**: corre el mismo barrido de `k` de 1 a 10 ya visto con los datos climáticos, pero ahora sobre los clientes reales — y, a diferencia del ejemplo anterior (donde `k=3` ya estaba decidido de antemano), acá el notebook le pide explícitamente al alumno que **mire el gráfico y decida** su propio valor de `K` antes de seguir.
 
 ```python
 K = 5  # <-- CAMBIÁ ESTE VALOR si elegís otro K
@@ -1264,7 +1273,7 @@ Qué esperar, a grandes rasgos, si en vivo se cambia `K`:
 
 ### Pasos 7 y 8 — Visualizar y analizar cada cluster
 
-**Qué hace en general**: grafica los 200 clientes coloreados por cluster (con los centroides marcados), y después arma una tabla con el promedio de edad/ingreso/gasto de cada cluster — la materia prima para poder interpretarlos.
+**Para qué sirve esta parte del código**: grafica los 200 clientes coloreados por cluster (con los centroides marcados), y después arma una tabla con el promedio de edad/ingreso/gasto de cada cluster — la materia prima para poder interpretarlos.
 
 ```python
 cluster_stats = df.groupby('Cluster').agg({
@@ -1277,7 +1286,7 @@ cluster_stats = df.groupby('Cluster').agg({
 
 ### Paso 9 — Clasificar los clusters (la parte más importante)
 
-**Qué hace en general**: le pide al alumno completar un diccionario poniéndole un **nombre de negocio** a cada cluster, basándose en las estadísticas del paso anterior — no hay una respuesta ya resuelta en el código, es deliberadamente una celda para completar en vivo.
+**Para qué sirve esta parte del código**: le pide al alumno completar un diccionario poniéndole un **nombre de negocio** a cada cluster, basándose en las estadísticas del paso anterior — no hay una respuesta ya resuelta en el código, es deliberadamente una celda para completar en vivo.
 
 ```python
 clasificacion = {
