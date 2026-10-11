@@ -207,7 +207,32 @@ Confiar en un único `train_test_split` tiene un problema: el resultado de la ev
 
 Este repaso tiene, además de las filminas, su propio notebook corto — separado por ahora del notebook principal de la clase (`Clase09_aprendizaje no supervisado.ipynb`), para poder mostrarlo como un bloque de arranque independiente.
 
-**Qué hace en general**: entrena un clasificador simple sobre el dataset de **Iris** (150 flores, 4 medidas, 3 especies ya conocidas), para que el grupo vea en código un ejemplo completo de Aprendizaje Supervisado antes de pasar a lo que no tiene etiqueta.
+**Qué hace en general**: entrena un clasificador simple sobre el dataset de **Iris** (150 flores, 4 medidas, 3 especies ya conocidas), para que el grupo vea en código un ejemplo completo de Aprendizaje Supervisado antes de pasar a lo que no tiene etiqueta. Tiene 3 celdas de código — una por cada paso.
+
+#### Celda 1 — Importar las librerías
+
+**Para qué sirve esta parte del código, para explicarle al grupo antes de mostrarla**: antes de poder usar cualquier herramienta de Python, hay que "traerla" con `import` — es como abrir la caja de herramientas y sacar solo las piezas que se van a necesitar hoy. Esta celda todavía no calcula nada: solo prepara el terreno para las dos celdas que siguen.
+
+```python
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+```
+
+**Qué hace cada línea, y para qué sirve cada librería que trae**:
+- `import pandas as pd`: Pandas es la librería estándar de Python para manejar datos en forma de tabla (filas y columnas, como una planilla de Excel). En esta celda puntual no se la termina usando directamente (los datos de Iris ya vienen como arrays de NumPy, no como tabla) — queda importada porque es costumbre tenerla a mano por si hace falta inspeccionar algo como tabla más adelante.
+- `from sklearn.datasets import load_iris`: trae la función que **carga** el dataset de Iris — un dataset de ejemplo que viene incluido adentro de Scikit-Learn, sin necesidad de descargar ni leer ningún archivo externo.
+- `from sklearn.model_selection import train_test_split`: trae la función que **divide** un dataset en una parte de entrenamiento y otra de prueba — la misma herramienta, con el mismo nombre, que ya se usó en la Clase 08.
+- `from sklearn.linear_model import LogisticRegression`: trae el modelo que se va a entrenar — el que efectivamente va a "aprender" a distinguir las especies de flores.
+- `from sklearn.metrics import accuracy_score`: trae la función que **mide qué tan bien** predijo el modelo, comparando sus predicciones contra las respuestas reales.
+
+**Por qué Scikit-Learn específicamente, y no otra librería**: es LA librería estándar de Python para Machine Learning "clásico" — reúne, bajo una misma forma de usar (instanciar el objeto → `.fit()` para entrenar → `.predict()` para predecir), tanto datasets de ejemplo (como Iris) como modelos y métricas. Es la misma librería que se usa en el resto de la clase (K-Means, DBSCAN, PCA) — practicar su lógica acá, con un ejemplo de Supervisado ya conocido de la Clase 08, ayuda a que el resto del día sea solo "cambiar el nombre de la clase que se instancia", no aprender una herramienta nueva de cero.
+
+#### Celda 2 — Cargar los datos y dividir en train/test
+
+**Para qué sirve esta parte del código**: trae las 150 flores de Iris (con sus 4 medidas y su especie real ya conocida) y separa 80%/20% — una porción para que el modelo estudie, y otra que se guarda sin tocar para poder evaluarlo honestamente después. Es el mismo criterio de la Clase 08: nunca se evalúa un modelo con los mismos datos que vio durante el entrenamiento.
 
 ```python
 iris = load_iris()
@@ -218,6 +243,13 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
 ```
+
+**Qué hace cada línea**: `load_iris()` carga el dataset completo en la variable `iris`. `iris.data` son las 4 *features* de cada flor (largo y ancho de pétalo y sépalo); se guardan en `X`, siguiendo la convención de nombrarla con mayúscula porque es una tabla con varias columnas. `iris.target` es la especie real de cada flor, ya codificada como un número (0, 1 o 2 en vez de "Setosa", "Versicolor", "Virginica"); se guarda en `y`, siguiendo la convención de nombrarla en minúscula porque es una sola columna. `train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)` reparte ambas tablas en 4 piezas a la vez (`X_train`, `X_test`, `y_train`, `y_test`): `test_size=0.2` reserva el 20% para test; `random_state=42` fija la semilla para que el split sea siempre el mismo si se vuelve a correr la celda; `stratify=y` asegura que las 3 especies queden representadas en la misma proporción tanto en train como en test, para que el test no quede, por mala suerte, con muy pocos ejemplos de alguna especie.
+
+#### Celda 3 — Entrenar el modelo y evaluarlo
+
+**Para qué sirve esta parte del código**: acá es donde el modelo realmente "aprende" — se le muestran las flores de entrenamiento junto con su especie real, y después se le pide que adivine la especie de las flores de test, que nunca vio, para medir qué tan bien generalizó.
+
 ```python
 modelo = LogisticRegression(max_iter=200)
 modelo.fit(X_train, y_train)
@@ -226,7 +258,9 @@ predicciones = modelo.predict(X_test)
 accuracy = accuracy_score(y_test, predicciones)
 ```
 
-**Línea por línea**: `load_iris()` trae el dataset ya cargado desde scikit-learn, sin necesidad de ningún archivo externo — `iris.data` son las 4 features (largo/ancho de sépalo y pétalo) y `iris.target` es la especie real de cada flor, ya codificada como 0/1/2. `train_test_split(..., stratify=y)` separa 80%/20% manteniendo la misma proporción de las 3 especies en ambos conjuntos — el mismo criterio de la Clase 08, para que el test sea representativo y no quede, por mala suerte, con muy pocos ejemplos de alguna especie. `LogisticRegression(max_iter=200)` instancia un clasificador (a pesar del nombre, es un modelo de **Clasificación**, no de Regresión); `.fit(X_train, y_train)` lo entrena mostrándole las flores de train **con** su especie real; `.predict(X_test)` genera una predicción para cada flor de test, que el modelo nunca vio; `accuracy_score(...)` compara esas predicciones contra las especies reales del test y devuelve el porcentaje de aciertos.
+**Qué hace cada línea**: `LogisticRegression(max_iter=200)` crea el modelo — `max_iter=200` es solo un límite técnico de cuántas vueltas puede dar el algoritmo internamente para ajustarse bien, antes de rendirse (no hace falta profundizar más en esto en clase). `modelo.fit(X_train, y_train)` es el momento del "estudio": el modelo mira las flores de entrenamiento **junto con** su especie real, y ajusta sus parámetros internos para relacionar las 4 medidas con la especie. `modelo.predict(X_test)` es el "examen": le pide al modelo que adivine la especie de las flores de test, usando solo sus medidas (`X_test`) — sin mostrarle `y_test` en ningún momento. `accuracy_score(y_test, predicciones)` compara esas predicciones contra las especies reales del test, y devuelve qué porcentaje acertó.
+
+**Nota sobre el nombre "LogisticRegression"**: a pesar de tener la palabra "Regression" en el nombre, **no es un modelo de Regresión sino de Clasificación** — el mismo matiz confuso que ya se vio en el repaso de la Clase 08 más arriba. El nombre viene de que, internamente, usa una función matemática llamada "logística" para convertir un cálculo en una probabilidad entre 0 y 1, que después se convierte en una categoría final (la especie con mayor probabilidad).
 
 **Por qué Iris y no otro dataset**: no es una elección arbitraria — es el mismo dataset que después se reutiliza, **sin la columna de especie**, en el Módulo 4 (PCA) y en el notebook principal para t-SNE. La idea pedagógica es mostrar el mismo conjunto de flores dos veces en la misma clase: primero **con** la respuesta correcta a mano (acá, Supervisado — el modelo aprende a distinguir las 3 especies y acierta en la gran mayoría del test), y más adelante **sin** ella (No Supervisado — un algoritmo de reducción de dimensionalidad o de clustering tiene que encontrar esa misma estructura de 3 grupos por su cuenta, sin que nadie le diga cuántas especies hay ni cuáles son). Ver el mismo dataset resuelto de las dos formas, una al lado de la otra, es mucho más contundente que explicar la diferencia solo con palabras.
 
