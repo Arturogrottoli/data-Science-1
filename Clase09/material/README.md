@@ -203,17 +203,6 @@ Confiar en un único `train_test_split` tiene un problema: el resultado de la ev
   - Folds `[0.95, 0.70, 0.88, 0.92, 0.80]` → **85% ± 9%**: mismo promedio, pero muy inestable — en algún fold le fue mal de verdad; conviene investigar por qué antes de confiar.
   - Folds `[0.99, 0.98, 0.99, 0.99, 0.98]` → **99% ± 0,5%**: estable pero "demasiado bueno para ser cierto" — en un problema real difícil, es una señal típica de Data Leakage que hay que revisar.
 
-### Lo que cambia hoy
-
-El aprendizaje no supervisado parte de datos **sin `y`** — sin una respuesta correcta conocida de antemano. El objetivo deja de ser predecir y pasa a ser **descubrir estructura**, por dos caminos distintos (cada uno se desarrolla en profundidad más adelante en esta guía, esto es solo la idea de arranque):
-
-- **Clustering** (agrupamiento): armar grupos de observaciones parecidas entre sí, sin que nadie le diga de antemano cuáles son esos grupos ni cuántos hay — por ejemplo, agrupar clientes con comportamientos de compra similares, dejando que el propio algoritmo descubra los perfiles, en vez de definirlos a mano; agrupar noticias del día por tema sin tener una lista previa de temas; o agrupar alumnos por su forma de estudiar en una plataforma online.
-- **Reducción de dimensionalidad**: cuando un dataset tiene muchísimas columnas (variables), resumir esa información en unas pocas "columnas nuevas" que capturan lo esencial, para poder analizarla o graficarla sin perder demasiado en el camino — por ejemplo, resumir las 30 materias de un plan de estudios en 2 ejes ("rendimiento general" y "perfil ciencias vs. humanidades"), resumir 50 preguntas de una encuesta en 3 factores, o resumir 100 indicadores económicos de cada país en 2 números para poder graficarlos en un mapa.
-
-Una aplicación que combina ambas ideas y aparece una y otra vez en esta clase es la **detección de anomalías**: usar clustering (o la distancia a los grupos "normales") para encontrar los puntos que no se parecen a nada — el ejemplo típico es una transacción bancaria fraudulenta, que no encaja en ningún patrón de compra habitual; otros son un inicio de sesión desde un país donde el usuario nunca estuvo, o un sensor de temperatura de una heladera industrial que de golpe marca valores fuera de lo habitual.
-
-Estos son los frentes que recorre el resto de esta clase, cada uno con su propio módulo.
-
 ### 👉 En Python — `Clase09_Bloque0_Repaso_Supervisado.ipynb`
 
 Este repaso tiene, además de las filminas, su propio notebook corto — separado por ahora del notebook principal de la clase (`Clase09_aprendizaje no supervisado.ipynb`), para poder mostrarlo como un bloque de arranque independiente.
@@ -244,6 +233,19 @@ accuracy = accuracy_score(y_test, predicciones)
 **Qué significa el número de accuracy que tira la celda**: Iris es un dataset fácil para un clasificador (las 3 especies están bastante bien separadas por sus medidas), así que es normal y esperable que el accuracy dé muy alto (por encima del 90%) — no es un logro excepcional del modelo, es una propiedad conocida de este dataset en particular. Vale la pena aclararlo en clase para que nadie se lleve la idea de que un 90%+ de accuracy es lo normal en cualquier problema real.
 
 **Pendiente de decidir**: si este Bloque 0 se deja como notebook separado (como está ahora) o se pega al principio de `Clase09_aprendizaje no supervisado.ipynb` para que quede todo en un solo archivo — todavía no se definió.
+
+### Lo que cambia hoy
+
+El aprendizaje no supervisado parte de datos **sin `y`** — sin una respuesta correcta conocida de antemano. El objetivo deja de ser predecir y pasa a ser **descubrir estructura**, por dos caminos distintos (cada uno se desarrolla en profundidad más adelante en esta guía, esto es solo la idea de arranque):
+
+- **Clustering** (agrupamiento): armar grupos de observaciones parecidas entre sí, sin que nadie le diga de antemano cuáles son esos grupos ni cuántos hay — por ejemplo, agrupar clientes con comportamientos de compra similares, dejando que el propio algoritmo descubra los perfiles, en vez de definirlos a mano; agrupar noticias del día por tema sin tener una lista previa de temas; o agrupar alumnos por su forma de estudiar en una plataforma online.
+- **Reducción de dimensionalidad**: cuando un dataset tiene muchísimas columnas (variables), resumir esa información en unas pocas "columnas nuevas" que capturan lo esencial, para poder analizarla o graficarla sin perder demasiado en el camino — por ejemplo, resumir las 30 materias de un plan de estudios en 2 ejes ("rendimiento general" y "perfil ciencias vs. humanidades"), resumir 50 preguntas de una encuesta en 3 factores, o resumir 100 indicadores económicos de cada país en 2 números para poder graficarlos en un mapa.
+
+Una aplicación que combina ambas ideas y aparece una y otra vez en esta clase es la **detección de anomalías**: usar clustering (o la distancia a los grupos "normales") para encontrar los puntos que no se parecen a nada — el ejemplo típico es una transacción bancaria fraudulenta, que no encaja en ningún patrón de compra habitual; otros son un inicio de sesión desde un país donde el usuario nunca estuvo, o un sensor de temperatura de una heladera industrial que de golpe marca valores fuera de lo habitual.
+
+**La conexión directa con el ejemplo que se acaba de ver**: el Bloque 0 de arriba mostró a Iris **con** la etiqueta — el modelo sabía de antemano que existían 3 especies y cuál era cuál. A partir de ahora, en el resto de la clase, ese mismo tipo de dataset aparece **sin** esa información: nadie le va a decir al algoritmo cuántos grupos buscar ni cómo se llaman — tiene que descubrirlo únicamente a partir de los datos. Esa es, en una frase, la diferencia que separa todo lo visto hasta ahora de lo que sigue.
+
+Estos son los frentes que recorre el resto de esta clase, cada uno con su propio módulo.
 
 ---
 

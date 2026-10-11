@@ -605,14 +605,25 @@
     <div class="slide-container" id="slide4">
         <h2 class="slide-title">Repaso: Buenas Prácticas y Validación</h2>
         <div class="content-area">
+            <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Data Leakage: info del test que se filtra al entrenamiento</span>
+            <div style="display: flex; gap: 14px; width: 100%; margin-bottom: 18px;">
+                <div class="tile" style="flex: 1; padding: 16px; height: 125px;">
+                    <h3 style="font-size: 14px; margin-bottom: 6px;"><i class="fa-solid fa-xmark" style="color: var(--rosa-energia);"></i> Escalar con TODO el dataset</h3>
+                    <p style="font-size: 12px;">Calculás media/desvío usando train+test juntos, <strong>antes</strong> de dividir → el train ya "espió" estadísticas del test.</p>
+                </div>
+                <div class="tile" style="flex: 1; padding: 16px; height: 125px;">
+                    <h3 style="font-size: 14px; margin-bottom: 6px;"><i class="fa-solid fa-xmark" style="color: var(--rosa-energia);"></i> Mezclar fechas al azar</h3>
+                    <p style="font-size: 12px;">En series de tiempo, un split aleatorio deja 2023 en train y 2021 en test → predecís el pasado usando el futuro.</p>
+                </div>
+            </div>
             <div class="two-column">
                 <div>
-                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> Evitar Data Leakage</span>
+                    <span class="moment-badge tip"><i class="fa-solid fa-check"></i> La solución</span>
                     <div class="bullet-list">
                         <ul>
-                            <li><i class="fa-solid fa-ruler-combined"></i> <strong>StandardScaler:</strong> escalar variables.</li>
-                            <li><i class="fa-solid fa-link"></i> <strong>Pipeline:</strong> encadenar pasos sin fugas.</li>
-                            <li><i class="fa-solid fa-scissors"></i> <strong>train_test_split</strong> + <code>stratify</code>.</li>
+                            <li><i class="fa-solid fa-scissors"></i> <strong>train_test_split</strong> + <code>stratify</code>: dividir primero, siempre.</li>
+                            <li><i class="fa-solid fa-ruler-combined"></i> <strong>StandardScaler:</strong> ajustar (<code>fit</code>) solo con train.</li>
+                            <li><i class="fa-solid fa-link"></i> <strong>Pipeline:</strong> encadena los pasos para que ninguno se aplique fuera de orden.</li>
                         </ul>
                     </div>
                 </div>
