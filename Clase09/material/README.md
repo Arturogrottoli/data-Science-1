@@ -5,7 +5,7 @@ Esta guía es el **libreto de apoyo para dictar la Clase 09**. Reúne, en un sol
 - **`Clase 09_fixed.docx`** — el material teórico oficial de la unidad (reemplaza a `Clase 09_teoria.pdf`, que queda obsoleto).
 - **`Clase09.html`** — las diapositivas que se proyectan en clase (36 filminas).
 
-> **Estado de esta guía**: actualizada para seguir el nuevo `Clase 09_fixed.docx`. Se sacaron Reglas de Asociación (Apriori/FP-Growth) y la base matemática de PCA (covarianza/eigenvectores) porque el docx nuevo ya no los trae; se agregó Customer Profiling, Ética y Sesgos, y la Pre-entrega, que sí trae. El notebook práctico de la clase es `Clase09_aprendizaje no supervisado.ipynb` (no `Clase_9.ipynb`, que queda obsoleto) — documentado en el Anexo, al final de esta guía. Ese notebook sí conserva Clustering Jerárquico y t-SNE como contenido práctico adicional, aunque ya no tengan su propio módulo teórico en las filminas (ver nota al principio del Anexo).
+> **Estado de esta guía**: actualizada para seguir el nuevo `Clase 09_fixed.docx`. Se sacaron Reglas de Asociación (Apriori/FP-Growth) y la base matemática de PCA (covarianza/eigenvectores) porque el docx nuevo ya no los trae; se agregó Customer Profiling, Ética y Sesgos, y la Pre-entrega, que sí trae. El notebook práctico de la clase es `Clase09_aprendizaje no supervisado.ipynb` (no `Clase_9.ipynb`, que queda obsoleto) — documentado en código, intercalado dentro de cada módulo correspondiente a lo largo de esta guía, en vez de en un anexo aparte. Ese notebook sí conserva Clustering Jerárquico y t-SNE como contenido práctico adicional ("Bonus fuera de programa"), aunque ya no tengan su propio módulo teórico en las filminas.
 
 ---
 
@@ -479,6 +479,78 @@ Y un ejemplo de dónde conviene cada una:
 - **Manhattan**: repartos en una ciudad con calles en cuadrícula, o datos con muchas variables donde se quiere que un solo valor extremo no pese tanto (no se eleva al cuadrado).
 - **Coseno**: textos — un mail de 100 palabras y uno de 1.000 que hablan del mismo tema tienen "perfiles" de palabras que apuntan en la misma dirección, aunque uno tenga diez veces más palabras.
 
+**Qué notebook es este, y por qué no es `Clase_9.ipynb`**: la carpeta tiene dos notebooks con el mismo propósito. `Clase_9.ipynb` usa un dataset de fútbol (48 selecciones del Mundial) y todavía tiene la estructura vieja (incluye Reglas de Asociación, que ya no está en el docx). `Clase09_aprendizaje no supervisado.ipynb` es el que se usa de ahora en más: no tiene Reglas de Asociación, cubre exactamente K-Means, Jerárquico, DBSCAN, PCA (+ t-SNE de yapa) y cierra con un ejercicio guiado completo de segmentación de clientes — más alineado con el docx nuevo y, en general, más prolijo.
+
+**Nota de limpieza ya aplicada**: el notebook tal como se armó originalmente tenía 48 celdas con algunas duplicadas y una celda fuera de lugar (la introducción de "Reducción de Dimensionalidad" aparecía en medio del bloque de código de DBSCAN). Ya se corrigió: se fusionaron las dos introducciones de DBSCAN en una sola, se reordenó la celda de Reducción de Dimensionalidad a su lugar correcto, se sacó una celda de t-SNE duplicada y más corta (quedó la versión más completa), y se sacó una recarga redundante del dataset Iris. El notebook quedó en 44 celdas, con un único hilo narrativo de principio a fin.
+
+**Dataset usado en los ejemplos de K-Means/Jerárquico/DBSCAN**: no es un CSV real, sino datos **sintéticos** generados con NumPy — 240 "ciudades" ficticias con dos variables (temperatura promedio anual y humedad relativa media), armadas a propósito en 3 grupos bien diferenciados (tropicales, templadas, áridas) para que el resultado del clustering se pueda comparar contra la "verdad" que se usó para generarlos. Es una elección pedagógica deliberada: al ser datos inventados con grupos conocidos de antemano, se puede confirmar que el algoritmo "encontró lo que tenía que encontrar", algo que no se puede hacer tan fácil con datos reales (donde, precisamente, no se sabe de antemano cuántos grupos hay).
+
+### Configuración Inicial
+
+**Para qué sirve esta parte del código, para explicarle al grupo antes de mostrarla**: antes de poder usar cualquier herramienta, hay que "traerla" con `import` — esta celda no calcula nada todavía, solo prepara el terreno trayendo de una sola vez todo lo que se va a necesitar en el resto del notebook (los 3 algoritmos de clustering, las 2 técnicas de reducción de dimensionalidad, las librerías de gráficos, y un par de ajustes de configuración para que esos gráficos salgan prolijos). El propio notebook ya viene con comentarios (las líneas que arrancan con `#`) que agrupan los imports por tema — son una ayuda para ubicarse, no código que se ejecute.
+
+```python
+# Importación de librerías
+import pandas as pd
+import numpy as np
+
+# Para Clustering y Reducción de Dimensionalidad
+from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
+from sklearn.preprocessing import StandardScaler, OneHotEncoder # Para escalar datos numéricos y codificar categóricos si fuera necesario
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from sklearn.metrics import silhouette_score # Para evaluar clusters
+
+# Para visualización
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Para clustering jerárquico y dendrogramas
+from scipy.cluster.hierarchy import dendrogram, linkage
+
+# Configuraciones adicionales para visualización
+%matplotlib inline
+sns.set(style="whitegrid")
+```
+
+**Qué hace cada línea, y para qué sirve cada librería que trae**:
+- `# Importación de librerías`: comentario, no hace nada — es solo un título que el propio notebook se pone para marcar dónde empieza el bloque de imports.
+- `import pandas as pd`: Pandas maneja datos en forma de tabla (filas y columnas) — se usa más adelante para cargar el CSV de clientes del ejercicio final.
+- `import numpy as np`: NumPy es la librería base de Python para cálculo numérico y arrays — se usa para generar los datos sintéticos (climáticos) y para varias cuentas auxiliares a lo largo del notebook.
+- `# Para Clustering y Reducción de Dimensionalidad`: otro comentario-título, agrupa visualmente los 5 imports de Scikit-Learn que siguen.
+- `from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN`: trae los **3 algoritmos de clustering** de la clase en una sola línea — `KMeans` (Módulo 2), `AgglomerativeClustering` (el Jerárquico, que ya no tiene módulo teórico propio pero sigue en el notebook) y `DBSCAN` (Módulo 3).
+- `from sklearn.preprocessing import StandardScaler, OneHotEncoder # Para escalar datos numéricos y codificar categóricos si fuera necesario`: el comentario al final de la línea ya lo explica — `StandardScaler` escala variables numéricas (obligatorio antes de cualquier algoritmo que mida distancias: K-Means, Jerárquico, DBSCAN y PCA, los 4 lo necesitan); `OneHotEncoder` serviría para convertir una variable categórica (texto) en números, pero **no se termina usando en este notebook** — queda importada "por las dudas".
+- `from sklearn.decomposition import PCA`: trae la técnica de reducción de dimensionalidad lineal del Módulo 4.
+- `from sklearn.manifold import TSNE`: trae t-SNE, la técnica de reducción de dimensionalidad no lineal (contenido "bonus", sin módulo teórico propio).
+- `from sklearn.metrics import silhouette_score # Para evaluar clusters`: de nuevo, el comentario lo resume — trae la métrica para medir qué tan bien separados y compactos quedan los clusters, la misma Filmina 15 (Módulo 2), ahora en código.
+- `# Para visualización`: comentario-título para las 2 librerías de gráficos.
+- `import matplotlib.pyplot as plt` / `import seaborn as sns`: las dos librerías de gráficos que se usan en todo el notebook — Matplotlib es la base, Seaborn le agrega estilos más prolijos por defecto encima.
+- `# Para clustering jerárquico y dendrogramas`: comentario-título para el import de SciPy que sigue.
+- `from scipy.cluster.hierarchy import dendrogram, linkage`: específicas para el clustering Jerárquico — `linkage` calcula la estructura de fusiones, `dendrogram` la dibuja como árbol. Vienen de SciPy y no de Scikit-Learn porque **Scikit-Learn no tiene una función propia para dibujar dendrogramas** (solo trae `AgglomerativeClustering` para calcular los clusters finales, no para visualizar el árbol completo).
+- `# Configuraciones adicionales para visualización`: último comentario-título, agrupa las 2 líneas de ajuste que siguen (no son imports, son configuración).
+- `%matplotlib inline`: no es Python puro, es un "comando mágico" de Jupyter/Colab (arranca con `%`) — le dice al notebook que muestre los gráficos de Matplotlib **directamente debajo de la celda que los genera**, en vez de abrirlos en una ventana aparte. Sin esta línea, en algunos entornos los gráficos ni siquiera se llegan a ver.
+- `sns.set(style="whitegrid")`: configura, de una sola vez y para **todos** los gráficos que se hagan de ahí en adelante en el notebook, el estilo visual de Seaborn — `"whitegrid"` les pone un fondo blanco con una grilla tenue de referencia (más fácil de leer que el fondo gris por default de Matplotlib). Se ejecuta una sola vez acá arriba y queda aplicado para el resto del notebook, no hay que repetirlo en cada gráfico.
+
+### Ejemplo ilustrativo: datos climáticos sintéticos
+
+**Para qué sirve esta parte del código**: genera 240 "ciudades" ficticias repartidas en 3 grupos climáticos conocidos de antemano (tropical, templado, árido), y las grafica **sin mostrar a qué grupo pertenece cada una** — el mismo punto de partida que tendría K-Means en la vida real, donde no hay colores ni etiquetas previas.
+
+```python
+np.random.seed(42)
+n = 80  # ciudades por grupo
+
+tropicales = np.random.multivariate_normal([29, 78], [[4, 3], [3, 12]], n)
+templadas  = np.random.multivariate_normal([14, 55], [[6, -2], [-2, 10]], n)
+aridas     = np.random.multivariate_normal([26, 18], [[5, 1], [1, 8]], n)
+
+X_clima = np.vstack([tropicales, templadas, aridas])
+X_clima[:, 1] = np.clip(X_clima[:, 1], 0, 100)
+```
+
+**Línea por línea**: `np.random.multivariate_normal([media_temp, media_hum], matriz_covarianza, n)` genera 80 puntos al azar alrededor de un centro dado (ej. 29°C/78% para el grupo tropical), con una dispersión que define la matriz de covarianza — es la forma de "simular" un grupo real sin tener que salir a medir 80 ciudades de verdad. `np.vstack([...])` apila los 3 grupos de 80 en una única tabla de 240 filas. `np.clip(X_clima[:, 1], 0, 100)` recorta la columna de humedad para que ningún valor quede fuera del rango físicamente posible (0% a 100%), porque una distribución normal puede generar, por puro azar, algún valor absurdo como -3% o 105%.
+
+**Por qué este dataset en particular, y no uno real desde el arranque**: al conocer de antemano los 3 grupos "verdaderos" (porque los generó el propio código), se puede comparar el resultado de K-Means contra esa verdad y confirmar que el algoritmo hizo bien su trabajo — algo que con un dataset real nunca se puede chequear con la misma certeza, porque ahí es K-Means quien *define* qué son los grupos.
+
 ### Los 4 pasos del algoritmo *(Filmina 12)*
 
 1. **Inicialización**: se eligen `k` centroides iniciales — al azar o con **k-means++** para mejorar la convergencia.
@@ -521,6 +593,23 @@ Para variar en clase, el mismo ejercicio funciona con otros datos de una dimensi
   - *Ejemplo de anillos*: puntos dispuestos en dos círculos concéntricos (por ejemplo, locales en el centro de una ciudad y locales sobre una avenida de circunvalación) — K-Means los corta "como una pizza" en porciones, en vez de separar el anillo interior del exterior.
   - *Ejemplo de tamaños muy distintos*: 50 clientes corporativos frente a 10.000 clientes particulares — K-Means tiende a partir el grupo grande en varios pedazos y a "comerse" el grupo chico, porque busca clusters de tamaño parecido.
 
+### Escalado y aplicación de K-Means
+
+**Para qué sirve esta parte del código**: estandariza las 2 variables (para que la escala de la temperatura, en decenas, no le gane de entrada a la escala de la humedad, en unidades porcentuales) y entrena K-Means con `k=3`.
+
+```python
+scaler_clima = StandardScaler()
+X_clima_scaled = scaler_clima.fit_transform(X_clima)
+
+kmeans_clima = KMeans(n_clusters=3, random_state=42, n_init=10)
+kmeans_clima.fit(X_clima_scaled)
+y_kmeans_clima = kmeans_clima.predict(X_clima_scaled)
+
+centers_clima = scaler_clima.inverse_transform(kmeans_clima.cluster_centers_)
+```
+
+**Línea por línea**: `StandardScaler().fit_transform(X_clima)` estandariza las 2 columnas (media 0, desvío 1) — el mismo criterio de la Filmina 14/Módulo 2 del repaso teórico. `KMeans(n_clusters=3, random_state=42, n_init=10)` instancia el modelo con `k=3` fijo (porque ya se sabe, en este ejemplo armado, que hay 3 grupos); `n_init=10` corre el algoritmo completo 10 veces con distintas inicializaciones al azar y se queda con la mejor (para esquivar el problema del "mínimo local" visto en la Filmina 13). `.fit(...)` entrena, `.predict(...)` asigna cada ciudad a un cluster (0, 1 o 2). `scaler_clima.inverse_transform(kmeans_clima.cluster_centers_)` es un paso sutil pero importante: los centroides que aprendió el modelo están en la escala **escalada** (media 0, desvío 1) — `inverse_transform` los devuelve a la escala original (°C y %), para que los números impresos tengan sentido real ("Cluster 0: Temperatura = 28.9°C") en vez de números abstractos como "-0.03".
+
 ### Elegir k: método del codo (Elbow Method) *(Filmina 14)*
 
 Para cada valor de `k` se calcula el **WCSS** (*Within-Cluster Sum of Squares*): la suma de las distancias al cuadrado entre cada punto y el centroide de su cluster. Un WCSS más bajo indica clusters más compactos.
@@ -554,12 +643,12 @@ Tres puntos de ejemplo, con la fórmula aplicada:
 
 Y tres lecturas del silhouette **promedio** de un modelo completo, como referencia orientativa:
 - Mayor a ~0,7 → estructura fuerte, grupos bien separados (como se espera del dataset climático sintético del ejemplo de abajo, armado a propósito con 3 grupos bien diferenciados).
-- Entre ~0,5 y 0,7 → estructura razonable, típica de datos reales "buenos" (el ejercicio de Mall Customers del Anexo cae acá).
+- Entre ~0,5 y 0,7 → estructura razonable, típica de datos reales "buenos" (el ejercicio de Mall Customers del Módulo 6 cae acá).
 - Menor a ~0,25 → estructura débil o artificial: los grupos se solapan mucho, o directamente no hay grupos reales.
 
 A diferencia del método del codo (que es una lectura visual, algo subjetiva, de dónde "se frena" una curva), el silhouette da un **número único y objetivo** para comparar entre valores de `k` — por eso en la práctica se suelen usar los dos métodos en conjunto: el codo da una intuición rápida, y el silhouette confirma (o contradice) esa intuición con un criterio cuantitativo. Cuando ambos coinciden en el mismo `k` (como en el ejemplo de código de abajo, donde los dos señalan `k=3`), la elección queda mucho más respaldada que si se hubiera usado un solo criterio.
 
-🎯 **Ejemplo**: este es el código **real** del Colab (`Clase09_aprendizaje no supervisado.ipynb`, documentado con más detalle en el Anexo) — el mismo dataset sintético de "ciudades" climáticas (240 puntos, 3 climas conocidos de antemano) que ya se armó al principio del módulo, acá usado para "olvidarnos" de ese 3 y recuperarlo con el método del codo y el silhouette.
+🎯 **Ejemplo**: este es el código **real** del Colab (`Clase09_aprendizaje no supervisado.ipynb`) — el mismo dataset sintético de "ciudades" climáticas (240 puntos, 3 climas conocidos de antemano) que ya se generó más arriba, en "Ejemplo ilustrativo: datos climáticos sintéticos" y "Escalado y aplicación de K-Means", acá usado para "olvidarnos" de ese 3 y recuperarlo con el método del codo y el silhouette.
 
 ```python
 # Método del Codo — dataset climático
@@ -623,6 +712,38 @@ La correcta elección de `k` evita tanto la **sobresegmentación** (demasiados c
 | **Banco** | 15 perfiles de riesgo → los analistas no logran definir una política distinta para cada uno | 2 perfiles → los emprendedores jóvenes con ingresos variables quedan mezclados con los clientes de alto riesgo y se les niega crédito |
 | **Escuela / plataforma educativa** | 12 grupos de alumnos → imposible armar 12 planes de refuerzo | 2 grupos ("aprueba" / "no aprueba") → no se distingue al alumno que no entiende el tema del que entiende pero no entrega |
 
+### Bonus fuera de programa: Clustering Jerárquico
+
+**⚠️ Desalineación pendiente de decidir, entre la teoría (filminas/README) y este notebook**: el docx nuevo ya no incluye Clustering Jerárquico ni t-SNE como temas propios — por eso no tienen Módulo ni Filmina en esta guía. Pero este notebook **sí** los sigue teniendo, con código y gráficos completos. Eso significa que, tal como está hoy, en algún momento de la clase vas a correr código de un algoritmo (Jerárquico) que el grupo nunca vio explicado en ninguna filmina — puede generar la pregunta lógica de "¿y esto cuándo lo vimos?". Tres salidas posibles, a decidir: **(a)** sacar esas celdas del notebook para que quede 100% alineado con el docx; **(b)** dejarlas pero presentarlas en vivo como contenido "bonus" fuera de programa, aclarándolo explícitamente antes de correrlas; **(c)** agregar de nuevo un mini-resumen teórico de Jerárquico/t-SNE en las filminas, aunque el docx no lo pida. Por ahora el notebook se dejó intacto (opción b, de hecho, sin haberlo aclarado todavía en ningún lado) — falta definir esto.
+
+#### Dendrograma sobre una muestra
+
+**Para qué sirve esta parte del código**: toma una submuestra de 60 ciudades (de las 240 totales) del mismo dataset climático, y construye un dendrograma con linkage `ward` — menos puntos que con K-Means, a propósito, para que el árbol sea legible.
+
+```python
+idx_sample = np.random.choice(len(X_clima), 60, replace=False)
+X_demo_small = X_clima[idx_sample]
+
+linked_clima = linkage(X_demo_small, method='ward')
+```
+
+**Línea por línea**: `np.random.choice(..., replace=False)` elige 60 índices al azar sin repetir, para tomar una submuestra representativa. `linkage(X_demo_small, method='ward')` calcula, paso a paso, qué par de clusters fusionar en cada nivel, usando el criterio Ward (minimizar el incremento de varianza interna al fusionar) — el resultado `linked_clima` es la estructura completa que describe todo el árbol de fusiones, lista para graficar con `dendrogram(...)`. El `color_threshold=25` del gráfico pinta de distinto color las ramas que quedan por debajo de esa altura, ayudando a ver a simple vista dónde "cortar" el árbol en 3 grupos.
+
+#### AgglomerativeClustering y comparación con K-Means
+
+**Para qué sirve esta parte del código**: aplica el clustering jerárquico sobre **todas** las 240 ciudades (ya no solo la submuestra de 60), pidiéndole directamente 3 clusters, y compara cuantitativamente ese resultado contra el de K-Means.
+
+```python
+agg_clima = AgglomerativeClustering(n_clusters=3, linkage='ward')
+y_agg_clima = agg_clima.fit_predict(X_clima)
+
+ari = adjusted_rand_score(y_kmeans_clima, y_agg_clima)
+```
+
+**Línea por línea**: `AgglomerativeClustering(n_clusters=3, linkage='ward')` — a diferencia del dendrograma (que no necesita saber `k` de antemano), acá sí se le pide un número fijo de clusters, porque `.fit_predict()` necesita devolver una asignación concreta, no un árbol completo. `adjusted_rand_score(y_kmeans_clima, y_agg_clima)` es una métrica que compara dos particiones distintas del mismo dataset y dice qué tan parecidas son, **sin importar qué número de cluster le puso cada algoritmo a cada grupo** (K-Means podría llamar "Cluster 0" a lo que el Jerárquico llama "Cluster 2", y el ARI lo detecta igual). Un ARI cercano a 1.0 significa que, aunque usan lógicas internas distintas (centroides vs. fusiones), los dos algoritmos llegaron prácticamente al mismo resultado — un buen chequeo de que el agrupamiento encontrado es robusto, no un capricho de un solo algoritmo.
+
+**Nota importante no mencionada en el notebook**: el Jerárquico corre acá sobre `X_clima` **sin escalar** (a diferencia de K-Means, que sí usó `X_clima_scaled`) — una inconsistencia menor del notebook original. En este dataset puntual el resultado no cambia demasiado porque ambas variables ya están en rangos parecidos, pero en un dataset real con escalas muy distintas, esto sí podría cambiar el resultado del Jerárquico — vale la pena mencionarlo en clase como ejemplo de un error común (Filmina 13/Módulo 2 del repaso teórico) que se puede colar incluso en un notebook ya armado.
+
 ---
 
 ## Módulo 3 — DBSCAN: Clustering Basado en Densidad
@@ -677,7 +798,7 @@ Y tres ejemplos del efecto de los parámetros, usando pedidos de delivery en un 
 - **Astronomía**: agrupar estrellas o galaxias por densidad espacial para identificar cúmulos reales, dejando afuera como "ruido" a los objetos aislados que no pertenecen a ningún cúmulo.
 - **Redes sociales**: detectar comunidades de usuarios muy conectados entre sí, identificando al mismo tiempo a los usuarios aislados (bots, cuentas inactivas) que no encajan en ninguna comunidad real.
 
-🎯 **Ejemplo**: este es el código **real** del Colab (`Clase09_aprendizaje no supervisado.ipynb`, documentado con más detalle en el Anexo) — genera "lunas" (dos semicírculos entrelazados, la forma no convexa donde K-Means falla) y corre DBSCAN directamente encima.
+🎯 **Ejemplo**: este es el código **real** del Colab (`Clase09_aprendizaje no supervisado.ipynb`) — genera "lunas" (dos semicírculos entrelazados, la forma no convexa donde K-Means falla) y corre DBSCAN directamente encima.
 
 ```python
 # Generar datos con forma no esférica (lunas)
@@ -750,6 +871,20 @@ Tres ejemplos de cómo podría verse esto en datasets reales:
 - **Medidas corporales (altura, peso, largo de brazos, talle de calzado, contorno de cintura)**: PC1 ≈ 80% ("tamaño general" de la persona — todas las medidas crecen juntas), PC2 ≈ 10% ("contextura": más ancha o más delgada para una misma altura).
 - **Datos de 200 países (PBI per cápita, esperanza de vida, alfabetización, mortalidad infantil...)**: PC1 ≈ 65% ("nivel de desarrollo"), PC2 ≈ 12% (por ejemplo, "tamaño de la economía vs. calidad de vida").
 
+### Cargar y escalar Iris
+
+**Para qué sirve esta parte del código**: carga el dataset de **Iris** (el mismo que se usó, con etiqueta, en el Bloque 0 de repaso de Supervisado) y lo escala, como paso previo obligatorio antes de aplicar PCA.
+
+```python
+iris = load_iris()
+X_iris = iris.data
+y_iris = iris.target
+
+X_iris_scaled = StandardScaler().fit_transform(X_iris)
+```
+
+**Línea por línea**: `load_iris()` trae las 4 features y la especie real (`y_iris`) de cada una de las 150 flores. Acá es importante notar algo: `y_iris` se carga igual, pero **no se usa para entrenar nada** en esta sección — queda disponible únicamente para, más adelante, colorear el gráfico y poder *verificar* si el agrupamiento que encuentra PCA (sin mirar la especie) coincide con la especie real. Es exactamente la continuidad pedagógica con el Bloque 0: ahí se usó `y_iris` para entrenar un clasificador; acá se la guarda aparte, como "respuesta correcta" para comparar después, pero el algoritmo en sí (PCA) nunca la ve.
+
 ### Varianza explicada y selección de componentes *(Filmina 23)*
 
 Cada Componente Principal captura una porción de la "información total" (varianza) del dataset original. Esto ayuda a decidir cuántos componentes conservar:
@@ -770,6 +905,26 @@ Tres ejemplos de cómo leer la varianza acumulada para decidir:
 - Acumulada `[0.97, 0.98, 0.99, ...]` → **una sola componente** explica casi todo; probablemente casi todas las variables miden "lo mismo" (por ejemplo, el mismo precio expresado en pesos, dólares y euros).
 
 Si el objetivo final es solo **visualizar** los datos, casi siempre se usan exactamente 2 o 3 componentes, sin importar qué porcentaje de varianza expliquen — porque el límite ahí no es estadístico, es que un gráfico no puede tener más de 3 ejes.
+
+### Aplicar PCA
+
+**Para qué sirve esta parte del código**: reduce las 4 features originales a 2 Componentes Principales, y mide cuánta varianza conservan esas 2 componentes.
+
+```python
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_iris_scaled)
+
+print(f"Varianza explicada por componente: {pca.explained_variance_ratio_}")
+print(f"Varianza explicada acumulada: {np.sum(pca.explained_variance_ratio_)}")
+```
+
+**Línea por línea**: `PCA(n_components=2)` fija de antemano que se quieren solo 2 componentes (porque el objetivo acá es graficar en 2D, no explicar un umbral de varianza — la razón que la Filmina 23/Módulo 4 menciona como el caso típico donde "el límite no es estadístico, es que un gráfico no tiene más de 3 ejes"). `pca.fit_transform(X_iris_scaled)` aprende las direcciones de máxima varianza y proyecta los datos sobre ellas en el mismo paso. `pca.explained_variance_ratio_` es un array con el porcentaje de varianza que capturó cada componente — el resultado real da algo como `[0.73, 0.23]`, o sea que con solo 2 de las 4 variables originales ya se conserva más del 95% de la información total.
+
+### Graficar PCA en 2D, coloreado por especie real
+
+**Para qué sirve esta parte del código**: grafica las 150 flores en el plano de las 2 Componentes Principales, pero coloreando cada punto según su especie **real** (`y_iris`) — el primer momento del notebook donde se puede *ver* si la estructura que encontró PCA (sin mirar la especie) coincide con las 3 especies reales.
+
+**Por qué esto es más una demostración que un ejercicio no supervisado "puro"**: en un escenario 100% no supervisado no se tendría `y_iris` para colorear — acá se la usa a propósito, solo para **validar** visualmente el resultado de PCA, no para entrenarlo. Vale la pena aclarar esta distinción en clase: el momento en que aparecen los 3 colores separados en el gráfico es la confirmación visual de que, incluso sin que nadie le dijera la especie, la reducción de dimensionalidad conservó la estructura que separa a las 3 especies — es el mismo "cierre de círculo" con el Bloque 0 de Supervisado mencionado más arriba.
 
 ### Limitaciones de PCA *(Filmina 24)*
 
@@ -805,6 +960,21 @@ Por ejemplo, un analista puede usar PCA para transformar variables de comportami
 - **Genómica**: estudios con miles de genes medidos por paciente; PCA reduce esa dimensión gigante a un puñado de componentes que después se usan para agrupar pacientes o buscar asociaciones con una enfermedad.
 - **Finanzas cuantitativas**: reducir decenas de acciones o bonos correlacionados entre sí a un puñado de "factores de riesgo" comunes (el mercado en general, el sector, la tasa de interés) — la base de muchos modelos de gestión de portafolios.
 - **Encuestas y estudios de mercado**: comprimir decenas de preguntas de una encuesta de satisfacción a 2 o 3 "ejes" interpretables (por ejemplo, "satisfacción con el precio" y "satisfacción con el servicio"), más fáciles de presentar a un directorio que 50 respuestas sueltas.
+
+### Bonus fuera de programa: t-SNE
+
+El docx nuevo ya no incluye t-SNE como tema propio (igual que Clustering Jerárquico en el Módulo 2), pero el notebook sí lo tiene como contenido adicional — ver la nota de "Desalineación pendiente" del Módulo 2 para el criterio a seguir en vivo.
+
+#### Aplicar t-SNE
+
+**Para qué sirve esta parte del código**: reduce las mismas 4 features de Iris a 2 dimensiones, pero con una técnica **no lineal** (t-SNE) en vez de PCA, reutilizando `X_iris_scaled` ya calculado.
+
+```python
+tsne = TSNE(n_components=2)
+X_tsne = tsne.fit_transform(X_iris_scaled)
+```
+
+**Línea por línea**: a diferencia de PCA, acá no hay un `.transform()` separado — t-SNE no aprende una transformación reusable, cada corrida calcula el mapa 2D desde cero para ese dataset puntual (por eso no tiene sentido "aplicar" un t-SNE ya entrenado a datos nuevos, a diferencia de PCA). No se fija `random_state`, así que correr esta celda dos veces puede dar mapas visualmente distintos (aunque la estructura de grupos que revele debería ser parecida) — vale la pena mencionarlo en vivo si alguien nota que el gráfico cambió al re-ejecutar.
 
 ---
 
@@ -935,6 +1105,8 @@ print(f"Accuracy CON PCA: {acc_con_pca:.4f}")
 - `pca.fit_transform(X_train_s)` / `pca.transform(X_test_s)` → **regla de oro** (la misma que en imputación/escalado): el PCA se ajusta (`fit`) solo con datos de entrenamiento, y se aplica (`transform`) a ambos conjuntos — nunca se ajusta sobre test.
 - **Resultado real, corriendo este código**: `Accuracy SIN PCA: 0.8531` vs. `Accuracy CON PCA: 0.9161` — una mejora de más de 6 puntos porcentuales. La razón: KNN mide distancias, y con 300 columnas de ruido esas distancias quedan "contaminadas"; PCA concentra la señal real en pocas componentes y descarta gran parte del ruido, mejorando la relación señal/ruido que ve el clasificador.
 
+**Nota pendiente**: La demo de "PCA mejorando un modelo real" (dataset de cáncer de mama + 300 columnas de ruido + KNN) que describe la Filmina 30 (Módulo 5) **todavía no tiene celda propia** en ninguno de los dos notebooks — por ahora solo está documentada en el README como texto, igual que viene del docx. Si se decide correrla en vivo, habría que agregarla como notebook nuevo o como bloque adicional.
+
 > **Con esto cierra la parte técnica de la clase.** El panorama completo: tres técnicas (K-Means, DBSCAN, PCA), cada una con su caso de uso, sus parámetros y sus límites — y una prueba concreta de que elegir bien la técnica de preprocesamiento (PCA) puede ser la diferencia entre un modelo mediocre y uno bueno, incluso antes de tocar el algoritmo de predicción en sí. Lo que sigue (Módulos 6 y 7) ya no es sobre algoritmos nuevos, sino sobre cómo traducir estos resultados en decisiones de negocio responsables.
 
 ---
@@ -984,6 +1156,89 @@ Un K-Means identifica un clúster con **alto gasto histórico** pero **sin compr
 
 **Por qué la traducción importa tanto como el algoritmo**: un centroide es un promedio matemático; decir "el clúster 2 tiene gasto promedio de $500.000 mientras los demás promedian $50.000" es un dato. Decir "el clúster 2 es nuestro segmento Premium, y necesita un trato distinto" es la traducción a negocio que un algoritmo nunca va a hacer solo. Lo mismo vale para otros números: "el clúster 4 tiene 0,3 compras por mes y 18 meses de antigüedad promedio" es un dato; "el clúster 4 son clientes fieles pero de baja frecuencia: no los perdamos con cambios de precio bruscos" es una decisión. Y "el clúster 1 visita la app 9 veces por día pero nunca compra" es un dato; "el clúster 1 son curiosos que comparan precios: probemos mostrarles un cupón de primera compra" es una acción.
 
+### Ejercicio guiado en Colab: Segmentación de Clientes (Mall Customers)
+
+**Contexto del ejercicio**: a diferencia de los ejemplos anteriores (con datos sintéticos o el clásico Iris), acá se usa un dataset **real y público**: 200 clientes de un centro comercial, con edad, ingreso anual y un "Spending Score" (un puntaje de 1 a 100 que el propio shopping ya calculó para medir cuánto gasta cada cliente). Es el ejercicio más cercano, de todo el notebook, al Módulo 6 de Customer Profiling — termina pidiéndole explícitamente al alumno que le **ponga nombre** a cada cluster encontrado, la misma traducción de dato a negocio que se desarrolla en la teoría.
+
+#### Paso 1 — Cargar los datos
+
+```python
+url = 'https://raw.githubusercontent.com/erkansirin78/datasets/master/Mall_Customers.csv'
+df = pd.read_csv(url)
+```
+
+**Línea por línea**: `pd.read_csv(url)` carga el CSV directamente desde una URL pública de GitHub — no hace falta tener el archivo descargado localmente. Columnas: `CustomerID` (no es una feature real, solo identificador), `Gender`, `Age`, `AnnualIncome`, `SpendingScore`.
+
+#### Pasos 2 y 3 — Exploración y distribución
+
+**Para qué sirve esta parte del código**: antes de clusterizar nada, mira el tamaño del dataset, sus estadísticas descriptivas (`df.describe()`) y la distribución de cada variable numérica con 3 histogramas — el mismo primer paso de "entender los datos antes de tocarlos" que ya se vio en el Repaso de la Clase 08 y en la Clase 06/07 del curso.
+
+#### Paso 4 — Selección de features y escalado
+
+**Para qué sirve esta parte del código**: de las 4 variables numéricas disponibles (`Age`, `AnnualIncome`, `SpendingScore`), elige deliberadamente solo 2 (`AnnualIncome` y `SpendingScore`) para poder graficar el resultado en un plano 2D simple, y las escala.
+
+```python
+X = df[['AnnualIncome', 'SpendingScore']].values
+X_scaled = StandardScaler().fit_transform(X)
+```
+
+**Por qué solo 2 de las 4 variables**: el propio notebook lo aclara — simplicidad para visualizar, y el Spending Score ya es en sí mismo un resumen del comportamiento de compra. Vale la pena usarlo como gancho para mencionar en clase que, en un caso real con más variables, acá es exactamente donde entraría PCA (Módulo 4) antes de clusterizar, para no tener que elegir "a mano" solo 2 de muchas variables disponibles.
+
+Tres variantes para proponer como ejercicio extra, cambiando solo la línea de `X = df[[...]]`:
+- **`['Age', 'SpendingScore']`** → los grupos se leen por etapa de vida ("jóvenes que gastan mucho", "adultos mayores moderados"...).
+- **`['Age', 'AnnualIncome']`** → los grupos dicen poco del comportamiento de compra; es un buen ejemplo de segmentar solo por variables de **perfil** (Módulo 6) y ver que la lectura de negocio queda pobre.
+- **`['Age', 'AnnualIncome', 'SpendingScore']`** → ya no se puede graficar directo en 2D: es el momento natural para aplicar PCA a 2 componentes solo para dibujar el resultado.
+
+#### Pasos 5 y 6 — Método del codo y elección de K
+
+**Para qué sirve esta parte del código**: corre el mismo barrido de `k` de 1 a 10 ya visto con los datos climáticos, pero ahora sobre los clientes reales — y, a diferencia del ejemplo anterior (donde `k=3` ya estaba decidido de antemano), acá el notebook le pide explícitamente al alumno que **mire el gráfico y decida** su propio valor de `K` antes de seguir.
+
+```python
+K = 5  # <-- CAMBIÁ ESTE VALOR si elegís otro K
+kmeans = KMeans(n_clusters=K, random_state=42, n_init=10)
+kmeans.fit(X_scaled)
+labels = kmeans.labels_
+```
+
+**Para el docente**: con este dataset en particular, el codo del gráfico suele verse bastante claro en `k=5` — y da pie a mostrar en vivo qué pasa si alguien elige un `k` distinto (por ejemplo `k=3` o `k=8`) y cómo cambian los clusters resultantes, conectando directo con la Filmina 14/15 (Módulo 2) sobre que no hay un único "k correcto", solo un rango razonable.
+
+Qué esperar, a grandes rasgos, si en vivo se cambia `K`:
+- **`K = 3`**: los clientes de ingreso alto quedan separados en "gastan mucho" y "gastan poco", pero los de ingreso bajo y medio se mezclan en un único grupo grande — se pierde la diferencia entre "Entusiastas" y "Bajo potencial" (subsegmentación).
+- **`K = 5`**: aparecen los 5 perfiles clásicos (ver Paso 9) — cada grupo tiene una lectura de negocio clara.
+- **`K = 8`**: algunos de los 5 grupos se parten en dos (por ejemplo, "VIP jóvenes" vs. "VIP un poco mayores" según la posición dentro del gráfico) — matemáticamente válido, pero difícil de justificar como segmentos distintos para Marketing (sobresegmentación).
+
+#### Pasos 7 y 8 — Visualizar y analizar cada cluster
+
+**Para qué sirve esta parte del código**: grafica los 200 clientes coloreados por cluster (con los centroides marcados), y después arma una tabla con el promedio de edad/ingreso/gasto de cada cluster — la materia prima para poder interpretarlos.
+
+```python
+cluster_stats = df.groupby('Cluster').agg({
+    'Cluster': 'count', 'Age': 'mean',
+    'AnnualIncome': 'mean', 'SpendingScore': 'mean'
+})
+```
+
+**Línea por línea**: `df.groupby('Cluster').agg({...})` agrupa las 200 filas por el cluster que les asignó K-Means (no agrupa por algo que el analista decidió a mano, sino por el resultado del algoritmo), y calcula el promedio de cada variable dentro de cada grupo — es, literalmente, el "centroide" expresado en términos de negocio en vez de en coordenadas abstractas.
+
+#### Paso 9 — Clasificar los clusters (la parte más importante)
+
+**Para qué sirve esta parte del código**: le pide al alumno completar un diccionario poniéndole un **nombre de negocio** a cada cluster, basándose en las estadísticas del paso anterior — no hay una respuesta ya resuelta en el código, es deliberadamente una celda para completar en vivo.
+
+```python
+clasificacion = {
+    0: ('PONÉ TU NOMBRE AQUÍ', 'Escribí por qué elegiste este nombre...'),
+    ...
+}
+```
+
+**Por qué esta celda es la bisagra pedagógica de todo el ejercicio**: es la puesta en práctica exacta del Módulo 6 (Customer Profiling) — el algoritmo entregó 5 grupos con sus promedios de ingreso/gasto/edad, pero **nunca** dice "este es el segmento Premium" o "estos son los Conservadores" — ese paso de ponerle nombre, decidir qué hacer con cada grupo, es 100% criterio humano. Vale la pena, en vivo, pedirle al grupo que proponga nombres para los 5 clusters mirando la tabla de estadísticas del paso anterior, antes de mostrar cualquier respuesta sugerida.
+
+**Respuesta orientativa para el docente** (con `K=5`, los números van a variar levemente según la semilla y el hardware, pero la lógica general se mantiene): un cluster de **ingreso alto + gasto alto** → "Clientes VIP/Premium" (el segmento más rentable, foco de retención); uno de **ingreso alto + gasto bajo** → "Clientes Conservadores de Alto Poder Adquisitivo" (tienen plata pero no la gastan ahí — una oportunidad de marketing específica); uno de **ingreso bajo + gasto alto** → "Clientes Entusiastas" (gastan por encima de lo que su ingreso sugeriría — cuidado con ofrecerles crédito sin análisis adicional); uno de **ingreso bajo + gasto bajo** → "Clientes de Bajo Potencial"; y uno de **ingreso medio + gasto medio** → "Clientes Estándar" (el grueso de la base, sin un patrón extremo en ningún sentido).
+
+#### Paso 10 — Reflexión final
+
+Cierra el notebook sin código nuevo, con una síntesis de los 5 pasos recorridos y una pregunta abierta para el grupo ("¿cómo cambiarían las clasificaciones si eligieras otro K?") — buen gancho para conectar con la Pre-entrega del Módulo 7, que le pide al alumno hacer exactamente este mismo ejercicio de interpretación, pero sobre un dataset distinto (usuarios de una app de streaming) y de forma completamente escrita, sin código.
+
 ---
 
 ## Módulo 7 — Ética, Sesgos y Cierre
@@ -1027,325 +1282,3 @@ El aprendizaje no supervisado da el "qué" (los grupos, los componentes, las ano
 
 **Nota sobre el Podcast**: `Clase 09_fixed.docx` incluye, al cierre del módulo, un Podcast transcripto (diálogo entre dos presentadores repasando todo el recorrido: K-Means, DBSCAN, PCA, Customer Profiling y ética). Siguiendo el mismo criterio que en Clase 07, ese contenido de audio **no** se convierte en filmina — queda como material de repaso sugerido para los alumnos antes de encarar la Pre-entrega, sin sección propia en `Clase09.html`.
 
----
-
-## Anexo — Apunte del Notebook Práctico (`Clase09_aprendizaje no supervisado.ipynb`)
-
-**Qué notebook es este, y por qué no es `Clase_9.ipynb`**: la carpeta tiene dos notebooks con el mismo propósito. `Clase_9.ipynb` usa un dataset de fútbol (48 selecciones del Mundial) y todavía tiene la estructura vieja (incluye Reglas de Asociación, que ya no está en el docx). `Clase09_aprendizaje no supervisado.ipynb` es el que se usa de ahora en más: no tiene Reglas de Asociación, cubre exactamente K-Means, Jerárquico, DBSCAN, PCA (+ t-SNE de yapa) y cierra con un ejercicio guiado completo de segmentación de clientes — más alineado con el docx nuevo y, en general, más prolijo.
-
-**Nota de limpieza ya aplicada**: el notebook tal como se armó originalmente tenía 48 celdas con algunas duplicadas y una celda fuera de lugar (la introducción de "Reducción de Dimensionalidad" aparecía en medio del bloque de código de DBSCAN). Ya se corrigió: se fusionaron las dos introducciones de DBSCAN en una sola, se reordenó la celda de Reducción de Dimensionalidad a su lugar correcto, se sacó una celda de t-SNE duplicada y más corta (quedó la versión más completa), y se sacó una recarga redundante del dataset Iris. El notebook quedó en 44 celdas, con un único hilo narrativo de principio a fin.
-
-**⚠️ Desalineación pendiente de decidir, entre la teoría (filminas/README) y este notebook**: el docx nuevo ya no incluye Clustering Jerárquico ni t-SNE como temas propios — por eso no tienen Módulo ni Filmina en esta guía. Pero este notebook **sí** los sigue teniendo, con código y gráficos completos. Eso significa que, tal como está hoy, en algún momento de la clase vas a correr código de un algoritmo (Jerárquico) que el grupo nunca vio explicado en ninguna filmina — puede generar la pregunta lógica de "¿y esto cuándo lo vimos?". Tres salidas posibles, a decidir: **(a)** sacar esas celdas del notebook para que quede 100% alineado con el docx; **(b)** dejarlas pero presentarlas en vivo como contenido "bonus" fuera de programa, aclarándolo explícitamente antes de correrlas; **(c)** agregar de nuevo un mini-resumen teórico de Jerárquico/t-SNE en las filminas, aunque el docx no lo pida. Por ahora el notebook se dejó intacto (opción b, de hecho, sin haberlo aclarado todavía en ningún lado) — falta definir esto.
-
-**Dataset usado en los ejemplos de K-Means/Jerárquico/DBSCAN**: no es un CSV real, sino datos **sintéticos** generados con NumPy — 240 "ciudades" ficticias con dos variables (temperatura promedio anual y humedad relativa media), armadas a propósito en 3 grupos bien diferenciados (tropicales, templadas, áridas) para que el resultado del clustering se pueda comparar contra la "verdad" que se usó para generarlos. Es una elección pedagógica deliberada: al ser datos inventados con grupos conocidos de antemano, se puede confirmar que el algoritmo "encontró lo que tenía que encontrar", algo que no se puede hacer tan fácil con datos reales (donde, precisamente, no se sabe de antemano cuántos grupos hay).
-
-### Configuración Inicial
-
-**Para qué sirve esta parte del código, para explicarle al grupo antes de mostrarla**: antes de poder usar cualquier herramienta, hay que "traerla" con `import` — esta celda no calcula nada todavía, solo prepara el terreno trayendo de una sola vez todo lo que se va a necesitar en el resto del notebook (los 3 algoritmos de clustering, las 2 técnicas de reducción de dimensionalidad, las librerías de gráficos, y un par de ajustes de configuración para que esos gráficos salgan prolijos). El propio notebook ya viene con comentarios (las líneas que arrancan con `#`) que agrupan los imports por tema — son una ayuda para ubicarse, no código que se ejecute.
-
-```python
-# Importación de librerías
-import pandas as pd
-import numpy as np
-
-# Para Clustering y Reducción de Dimensionalidad
-from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
-from sklearn.preprocessing import StandardScaler, OneHotEncoder # Para escalar datos numéricos y codificar categóricos si fuera necesario
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-from sklearn.metrics import silhouette_score # Para evaluar clusters
-
-# Para visualización
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Para clustering jerárquico y dendrogramas
-from scipy.cluster.hierarchy import dendrogram, linkage
-
-# Configuraciones adicionales para visualización
-%matplotlib inline
-sns.set(style="whitegrid")
-```
-
-**Qué hace cada línea, y para qué sirve cada librería que trae**:
-- `# Importación de librerías`: comentario, no hace nada — es solo un título que el propio notebook se pone para marcar dónde empieza el bloque de imports.
-- `import pandas as pd`: Pandas maneja datos en forma de tabla (filas y columnas) — se usa más adelante para cargar el CSV de clientes del ejercicio final.
-- `import numpy as np`: NumPy es la librería base de Python para cálculo numérico y arrays — se usa para generar los datos sintéticos (climáticos) y para varias cuentas auxiliares a lo largo del notebook.
-- `# Para Clustering y Reducción de Dimensionalidad`: otro comentario-título, agrupa visualmente los 5 imports de Scikit-Learn que siguen.
-- `from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN`: trae los **3 algoritmos de clustering** de la clase en una sola línea — `KMeans` (Módulo 2), `AgglomerativeClustering` (el Jerárquico, que ya no tiene módulo teórico propio pero sigue en el notebook) y `DBSCAN` (Módulo 3).
-- `from sklearn.preprocessing import StandardScaler, OneHotEncoder # Para escalar datos numéricos y codificar categóricos si fuera necesario`: el comentario al final de la línea ya lo explica — `StandardScaler` escala variables numéricas (obligatorio antes de cualquier algoritmo que mida distancias: K-Means, Jerárquico, DBSCAN y PCA, los 4 lo necesitan); `OneHotEncoder` serviría para convertir una variable categórica (texto) en números, pero **no se termina usando en este notebook** — queda importada "por las dudas".
-- `from sklearn.decomposition import PCA`: trae la técnica de reducción de dimensionalidad lineal del Módulo 4.
-- `from sklearn.manifold import TSNE`: trae t-SNE, la técnica de reducción de dimensionalidad no lineal (contenido "bonus", sin módulo teórico propio).
-- `from sklearn.metrics import silhouette_score # Para evaluar clusters`: de nuevo, el comentario lo resume — trae la métrica para medir qué tan bien separados y compactos quedan los clusters, la misma Filmina 15 (Módulo 2), ahora en código.
-- `# Para visualización`: comentario-título para las 2 librerías de gráficos.
-- `import matplotlib.pyplot as plt` / `import seaborn as sns`: las dos librerías de gráficos que se usan en todo el notebook — Matplotlib es la base, Seaborn le agrega estilos más prolijos por defecto encima.
-- `# Para clustering jerárquico y dendrogramas`: comentario-título para el import de SciPy que sigue.
-- `from scipy.cluster.hierarchy import dendrogram, linkage`: específicas para el clustering Jerárquico — `linkage` calcula la estructura de fusiones, `dendrogram` la dibuja como árbol. Vienen de SciPy y no de Scikit-Learn porque **Scikit-Learn no tiene una función propia para dibujar dendrogramas** (solo trae `AgglomerativeClustering` para calcular los clusters finales, no para visualizar el árbol completo).
-- `# Configuraciones adicionales para visualización`: último comentario-título, agrupa las 2 líneas de ajuste que siguen (no son imports, son configuración).
-- `%matplotlib inline`: no es Python puro, es un "comando mágico" de Jupyter/Colab (arranca con `%`) — le dice al notebook que muestre los gráficos de Matplotlib **directamente debajo de la celda que los genera**, en vez de abrirlos en una ventana aparte. Sin esta línea, en algunos entornos los gráficos ni siquiera se llegan a ver.
-- `sns.set(style="whitegrid")`: configura, de una sola vez y para **todos** los gráficos que se hagan de ahí en adelante en el notebook, el estilo visual de Seaborn — `"whitegrid"` les pone un fondo blanco con una grilla tenue de referencia (más fácil de leer que el fondo gris por default de Matplotlib). Se ejecuta una sola vez acá arriba y queda aplicado para el resto del notebook, no hay que repetirlo en cada gráfico.
-
----
-
-## Módulo 2 en código — K-Means
-
-### Ejemplo ilustrativo: datos climáticos sintéticos
-
-**Para qué sirve esta parte del código**: genera 240 "ciudades" ficticias repartidas en 3 grupos climáticos conocidos de antemano (tropical, templado, árido), y las grafica **sin mostrar a qué grupo pertenece cada una** — el mismo punto de partida que tendría K-Means en la vida real, donde no hay colores ni etiquetas previas.
-
-```python
-np.random.seed(42)
-n = 80  # ciudades por grupo
-
-tropicales = np.random.multivariate_normal([29, 78], [[4, 3], [3, 12]], n)
-templadas  = np.random.multivariate_normal([14, 55], [[6, -2], [-2, 10]], n)
-aridas     = np.random.multivariate_normal([26, 18], [[5, 1], [1, 8]], n)
-
-X_clima = np.vstack([tropicales, templadas, aridas])
-X_clima[:, 1] = np.clip(X_clima[:, 1], 0, 100)
-```
-
-**Línea por línea**: `np.random.multivariate_normal([media_temp, media_hum], matriz_covarianza, n)` genera 80 puntos al azar alrededor de un centro dado (ej. 29°C/78% para el grupo tropical), con una dispersión que define la matriz de covarianza — es la forma de "simular" un grupo real sin tener que salir a medir 80 ciudades de verdad. `np.vstack([...])` apila los 3 grupos de 80 en una única tabla de 240 filas. `np.clip(X_clima[:, 1], 0, 100)` recorta la columna de humedad para que ningún valor quede fuera del rango físicamente posible (0% a 100%), porque una distribución normal puede generar, por puro azar, algún valor absurdo como -3% o 105%.
-
-**Por qué este dataset en particular, y no uno real desde el arranque**: al conocer de antemano los 3 grupos "verdaderos" (porque los generó el propio código), se puede comparar el resultado de K-Means contra esa verdad y confirmar que el algoritmo hizo bien su trabajo — algo que con un dataset real nunca se puede chequear con la misma certeza, porque ahí es K-Means quien *define* qué son los grupos.
-
-### Escalado y aplicación de K-Means
-
-**Para qué sirve esta parte del código**: estandariza las 2 variables (para que la escala de la temperatura, en decenas, no le gane de entrada a la escala de la humedad, en unidades porcentuales) y entrena K-Means con `k=3`.
-
-```python
-scaler_clima = StandardScaler()
-X_clima_scaled = scaler_clima.fit_transform(X_clima)
-
-kmeans_clima = KMeans(n_clusters=3, random_state=42, n_init=10)
-kmeans_clima.fit(X_clima_scaled)
-y_kmeans_clima = kmeans_clima.predict(X_clima_scaled)
-
-centers_clima = scaler_clima.inverse_transform(kmeans_clima.cluster_centers_)
-```
-
-**Línea por línea**: `StandardScaler().fit_transform(X_clima)` estandariza las 2 columnas (media 0, desvío 1) — el mismo criterio de la Filmina 14/Módulo 2 del repaso teórico. `KMeans(n_clusters=3, random_state=42, n_init=10)` instancia el modelo con `k=3` fijo (porque ya se sabe, en este ejemplo armado, que hay 3 grupos); `n_init=10` corre el algoritmo completo 10 veces con distintas inicializaciones al azar y se queda con la mejor (para esquivar el problema del "mínimo local" visto en la Filmina 13). `.fit(...)` entrena, `.predict(...)` asigna cada ciudad a un cluster (0, 1 o 2). `scaler_clima.inverse_transform(kmeans_clima.cluster_centers_)` es un paso sutil pero importante: los centroides que aprendió el modelo están en la escala **escalada** (media 0, desvío 1) — `inverse_transform` los devuelve a la escala original (°C y %), para que los números impresos tengan sentido real ("Cluster 0: Temperatura = 28.9°C") en vez de números abstractos como "-0.03".
-
-### Gráfico de clusters y Método del Codo
-
-**Para qué sirve esta parte del código**: dos piezas separadas — primero un gráfico de dispersión coloreado por cluster (con los centroides marcados con una X), después el cálculo del WCSS para `k` de 1 a 10, para ilustrar el método del codo con datos reales.
-
-```python
-for k in k_range:
-    km_elbow = KMeans(n_clusters=k, random_state=42, n_init=10)
-    km_elbow.fit(X_clima_scaled)
-    inertia.append(km_elbow.inertia_)
-```
-
-**Línea por línea**: el loop entrena un K-Means **distinto** para cada valor de `k` entre 1 y 10, y guarda el `.inertia_` (el WCSS) de cada uno en la lista `inertia` — exactamente el procedimiento descripto en la Filmina 14 (Módulo 2), ahora con números reales en vez de solo la explicación teórica. El resultado esperado: la curva cae fuerte hasta `k=3` y después se aplana — el "codo" coincide con los 3 climas reales que se usaron para generar los datos.
-
-### Validación con Coeficiente Silhouette
-
-**Para qué sirve esta parte del código**: repite el mismo barrido de `k` (esta vez de 2 a 10, porque Silhouette no se puede calcular con un solo cluster) y compara, en un gráfico de 2 paneles, el Codo contra el Silhouette — para ver si las dos métricas coinciden en el mismo `k` recomendado.
-
-```python
-for k in k_sil_range:
-    km = KMeans(n_clusters=k, random_state=42, n_init=10)
-    labels_k = km.fit_predict(X_clima_scaled)
-    silhouette_avgs.append(silhouette_score(X_clima_scaled, labels_k))
-```
-
-**Línea por línea**: `fit_predict(...)` entrena y asigna clusters en un solo paso; `silhouette_score(X, labels)` calcula el Silhouette promedio de **todo** el dataset para ese `k` puntual (no punto por punto, el promedio general). `np.argmax(silhouette_avgs)` identifica el `k` con el Silhouette más alto. El mensaje final del notebook ("cuando Codo y Silhouette coinciden en el mismo k → mayor confianza en la elección") es la bajada práctica de la Filmina 15: ninguna de las dos métricas es "la verdad absoluta" por sí sola, pero si ambas apuntan al mismo número, es una señal mucho más confiable que cualquiera de las dos por separado.
-
----
-
-## Módulo 2 en código (continuación) — Clustering Jerárquico
-
-### Dendrograma sobre una muestra
-
-**Para qué sirve esta parte del código**: toma una submuestra de 60 ciudades (de las 240 totales) del mismo dataset climático, y construye un dendrograma con linkage `ward` — menos puntos que con K-Means, a propósito, para que el árbol sea legible.
-
-```python
-idx_sample = np.random.choice(len(X_clima), 60, replace=False)
-X_demo_small = X_clima[idx_sample]
-
-linked_clima = linkage(X_demo_small, method='ward')
-```
-
-**Línea por línea**: `np.random.choice(..., replace=False)` elige 60 índices al azar sin repetir, para tomar una submuestra representativa. `linkage(X_demo_small, method='ward')` calcula, paso a paso, qué par de clusters fusionar en cada nivel, usando el criterio Ward (minimizar el incremento de varianza interna al fusionar) — el resultado `linked_clima` es la estructura completa que describe todo el árbol de fusiones, lista para graficar con `dendrogram(...)`. El `color_threshold=25` del gráfico pinta de distinto color las ramas que quedan por debajo de esa altura, ayudando a ver a simple vista dónde "cortar" el árbol en 3 grupos.
-
-### AgglomerativeClustering y comparación con K-Means
-
-**Para qué sirve esta parte del código**: aplica el clustering jerárquico sobre **todas** las 240 ciudades (ya no solo la submuestra de 60), pidiéndole directamente 3 clusters, y compara cuantitativamente ese resultado contra el de K-Means.
-
-```python
-agg_clima = AgglomerativeClustering(n_clusters=3, linkage='ward')
-y_agg_clima = agg_clima.fit_predict(X_clima)
-
-ari = adjusted_rand_score(y_kmeans_clima, y_agg_clima)
-```
-
-**Línea por línea**: `AgglomerativeClustering(n_clusters=3, linkage='ward')` — a diferencia del dendrograma (que no necesita saber `k` de antemano), acá sí se le pide un número fijo de clusters, porque `.fit_predict()` necesita devolver una asignación concreta, no un árbol completo. `adjusted_rand_score(y_kmeans_clima, y_agg_clima)` es una métrica que compara dos particiones distintas del mismo dataset y dice qué tan parecidas son, **sin importar qué número de cluster le puso cada algoritmo a cada grupo** (K-Means podría llamar "Cluster 0" a lo que el Jerárquico llama "Cluster 2", y el ARI lo detecta igual). Un ARI cercano a 1.0 significa que, aunque usan lógicas internas distintas (centroides vs. fusiones), los dos algoritmos llegaron prácticamente al mismo resultado — un buen chequeo de que el agrupamiento encontrado es robusto, no un capricho de un solo algoritmo.
-
-**Nota importante no mencionada en el notebook**: el Jerárquico corre acá sobre `X_clima` **sin escalar** (a diferencia de K-Means, que sí usó `X_clima_scaled`) — una inconsistencia menor del notebook original. En este dataset puntual el resultado no cambia demasiado porque ambas variables ya están en rangos parecidos, pero en un dataset real con escalas muy distintas, esto sí podría cambiar el resultado del Jerárquico — vale la pena mencionarlo en clase como ejemplo de un error común (Filmina 13/Módulo 2 del repaso teórico) que se puede colar incluso en un notebook ya armado.
-
----
-
-## Módulo 3 en código — DBSCAN
-
-### Generar datos con forma de "lunas"
-
-**Para qué sirve esta parte del código**: genera un dataset con 2 grupos en forma de medialuna entrelazada — a propósito, porque son formas que K-Means (que asume grupos esféricos) no puede separar bien, y DBSCAN sí.
-
-```python
-X_moons, y_moons_true = make_moons(n_samples=250, noise=0.1, random_state=42)
-X_moons_scaled = StandardScaler().fit_transform(X_moons)
-```
-
-**Línea por línea**: `make_moons(n_samples=250, noise=0.1)` es una función de scikit-learn pensada específicamente para generar este tipo de forma no convexa; `noise=0.1` agrega algo de dispersión aleatoria a cada punto, para que no sean dos líneas perfectas sino algo más parecido a datos reales.
-
-### Aplicar DBSCAN y graficar
-
-**Para qué sirve esta parte del código**: corre DBSCAN sobre las lunas, y separa visualmente los puntos que quedaron en algún cluster de los que quedaron marcados como ruido.
-
-```python
-dbscan = DBSCAN(eps=0.3, min_samples=5)
-y_dbscan = dbscan.fit_predict(X_moons_scaled)
-```
-
-**Línea por línea**: `DBSCAN(eps=0.3, min_samples=5)` fija los dos parámetros clave de la Filmina 19/Módulo 3 "a ojo" en este ejemplo (el notebook no corre acá un k-distance plot para estimarlo, a diferencia de lo que sugiere la teoría — queda como posible mejora). `.fit_predict(...)` devuelve, para cada punto, el número de cluster al que pertenece, o `-1` si quedó como ruido. En el gráfico, `noise_mask = y_dbscan == -1` separa los puntos de ruido (dibujados con una X roja) del resto (coloreados por cluster) — el resultado esperado es que las dos lunas queden separadas en 2 clusters bien definidos, algo que K-Means con `k=2` no lograría (tendería a cortar cada luna por la mitad).
-
----
-
-## Módulo 4 en código — PCA y t-SNE
-
-### Cargar y escalar Iris
-
-**Para qué sirve esta parte del código**: carga el dataset de **Iris** (el mismo que se usó, con etiqueta, en el Bloque 0 de repaso de Supervisado) y lo escala, como paso previo obligatorio antes de aplicar PCA.
-
-```python
-iris = load_iris()
-X_iris = iris.data
-y_iris = iris.target
-
-X_iris_scaled = StandardScaler().fit_transform(X_iris)
-```
-
-**Línea por línea**: `load_iris()` trae las 4 features y la especie real (`y_iris`) de cada una de las 150 flores. Acá es importante notar algo: `y_iris` se carga igual, pero **no se usa para entrenar nada** en esta sección — queda disponible únicamente para, más adelante, colorear el gráfico y poder *verificar* si el agrupamiento que encuentra PCA (sin mirar la especie) coincide con la especie real. Es exactamente la continuidad pedagógica con el Bloque 0: ahí se usó `y_iris` para entrenar un clasificador; acá se la guarda aparte, como "respuesta correcta" para comparar después, pero el algoritmo en sí (PCA) nunca la ve.
-
-### Aplicar PCA
-
-**Para qué sirve esta parte del código**: reduce las 4 features originales a 2 Componentes Principales, y mide cuánta varianza conservan esas 2 componentes.
-
-```python
-pca = PCA(n_components=2)
-X_pca = pca.fit_transform(X_iris_scaled)
-
-print(f"Varianza explicada por componente: {pca.explained_variance_ratio_}")
-print(f"Varianza explicada acumulada: {np.sum(pca.explained_variance_ratio_)}")
-```
-
-**Línea por línea**: `PCA(n_components=2)` fija de antemano que se quieren solo 2 componentes (porque el objetivo acá es graficar en 2D, no explicar un umbral de varianza — la razón que la Filmina 23/Módulo 4 menciona como el caso típico donde "el límite no es estadístico, es que un gráfico no tiene más de 3 ejes"). `pca.fit_transform(X_iris_scaled)` aprende las direcciones de máxima varianza y proyecta los datos sobre ellas en el mismo paso. `pca.explained_variance_ratio_` es un array con el porcentaje de varianza que capturó cada componente — el resultado real da algo como `[0.73, 0.23]`, o sea que con solo 2 de las 4 variables originales ya se conserva más del 95% de la información total.
-
-### Graficar PCA en 2D, coloreado por especie real
-
-**Para qué sirve esta parte del código**: grafica las 150 flores en el plano de las 2 Componentes Principales, pero coloreando cada punto según su especie **real** (`y_iris`) — el primer momento del notebook donde se puede *ver* si la estructura que encontró PCA (sin mirar la especie) coincide con las 3 especies reales.
-
-**Por qué esto es más una demostración que un ejercicio no supervisado "puro"**: en un escenario 100% no supervisado no se tendría `y_iris` para colorear — acá se la usa a propósito, solo para **validar** visualmente el resultado de PCA, no para entrenarlo. Vale la pena aclarar esta distinción en clase: el momento en que aparecen los 3 colores separados en el gráfico es la confirmación visual de que, incluso sin que nadie le dijera la especie, la reducción de dimensionalidad conservó la estructura que separa a las 3 especies — es el mismo "cierre de círculo" con el Bloque 0 de Supervisado mencionado más arriba.
-
-### Aplicar t-SNE
-
-**Para qué sirve esta parte del código**: reduce las mismas 4 features de Iris a 2 dimensiones, pero con una técnica **no lineal** (t-SNE) en vez de PCA, reutilizando `X_iris_scaled` ya calculado.
-
-```python
-tsne = TSNE(n_components=2)
-X_tsne = tsne.fit_transform(X_iris_scaled)
-```
-
-**Línea por línea**: a diferencia de PCA, acá no hay un `.transform()` separado — t-SNE no aprende una transformación reusable, cada corrida calcula el mapa 2D desde cero para ese dataset puntual (por eso no tiene sentido "aplicar" un t-SNE ya entrenado a datos nuevos, a diferencia de PCA). No se fija `random_state`, así que correr esta celda dos veces puede dar mapas visualmente distintos (aunque la estructura de grupos que revele debería ser parecida) — vale la pena mencionarlo en vivo si alguien nota que el gráfico cambió al re-ejecutar.
-
----
-
-## Ejercicio Práctico — Segmentación de Clientes (Mall Customers)
-
-**Contexto del ejercicio**: a diferencia de los ejemplos anteriores (con datos sintéticos o el clásico Iris), acá se usa un dataset **real y público**: 200 clientes de un centro comercial, con edad, ingreso anual y un "Spending Score" (un puntaje de 1 a 100 que el propio shopping ya calculó para medir cuánto gasta cada cliente). Es el ejercicio más cercano, de todo el notebook, al Módulo 6 de Customer Profiling — termina pidiéndole explícitamente al alumno que le **ponga nombre** a cada cluster encontrado, la misma traducción de dato a negocio que se desarrolla en la teoría.
-
-### Paso 1 — Cargar los datos
-
-```python
-url = 'https://raw.githubusercontent.com/erkansirin78/datasets/master/Mall_Customers.csv'
-df = pd.read_csv(url)
-```
-
-**Línea por línea**: `pd.read_csv(url)` carga el CSV directamente desde una URL pública de GitHub — no hace falta tener el archivo descargado localmente. Columnas: `CustomerID` (no es una feature real, solo identificador), `Gender`, `Age`, `AnnualIncome`, `SpendingScore`.
-
-### Pasos 2 y 3 — Exploración y distribución
-
-**Para qué sirve esta parte del código**: antes de clusterizar nada, mira el tamaño del dataset, sus estadísticas descriptivas (`df.describe()`) y la distribución de cada variable numérica con 3 histogramas — el mismo primer paso de "entender los datos antes de tocarlos" que ya se vio en el Repaso de la Clase 08 y en la Clase 06/07 del curso.
-
-### Paso 4 — Selección de features y escalado
-
-**Para qué sirve esta parte del código**: de las 4 variables numéricas disponibles (`Age`, `AnnualIncome`, `SpendingScore`), elige deliberadamente solo 2 (`AnnualIncome` y `SpendingScore`) para poder graficar el resultado en un plano 2D simple, y las escala.
-
-```python
-X = df[['AnnualIncome', 'SpendingScore']].values
-X_scaled = StandardScaler().fit_transform(X)
-```
-
-**Por qué solo 2 de las 4 variables**: el propio notebook lo aclara — simplicidad para visualizar, y el Spending Score ya es en sí mismo un resumen del comportamiento de compra. Vale la pena usarlo como gancho para mencionar en clase que, en un caso real con más variables, acá es exactamente donde entraría PCA (Módulo 4) antes de clusterizar, para no tener que elegir "a mano" solo 2 de muchas variables disponibles.
-
-Tres variantes para proponer como ejercicio extra, cambiando solo la línea de `X = df[[...]]`:
-- **`['Age', 'SpendingScore']`** → los grupos se leen por etapa de vida ("jóvenes que gastan mucho", "adultos mayores moderados"...).
-- **`['Age', 'AnnualIncome']`** → los grupos dicen poco del comportamiento de compra; es un buen ejemplo de segmentar solo por variables de **perfil** (Módulo 6) y ver que la lectura de negocio queda pobre.
-- **`['Age', 'AnnualIncome', 'SpendingScore']`** → ya no se puede graficar directo en 2D: es el momento natural para aplicar PCA a 2 componentes solo para dibujar el resultado.
-
-### Pasos 5 y 6 — Método del codo y elección de K
-
-**Para qué sirve esta parte del código**: corre el mismo barrido de `k` de 1 a 10 ya visto con los datos climáticos, pero ahora sobre los clientes reales — y, a diferencia del ejemplo anterior (donde `k=3` ya estaba decidido de antemano), acá el notebook le pide explícitamente al alumno que **mire el gráfico y decida** su propio valor de `K` antes de seguir.
-
-```python
-K = 5  # <-- CAMBIÁ ESTE VALOR si elegís otro K
-kmeans = KMeans(n_clusters=K, random_state=42, n_init=10)
-kmeans.fit(X_scaled)
-labels = kmeans.labels_
-```
-
-**Para el docente**: con este dataset en particular, el codo del gráfico suele verse bastante claro en `k=5` — y da pie a mostrar en vivo qué pasa si alguien elige un `k` distinto (por ejemplo `k=3` o `k=8`) y cómo cambian los clusters resultantes, conectando directo con la Filmina 14/15 (Módulo 2) sobre que no hay un único "k correcto", solo un rango razonable.
-
-Qué esperar, a grandes rasgos, si en vivo se cambia `K`:
-- **`K = 3`**: los clientes de ingreso alto quedan separados en "gastan mucho" y "gastan poco", pero los de ingreso bajo y medio se mezclan en un único grupo grande — se pierde la diferencia entre "Entusiastas" y "Bajo potencial" (subsegmentación).
-- **`K = 5`**: aparecen los 5 perfiles clásicos (ver Paso 9) — cada grupo tiene una lectura de negocio clara.
-- **`K = 8`**: algunos de los 5 grupos se parten en dos (por ejemplo, "VIP jóvenes" vs. "VIP un poco mayores" según la posición dentro del gráfico) — matemáticamente válido, pero difícil de justificar como segmentos distintos para Marketing (sobresegmentación).
-
-### Pasos 7 y 8 — Visualizar y analizar cada cluster
-
-**Para qué sirve esta parte del código**: grafica los 200 clientes coloreados por cluster (con los centroides marcados), y después arma una tabla con el promedio de edad/ingreso/gasto de cada cluster — la materia prima para poder interpretarlos.
-
-```python
-cluster_stats = df.groupby('Cluster').agg({
-    'Cluster': 'count', 'Age': 'mean',
-    'AnnualIncome': 'mean', 'SpendingScore': 'mean'
-})
-```
-
-**Línea por línea**: `df.groupby('Cluster').agg({...})` agrupa las 200 filas por el cluster que les asignó K-Means (no agrupa por algo que el analista decidió a mano, sino por el resultado del algoritmo), y calcula el promedio de cada variable dentro de cada grupo — es, literalmente, el "centroide" expresado en términos de negocio en vez de en coordenadas abstractas.
-
-### Paso 9 — Clasificar los clusters (la parte más importante)
-
-**Para qué sirve esta parte del código**: le pide al alumno completar un diccionario poniéndole un **nombre de negocio** a cada cluster, basándose en las estadísticas del paso anterior — no hay una respuesta ya resuelta en el código, es deliberadamente una celda para completar en vivo.
-
-```python
-clasificacion = {
-    0: ('PONÉ TU NOMBRE AQUÍ', 'Escribí por qué elegiste este nombre...'),
-    ...
-}
-```
-
-**Por qué esta celda es la bisagra pedagógica de todo el ejercicio**: es la puesta en práctica exacta del Módulo 6 (Customer Profiling) — el algoritmo entregó 5 grupos con sus promedios de ingreso/gasto/edad, pero **nunca** dice "este es el segmento Premium" o "estos son los Conservadores" — ese paso de ponerle nombre, decidir qué hacer con cada grupo, es 100% criterio humano. Vale la pena, en vivo, pedirle al grupo que proponga nombres para los 5 clusters mirando la tabla de estadísticas del paso anterior, antes de mostrar cualquier respuesta sugerida.
-
-**Respuesta orientativa para el docente** (con `K=5`, los números van a variar levemente según la semilla y el hardware, pero la lógica general se mantiene): un cluster de **ingreso alto + gasto alto** → "Clientes VIP/Premium" (el segmento más rentable, foco de retención); uno de **ingreso alto + gasto bajo** → "Clientes Conservadores de Alto Poder Adquisitivo" (tienen plata pero no la gastan ahí — una oportunidad de marketing específica); uno de **ingreso bajo + gasto alto** → "Clientes Entusiastas" (gastan por encima de lo que su ingreso sugeriría — cuidado con ofrecerles crédito sin análisis adicional); uno de **ingreso bajo + gasto bajo** → "Clientes de Bajo Potencial"; y uno de **ingreso medio + gasto medio** → "Clientes Estándar" (el grueso de la base, sin un patrón extremo en ningún sentido).
-
-### Paso 10 — Reflexión final
-
-Cierra el notebook sin código nuevo, con una síntesis de los 5 pasos recorridos y una pregunta abierta para el grupo ("¿cómo cambiarían las clasificaciones si eligieras otro K?") — buen gancho para conectar con la Pre-entrega del Módulo 7, que le pide al alumno hacer exactamente este mismo ejercicio de interpretación, pero sobre un dataset distinto (usuarios de una app de streaming) y de forma completamente escrita, sin código.
-
----
-
-## Pendiente de documentar
-
-El notebook de repaso de Supervisado (`Clase09_Bloque0_Repaso_Supervisado.ipynb`) ya está documentado más arriba, en la sección "👉 En Python" del Módulo 0. La demo de "PCA mejorando un modelo real" (dataset de cáncer de mama + 300 columnas de ruido + KNN) que describe la Filmina 30 (Módulo 5) **todavía no tiene celda propia** en ninguno de los dos notebooks — por ahora solo está documentada en el README como texto, igual que viene del docx. Si se decide correrla en vivo, habría que agregarla como notebook nuevo o como bloque adicional.
