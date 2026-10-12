@@ -209,6 +209,15 @@ Este repaso tiene, además de las filminas, su propio notebook corto — separad
 
 **Qué hace en general**: entrena un clasificador simple sobre el dataset de **Iris** (150 flores, 4 medidas, 3 especies ya conocidas), para que el grupo vea en código un ejemplo completo de Aprendizaje Supervisado antes de pasar a lo que no tiene etiqueta. Tiene 3 celdas de código — una por cada paso.
 
+**"CON etiqueta" — qué quiere decir exactamente, y cómo se ve en los datos**: significa que cada una de las 150 flores del dataset ya viene con su especie real **pegada al lado**, como un dato más — no hay que adivinarla. Una fila cualquiera del dataset se ve así:
+
+| Largo sépalo | Ancho sépalo | Largo pétalo | Ancho pétalo | **Especie (la etiqueta)** |
+|---|---|---|---|---|
+| 5.1 | 3.5 | 1.4 | 0.2 | **Setosa** |
+| 6.3 | 3.3 | 6.0 | 2.5 | **Virginica** |
+
+Las primeras 4 columnas son las *features* (`X`) — lo que el modelo puede medir de una flor. La última columna es la **etiqueta** o *label* (`y`) — la respuesta correcta, ya conocida de antemano porque hace décadas un botánico ya clasificó cada una de esas 150 flores a mano, mirándolas una por una. "Con etiqueta" quiere decir, ni más ni menos, que esa quinta columna **existe** en el dataset. Entrenar el modelo es mostrarle las 150 filas completas (las 4 medidas **y** la especie, juntas) para que aprenda a relacionar unas con otra — y "sin etiqueta" (lo que viene en el resto de la clase) sería tener solo las primeras 4 columnas, sin la quinta, sin que nadie le diga nunca cuál es la especie de ninguna fila.
+
 #### Celda 1 — Importar las librerías
 
 **Para qué sirve esta parte del código, para explicarle al grupo antes de mostrarla**: antes de poder usar cualquier herramienta de Python, hay que "traerla" con `import` — es como abrir la caja de herramientas y sacar solo las piezas que se van a necesitar hoy. Esta celda todavía no calcula nada: solo prepara el terreno para las dos celdas que siguen.
@@ -248,11 +257,28 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 **De dónde sale Iris, y por qué alcanza con una sola línea para tenerlo listo**: Iris **viene incluido directo adentro de Scikit-Learn** — no es un CSV que haya que descargar de ningún lado, ni hace falta conexión a internet para cargarlo. El módulo `sklearn.datasets` trae empaquetados varios datasets clásicos "de juguete" (*toy datasets*), pensados específicamente para enseñar y para probar algoritmos rápido: Iris es el más famoso de todos (es, literalmente, el dataset más citado en la historia de Machine Learning, usado por primera vez en 1936), pero no es el único — por ejemplo, el dataset de cáncer de mama que se menciona en la Filmina 30 (Módulo 5) también sale de ahí (`load_breast_cancer`). La razón de que estos datasets existan empaquetados así es puramente práctica: son chicos, ya vienen limpios (sin nulos, sin errores de tipeo) y sin ningún paso previo de preparación — así una clase o un ejemplo no pierde tiempo en la etapa de "conseguir y limpiar datos" (que en un proyecto real es, de lejos, la que más tiempo consume) y puede ir directo a la parte de entrenar y entender el modelo.
 
-**¿Por qué justo 80/20, y de dónde sale ese número?**: no es una fórmula matemática ni una regla estricta — es una **convención** que se volvió estándar en la industria porque equilibra bien dos necesidades que compiten entre sí:
+**¿Por qué justo 80/20, y de dónde sale ese número?**: no es una fórmula matemática ni una regla estricta — es una **convención** que se volvió estándar en la industria porque equilibra bien dos necesidades que compiten entre sí, y que piden cosas **opuestas** sobre los mismos datos:
 - Si se usa **muy poco** para entrenar (ej. 50/50, o peor), al modelo le faltan ejemplos para aprender el patrón real, y va a rendir peor de lo que podría.
 - Si se usa **muy poco** para test (ej. 95/5), la medición final queda poco confiable — con pocos casos de test, el resultado puede salir "bueno" o "malo" más por azar (qué casos puntuales cayeron ahí) que por la calidad real del modelo.
 
-El 80/20 (a veces 70/30) es el punto medio razonable para datasets chicos/medianos como Iris (150 filas) — ni se queda corto de datos para entrenar, ni la medición final depende de un puñado de casos. No hay un "80/20 correcto" universal: es una heurística que funciona bien en la mayoría de los casos típicos de una clase o un proyecto chico.
+**Por qué entrenar necesita "mucho", con un ejemplo bien alejado de las flores**: pensá en alguien que está aprendiendo a cocinar mirando recetas. Si ve solo 3 recetas distintas, difícilmente note el patrón general de qué combina con qué — puede, como mucho, repetir esas 3 recetas de memoria. Si ve 1.000 recetas distintas, ahí sí empieza a notar el patrón de fondo (qué especias van con qué carnes, qué proporciones funcionan) y puede improvisar un plato nuevo que nunca vio. Entrenar un modelo es lo mismo: cuantos más ejemplos vea, más chances tiene de aprender el patrón real en vez de memorizar casos sueltos — por eso la mayor parte de los datos (el 80%) se le da al entrenamiento.
+
+**Por qué medir necesita "suficiente", no cualquier cantidad, con otro ejemplo bien alejado de las flores**: pensá en una encuesta para saber a quién va a votar la gente en una elección. Si encuestás a 5 personas y 4 responden al candidato A, no podés afirmar casi nada sobre el resultado real del país — con una muestra tan chica, el resultado depende más de la suerte de a quién le tocó preguntarle que de la preferencia real de la gente. Si encuestás a 2.000 personas, el resultado ya es mucho más representativo y confiable. El Test Set hace exactamente el mismo trabajo que esa encuesta: es una "muestra" que intenta estimar qué tan bien va a funcionar el modelo con **cualquier** caso nuevo que todavía no vio — y, como toda encuesta, necesita un tamaño mínimo para que el resultado sea confiable y no un número que salió así "por casualidad".
+
+**Por qué 80/20 y no, por ejemplo, 60/40 o 90/10**: no hay una única proporción "correcta" — es resolver, con un compromiso razonable, las dos necesidades de arriba al mismo tiempo. El 80/20 (a veces 70/30) le da al modelo una porción grande para aprender bien (como el cocinero con 1.000 recetas) **y**, al mismo tiempo, deja una porción todavía lo bastante grande como para que la "encuesta" final sea confiable — en un dataset de cientos o miles de filas, el 20% ya alcanza para ser una muestra de test razonable. Es una heurística que funciona bien en la mayoría de los casos típicos de una clase o un proyecto chico, no una ley matemática.
+
+**La pregunta que suele trabarse acá — "¿y por qué no entrenar con el 100% para que el modelo sea perfecto?"**: porque "cuánta data le doy para que aprenda" y "cómo sé si lo que aprendió realmente sirve" son **dos preguntas distintas**, y se resuelven de formas distintas — más data ayuda a la primera, pero no contesta la segunda.
+
+Siguiendo con el cocinero: le diste las 1.000 recetas, las estudió todas. Ahora querés saber si de verdad **aprendió a cocinar**, o si solo **memorizó** esas 1.000 recetas puntuales. Para saberlo, hay que pedirle que prepare un plato **nuevo**, que no estaba en sus 1.000 recetas — si le volvés a pedir que repita una receta que ya estudió, por supuesto que le va a salir perfecta (¡ya la memorizó!), pero eso no prueba que aprendió el patrón general.
+
+El problema concreto de entrenar con el 100% de los datos es ese: si usaste las 1.000 recetas para que estudie, ya no te queda **ninguna receta nueva** para tomarle de examen — usaste todo. Vas a tener que evaluarlo con algo que ya vio, y ahí va a dar "perfecto"... pero un "perfecto" trucho, porque le preguntaste algo que ya memorizó, no algo que mida si aprendió de verdad.
+
+Por eso entrenar con el 100% **no hace que el modelo se vuelva mejor ni "perfecto"** — solo elimina la posibilidad de armarle un examen honesto después. El Test Set no está para mejorar al modelo (eso lo hace el Train) — está para poder **responder** la pregunta "¿esto realmente sirve con casos que nunca vio?", y esa pregunta se vuelve imposible de contestar si no se guardó ningún caso nuevo para hacérsela.
+
+**Un ejemplo con los números reales de Iris (150 flores), para ver qué pasa en los dos extremos**:
+
+- **`test_size=0.05` (95/5)**: quedarían 142 flores para entrenar y solo **8 para test** — repartidas entre 3 especies, eso es apenas 2 o 3 flores de test por especie. Con tan pocos casos, el resultado queda a merced de la suerte: si a Setosa le tocaron sus 2 o 3 flores "más fáciles" de test, el accuracy puede dar 100%; si por casualidad le tocó una Versicolor atípica (parecida a una Virginica), ese único error ya hace caer el accuracy de 100% a 87,5% (7 de 8). Con una muestra de test tan chica, un solo caso de más o de menos cambia el resultado varios puntos porcentuales — el número deja de reflejar con confianza qué tan bueno es el modelo en general, y empieza a reflejar más qué 8 flores puntuales cayeron ese día.
+- **`test_size=0` (100/0, el caso extremo)**: significa entrenar con las 150 flores y **no guardar ninguna para evaluar**. El código ni siquiera tendría con qué calcular un accuracy honesto — la única forma de "evaluar" sería usar esas mismas 150 flores de nuevo, las que el modelo ya vio y de las que ya memorizó la respuesta. Ahí el accuracy daría altísimo (puede ser hasta 100%), pero sería un número que no dice nada real: es la definición exacta de la trampa que se explicó más arriba con Data Leakage (Filmina 04) — evaluar con los mismos datos que se usaron para entrenar.
 
 **¿Qué pasa si se quiere "mejorar" esto mucho más, con más rigor?** Acá hay dos caminos distintos, según qué se quiera lograr:
 - **Si el dataset es mucho más grande** (no 150 filas sino 150.000 o más): ahí sí conviene correr la proporción hacia test_size mucho más chico (90/10, o incluso 99/1) — porque incluso el 1% de un dataset gigante ya son miles de casos, más que suficientes para una medición confiable, y así se le da al modelo la mayor cantidad posible de datos para aprender.
@@ -330,6 +356,13 @@ Otra forma de plantear la diferencia, útil para la clase: en el aprendizaje sup
 | Datos de entrada | Con etiquetas o respuestas | Sin etiquetas |
 | Objetivo | Predecir o clasificar | Encontrar patrones o estructuras |
 | Ejemplos de problemas | Clasificación, regresión | Clustering, reducción de dimensionalidad, detección de anomalías |
+
+**Un ejemplo concreto de cada casillero de esa última fila, para tener a mano al mostrar la tabla**:
+- **Clasificación**: ¿este mail es spam o no? (la respuesta es una categoría, de un menú cerrado de opciones).
+- **Regresión**: ¿cuánto va a costar esta casa? (la respuesta es un número).
+- **Clustering**: agrupar a los clientes de un e-commerce por comportamiento de compra, sin tener categorías de cliente definidas de antemano.
+- **Reducción de dimensionalidad (PCA)**: resumir 50 indicadores financieros de una empresa en solo 2 ejes, para poder graficarla y compararla con sus competidores de un vistazo.
+- **Detección de anomalías**: una transacción con tarjeta de crédito que no se parece en nada al comportamiento habitual de ese usuario — señal de posible fraude.
 
 **Un matiz que vale la pena mencionar en clase** (aunque se profundiza en cursos más avanzados): la frontera entre ambos mundos no siempre es absoluta. Existen enfoques intermedios — el aprendizaje **semi-supervisado** (una pequeña porción de datos etiquetados, mucha data sin etiquetar) y el aprendizaje **autosupervisado** (el propio dataset genera sus etiquetas, por ejemplo tapando parte de una imagen y pidiéndole al modelo que la reconstruya). No forman parte del temario de hoy, pero saber que existen ayuda a entender que "supervisado vs. no supervisado" es más un espectro que una dicotomía cerrada.
 
