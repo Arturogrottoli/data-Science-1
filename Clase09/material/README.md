@@ -513,23 +513,18 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 sns.set(style="whitegrid")
 ```
 
-**Qué hace cada línea, y para qué sirve cada librería que trae**:
-- `# Importación de librerías`: comentario, no hace nada — es solo un título que el propio notebook se pone para marcar dónde empieza el bloque de imports.
-- `import pandas as pd`: Pandas maneja datos en forma de tabla (filas y columnas) — se usa más adelante para cargar el CSV de clientes del ejercicio final.
-- `import numpy as np`: NumPy es la librería base de Python para cálculo numérico y arrays — se usa para generar los datos sintéticos (climáticos) y para varias cuentas auxiliares a lo largo del notebook.
-- `# Para Clustering y Reducción de Dimensionalidad`: otro comentario-título, agrupa visualmente los 5 imports de Scikit-Learn que siguen.
-- `from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN`: trae los **3 algoritmos de clustering** de la clase en una sola línea — `KMeans` (Módulo 2), `AgglomerativeClustering` (el Jerárquico, que ya no tiene módulo teórico propio pero sigue en el notebook) y `DBSCAN` (Módulo 3).
-- `from sklearn.preprocessing import StandardScaler, OneHotEncoder # Para escalar datos numéricos y codificar categóricos si fuera necesario`: el comentario al final de la línea ya lo explica — `StandardScaler` escala variables numéricas (obligatorio antes de cualquier algoritmo que mida distancias: K-Means, Jerárquico, DBSCAN y PCA, los 4 lo necesitan); `OneHotEncoder` serviría para convertir una variable categórica (texto) en números, pero **no se termina usando en este notebook** — queda importada "por las dudas".
-- `from sklearn.decomposition import PCA`: trae la técnica de reducción de dimensionalidad lineal del Módulo 4.
-- `from sklearn.manifold import TSNE`: trae t-SNE, la técnica de reducción de dimensionalidad no lineal (contenido "bonus", sin módulo teórico propio).
-- `from sklearn.metrics import silhouette_score # Para evaluar clusters`: de nuevo, el comentario lo resume — trae la métrica para medir qué tan bien separados y compactos quedan los clusters, la misma Filmina 15 (Módulo 2), ahora en código.
-- `# Para visualización`: comentario-título para las 2 librerías de gráficos.
-- `import matplotlib.pyplot as plt` / `import seaborn as sns`: las dos librerías de gráficos que se usan en todo el notebook — Matplotlib es la base, Seaborn le agrega estilos más prolijos por defecto encima.
-- `# Para clustering jerárquico y dendrogramas`: comentario-título para el import de SciPy que sigue.
-- `from scipy.cluster.hierarchy import dendrogram, linkage`: específicas para el clustering Jerárquico — `linkage` calcula la estructura de fusiones, `dendrogram` la dibuja como árbol. Vienen de SciPy y no de Scikit-Learn porque **Scikit-Learn no tiene una función propia para dibujar dendrogramas** (solo trae `AgglomerativeClustering` para calcular los clusters finales, no para visualizar el árbol completo).
-- `# Configuraciones adicionales para visualización`: último comentario-título, agrupa las 2 líneas de ajuste que siguen (no son imports, son configuración).
-- `%matplotlib inline`: no es Python puro, es un "comando mágico" de Jupyter/Colab (arranca con `%`) — le dice al notebook que muestre los gráficos de Matplotlib **directamente debajo de la celda que los genera**, en vez de abrirlos en una ventana aparte. Sin esta línea, en algunos entornos los gráficos ni siquiera se llegan a ver.
-- `sns.set(style="whitegrid")`: configura, de una sola vez y para **todos** los gráficos que se hagan de ahí en adelante en el notebook, el estilo visual de Seaborn — `"whitegrid"` les pone un fondo blanco con una grilla tenue de referencia (más fácil de leer que el fondo gris por default de Matplotlib). Se ejecuta una sola vez acá arriba y queda aplicado para el resto del notebook, no hay que repetirlo en cada gráfico.
+**Para qué sirve cada librería que se importa acá (en qué parte del notebook se termina usando cada una)**:
+- `import pandas as pd`: Pandas maneja datos en forma de tabla (filas y columnas) — se usa más adelante para cargar el CSV de clientes del ejercicio final (Mall Customers, Módulo 6).
+- `import numpy as np`: NumPy es la librería base de Python para cálculo numérico y arrays — se usa para generar los datos sintéticos climáticos (Módulo 2) y para varias cuentas auxiliares a lo largo del notebook.
+- `from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN`: trae los **3 algoritmos de clustering** de la clase en una sola línea — `KMeans` se usa en el Módulo 2, `AgglomerativeClustering` (el Jerárquico) en el bonus fuera de programa al final del Módulo 2, y `DBSCAN` en el Módulo 3.
+- `from sklearn.preprocessing import StandardScaler, OneHotEncoder`: `StandardScaler` se usa para escalar variables numéricas antes de cualquier algoritmo que mida distancias — K-Means, Jerárquico, DBSCAN y PCA, los 4 lo necesitan; `OneHotEncoder` serviría para convertir una variable categórica (texto) en números, pero **no se termina usando en este notebook** — queda importada "por las dudas".
+- `from sklearn.decomposition import PCA`: se usa en el Módulo 4, para reducir las 4 features de Iris a 2 componentes.
+- `from sklearn.manifold import TSNE`: se usa en el bonus fuera de programa al final del Módulo 4, para reducir Iris a 2 dimensiones con una técnica no lineal.
+- `from sklearn.metrics import silhouette_score`: se usa en el Módulo 2, para medir qué tan bien separados y compactos quedan los clusters de K-Means (la misma Filmina 15, ahora en código).
+- `import matplotlib.pyplot as plt` / `import seaborn as sns`: las dos librerías de gráficos que se usan en todo el notebook, de principio a fin — Matplotlib es la base, Seaborn le agrega estilos más prolijos por defecto encima.
+- `from scipy.cluster.hierarchy import dendrogram, linkage`: se usan en el bonus fuera de programa de Clustering Jerárquico (fin del Módulo 2) — `linkage` calcula la estructura de fusiones, `dendrogram` la dibuja como árbol. Vienen de SciPy y no de Scikit-Learn porque **Scikit-Learn no tiene una función propia para dibujar dendrogramas** (solo trae `AgglomerativeClustering` para calcular los clusters finales, no para visualizar el árbol completo).
+- `%matplotlib inline`: no es Python puro, es un "comando mágico" de Jupyter/Colab (arranca con `%`) — le dice al notebook que muestre los gráficos de Matplotlib **directamente debajo de la celda que los genera**, en vez de abrirlos en una ventana aparte, para todos los gráficos que vengan después. Sin esta línea, en algunos entornos los gráficos ni siquiera se llegan a ver.
+- `sns.set(style="whitegrid")`: configura, de una sola vez y para **todos** los gráficos que se hagan de ahí en adelante en el notebook, el estilo visual de Seaborn — `"whitegrid"` les pone un fondo blanco con una grilla tenue de referencia (más fácil de leer que el fondo gris por default de Matplotlib).
 
 ### Ejemplo ilustrativo: datos climáticos sintéticos
 
@@ -678,10 +673,17 @@ print(f"Mejor k según Silhouette: k={best_k}  (Score={max(silhouette_avgs):.3f}
 ```
 
 **Línea por línea:**
-- `inertia = []` / loop `for k in k_range` → entrena un K-Means **distinto** para cada `k` entre 1 y 10, y guarda `km_elbow.inertia_` (el WCSS ya calculado por scikit-learn, no hace falta hacer la cuenta a mano) en la lista `inertia`.
-- `k_sil_range = range(2, 11)` → arranca en 2, no en 1, porque el silhouette necesita al menos un segundo cluster contra el cual comparar la separación (con un solo cluster, no hay "vecino" posible).
-- `silhouette_score(X_clima_scaled, labels_k)` → recibe los datos y las etiquetas que asignó el modelo, y devuelve el promedio del coeficiente silhouette de todos los puntos, para ese `k`.
-- `np.argmax(silhouette_avgs)` → devuelve la **posición** del valor más alto de la lista; `list(k_sil_range)[...]` traduce esa posición de vuelta al valor real de `k` que le corresponde.
+- `inertia = []` y `k_range = range(1, 11)` → arrancan una lista vacía donde ir guardando resultados, y definen el rango de `k` a probar: del 1 al 10.
+- `for k in k_range:` → repite todo lo que sigue una vez por cada valor de `k` de ese rango (10 vueltas en total).
+- `km_elbow = KMeans(n_clusters=k, random_state=42, n_init=10)` → crea, en cada vuelta, un K-Means **nuevo y distinto** con ese `k` puntual (`random_state` y `n_init` ya se explicaron en "Escalado y aplicación de K-Means": fijan la semilla al azar y prueban 10 inicializaciones distintas, respectivamente).
+- `km_elbow.fit(X_clima_scaled)` → entrena ese modelo sobre el dataset climático ya escalado.
+- `inertia.append(km_elbow.inertia_)` → guarda el `.inertia_` de ese modelo (el WCSS, que scikit-learn ya calcula solo, no hace falta hacerlo a mano) en la lista `inertia`, para después graficarlo contra `k`.
+- `silhouette_avgs = []` y `k_sil_range = range(2, 11)` → mismo patrón que arriba, pero esta lista arranca en **2**, no en 1, porque el silhouette necesita al menos un segundo cluster contra el cual comparar la separación (con un solo cluster, no hay "vecino" posible).
+- `for k in k_sil_range:` → repite el mismo barrido de `k`, ahora de 2 a 10.
+- `km = KMeans(...)` y `labels_k = km.fit_predict(X_clima_scaled)` → crea un K-Means nuevo para ese `k`, y esta vez usa `.fit_predict()` en vez de `.fit()`: entrena **y** devuelve, en un solo paso, a qué cluster quedó asignada cada una de las 240 ciudades.
+- `silhouette_avgs.append(silhouette_score(X_clima_scaled, labels_k))` → calcula el silhouette promedio de **todo** el dataset para ese `k` (recibe los datos y las etiquetas que acaba de asignar el modelo) y lo guarda en la lista.
+- `best_k = list(k_sil_range)[np.argmax(silhouette_avgs)]` → `np.argmax(...)` devuelve la **posición** del valor más alto dentro de `silhouette_avgs` (por ejemplo, "la tercera posición"), y `list(k_sil_range)[...]` traduce esa posición de vuelta al valor real de `k` que le corresponde (por ejemplo, "la tercera posición es `k=4`").
+- `print(f"Mejor k según Silhouette: k={best_k}  (Score={max(silhouette_avgs):.3f})")` → imprime el mejor `k` encontrado junto con su score de silhouette, redondeado a 3 decimales (`:.3f`).
 - **Resultado esperado**: el WCSS (inercia) cae fuerte hasta `k=3` y después se aplana — el "codo" coincide con los 3 climas reales que se usaron para generar los datos (tropical, templado, árido). El silhouette confirma lo mismo por otro camino: da su valor más alto también en `k=3`. Cuando las dos métricas coinciden en el mismo `k`, como acá, la elección queda mucho más respaldada que si se hubiera usado un solo criterio — y es exactamente lo que el propio notebook imprime al correr esta celda: *"Cuando codo y Silhouette coinciden en el mismo k → mayor confianza en la elección."*
 
 ### Aplicación práctica y relevancia en la industria *(Filmina 16)*
@@ -717,6 +719,12 @@ La correcta elección de `k` evita tanto la **sobresegmentación** (demasiados c
 **⚠️ Desalineación pendiente de decidir, entre la teoría (filminas/README) y este notebook**: el docx nuevo ya no incluye Clustering Jerárquico ni t-SNE como temas propios — por eso no tienen Módulo ni Filmina en esta guía. Pero este notebook **sí** los sigue teniendo, con código y gráficos completos. Eso significa que, tal como está hoy, en algún momento de la clase vas a correr código de un algoritmo (Jerárquico) que el grupo nunca vio explicado en ninguna filmina — puede generar la pregunta lógica de "¿y esto cuándo lo vimos?". Tres salidas posibles, a decidir: **(a)** sacar esas celdas del notebook para que quede 100% alineado con el docx; **(b)** dejarlas pero presentarlas en vivo como contenido "bonus" fuera de programa, aclarándolo explícitamente antes de correrlas; **(c)** agregar de nuevo un mini-resumen teórico de Jerárquico/t-SNE en las filminas, aunque el docx no lo pida. Por ahora el notebook se dejó intacto (opción b, de hecho, sin haberlo aclarado todavía en ningún lado) — falta definir esto.
 
 #### Dendrograma sobre una muestra
+
+**Qué es un dendrograma, antes de ver el código**: es un gráfico con forma de **árbol invertido** que muestra, paso a paso, cómo el Clustering Jerárquico va **fusionando** puntos en grupos cada vez más grandes, hasta que todo termina en un único cluster gigante. Se lee de abajo hacia arriba: abajo del todo, cada punto empieza siendo su propio cluster (si hay 60 ciudades, hay 60 "ramitas" sueltas); el algoritmo busca, en cada paso, el par de clusters **más parecidos entre sí** y los fusiona en uno solo, dibujando una línea horizontal que los une — y así sigue, fusionando de a pares, hasta llegar a la raíz del árbol arriba de todo, donde ya no queda más que un solo cluster con todos los puntos adentro.
+
+Lo más importante para saber leerlo: la **altura** a la que se produce cada fusión (el eje vertical) representa qué tan "lejos" (qué tan distintos) estaban esos dos clusters al momento de unirse. Una fusión que ocurre **bajo** en el gráfico une dos puntos o grupos muy parecidos entre sí; una fusión que ocurre **alto** une grupos que ya eran bastante distintos — fusionarlos "cuesta más", en términos de qué tan dispares son. Por eso, para decidir **cuántos clusters finales** quedarse, no hace falta volver a correr nada: alcanza con trazar una línea horizontal imaginaria a una altura determinada y contar cuántas ramas verticales corta esa línea — esas son las fusiones que *todavía no pasaron* a esa altura, y por lo tanto, los grupos que quedan separados en ese punto. Cortar "más abajo" da más clusters (más chicos, más parecidos entre sí); cortar "más arriba" da menos clusters (más grandes, más heterogéneos) — la misma tensión de sobresegmentación/subsegmentación que ya apareció con el `k` de K-Means, pero acá se decide *visualmente*, mirando dónde hay un "salto" grande en la altura entre una fusión y la siguiente, en vez de con un número que hay que fijar de antemano.
+
+**Una analogía fuera de Data Science**: pensalo como el árbol genealógico de una familia, pero al revés — en vez de arrancar de los abuelos y bajar hacia los nietos, el dendrograma arranca de cada persona suelta (los nietos, abajo) y va subiendo, uniendo primero a los hermanos entre sí (muy parecidos, se unen "bajo"), después esas familias chicas con sus primos (un poco menos parecidos, se unen "más arriba"), hasta llegar a un antepasado común arriba de todo que los engloba a todos. La "altura" de cada unión en el dendrograma es, más o menos, "qué tan lejano es el parentesco" entre los que se están uniendo en ese punto.
 
 **Para qué sirve esta parte del código**: toma una submuestra de 60 ciudades (de las 240 totales) del mismo dataset climático, y construye un dendrograma con linkage `ward` — menos puntos que con K-Means, a propósito, para que el árbol sea legible.
 
@@ -802,6 +810,7 @@ Y tres ejemplos del efecto de los parámetros, usando pedidos de delivery en un 
 
 ```python
 # Generar datos con forma no esférica (lunas)
+from sklearn.datasets import make_moons
 X_moons, y_moons_true = make_moons(n_samples=250, noise=0.1, random_state=42)
 
 # Escalar los datos (aunque DBSCAN es menos sensible a la escala que K-Means, sigue siendo buena práctica)
@@ -817,6 +826,7 @@ y_dbscan = dbscan.fit_predict(X_moons_scaled)
 ```
 
 **Línea por línea:**
+- `from sklearn.datasets import make_moons`: esta función **no** está entre los imports de la Configuración Inicial (a diferencia de `load_iris`, que se importa igual más adelante, en el Módulo 4) — se trae recién acá, justo antes de usarla.
 - `make_moons(n_samples=250, noise=0.1, random_state=42)` → función de scikit-learn pensada específicamente para generar esta forma de dos medialunas entrelazadas; `noise=0.1` agrega dispersión aleatoria para que no sean dos líneas perfectas sino algo más parecido a datos reales.
 - `DBSCAN(eps=0.3, min_samples=5).fit_predict(X_moons_scaled)` → corre el algoritmo con los valores de `eps` y `min_samples` elegidos a mano (el notebook mismo aclara, en un comentario, que encontrar buenos valores "puede requerir experimentación"); devuelve un array de etiquetas, una por punto, donde `-1` es ruido.
 - **Por qué acá no hay un k-distance plot calculado**: la teoría de esta misma filmina explica el método (calcular la distancia al k-ésimo vecino de cada punto, ordenarla, y buscar el "codo" de esa curva como candidato para `eps`) pero el notebook, para ir más rápido, directamente prueba con `eps=0.3` a mano. Armar el k-distance plot en código es un buen ejercicio extra para proponerle a la clase antes de mostrar estos valores ya elegidos: `from sklearn.neighbors import NearestNeighbors` → `NearestNeighbors(n_neighbors=5).fit(X_moons_scaled).kneighbors(X_moons_scaled)` da las distancias; `np.sort(distancias[:, -1])` las ordena para graficarlas y buscar el codo a ojo.
