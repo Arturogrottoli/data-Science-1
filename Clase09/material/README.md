@@ -553,53 +553,47 @@ Tres puntos de ejemplo, con la fórmula aplicada:
 - `a = 3`, `b = 1` → (1 − 3) / 3 = **−0,67**: el punto está más cerca del grupo vecino que del suyo. Casi seguro está mal asignado.
 
 Y tres lecturas del silhouette **promedio** de un modelo completo, como referencia orientativa:
-- Mayor a ~0,7 → estructura fuerte, grupos bien separados (como el ejemplo de `make_blobs` de abajo, que da 0,78).
+- Mayor a ~0,7 → estructura fuerte, grupos bien separados (como se espera del dataset climático sintético del ejemplo de abajo, armado a propósito con 3 grupos bien diferenciados).
 - Entre ~0,5 y 0,7 → estructura razonable, típica de datos reales "buenos" (el ejercicio de Mall Customers del Anexo cae acá).
 - Menor a ~0,25 → estructura débil o artificial: los grupos se solapan mucho, o directamente no hay grupos reales.
 
-A diferencia del método del codo (que es una lectura visual, algo subjetiva, de dónde "se frena" una curva), el silhouette da un **número único y objetivo** para comparar entre valores de `k` — por eso en la práctica se suelen usar los dos métodos en conjunto: el codo da una intuición rápida, y el silhouette confirma (o contradice) esa intuición con un criterio cuantitativo. Cuando ambos coinciden en el mismo `k` (como en el ejemplo de código de abajo, donde los dos señalan `k=4`), la elección queda mucho más respaldada que si se hubiera usado un solo criterio.
+A diferencia del método del codo (que es una lectura visual, algo subjetiva, de dónde "se frena" una curva), el silhouette da un **número único y objetivo** para comparar entre valores de `k` — por eso en la práctica se suelen usar los dos métodos en conjunto: el codo da una intuición rápida, y el silhouette confirma (o contradice) esa intuición con un criterio cuantitativo. Cuando ambos coinciden en el mismo `k` (como en el ejemplo de código de abajo, donde los dos señalan `k=3`), la elección queda mucho más respaldada que si se hubiera usado un solo criterio.
 
-🎯 **Ejemplo**: generar datos sintéticos con 4 grupos conocidos de antemano, "olvidarnos" de ese número, y recuperarlo con el método del codo y el silhouette.
+🎯 **Ejemplo**: este es el código **real** del Colab (`Clase09_aprendizaje no supervisado.ipynb`, documentado con más detalle en el Anexo) — el mismo dataset sintético de "ciudades" climáticas (240 puntos, 3 climas conocidos de antemano) que ya se armó al principio del módulo, acá usado para "olvidarnos" de ese 3 y recuperarlo con el método del codo y el silhouette.
 
 ```python
-import numpy as np
-from sklearn.datasets import make_blobs
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
+# Método del Codo — dataset climático
+inertia = []
+k_range = range(1, 11)
 
-# Datos sintéticos con 4 centros conocidos (en la práctica, no lo sabríamos)
-X, _ = make_blobs(n_samples=300, centers=4, cluster_std=1.1, random_state=42)
-X_scaled = StandardScaler().fit_transform(X)
+for k in k_range:
+    km_elbow = KMeans(n_clusters=k, random_state=42, n_init=10)
+    km_elbow.fit(X_clima_scaled)
+    inertia.append(km_elbow.inertia_)
+```
 
-# Método del codo: WCSS para k de 1 a 8
-wcss = []
-for k in range(1, 9):
-    km = KMeans(n_clusters=k, n_init=10, random_state=42)
-    km.fit(X_scaled)
-    wcss.append(km.inertia_)   # inertia_ = WCSS de ese modelo
+```python
+# ── Validación con Coeficiente Silhouette ─────────────────────────────────
+# Calculamos Silhouette Score para cada k y lo comparamos con el codo
 
-# Coeficiente silhouette: no se calcula para k=1 (no hay "otro cluster" con quien comparar)
-mejores = []
-for k in range(2, 9):
-    km = KMeans(n_clusters=k, n_init=10, random_state=42)
-    labels = km.fit_predict(X_scaled)
-    mejores.append((k, silhouette_score(X_scaled, labels)))
+silhouette_avgs = []
+k_sil_range = range(2, 11)  # Silhouette no aplica para k=1
 
-mejor_k = max(mejores, key=lambda par: par[1])[0]
-print(f"Mejor k según silhouette: {mejor_k}")
+for k in k_sil_range:
+    km = KMeans(n_clusters=k, random_state=42, n_init=10)
+    labels_k = km.fit_predict(X_clima_scaled)
+    silhouette_avgs.append(silhouette_score(X_clima_scaled, labels_k))
 
-# Modelo final con el k elegido
-kmeans_final = KMeans(n_clusters=mejor_k, n_init=10, random_state=42)
-etiquetas = kmeans_final.fit_predict(X_scaled)
+best_k = list(k_sil_range)[np.argmax(silhouette_avgs)]
+print(f"Mejor k según Silhouette: k={best_k}  (Score={max(silhouette_avgs):.3f})")
 ```
 
 **Línea por línea:**
-- `make_blobs(n_samples=300, centers=4, ...)` → genera 300 puntos repartidos en 4 grupos con forma esférica — el escenario "ideal" para K-Means.
-- `km.inertia_` → atributo de scikit-learn que ya trae calculado el WCSS del modelo ajustado; no hace falta calcularlo a mano.
-- `silhouette_score(X_scaled, labels)` → recibe los datos y las etiquetas de cluster que asignó el modelo, y devuelve el promedio del coeficiente silhouette de todos los puntos.
-- `max(mejores, key=lambda par: par[1])` → de la lista de tuplas `(k, silhouette)`, se queda con la que tiene el silhouette más alto.
-- **Resultado real**: el WCSS cae de 600 (`k=1`) a 74.6 (`k=3`) y a 20.9 (`k=4`) — ahí está el "codo", porque de `k=4` en adelante la mejora es marginal (18.7, 16.6, 14.7...). El silhouette confirma lo mismo de otra forma: da su valor más alto (0.778) exactamente en `k=4` — el mismo número de centros que usamos para generar los datos, recuperado sin haberlo usado en ningún momento del cálculo.
+- `inertia = []` / loop `for k in k_range` → entrena un K-Means **distinto** para cada `k` entre 1 y 10, y guarda `km_elbow.inertia_` (el WCSS ya calculado por scikit-learn, no hace falta hacer la cuenta a mano) en la lista `inertia`.
+- `k_sil_range = range(2, 11)` → arranca en 2, no en 1, porque el silhouette necesita al menos un segundo cluster contra el cual comparar la separación (con un solo cluster, no hay "vecino" posible).
+- `silhouette_score(X_clima_scaled, labels_k)` → recibe los datos y las etiquetas que asignó el modelo, y devuelve el promedio del coeficiente silhouette de todos los puntos, para ese `k`.
+- `np.argmax(silhouette_avgs)` → devuelve la **posición** del valor más alto de la lista; `list(k_sil_range)[...]` traduce esa posición de vuelta al valor real de `k` que le corresponde.
+- **Resultado esperado**: el WCSS (inercia) cae fuerte hasta `k=3` y después se aplana — el "codo" coincide con los 3 climas reales que se usaron para generar los datos (tropical, templado, árido). El silhouette confirma lo mismo por otro camino: da su valor más alto también en `k=3`. Cuando las dos métricas coinciden en el mismo `k`, como acá, la elección queda mucho más respaldada que si se hubiera usado un solo criterio — y es exactamente lo que el propio notebook imprime al correr esta celda: *"Cuando codo y Silhouette coinciden en el mismo k → mayor confianza en la elección."*
 
 ### Aplicación práctica y relevancia en la industria *(Filmina 16)*
 
@@ -683,45 +677,28 @@ Y tres ejemplos del efecto de los parámetros, usando pedidos de delivery en un 
 - **Astronomía**: agrupar estrellas o galaxias por densidad espacial para identificar cúmulos reales, dejando afuera como "ruido" a los objetos aislados que no pertenecen a ningún cúmulo.
 - **Redes sociales**: detectar comunidades de usuarios muy conectados entre sí, identificando al mismo tiempo a los usuarios aislados (bots, cuentas inactivas) que no encajan en ninguna comunidad real.
 
-🎯 **Ejemplo del PDF**: generar un dataset sintético con formas no convexas ("lunas"), blobs densos y ruido disperso, usar un **k-distance plot** para estimar `eps`, y correr DBSCAN.
+🎯 **Ejemplo**: este es el código **real** del Colab (`Clase09_aprendizaje no supervisado.ipynb`, documentado con más detalle en el Anexo) — genera "lunas" (dos semicírculos entrelazados, la forma no convexa donde K-Means falla) y corre DBSCAN directamente encima.
 
 ```python
-import numpy as np
-from sklearn.datasets import make_moons, make_blobs
-from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import NearestNeighbors
-from sklearn.cluster import DBSCAN
+# Generar datos con forma no esférica (lunas)
+X_moons, y_moons_true = make_moons(n_samples=250, noise=0.1, random_state=42)
 
-# Dataset de ejemplo: "lunas" (no convexas) + blobs (densos) + ruido disperso
-np.random.seed(42)
-X1, _ = make_moons(n_samples=300, noise=0.08)
-X2, _ = make_blobs(n_samples=150, centers=[(3, 3), (6, -1)], cluster_std=[0.3, 0.6])
-ruido = np.random.uniform(low=-3, high=8, size=(60, 2))
-X = np.vstack([X1, X2, ruido])
-X_scaled = StandardScaler().fit_transform(X)
+# Escalar los datos (aunque DBSCAN es menos sensible a la escala que K-Means, sigue siendo buena práctica)
+scaler_moons = StandardScaler()
+X_moons_scaled = scaler_moons.fit_transform(X_moons)
+```
 
-# k-distance plot: la distancia al k-ésimo vecino de cada punto, ordenada
-# El "codo" de esta curva es un buen candidato para eps
-k = 4  # suele usarse min_samples o min_samples - 1
-nbrs = NearestNeighbors(n_neighbors=k).fit(X_scaled)
-distancias, _ = nbrs.kneighbors(X_scaled)
-k_distancias = np.sort(distancias[:, -1])
-
-# DBSCAN con eps estimado a partir del codo del gráfico anterior
-db = DBSCAN(eps=0.20, min_samples=4)
-labels = db.fit_predict(X_scaled)   # label == -1 -> ruido
-
-n_clusters = len(set(labels) - {-1})
-n_ruido = list(labels).count(-1)
-print(f"Clusters encontrados: {n_clusters} | Puntos de ruido: {n_ruido}")
+```python
+# Aplicar DBSCAN
+# Encontrar buenos eps y min_samples puede requerir experimentación
+dbscan = DBSCAN(eps=0.3, min_samples=5)
+y_dbscan = dbscan.fit_predict(X_moons_scaled)
 ```
 
 **Línea por línea:**
-- `make_moons(...)` y `make_blobs(...)` → generan datos sintéticos con dos formas bien distintas: semicírculos entrelazados (no convexos, el punto débil de K-Means) y grupos densos y compactos.
-- `NearestNeighbors(n_neighbors=k).fit(...).kneighbors(...)` → para cada punto, calcula la distancia a sus `k` vecinos más cercanos; nos quedamos con la distancia al último (`[:, -1]`).
-- `np.sort(distancias[:, -1])` → ordena esas distancias de menor a mayor; graficada, esta curva muestra un "codo" que es el valor recomendado para `eps`.
-- `DBSCAN(eps=0.20, min_samples=4).fit_predict(X_scaled)` → corre el algoritmo; devuelve un array de etiquetas, una por punto, donde `-1` es ruido.
-- Corriendo este ejemplo en la práctica: **4 clusters** detectados (las dos lunas y los dos blobs) y **60 puntos** marcados como ruido — exactamente los que se generaron como ruido disperso a propósito.
+- `make_moons(n_samples=250, noise=0.1, random_state=42)` → función de scikit-learn pensada específicamente para generar esta forma de dos medialunas entrelazadas; `noise=0.1` agrega dispersión aleatoria para que no sean dos líneas perfectas sino algo más parecido a datos reales.
+- `DBSCAN(eps=0.3, min_samples=5).fit_predict(X_moons_scaled)` → corre el algoritmo con los valores de `eps` y `min_samples` elegidos a mano (el notebook mismo aclara, en un comentario, que encontrar buenos valores "puede requerir experimentación"); devuelve un array de etiquetas, una por punto, donde `-1` es ruido.
+- **Por qué acá no hay un k-distance plot calculado**: la teoría de esta misma filmina explica el método (calcular la distancia al k-ésimo vecino de cada punto, ordenarla, y buscar el "codo" de esa curva como candidato para `eps`) pero el notebook, para ir más rápido, directamente prueba con `eps=0.3` a mano. Armar el k-distance plot en código es un buen ejercicio extra para proponerle a la clase antes de mostrar estos valores ya elegidos: `from sklearn.neighbors import NearestNeighbors` → `NearestNeighbors(n_neighbors=5).fit(X_moons_scaled).kneighbors(X_moons_scaled)` da las distancias; `np.sort(distancias[:, -1])` las ordena para graficarlas y buscar el codo a ojo.
 
 ### Comparación: K-Means vs. DBSCAN *(Filmina 21)*
 
@@ -1064,34 +1041,49 @@ El aprendizaje no supervisado da el "qué" (los grupos, los componentes, las ano
 
 ### Configuración Inicial
 
-**Para qué sirve esta parte del código, para explicarle al grupo antes de mostrarla**: antes de poder usar cualquier herramienta, hay que "traerla" con `import` — esta celda no calcula nada todavía, solo prepara el terreno trayendo de una sola vez todo lo que se va a necesitar en el resto del notebook (los 3 algoritmos de clustering, las 2 técnicas de reducción de dimensionalidad, y las librerías de gráficos).
+**Para qué sirve esta parte del código, para explicarle al grupo antes de mostrarla**: antes de poder usar cualquier herramienta, hay que "traerla" con `import` — esta celda no calcula nada todavía, solo prepara el terreno trayendo de una sola vez todo lo que se va a necesitar en el resto del notebook (los 3 algoritmos de clustering, las 2 técnicas de reducción de dimensionalidad, las librerías de gráficos, y un par de ajustes de configuración para que esos gráficos salgan prolijos). El propio notebook ya viene con comentarios (las líneas que arrancan con `#`) que agrupan los imports por tema — son una ayuda para ubicarse, no código que se ejecute.
 
 ```python
+# Importación de librerías
 import pandas as pd
 import numpy as np
 
+# Para Clustering y Reducción de Dimensionalidad
 from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder # Para escalar datos numéricos y codificar categóricos si fuera necesario
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from sklearn.metrics import silhouette_score
+from sklearn.metrics import silhouette_score # Para evaluar clusters
 
+# Para visualización
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# Para clustering jerárquico y dendrogramas
 from scipy.cluster.hierarchy import dendrogram, linkage
+
+# Configuraciones adicionales para visualización
+%matplotlib inline
+sns.set(style="whitegrid")
 ```
 
 **Qué hace cada línea, y para qué sirve cada librería que trae**:
+- `# Importación de librerías`: comentario, no hace nada — es solo un título que el propio notebook se pone para marcar dónde empieza el bloque de imports.
 - `import pandas as pd`: Pandas maneja datos en forma de tabla (filas y columnas) — se usa más adelante para cargar el CSV de clientes del ejercicio final.
 - `import numpy as np`: NumPy es la librería base de Python para cálculo numérico y arrays — se usa para generar los datos sintéticos (climáticos) y para varias cuentas auxiliares a lo largo del notebook.
+- `# Para Clustering y Reducción de Dimensionalidad`: otro comentario-título, agrupa visualmente los 5 imports de Scikit-Learn que siguen.
 - `from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN`: trae los **3 algoritmos de clustering** de la clase en una sola línea — `KMeans` (Módulo 2), `AgglomerativeClustering` (el Jerárquico, que ya no tiene módulo teórico propio pero sigue en el notebook) y `DBSCAN` (Módulo 3).
-- `from sklearn.preprocessing import StandardScaler, OneHotEncoder`: `StandardScaler` escala variables numéricas (obligatorio antes de cualquier algoritmo que mida distancias — K-Means, Jerárquico, DBSCAN y PCA, los 4 lo necesitan); `OneHotEncoder` serviría para convertir una variable categórica (como texto) en números, pero **no se termina usando en este notebook** — queda importada por si hiciera falta más adelante.
+- `from sklearn.preprocessing import StandardScaler, OneHotEncoder # Para escalar datos numéricos y codificar categóricos si fuera necesario`: el comentario al final de la línea ya lo explica — `StandardScaler` escala variables numéricas (obligatorio antes de cualquier algoritmo que mida distancias: K-Means, Jerárquico, DBSCAN y PCA, los 4 lo necesitan); `OneHotEncoder` serviría para convertir una variable categórica (texto) en números, pero **no se termina usando en este notebook** — queda importada "por las dudas".
 - `from sklearn.decomposition import PCA`: trae la técnica de reducción de dimensionalidad lineal del Módulo 4.
 - `from sklearn.manifold import TSNE`: trae t-SNE, la técnica de reducción de dimensionalidad no lineal (contenido "bonus", sin módulo teórico propio).
-- `from sklearn.metrics import silhouette_score`: trae la métrica para medir qué tan bien separados y compactos quedan los clusters — la misma Filmina 15 (Módulo 2), ahora en código.
-- `import matplotlib.pyplot as plt` / `import seaborn as sns`: las dos librerías de gráficos que se usan en todo el notebook — Matplotlib es la base, Seaborn le agrega estilos más prolijos por defecto (`sns.set(style="whitegrid")`, un poco más abajo, es lo que le da el fondo con grilla a todos los gráficos).
+- `from sklearn.metrics import silhouette_score # Para evaluar clusters`: de nuevo, el comentario lo resume — trae la métrica para medir qué tan bien separados y compactos quedan los clusters, la misma Filmina 15 (Módulo 2), ahora en código.
+- `# Para visualización`: comentario-título para las 2 librerías de gráficos.
+- `import matplotlib.pyplot as plt` / `import seaborn as sns`: las dos librerías de gráficos que se usan en todo el notebook — Matplotlib es la base, Seaborn le agrega estilos más prolijos por defecto encima.
+- `# Para clustering jerárquico y dendrogramas`: comentario-título para el import de SciPy que sigue.
 - `from scipy.cluster.hierarchy import dendrogram, linkage`: específicas para el clustering Jerárquico — `linkage` calcula la estructura de fusiones, `dendrogram` la dibuja como árbol. Vienen de SciPy y no de Scikit-Learn porque **Scikit-Learn no tiene una función propia para dibujar dendrogramas** (solo trae `AgglomerativeClustering` para calcular los clusters finales, no para visualizar el árbol completo).
+- `# Configuraciones adicionales para visualización`: último comentario-título, agrupa las 2 líneas de ajuste que siguen (no son imports, son configuración).
+- `%matplotlib inline`: no es Python puro, es un "comando mágico" de Jupyter/Colab (arranca con `%`) — le dice al notebook que muestre los gráficos de Matplotlib **directamente debajo de la celda que los genera**, en vez de abrirlos en una ventana aparte. Sin esta línea, en algunos entornos los gráficos ni siquiera se llegan a ver.
+- `sns.set(style="whitegrid")`: configura, de una sola vez y para **todos** los gráficos que se hagan de ahí en adelante en el notebook, el estilo visual de Seaborn — `"whitegrid"` les pone un fondo blanco con una grilla tenue de referencia (más fácil de leer que el fondo gris por default de Matplotlib). Se ejecuta una sola vez acá arriba y queda aplicado para el resto del notebook, no hay que repetirlo en cada gráfico.
 
 ---
 
